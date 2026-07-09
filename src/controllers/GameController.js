@@ -26,6 +26,7 @@ export class GameController {
 
   #hasPlacedMarker;
   #currentStepState;
+  #allCityStreets;
 
   constructor(gameView, mapView, router) {
     this.#gameView = gameView;
@@ -36,6 +37,7 @@ export class GameController {
     this.#session = null;
     this.#hasPlacedMarker = false;
     this.#currentStepState = 'guessing';
+    this.#allCityStreets = [];
 
     this.#initEvents();
   }
@@ -61,14 +63,14 @@ export class GameController {
       this.#mapView.initMap(center, 14);
 
       const geojson = await this.#overpassService.fetchStreets(bbox);
-      const streets = geojson.features.filter(f => f.properties.name);
+      this.#allCityStreets = geojson.features.filter(f => f.properties.name);
 
-      if (streets.length === 0) {
+      if (this.#allCityStreets.length === 0) {
         throw new Error('No streets found in this region. Please try again.');
       }
 
       // Limit to 5 streets for a quick, child-friendly game
-      const selectedStreets = streets.slice(0, 5);
+      const selectedStreets = this.#allCityStreets.slice(0, 5);
 
       this.#session = new GameSession(playerName, cityKey, selectedStreets, selectedMode);
       this.#saveState();
@@ -95,11 +97,20 @@ export class GameController {
       return false;
     }
 
-    const cityCenter = this.#cityCenters[this.#session.city];
+    const cityKey = this.#session.city;
+    const cityCenter = this.#cityCenters[cityKey];
     this.#mapView.initMap(cityCenter, 14);
     this.#gameView.showScreen('game');
     this.#updateHUD();
     
+    // Background fetch streets for snapping
+    const bbox = this.#cityBboxes[cityKey];
+    this.#overpassService.fetchStreets(bbox).then(geojson => {
+      this.#allCityStreets = geojson.features.filter(f => f.properties.name);
+    }).catch(err => {
+      console.error('Failed to load city streets for snapping on resume', err);
+    });
+
     this.#loadNextQuestion();
     return true;
   }
@@ -146,28 +157,72 @@ export class GameController {
       this.#mapView.clearStreets();
       this.#mapView.setView(cityCenter, 14);
       this.#gameView.showBanner(true);
-      this.#gameView.setBannerStreetName(street.properties.name);
-      this.#gameView.setInstruction('Placez un marqueur sur la carte pour localiser la rue.');
+      this.#gameView.setInstruction(`📍 Placez un marqueur sur la carte pour trouver : ${street.properties.name}`);
     } else if (mode === 'identify') {
-      this.#gameView.showBanner(false);
       this.#mapView.renderStreet(street, true);
       const bounds = L.geoJSON(street.geometry).getBounds();
       if (bounds.isValid()) {
         this.#mapView.setView(bounds.getCenter(), 15);
       }
-      this.#gameView.setInstruction('Identifiez la rue en surbrillance. Saisissez son nom ci-dessous :');
+      this.#gameView.showBanner(true);
+      this.#gameView.setInstruction('🔎 Identifiez la rue en surbrillance. Saisissez son nom en bas :');
     }
   }
 
-  #handleMapClick(lat, lng) {
+  async #handleMapClick(lat, lng) {
     if (!this.#session) return;
 
     const mode = this.#session.currentMode;
     if (mode === 'identify' || this.#currentStepState !== 'guessing') return;
 
-    this.#mapView.placeTempMarker(lat, lng);
+    let targetLat = lat;
+    let targetLng = lng;
+    let selectedStreet = null;
+
+    // Place marker immediately at click point
+    this.#mapView.placeTempMarker(targetLat, targetLng);
+    this.#mapView.renderSelection(null, false);
     this.#hasPlacedMarker = true;
     this.#gameView.setActionsState('validate');
+
+    // 1. Try local cache first
+    if (this.#allCityStreets && this.#allCityStreets.length > 0) {
+      const closest = this.#spatialService.findClosestStreet(lat, lng, this.#allCityStreets);
+      if (closest && closest.point && closest.distance < 200) {
+        targetLat = closest.point[0];
+        targetLng = closest.point[1];
+        selectedStreet = closest.street;
+
+        this.#mapView.placeTempMarker(targetLat, targetLng);
+        this.#mapView.renderSelection(selectedStreet, true);
+        return;
+      }
+    }
+
+    // 2. Try fetching near the point dynamically (for streets outside initial bbox)
+    try {
+      const geojson = await this.#overpassService.fetchStreetNearPoint(lat, lng, 150);
+      if (geojson && geojson.features && geojson.features.length > 0) {
+        // Cache the fetched streets
+        geojson.features.forEach(feat => {
+          if (!this.#allCityStreets.some(s => s.properties.name === feat.properties.name)) {
+            this.#allCityStreets.push(feat);
+          }
+        });
+
+        const closest = this.#spatialService.findClosestStreet(lat, lng, geojson.features);
+        if (closest && closest.point && closest.distance < 150) {
+          targetLat = closest.point[0];
+          targetLng = closest.point[1];
+          selectedStreet = closest.street;
+
+          this.#mapView.placeTempMarker(targetLat, targetLng);
+          this.#mapView.renderSelection(selectedStreet, true);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch street near click point', e);
+    }
   }
 
   #validateGuess() {
@@ -182,12 +237,17 @@ export class GameController {
     const buffer = this.#spatialService.calculateBuffer(street.geometry, tolerance);
     const isCorrect = this.#spatialService.isPointInPolygon(latlng.lat, latlng.lng, buffer);
 
-    this.#mapView.showFeedback(latlng.lat, latlng.lng, isCorrect);
+    const nearest = this.#spatialService.getNearestPoint(latlng.lat, latlng.lng, street.geometry);
+
+    this.#mapView.showFeedbackLine(latlng.lat, latlng.lng, nearest[0], nearest[1], isCorrect);
     this.#mapView.renderStreet(street, true);
-    this.#mapView.fitToGuessAndStreet(latlng.lat, latlng.lng);
+    this.#mapView.fitToGuessAndStreet(latlng.lat, latlng.lng, nearest[0], nearest[1]);
 
     if (isCorrect) {
       this.#session.incrementScore(10);
+      this.#gameView.setInstruction(`✅ Excellent ! Le marqueur est bien placé.`);
+    } else {
+      this.#gameView.setInstruction(`❌ Raté. Voici le véritable emplacement.`);
     }
 
     this.#updateHUD();
@@ -212,6 +272,9 @@ export class GameController {
 
     if (isCorrect) {
       this.#session.incrementScore(15);
+      this.#gameView.setInstruction(`✅ Bonne réponse ! C'était bien : ${street.properties.name}`);
+    } else {
+      this.#gameView.setInstruction(`❌ Faux. La bonne réponse était : ${street.properties.name}`);
     }
 
     this.#mapView.renderStreet(street, true);

@@ -117,35 +117,34 @@
     </div>
 
     <div id="game-screen" class="screen">
-      <div class="game-container">
-        <aside class="sidebar">
-          <div class="instruction-box">
-            <h2>Objectif</h2>
-            <div id="game-instruction" class="instruction">Chargement...</div>
-          </div>
+      <div class="map-area">
+        <!-- Carte Leaflet -->
+        <div id="map"></div>
+        
+        <!-- UI Overlay Top -->
+        <div id="top-banner" class="ui-overlay-top glass-panel hidden">
+          <span id="game-instruction" class="instruction-text">Chargement...</span>
+        </div>
 
+        <!-- UI Overlay Top Right (Quit) -->
+        <div id="top-right-actions" class="ui-overlay-top-right">
+          <button id="quit-btn" class="quit-btn" title="Quitter la partie">🚪</button>
+        </div>
+
+        <!-- UI Overlay Bottom Center -->
+        <div id="bottom-actions" class="ui-overlay-bottom glass-panel hidden">
+          
           <div id="identify-input-container" class="input-container hidden">
             <input type="text" id="street-name-input" placeholder="Nom de la rue..." />
-            <button id="submit-answer-btn" class="btn">Valider</button>
+            <button id="submit-answer-btn" class="btn">Valider la réponse</button>
           </div>
 
-          <div id="game-actions" class="input-container">
-            <button id="validate-btn" class="btn hidden">🎯 Valider</button>
+          <div id="game-actions" class="action-buttons">
+            <button id="validate-btn" class="btn hidden">🎯 Valider l'emplacement</button>
             <button id="next-btn" class="btn hidden">⏭️ Rue Suivante</button>
           </div>
-
-          <div class="controls">
-            <button id="quit-btn" class="btn danger" style="width: 100%;">🚪 Quitter</button>
-          </div>
-        </aside>
-
-        <main class="map-area">
-          <div id="street-banner" class="street-banner hidden">
-            <span class="banner-label">À trouver :</span>
-            <span id="banner-street-name" class="banner-value">-</span>
-          </div>
-          <div id="map"></div>
-        </main>
+          
+        </div>
       </div>
     </div>
 

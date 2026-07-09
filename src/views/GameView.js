@@ -16,8 +16,8 @@ export class GameView {
   #certScore;
   #validateBtn;
   #nextBtn;
-  #streetBanner;
-  #bannerStreetName;
+  #topBanner;
+  #bottomActions;
 
   constructor() {
     this.#screens = {
@@ -48,8 +48,8 @@ export class GameView {
 
     this.#validateBtn = document.getElementById('validate-btn');
     this.#nextBtn = document.getElementById('next-btn');
-    this.#streetBanner = document.getElementById('street-banner');
-    this.#bannerStreetName = document.getElementById('banner-street-name');
+    this.#topBanner = document.getElementById('top-banner');
+    this.#bottomActions = document.getElementById('bottom-actions');
   }
 
   showScreen(screenName) {
@@ -62,11 +62,15 @@ export class GameView {
     });
 
     const navHud = document.getElementById('nav-hud');
+    const navLogoutBtn = document.getElementById('nav-logout-btn');
+    
     if (navHud) {
       if (screenName === 'game') {
         navHud.classList.remove('hidden');
+        if (navLogoutBtn) navLogoutBtn.classList.add('hidden');
       } else {
         navHud.classList.add('hidden');
+        if (navLogoutBtn) navLogoutBtn.classList.remove('hidden');
       }
     }
   }
@@ -262,14 +266,16 @@ export class GameView {
   }
 
   setBannerStreetName(name) {
-    this.#bannerStreetName.textContent = name;
+    // Feature merged into setInstruction in GameController
   }
 
   showBanner(visible) {
     if (visible) {
-      this.#streetBanner.classList.remove('hidden');
+      this.#topBanner.classList.remove('hidden');
+      this.#bottomActions.classList.remove('hidden');
     } else {
-      this.#streetBanner.classList.add('hidden');
+      this.#topBanner.classList.add('hidden');
+      this.#bottomActions.classList.add('hidden');
     }
   }
 

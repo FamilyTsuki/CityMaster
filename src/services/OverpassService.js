@@ -24,6 +24,20 @@ export class OverpassService {
     return this.#convertToGeoJSON(data);
   }
 
+  async fetchStreetNearPoint(lat, lng, radiusMeters = 150) {
+    const query = `[out:json][timeout:10];way(around:${radiusMeters},${lat},${lng})["highway"]["name"];out geom;`;
+    const response = await fetch('/api/overpass', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ query })
+    });
+    if (!response.ok) return null;
+    const data = await response.json();
+    return this.#convertToGeoJSON(data);
+  }
+
   #convertToGeoJSON(data) {
     const streetGroups = {};
     if (data && data.elements) {

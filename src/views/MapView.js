@@ -1,16 +1,20 @@
 export class MapView {
   #map;
   #streetLayer;
+  #selectionLayer;
   #clickCallback;
   #tempMarker;
   #feedbackMarkers;
+  #feedbackLine;
 
   constructor() {
     this.#map = null;
     this.#streetLayer = null;
+    this.#selectionLayer = null;
     this.#clickCallback = null;
     this.#tempMarker = null;
     this.#feedbackMarkers = [];
+    this.#feedbackLine = null;
   }
 
   initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14) {
@@ -21,7 +25,8 @@ export class MapView {
     }
 
     this.#map = L.map('map', {
-      zoomControl: false
+      zoomControl: false,
+      minZoom: 11
     }).setView(centerCoordinates, zoom);
 
     L.control.zoom({
@@ -42,6 +47,14 @@ export class MapView {
         color: '#06b6d4',
         weight: 4,
         opacity: 0.8
+      }
+    }).addTo(this.#map);
+
+    this.#selectionLayer = L.geoJSON(null, {
+      style: {
+        color: '#f59e0b',
+        weight: 6,
+        opacity: 0.7
       }
     }).addTo(this.#map);
 
@@ -84,19 +97,27 @@ export class MapView {
     }
   }
 
-  fitToGuessAndStreet(guessLat, guessLng) {
-    if (!this.#map || !this.#streetLayer) return;
-    const bounds = L.latLngBounds([guessLat, guessLng]);
-    const streetBounds = this.#streetLayer.getBounds();
-    if (streetBounds.isValid()) {
-      bounds.extend(streetBounds);
+  renderSelection(streetGeoJSON, visible = true) {
+    if (this.#selectionLayer) {
+      this.#selectionLayer.clearLayers();
     }
-    this.#map.fitBounds(bounds, { padding: [80, 80], maxZoom: 16 });
+    if (visible && streetGeoJSON) {
+      this.#selectionLayer.addData(streetGeoJSON);
+    }
+  }
+
+  fitToGuessAndStreet(guessLat, guessLng, targetLat, targetLng) {
+    if (!this.#map) return;
+    const bounds = L.latLngBounds([[guessLat, guessLng], [targetLat, targetLng]]);
+    this.#map.fitBounds(bounds, { padding: [100, 100], maxZoom: 16 });
   }
 
   clearStreets() {
     if (this.#streetLayer) {
       this.#streetLayer.clearLayers();
+    }
+    if (this.#selectionLayer) {
+      this.#selectionLayer.clearLayers();
     }
     this.clearTempMarker();
     this.clearFeedback();
@@ -115,9 +136,43 @@ export class MapView {
     this.#feedbackMarkers.push(marker);
   }
 
+  showFeedbackLine(guessLat, guessLng, targetLat, targetLng, isCorrect) {
+    this.clearFeedback();
+    if (this.#selectionLayer) {
+      this.#selectionLayer.clearLayers();
+    }
+    
+    // User guess
+    this.showFeedback(guessLat, guessLng, isCorrect);
+    
+    // Correct location (always green)
+    const targetMarker = L.circleMarker([targetLat, targetLng], {
+      radius: 8,
+      fillColor: '#10b981',
+      color: '#ffffff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.8
+    }).addTo(this.#map);
+    this.#feedbackMarkers.push(targetMarker);
+
+    // Connecting dashed line
+    const color = isCorrect ? '#10b981' : '#ef4444';
+    this.#feedbackLine = L.polyline([[guessLat, guessLng], [targetLat, targetLng]], {
+      color: color,
+      weight: 3,
+      dashArray: '5, 10',
+      opacity: 0.8
+    }).addTo(this.#map);
+  }
+
   clearFeedback() {
     this.#feedbackMarkers.forEach(marker => marker.remove());
     this.#feedbackMarkers = [];
+    if (this.#feedbackLine) {
+      this.#feedbackLine.remove();
+      this.#feedbackLine = null;
+    }
   }
 
   setView(center, zoom) {
