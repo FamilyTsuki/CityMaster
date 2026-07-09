@@ -1,0 +1,10 @@
+{
+  "modes": [
+    "target",
+    "identify",
+    "immersion"
+  ],
+  "pointsPerSuccess": 10,
+  "timeLimitSeconds": 60,
+  "passingScore": 80
+}

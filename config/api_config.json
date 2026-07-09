@@ -1,0 +1,7 @@
+{
+  "overpassUrl": "https://overpass-api.de/api/interpreter",
+  "mapillary": {
+    "clientId": "",
+    "accessToken": ""
+  }
+}
