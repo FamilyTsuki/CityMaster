@@ -4,10 +4,165 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CityMaster - Geographic Serious Game</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="assets/styles/style.css">
 </head>
 <body>
-  <div id="app"></div>
+  <nav id="main-nav" class="navbar">
+    <div class="navbar-brand">
+      <span class="logo-text">CityMaster</span>
+      <div id="nav-hud" class="hud hidden">
+        <div class="hud-item">
+          <span class="label">🎮 Mode:</span>
+          <span id="hud-mode" class="value">-</span>
+        </div>
+        <div class="hud-item">
+          <span class="label">🏆 Score:</span>
+          <span id="hud-score" class="value">0</span>
+        </div>
+      </div>
+    </div>
+    <div class="navbar-actions">
+      <button id="theme-toggle" class="theme-toggle" title="Changer de thème">🌙</button>
+      <div id="nav-auth-logged-out">
+        <button id="nav-login-btn" class="btn secondary">Se connecter</button>
+      </div>
+      <div id="nav-auth-logged-in" class="hidden">
+        <span id="nav-profile-name" class="profile-name"></span>
+        <button id="nav-logout-btn" class="btn danger">Se déconnecter</button>
+      </div>
+    </div>
+  </nav>
+
+  <div id="app">
+    <div id="landing-screen" class="screen active">
+      <div class="hero">
+        <h1 class="hero-title">Découvrez votre ville</h1>
+        <p class="hero-subtitle">Le jeu géographique qui vous fait explorer les rues de votre ville. Relevez les défis et enregistrez vos meilleurs scores !</p>
+        <button id="hero-play-btn" class="btn hero-btn">Jouer !</button>
+      </div>
+    </div>
+
+    <div id="auth-screen" class="screen">
+      <div class="card">
+        <h1 id="auth-title">Connexion</h1>
+        <p id="auth-subtitle">Connectez-vous pour enregistrer vos scores.</p>
+        <div class="form-group">
+          <label for="auth-username">👤 Nom d'utilisateur :</label>
+          <input type="text" id="auth-username" placeholder="Ex: Dupont" required />
+        </div>
+        <div class="form-group">
+          <label for="auth-password">🔒 Mot de passe :</label>
+          <input type="password" id="auth-password" placeholder="Votre mot de passe" required />
+        </div>
+        <div id="auth-error" class="error-msg hidden"></div>
+        <div class="auth-actions">
+          <button id="auth-main-btn" class="btn">Se connecter</button>
+          <div class="auth-link-container">
+            <span id="auth-switch-text" class="text-muted">Pas encore de compte ?</span>
+            <a href="#" id="auth-switch-link" class="auth-link">Créer un compte</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="welcome-screen" class="screen">
+      <div class="card">
+        <h1>CityMaster</h1>
+        <p>Maîtrisez la géographie de votre ville.</p>
+        <div class="form-group">
+          <label>Bienvenue, <span id="logged-in-user">Joueur</span> !</label>
+        </div>
+        <div class="form-group custom-select-container">
+          <label>Sélectionnez une ville :</label>
+          <input type="text" id="city-search" placeholder="Rechercher une ville..." autocomplete="off" />
+          <ul id="city-dropdown-list" class="dropdown-list hidden">
+            <li data-value="paris">Paris</li>
+            <li data-value="bordeaux">Bordeaux</li>
+            <li data-value="lyon">Lyon</li>
+            <li data-value="saint_cyr">Saint-Cyr-en-Val</li>
+          </ul>
+        </div>
+        
+        <div class="form-group custom-select-container">
+          <label>Mode de jeu :</label>
+          <input type="text" id="mode-search" readonly style="cursor: pointer;" />
+          <ul id="mode-dropdown-list" class="dropdown-list hidden">
+            <li data-value="target">🎯 Cible (Difficile)</li>
+            <li data-value="identify">🔎 Identification (Ultra Difficile)</li>
+          </ul>
+        </div>
+        <div id="game-error" class="error-msg hidden"></div>
+        <button id="start-btn" class="btn">🚀 Démarrer l'aventure</button>
+        
+        <div class="leaderboard-section">
+          <h3>🏆 Classement (Top 10)</h3>
+          <div class="leaderboard-container">
+            <table id="leaderboard-table" class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rang</th>
+                  <th>Joueur</th>
+                  <th>Score</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <tr><td colspan="4" class="text-center">Chargement...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="game-screen" class="screen">
+      <div class="game-container">
+        <aside class="sidebar">
+          <div class="instruction-box">
+            <h2>Objectif</h2>
+            <div id="game-instruction" class="instruction">Chargement...</div>
+          </div>
+
+          <div id="identify-input-container" class="input-container hidden">
+            <input type="text" id="street-name-input" placeholder="Nom de la rue..." />
+            <button id="submit-answer-btn" class="btn">Valider</button>
+          </div>
+
+          <div id="game-actions" class="input-container">
+            <button id="validate-btn" class="btn hidden">🎯 Valider</button>
+            <button id="next-btn" class="btn hidden">⏭️ Rue Suivante</button>
+          </div>
+
+          <div class="controls">
+            <button id="quit-btn" class="btn danger" style="width: 100%;">🚪 Quitter</button>
+          </div>
+        </aside>
+
+        <main class="map-area">
+          <div id="street-banner" class="street-banner hidden">
+            <span class="banner-label">À trouver :</span>
+            <span id="banner-street-name" class="banner-value">-</span>
+          </div>
+          <div id="map"></div>
+        </main>
+      </div>
+    </div>
+
+    <div id="certificate-screen" class="screen">
+      <div class="card certificate-card">
+        <h2>Partie Terminée</h2>
+        <p>Félicitations,</p>
+        <h1 id="cert-player-name">Player Name</h1>
+        <p>Votre score final est de :</p>
+        <h2 id="cert-score">0</h2>
+        <button id="restart-btn" class="btn">Nouvelle Partie</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
   <script type="module" src="../src/app.js"></script>
 </body>
 </html>
