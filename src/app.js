@@ -2,6 +2,7 @@ import { GameView } from './views/GameView.js';
 import { MapView } from './views/MapView.js';
 import { GameController } from './controllers/GameController.js';
 import { AuthController } from './controllers/AuthController.js';
+import { ProfileController } from './controllers/ProfileController.js';
 import { Router } from './Router.js';
 
 class App {
@@ -9,6 +10,7 @@ class App {
   #mapView;
   #controller;
   #authController;
+  #profileController;
   #router;
 
   constructor() {
@@ -27,14 +29,17 @@ class App {
         this.#gameView.showScreen('auth');
       },
       '/play': () => this.#showPlay(),
-      '/certificate': () => this.#gameView.showScreen('certificate')
+      '/certificate': () => this.#gameView.showScreen('certificate'),
+      '/profile': () => this.#profileController.loadProfile()
     });
 
     this.#authController = new AuthController(this.#router);
+    this.#profileController = new ProfileController(this.#router);
     this.#controller = new GameController(this.#gameView, this.#mapView, this.#router);
     
-    // Synchroniser l'interface utilisateur (Navbar) avec l'état de connexion dès le chargement
-    this.#authController.isAuthenticated();
+    if (this.#authController.isAuthenticated()) {
+      this.#profileController.fetchNavAvatar();
+    }
 
     this.#gameView.onHeroPlay(() => {
       if (this.#authController.isAuthenticated()) {
@@ -62,17 +67,16 @@ class App {
       return;
     }
     
-    // Si la partie vient d'être créée, hasActiveSession() est true.
-    // Sinon (ex: rafraîchissement de la page), on essaie de la restaurer.
     if (!this.#controller.hasActiveSession()) {
       if (!this.#controller.resumeGame()) {
-        // Aucune sauvegarde trouvée, on retourne au menu setup
         this.#router.navigate('/setup');
         return;
       }
+      return;
     }
     
     this.#gameView.showScreen('game');
+    this.#mapView.invalidateSize();
   }
 
   static init() {

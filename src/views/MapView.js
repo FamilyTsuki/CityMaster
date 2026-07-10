@@ -6,6 +6,8 @@ export class MapView {
   #tempMarker;
   #feedbackMarkers;
   #feedbackLine;
+  #boundaryRect;
+  #tileLayer;
 
   constructor() {
     this.#map = null;
@@ -15,32 +17,84 @@ export class MapView {
     this.#tempMarker = null;
     this.#feedbackMarkers = [];
     this.#feedbackLine = null;
+    this.#boundaryRect = null;
+    this.#tileLayer = null;
   }
 
-  initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14) {
+  initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14, bboxString = null) {
     if (this.#map) {
+      this.showMapLoader('Chargement de la carte...', true);
       this.#map.setView(centerCoordinates, zoom);
+      if (bboxString) {
+        const parts = bboxString.split(',').map(Number);
+        if (parts.length === 4) {
+          const bounds = L.latLngBounds([parts[0], parts[1]], [parts[2], parts[3]]);
+          this.#map.setMaxBounds(bounds);
+          const calculatedMinZoom = Math.max(12, this.#map.getBoundsZoom(bounds, true));
+          this.#map.setMinZoom(calculatedMinZoom);
+          
+          if (this.#boundaryRect) this.#boundaryRect.remove();
+          this.#boundaryRect = L.rectangle(bounds, {
+            color: '#3b82f6',
+            weight: 2,
+            fill: false,
+            dashArray: '5, 5'
+          }).addTo(this.#map);
+        }
+      } else {
+        this.#map.setMaxBounds(null);
+        this.#map.setMinZoom(12);
+        if (this.#boundaryRect) {
+          this.#boundaryRect.remove();
+          this.#boundaryRect = null;
+        }
+      }
       this.clearStreets();
-      return;
+      return this.#getTilesLoadedPromise();
     }
 
-    this.#map = L.map('map', {
+    const options = {
       zoomControl: false,
-      minZoom: 11
-    }).setView(centerCoordinates, zoom);
+      minZoom: 12,
+      maxBoundsViscosity: 1.0,
+      preferCanvas: true
+    };
+
+    if (bboxString) {
+      const parts = bboxString.split(',').map(Number);
+      if (parts.length === 4) {
+        options.maxBounds = L.latLngBounds([parts[0], parts[1]], [parts[2], parts[3]]);
+      }
+    }
+
+    this.#map = L.map('map', options).setView(centerCoordinates, zoom);
+
+    if (bboxString && options.maxBounds) {
+      const calculatedMinZoom = Math.max(12, this.#map.getBoundsZoom(options.maxBounds, true));
+      this.#map.setMinZoom(calculatedMinZoom);
+
+      this.#boundaryRect = L.rectangle(options.maxBounds, {
+        color: '#3b82f6',
+        weight: 2,
+        fill: false,
+        dashArray: '5, 5'
+      }).addTo(this.#map);
+    }
 
     L.control.zoom({
       position: 'bottomright'
     }).addTo(this.#map);
 
-    const isDark = document.body.getAttribute('data-theme') === 'dark';
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
     const tileUrl = isDark 
       ? 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'
       : 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
 
-    L.tileLayer(tileUrl, {
+    this.#tileLayer = L.tileLayer(tileUrl, {
       attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
     }).addTo(this.#map);
+
+    this.showMapLoader('Chargement de la carte...', true);
 
     this.#streetLayer = L.geoJSON(null, {
       style: {
@@ -63,6 +117,8 @@ export class MapView {
         this.#clickCallback(event.latlng.lat, event.latlng.lng);
       }
     });
+
+    return this.#getTilesLoadedPromise();
   }
 
   onClickMap(callback) {
@@ -142,10 +198,8 @@ export class MapView {
       this.#selectionLayer.clearLayers();
     }
     
-    // User guess
     this.showFeedback(guessLat, guessLng, isCorrect);
     
-    // Correct location (always green)
     const targetMarker = L.circleMarker([targetLat, targetLng], {
       radius: 8,
       fillColor: '#10b981',
@@ -156,7 +210,6 @@ export class MapView {
     }).addTo(this.#map);
     this.#feedbackMarkers.push(targetMarker);
 
-    // Connecting dashed line
     const color = isCorrect ? '#10b981' : '#ef4444';
     this.#feedbackLine = L.polyline([[guessLat, guessLng], [targetLat, targetLng]], {
       color: color,
@@ -177,5 +230,53 @@ export class MapView {
 
   setView(center, zoom) {
     this.#map.setView(center, zoom);
+  }
+
+  invalidateSize() {
+    if (this.#map) {
+      this.#map.invalidateSize();
+    }
+  }
+
+  showMapLoader(message = 'Chargement...', autoHide = false) {
+    const mapLoader = document.getElementById('map-loader');
+    const mapLoaderMessage = document.getElementById('map-loader-message');
+    if (!mapLoader) return;
+
+    if (mapLoaderMessage) {
+      mapLoaderMessage.textContent = message;
+    }
+    mapLoader.classList.remove('hidden');
+
+    if (autoHide) {
+      const hideFn = () => this.hideMapLoader();
+      if (this.#tileLayer) {
+        this.#tileLayer.once('load', hideFn);
+      }
+      setTimeout(hideFn, 1500);
+    }
+  }
+
+  hideMapLoader() {
+    const mapLoader = document.getElementById('map-loader');
+    if (mapLoader) {
+      mapLoader.classList.add('hidden');
+    }
+  }
+
+  #getTilesLoadedPromise() {
+    return new Promise((resolve) => {
+      if (!this.#tileLayer) {
+        resolve();
+        return;
+      }
+
+      const onTilesLoaded = () => {
+        resolve();
+      };
+
+      this.#tileLayer.once('load', onTilesLoaded);
+      setTimeout(onTilesLoaded, 1500);
+    });
   }
 }

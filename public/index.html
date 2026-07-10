@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CityMaster - Geographic Serious Game</title>
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="stylesheet" href="assets/styles/style.css">
 </head>
@@ -28,14 +36,17 @@
         <button id="nav-login-btn" class="btn secondary">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
-        <span id="nav-profile-name" class="profile-name"></span>
-        <button id="nav-logout-btn" class="btn danger">Se déconnecter</button>
+        <a href="#" id="nav-logout-btn" class="logout-link">Se déconnecter</a>
+        <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil">
+          <img id="nav-profile-img" src="assets/images/default-avatar.png" alt="Avatar" class="nav-avatar hidden" />
+          <span id="nav-profile-name" class="profile-name"></span>
+        </a>
       </div>
     </div>
   </nav>
 
   <div id="app">
-    <div id="landing-screen" class="screen active">
+    <div id="landing-screen" class="screen">
       <div class="hero">
         <h1 class="hero-title">Découvrez votre ville</h1>
         <p class="hero-subtitle">Le jeu géographique qui vous fait explorer les rues de votre ville. Relevez les défis et enregistrez vos meilleurs scores !</p>
@@ -120,6 +131,10 @@
       <div class="map-area">
         <!-- Carte Leaflet -->
         <div id="map"></div>
+        <div id="map-loader" class="map-overlay-loader">
+          <div class="loader-spinner"></div>
+          <p id="map-loader-message">Chargement de la carte...</p>
+        </div>
         
         <!-- UI Overlay Top -->
         <div id="top-banner" class="ui-overlay-top glass-panel hidden">
@@ -156,6 +171,38 @@
         <p>Votre score final est de :</p>
         <h2 id="cert-score">0</h2>
         <button id="restart-btn" class="btn">Nouvelle Partie</button>
+      </div>
+    </div>
+
+    <div id="profile-screen" class="screen">
+      <div class="card profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar-container">
+            <img id="profile-page-img" src="assets/images/default-avatar.png" alt="Mon Avatar" class="profile-avatar" />
+            <label for="profile-upload" class="upload-btn" title="Changer d'avatar">📷</label>
+            <input type="file" id="profile-upload" class="hidden" accept="image/png, image/jpeg, image/webp" />
+          </div>
+          <h1 id="profile-page-name">Joueur</h1>
+        </div>
+        
+        <div class="profile-stats">
+          <div class="stat-box">
+            <span class="stat-label">Score Total</span>
+            <span id="profile-total-score" class="stat-value">0</span>
+          </div>
+        </div>
+
+        <div id="profile-error" class="error-msg hidden"></div>
+        <div id="profile-success" class="success-msg hidden"></div>
+
+        <button id="profile-back-btn" class="btn secondary">Retour à l'accueil</button>
+      </div>
+    </div>
+
+    <div id="loading-screen" class="screen active">
+      <div class="loader-container">
+        <div class="loader-spinner"></div>
+        <p id="loading-message">Chargement de CityMaster...</p>
       </div>
     </div>
   </div>

@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 :root {
   --bg-main: #f3f4f6; /* Very light cool gray */
   --bg-card: #ffffff;
@@ -50,7 +48,7 @@ body {
   overflow: hidden;
   background-color: var(--bg-main);
   color: var(--text-main);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   display: flex;
@@ -126,6 +124,121 @@ body {
 .profile-name {
   font-weight: 600;
   color: var(--text-main);
+}
+
+.logout-link {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-decoration: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.logout-link:hover {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* PROFILE & NAV AVATAR */
+.profile-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.nav-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary);
+}
+
+.profile-card {
+  text-align: center;
+}
+
+.profile-header {
+  margin-bottom: 24px;
+}
+
+.profile-avatar-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+}
+
+.profile-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--primary);
+  background: var(--bg-card);
+}
+
+.upload-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--primary);
+  color: white;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s, background 0.2s;
+  font-size: 1.2rem;
+}
+
+.upload-btn:hover {
+  transform: scale(1.1);
+  background: var(--primary-hover);
+}
+
+.profile-stats {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.stat-box {
+  background: rgba(37, 99, 235, 0.1);
+  padding: 16px;
+  border-radius: 12px;
+  min-width: 120px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.success-msg {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  text-align: center;
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 /* LANDING SCREEN */
@@ -747,3 +860,14 @@ input[type="text"]:focus, input[type="password"]:focus, select:focus {
 .hud-item { background-color: rgba(37, 99, 235, 0.15); border: 1px solid var(--primary); color: var(--primary); padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; box-shadow: 0 0 10px rgba(37, 99, 235, 0.2); }
 [data-theme="dark"] .hud-item { background-color: rgba(96, 165, 250, 0.15); border-color: var(--primary-hover); color: var(--primary-hover); }
 .hud-item .value { font-weight: 800; }
+
+#loading-screen { display: none; align-items: center; justify-content: center; background: var(--bg-main); z-index: 9999; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; }
+#loading-screen.active { display: flex; }
+.loader-container { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 24px; }
+.loader-spinner { width: 64px; height: 64px; border: 5px solid rgba(37, 99, 235, 0.15); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; box-shadow: 0 0 15px rgba(37, 99, 235, 0.1); }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+#loading-message { font-size: 1.25rem; font-weight: 600; color: var(--text-main); text-shadow: var(--shadow-sm); }
+
+.map-overlay-loader { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-main); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.map-overlay-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.map-overlay-loader p { font-size: 1.1rem; font-weight: 600; color: var(--text-main); }

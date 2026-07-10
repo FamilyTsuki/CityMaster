@@ -78,7 +78,6 @@ export class GameSession {
     if (!jsonString) return null;
     try {
       const data = JSON.parse(jsonString);
-      // On passe un tableau vide pour streets car on l'écrase juste après
       const session = new GameSession(data.playerName, data.city, []);
       session.#streets = data.streets;
       session.#score = data.score;

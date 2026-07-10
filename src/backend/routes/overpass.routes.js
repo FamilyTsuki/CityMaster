@@ -2,6 +2,13 @@ import express from 'express';
 
 const router = express.Router();
 
+const OVERPASS_SERVERS = [
+  'https://overpass.kumi.systems/api/interpreter',
+  'https://overpass-api.de/api/interpreter',
+  'https://lz4.overpass-api.de/api/interpreter',
+  'https://z.overpass-api.de/api/interpreter'
+];
+
 router.post('/', async (req, res) => {
   try {
     const { query } = req.body;
@@ -10,25 +17,44 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Query is required' });
     }
 
-    // Appel serveur à serveur (Node.js -> Overpass) : cela contourne les problèmes de CORS du navigateur !
-    const response = await fetch('https://overpass-api.de/api/interpreter', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json, text/plain, */*',
-        'User-Agent': 'CityMaster/1.0 (Game Backend Node.js)'
-      },
-      body: `data=${encodeURIComponent(query)}`
-    });
+    let lastError = null;
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error('Overpass error:', text);
-      return res.status(response.status).json({ error: 'Failed to fetch from Overpass' });
+    for (const server of OVERPASS_SERVERS) {
+      try {
+        console.log(`Querying Overpass on: ${server}`);
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+        const response = await fetch(server, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json, text/plain, */*',
+            'User-Agent': 'CityMaster/1.0 (Game Backend Node.js)'
+          },
+          body: `data=${encodeURIComponent(query)}`,
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const data = await response.json();
+          return res.json(data);
+        } else {
+          const text = await response.text();
+          lastError = `Server ${server} returned ${response.status}: ${text}`;
+          console.warn(lastError);
+        }
+      } catch (err) {
+        lastError = `Failed to connect to ${server}: ${err.message}`;
+        console.warn(lastError);
+      }
     }
 
-    const data = await response.json();
-    res.json(data);
+    console.error('All Overpass servers failed:', lastError);
+    res.status(504).json({ error: 'Overpass servers timed out or returned errors. Please try again.' });
   } catch (error) {
     console.error('Proxy Overpass error:', error);
     res.status(500).json({ error: error.message });

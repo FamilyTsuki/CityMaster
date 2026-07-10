@@ -11,10 +11,10 @@ export class GameController {
   #router;
 
   #cityBboxes = {
-    paris: '48.84,2.32,48.86,2.36',
-    bordeaux: '44.82,-0.59,44.84,-0.55',
-    lyon: '45.74,4.83,45.76,4.87',
-    saint_cyr: '47.80,1.94,47.86,2.00'
+    paris: '48.835,2.315,48.875,2.375',
+    bordeaux: '44.815,-0.61,44.86,-0.54',
+    lyon: '45.73,4.81,45.78,4.88',
+    saint_cyr: '47.80,1.93,47.86,2.01'
   };
 
   #cityCenters = {
@@ -55,28 +55,29 @@ export class GameController {
 
   async #startGame(playerName, cityKey, selectedMode) {
     try {
-      this.#gameView.setInstruction('Chargement des données cartographiques...');
+      this.#gameView.showLoading('Chargement des données cartographiques...');
 
       const bbox = this.#cityBboxes[cityKey];
       const center = this.#cityCenters[cityKey];
 
-      this.#mapView.initMap(center, 14);
+      const mapReadyPromise = this.#mapView.initMap(center, 14, bbox);
+      const streetsPromise = this.#overpassService.fetchStreets(bbox);
 
-      const geojson = await this.#overpassService.fetchStreets(bbox);
+      const [_, geojson] = await Promise.all([mapReadyPromise, streetsPromise]);
       this.#allCityStreets = geojson.features.filter(f => f.properties.name);
 
       if (this.#allCityStreets.length === 0) {
         throw new Error('No streets found in this region. Please try again.');
       }
-
-      // Limit to 5 streets for a quick, child-friendly game
       const selectedStreets = this.#allCityStreets.slice(0, 5);
 
       this.#session = new GameSession(playerName, cityKey, selectedStreets, selectedMode);
       this.#saveState();
       
-      this.#router.navigate('/play');
       this.#loadNextQuestion();
+      setTimeout(() => {
+        this.#router.navigate('/play');
+      }, 100);
     } catch (error) {
       this.#gameView.showError(error.message);
       this.#router.navigate('/setup');
@@ -99,19 +100,31 @@ export class GameController {
 
     const cityKey = this.#session.city;
     const cityCenter = this.#cityCenters[cityKey];
-    this.#mapView.initMap(cityCenter, 14);
-    this.#gameView.showScreen('game');
-    this.#updateHUD();
-    
-    // Background fetch streets for snapping
     const bbox = this.#cityBboxes[cityKey];
-    this.#overpassService.fetchStreets(bbox).then(geojson => {
+
+    this.#gameView.showLoading('Restauration de votre partie...');
+
+    const mapReadyPromise = this.#mapView.initMap(cityCenter, 14, bbox);
+    this.#updateHUD();
+
+    const streetsPromise = this.#overpassService.fetchStreets(bbox);
+
+    Promise.all([mapReadyPromise, streetsPromise]).then(([_, geojson]) => {
       this.#allCityStreets = geojson.features.filter(f => f.properties.name);
+      this.#loadNextQuestion();
+      setTimeout(() => {
+        this.#gameView.showScreen('game');
+        this.#mapView.invalidateSize();
+      }, 100);
     }).catch(err => {
       console.error('Failed to load city streets for snapping on resume', err);
+      this.#loadNextQuestion();
+      setTimeout(() => {
+        this.#gameView.showScreen('game');
+        this.#mapView.invalidateSize();
+      }, 100);
     });
 
-    this.#loadNextQuestion();
     return true;
   }
 
@@ -179,50 +192,55 @@ export class GameController {
     let targetLng = lng;
     let selectedStreet = null;
 
-    // Place marker immediately at click point
+    // Placer le marqueur immédiatement pour un retour visuel instantané
     this.#mapView.placeTempMarker(targetLat, targetLng);
-    this.#mapView.renderSelection(null, false);
-    this.#hasPlacedMarker = true;
-    this.#gameView.setActionsState('validate');
+    
+    // Bloquer les clics multiples pendant le traitement (s'il y a un await)
+    this.#currentStepState = 'calculating';
 
-    // 1. Try local cache first
     if (this.#allCityStreets && this.#allCityStreets.length > 0) {
       const closest = this.#spatialService.findClosestStreet(lat, lng, this.#allCityStreets);
-      if (closest && closest.point && closest.distance < 200) {
+      if (closest && closest.point && closest.distance < 40) {
         targetLat = closest.point[0];
         targetLng = closest.point[1];
         selectedStreet = closest.street;
-
-        this.#mapView.placeTempMarker(targetLat, targetLng);
-        this.#mapView.renderSelection(selectedStreet, true);
-        return;
       }
-    }
-
-    // 2. Try fetching near the point dynamically (for streets outside initial bbox)
-    try {
-      const geojson = await this.#overpassService.fetchStreetNearPoint(lat, lng, 150);
-      if (geojson && geojson.features && geojson.features.length > 0) {
-        // Cache the fetched streets
-        geojson.features.forEach(feat => {
-          if (!this.#allCityStreets.some(s => s.properties.name === feat.properties.name)) {
-            this.#allCityStreets.push(feat);
+      
+      // Fallback uniqument si AUCUNE rue locale n'est trouvée très proche
+      if (!selectedStreet) {
+        try {
+          this.#mapView.showMapLoader('Recherche de la rue...', false);
+          const geojson = await this.#overpassService.fetchStreetNearPoint(lat, lng, 40);
+          if (geojson && geojson.features && geojson.features.length > 0) {
+            const closestAPI = this.#spatialService.findClosestStreet(lat, lng, geojson.features);
+            if (closestAPI && closestAPI.point && closestAPI.distance < 40) {
+              targetLat = closestAPI.point[0];
+              targetLng = closestAPI.point[1];
+              selectedStreet = closestAPI.street;
+              this.#allCityStreets.push(selectedStreet);
+            }
           }
-        });
-
-        const closest = this.#spatialService.findClosestStreet(lat, lng, geojson.features);
-        if (closest && closest.point && closest.distance < 150) {
-          targetLat = closest.point[0];
-          targetLng = closest.point[1];
-          selectedStreet = closest.street;
-
-          this.#mapView.placeTempMarker(targetLat, targetLng);
-          this.#mapView.renderSelection(selectedStreet, true);
+        } catch (e) {
+          console.error('Failed to fetch street near click point fallback', e);
+        } finally {
+          this.#mapView.hideMapLoader();
         }
       }
-    } catch (e) {
-      console.error('Failed to fetch street near click point', e);
     }
+
+    // Mettre à jour la position du marqueur sur la rue la plus proche
+    this.#mapView.placeTempMarker(targetLat, targetLng);
+    if (selectedStreet) {
+      this.#mapView.renderSelection(selectedStreet, true);
+    } else {
+      this.#mapView.renderSelection(null, false);
+    }
+    
+    this.#hasPlacedMarker = true;
+    this.#gameView.setActionsState('validate');
+    
+    // Rétablir l'état pour permettre de re-cliquer si on change d'avis
+    this.#currentStepState = 'guessing';
   }
 
   #validateGuess() {
@@ -233,9 +251,26 @@ export class GameController {
     const street = this.#session.getCurrentStreet();
     const mode = this.#session.currentMode;
 
-    const tolerance = 40;
-    const buffer = this.#spatialService.calculateBuffer(street.geometry, tolerance);
-    const isCorrect = this.#spatialService.isPointInPolygon(latlng.lat, latlng.lng, buffer);
+    const distance = this.#spatialService.getDistanceToStreet(latlng.lat, latlng.lng, street.geometry);
+    
+    let pointsEarned = 0;
+    let message = '';
+    let isCorrect = false;
+
+    if (distance <= 15) {
+      pointsEarned = 100;
+      isCorrect = true;
+      message = `✅ Parfait ! Vous êtes exactement sur la rue. (+100 pts)`;
+    } else if (distance <= 100) {
+      const ratio = 1 - ((distance - 15) / 85);
+      pointsEarned = Math.round(10 + (40 * ratio));
+      isCorrect = true;
+      message = `✅ Pas mal ! Vous êtes à ${Math.round(distance)}m de la rue. (+${pointsEarned} pts)`;
+    } else {
+      pointsEarned = 0;
+      isCorrect = false;
+      message = `❌ Raté. Vous étiez à ${Math.round(distance)}m. Voici le véritable emplacement.`;
+    }
 
     const nearest = this.#spatialService.getNearestPoint(latlng.lat, latlng.lng, street.geometry);
 
@@ -243,12 +278,11 @@ export class GameController {
     this.#mapView.renderStreet(street, true);
     this.#mapView.fitToGuessAndStreet(latlng.lat, latlng.lng, nearest[0], nearest[1]);
 
-    if (isCorrect) {
-      this.#session.incrementScore(10);
-      this.#gameView.setInstruction(`✅ Excellent ! Le marqueur est bien placé.`);
-    } else {
-      this.#gameView.setInstruction(`❌ Raté. Voici le véritable emplacement.`);
+    if (pointsEarned > 0) {
+      this.#session.incrementScore(pointsEarned);
     }
+    
+    this.#gameView.setInstruction(message);
 
     this.#updateHUD();
     this.#gameView.setActionsState('next');
@@ -300,12 +334,11 @@ export class GameController {
       });
 
       if (response.status === 401) {
-        // Token expiré ou invalide
         localStorage.removeItem('token');
         localStorage.removeItem('username');
         this.#gameView.showError('Session expirée. Veuillez vous reconnecter pour enregistrer votre score.');
         this.#router.navigate('/login');
-        return; // Ne pas effacer l'état du jeu pour pouvoir reprendre l'enregistrement !
+        return;
       }
     } catch (e) {
       console.error('Failed to post score', e);

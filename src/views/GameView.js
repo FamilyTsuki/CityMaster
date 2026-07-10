@@ -25,7 +25,8 @@ export class GameView {
       auth: document.getElementById('auth-screen'),
       welcome: document.getElementById('welcome-screen'),
       game: document.getElementById('game-screen'),
-      certificate: document.getElementById('certificate-screen')
+      certificate: document.getElementById('certificate-screen'),
+      loading: document.getElementById('loading-screen')
     };
 
     this.#citySelect = document.getElementById('city-select');
@@ -79,13 +80,12 @@ export class GameView {
     const searchInput = document.getElementById('city-search');
     const dropdownList = document.getElementById('city-dropdown-list');
     const listItems = dropdownList.querySelectorAll('li');
-    let selectedCity = localStorage.getItem('citymaster_last_city') || 'paris'; // Default
+    let selectedCity = localStorage.getItem('citymaster_last_city') || 'paris';
 
     searchInput.addEventListener('focus', () => {
       dropdownList.classList.remove('hidden');
     });
 
-    // Hide dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!searchInput.contains(e.target) && !dropdownList.contains(e.target)) {
         dropdownList.classList.add('hidden');
@@ -121,7 +121,6 @@ export class GameView {
       searchInput.value = defaultItem.textContent.trim();
     }
 
-    // --- Mode Dropdown Logic ---
     const modeInput = document.getElementById('mode-search');
     const modeList = document.getElementById('mode-dropdown-list');
     const modeItems = modeList.querySelectorAll('li');
@@ -152,7 +151,6 @@ export class GameView {
       defaultModeItem.classList.add('selected');
       modeInput.value = defaultModeItem.textContent.trim();
     }
-    // ---------------------------
 
     document.getElementById('start-btn').addEventListener('click', () => {
       this.#gameError.classList.add('hidden');
@@ -166,6 +164,14 @@ export class GameView {
   showError(message) {
     this.#gameError.textContent = message;
     this.#gameError.classList.remove('hidden');
+  }
+
+  showLoading(message = 'Chargement...') {
+    const loadingMessage = document.getElementById('loading-message');
+    if (loadingMessage) {
+      loadingMessage.textContent = message;
+    }
+    this.showScreen('loading');
   }
 
   onHeroPlay(callback) {
@@ -184,8 +190,6 @@ export class GameView {
       tbody.innerHTML = '<tr><td colspan="4" class="text-center">Aucun score pour le moment.</td></tr>';
       return;
     }
-    
-    // Top 10 only
     const topScores = scores.slice(0, 10);
     
     topScores.forEach((scoreData, index) => {
@@ -266,7 +270,6 @@ export class GameView {
   }
 
   setBannerStreetName(name) {
-    // Feature merged into setInstruction in GameController
   }
 
   showBanner(visible) {

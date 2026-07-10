@@ -21,7 +21,7 @@ router.post('/register', loginRateLimiter, async (req, res) => {
 
     res.status(201).json({ message: 'User registered successfully', id: result.rows[0].id });
   } catch (error) {
-    if (error.code === '23505') { // Postgres unique_violation error code
+    if (error.code === '23505') {
       return res.status(409).json({ error: 'Username already exists' });
     }
     res.status(500).json({ error: error.message });

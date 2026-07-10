@@ -32,8 +32,6 @@ export class AuthController {
     
     this.#loggedInUserSpan = document.getElementById('logged-in-user');
     this.#themeToggle = document.getElementById('theme-toggle');
-
-    // Navbar elements
     this.#navLoginBtn = document.getElementById('nav-login-btn');
     this.#navLogoutBtn = document.getElementById('nav-logout-btn');
     this.#navProfileName = document.getElementById('nav-profile-name');
@@ -64,9 +62,9 @@ export class AuthController {
     });
     
     this.#themeToggle.addEventListener('click', () => {
-      const currentTheme = document.body.getAttribute('data-theme');
+      const currentTheme = document.documentElement.getAttribute('data-theme');
       const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.body.setAttribute('data-theme', newTheme);
+      document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       this.#themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
     });
@@ -102,7 +100,7 @@ export class AuthController {
   _initTheme() {
     const savedTheme = localStorage.getItem('theme');
     if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.body.setAttribute('data-theme', 'dark');
+      document.documentElement.setAttribute('data-theme', 'dark');
       this.#themeToggle.textContent = '☀️';
     } else {
       this.#themeToggle.textContent = '🌙';
@@ -136,9 +134,8 @@ export class AuthController {
         localStorage.setItem('username', data.username);
         this.#usernameInput.value = '';
         this.#passwordInput.value = '';
-        this.#router.navigate('/');
+        window.location.href = '/';
       } else {
-        // Registration success, auto-login
         this._showError('Compte créé ! Connexion...', true);
         await this._handleAuth('/api/login');
       }
@@ -173,7 +170,7 @@ export class AuthController {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
-    this.isAuthenticated(); // to update navbar
+    this.isAuthenticated();
     this.#router.navigate('/');
   }
 }

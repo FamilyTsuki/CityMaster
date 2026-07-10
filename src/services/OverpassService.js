@@ -6,9 +6,28 @@ export class OverpassService {
   }
 
   async fetchStreets(bbox) {
-    const query = `[out:json][timeout:25];way["highway"]["name"](${bbox});out geom;`;
+    let cityKey = null;
+    if (bbox.includes('48.835')) cityKey = 'paris';
+    else if (bbox.includes('44.815')) cityKey = 'bordeaux';
+    else if (bbox.includes('45.73')) cityKey = 'lyon';
+    else if (bbox.includes('47.80')) cityKey = 'saint_cyr';
+
+    if (cityKey) {
+      try {
+        console.log(`Attempting to load static streets for ${cityKey}...`);
+        const response = await fetch(`/assets/data/${cityKey}.json`);
+        if (response.ok) {
+          const geojson = await response.json();
+          console.log(`Loaded static streets for ${cityKey} successfully!`);
+          return geojson;
+        }
+      } catch (err) {
+        console.warn(`Could not load static streets for ${cityKey}, falling back to Overpass API`, err);
+      }
+    }
+
+    const query = `[out:json][timeout:25];way["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["name"](${bbox});out geom;`;
     
-    // On appelle notre propre serveur backend qui va faire la requête à notre place
     const response = await fetch('/api/overpass', {
       method: 'POST',
       headers: {

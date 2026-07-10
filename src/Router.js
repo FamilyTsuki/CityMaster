@@ -26,7 +26,6 @@ export class Router {
     let matchedRoute = this.#routes[path];
     
     if (!matchedRoute) {
-      // Default fallback
       matchedRoute = this.#routes['/'];
       if (!matchedRoute) return;
     }
