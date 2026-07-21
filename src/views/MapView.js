@@ -21,8 +21,15 @@ export class MapView {
     this.#tileLayer = null;
   }
 
-  initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14, bboxString = null) {
+  initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14, bboxString = null, hideLabels = false) {
+    const tileUrl = hideLabels
+      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+
     if (this.#map) {
+      if (this.#tileLayer) {
+        this.#tileLayer.setUrl(tileUrl);
+      }
       this.showMapLoader('Chargement de la carte...', true);
       this.#map.setView(centerCoordinates, zoom);
       if (bboxString) {
@@ -85,20 +92,17 @@ export class MapView {
       position: 'bottomright'
     }).addTo(this.#map);
 
-    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-    const tileUrl = isDark 
-      ? 'https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png';
-
     this.#tileLayer = L.tileLayer(tileUrl, {
-      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      subdomains: 'abcd',
+      maxZoom: 20
     }).addTo(this.#map);
 
     this.showMapLoader('Chargement de la carte...', true);
 
     this.#streetLayer = L.geoJSON(null, {
       style: {
-        color: '#06b6d4',
+        color: '#2563eb',
         weight: 4,
         opacity: 0.8
       }
@@ -106,7 +110,7 @@ export class MapView {
 
     this.#selectionLayer = L.geoJSON(null, {
       style: {
-        color: '#f59e0b',
+        color: '#10b981',
         weight: 6,
         opacity: 0.7
       }

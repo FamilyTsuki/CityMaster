@@ -1,0 +1,182 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { City } from '../models/City.js';
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+
+const OVERPASS_SERVERS = [
+  'https://overpass-api.de/api/interpreter',
+  'https://lz4.overpass-api.de/api/interpreter',
+  'https://z.overpass-api.de/api/interpreter',
+  'https://overpass.kumi.systems/api/interpreter'
+];
+
+export class CityController {
+  static async getCities(req, res) {
+    try {
+      const query = req.query.q || '';
+      const cities = await City.search(query);
+      res.json(cities);
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+  static convertToGeoJSON(data, bboxLimits = null) {
+    const streetGroups = {};
+    if (data && data.elements) {
+      for (const element of data.elements) {
+        if (element.type === 'way' && element.geometry && element.tags) {
+          const name = element.tags.name || element.tags.ref;
+          if (!name) continue;
+
+          const coords = [];
+          for (const point of element.geometry) {
+            if (bboxLimits) {
+              if (point.lat < bboxLimits.minLat || point.lat > bboxLimits.maxLat ||
+                  point.lon < bboxLimits.minLng || point.lon > bboxLimits.maxLng) {
+                continue;
+              }
+            }
+            coords.push([point.lon, point.lat]);
+          }
+
+          if (coords.length < 2) continue;
+
+          if (!streetGroups[name]) {
+            streetGroups[name] = [];
+          }
+          streetGroups[name].push(coords);
+        }
+      }
+    }
+
+    const features = Object.entries(streetGroups).map(([name, coordsList], index) => {
+      return {
+        type: 'Feature',
+        id: index,
+        properties: {
+          name: name
+        },
+        geometry: {
+          type: 'MultiLineString',
+          coordinates: coordsList
+        }
+      };
+    });
+
+    return {
+      type: 'FeatureCollection',
+      features: features
+    };
+  }
+
+  static async generateCity(req, res) {
+    try {
+      const { cityKey, name, osmId, bbox } = req.body;
+
+      if (!cityKey || !name || !osmId) {
+        return res.status(400).json({ error: 'cityKey, name, and osmId are required' });
+      }
+
+      if (typeof cityKey !== 'string' || !/^[a-z0-9_]+$/.test(cityKey)) {
+        return res.status(400).json({ error: 'Invalid cityKey' });
+      }
+
+      const parsedOsmId = Number(osmId);
+      if (!Number.isInteger(parsedOsmId) || parsedOsmId <= 0) {
+        return res.status(400).json({ error: 'Invalid osmId' });
+      }
+
+      let bboxLimits = null;
+      if (bbox) {
+        if (typeof bbox !== 'string' || !/^-?\d+(\.\d+)?,-?\d+(\.\d+)?,-?\d+(\.\d+)?,-?\d+(\.\d+)?$/.test(bbox)) {
+          return res.status(400).json({ error: 'Invalid bbox format' });
+        }
+        const parts = bbox.split(',').map(Number);
+        if (parts.length === 4) {
+          bboxLimits = {
+            minLat: Math.min(parts[0], parts[2]),
+            maxLat: Math.max(parts[0], parts[2]),
+            minLng: Math.min(parts[1], parts[3]),
+            maxLng: Math.max(parts[1], parts[3])
+          };
+        }
+      }
+
+      const publicDataDir = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data');
+      if (!fs.existsSync(publicDataDir)) {
+        fs.mkdirSync(publicDataDir, { recursive: true });
+      }
+
+      const outputPath = path.join(publicDataDir, `${cityKey}.json`);
+
+      if (fs.existsSync(outputPath)) {
+        console.log(`City ${cityKey} is already generated.`);
+        return res.json({ success: true, cached: true });
+      }
+
+      console.log(`Generating data for ${name} (OSM ID: ${parsedOsmId}) -> ${cityKey}.json`);
+
+      const relId = parsedOsmId > 3600000000 ? parsedOsmId - 3600000000 : parsedOsmId;
+      const query = `[out:json][timeout:30];
+        relation(${relId});map_to_area->.a;
+        (
+          way(area.a)["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["name"];
+          way(area.a)["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["ref"];
+        );
+        out geom;`;
+
+      let success = false;
+      let lastError = null;
+      let geojson = null;
+
+      for (const server of OVERPASS_SERVERS) {
+        try {
+          console.log(`Trying ${server} for ${cityKey}...`);
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+          const response = await fetch(server, {
+            method: 'POST',
+            body: `data=${encodeURIComponent(query)}`,
+            headers: { 
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Accept': 'application/json, text/plain, */*',
+              'User-Agent': 'CityMaster/1.0 (Game Backend Node.js)'
+            },
+            signal: controller.signal
+          });
+
+          clearTimeout(timeoutId);
+
+          if (!response.ok) {
+            throw new Error(`Status ${response.status}`);
+          }
+
+          const data = await response.json();
+          geojson = CityController.convertToGeoJSON(data, bboxLimits);
+          success = true;
+          break;
+        } catch (error) {
+          lastError = error;
+          console.warn(`Failed on ${server} for ${cityKey}: ${error.message}`);
+        }
+      }
+
+      if (!success) {
+        console.error(`Failed to generate streets for ${cityKey}:`, lastError);
+        return res.status(502).json({ error: `Failed to fetch map data from Overpass API: ${lastError.message}` });
+      }
+
+      fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2), 'utf8');
+      console.log(`Saved ${geojson.features.length} streets to ${outputPath}`);
+      res.json({ success: true, cached: false, streetCount: geojson.features.length });
+    } catch (error) {
+      console.error('Error generating city:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+}

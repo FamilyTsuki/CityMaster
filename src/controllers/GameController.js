@@ -5,32 +5,28 @@ import { SpatialService } from '../services/SpatialService.js';
 export class GameController {
   #gameView;
   #mapView;
+  #certificateView;
+  #scoreController;
   #spatialService;
   #overpassService;
   #session;
   #router;
 
-  #cityBboxes = {
-    paris: '48.835,2.315,48.875,2.375',
-    bordeaux: '44.815,-0.61,44.86,-0.54',
-    lyon: '45.73,4.81,45.78,4.88',
-    saint_cyr: '47.80,1.93,47.86,2.01'
-  };
 
-  #cityCenters = {
-    paris: [48.8566, 2.3522],
-    bordeaux: [44.8378, -0.5792],
-    lyon: [45.75, 4.85],
-    saint_cyr: [47.83, 1.97]
-  };
 
   #hasPlacedMarker;
   #currentStepState;
   #allCityStreets;
+  #activeAbortController;
+  #timerInterval;
+  #totalTime;
+  #remainingTime;
 
-  constructor(gameView, mapView, router) {
+  constructor(gameView, mapView, certificateView, scoreController, router) {
     this.#gameView = gameView;
     this.#mapView = mapView;
+    this.#certificateView = certificateView;
+    this.#scoreController = scoreController;
     this.#router = router;
     this.#spatialService = new SpatialService();
     this.#overpassService = new OverpassService();
@@ -38,12 +34,16 @@ export class GameController {
     this.#hasPlacedMarker = false;
     this.#currentStepState = 'guessing';
     this.#allCityStreets = [];
+    this.#activeAbortController = null;
+    this.#timerInterval = null;
+    this.#totalTime = 90;
+    this.#remainingTime = 0;
 
     this.#initEvents();
   }
 
   #initEvents() {
-    this.#gameView.onStart((name, city, mode) => this.#startGame(name, city, mode));
+    this.#gameView.onStart((name, city, mode, difficultyOptions) => this.#startGame(name, city, mode, difficultyOptions));
     this.#gameView.onSubmitAnswer((answer) => this.#checkTextAnswer(answer));
     this.#gameView.onValidate(() => this.#validateGuess());
     this.#gameView.onNextStreet(() => this.#nextStreet());
@@ -53,25 +53,79 @@ export class GameController {
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
   }
 
-  async #startGame(playerName, cityKey, selectedMode) {
+  async #startGame(playerName, cityData, selectedMode, difficulty = 'hard') {
     try {
+      const cityKey = cityData.key;
+      const bbox = cityData.bbox;
+      const center = cityData.center;
+
+      this.#gameView.showLoading('Génération des données cartographiques (cela peut prendre quelques secondes)...');
+
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+      const generateResponse = await fetch('/api/cities/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers
+        },
+        body: JSON.stringify({
+          cityKey: cityKey,
+          name: cityData.name,
+          osmId: cityData.osmId,
+          bbox: bbox
+        })
+      });
+
+      if (!generateResponse.ok) {
+        const errData = await generateResponse.json();
+        throw new Error(errData.error || 'Erreur lors de la génération de la ville');
+      }
+
+      this.#gameView.showLoading('Initialisation de la session de jeu sécurisée...');
+
+      const startResponse = await fetch('/api/game/start', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...headers
+        },
+        body: JSON.stringify({
+          cityKey,
+          mode: selectedMode,
+          difficulty
+        })
+      });
+
+      if (!startResponse.ok) {
+        const errData = await startResponse.json();
+        throw new Error(errData.error || 'Erreur lors du démarrage du jeu');
+      }
+
+      const startData = await startResponse.json();
+
       this.#gameView.showLoading('Chargement des données cartographiques...');
 
-      const bbox = this.#cityBboxes[cityKey];
-      const center = this.#cityCenters[cityKey];
-
-      const mapReadyPromise = this.#mapView.initMap(center, 14, bbox);
-      const streetsPromise = this.#overpassService.fetchStreets(bbox);
+      const hideLabels = selectedMode === 'target';
+      const mapReadyPromise = this.#mapView.initMap(center, 14, bbox, hideLabels);
+      const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
 
       const [_, geojson] = await Promise.all([mapReadyPromise, streetsPromise]);
+      
       this.#allCityStreets = geojson.features.filter(f => f.properties.name);
-
+      
       if (this.#allCityStreets.length === 0) {
         throw new Error('No streets found in this region. Please try again.');
       }
-      const selectedStreets = this.#allCityStreets.slice(0, 5);
 
-      this.#session = new GameSession(playerName, cityKey, selectedStreets, selectedMode);
+      this.#session = new GameSession(
+        playerName,
+        cityData,
+        selectedMode,
+        startData.gameToken,
+        startData.nextPrompt
+      );
       this.#saveState();
       
       this.#loadNextQuestion();
@@ -82,6 +136,68 @@ export class GameController {
       this.#gameView.showError(error.message);
       this.#router.navigate('/setup');
     }
+  }
+
+  #startRoundTimer() {
+    this.#stopRoundTimer();
+
+    const difficulty = localStorage.getItem('citymaster_last_difficulty') || 'hard';
+    if (difficulty === 'easy') {
+      this.#totalTime = 45;
+    } else if (difficulty === 'medium') {
+      this.#totalTime = 60;
+    } else {
+      this.#totalTime = 90;
+    }
+
+    this.#remainingTime = this.#totalTime;
+    this.#gameView.showTimer();
+    this.#gameView.updateTimer(this.#remainingTime, this.#totalTime);
+
+    this.#timerInterval = setInterval(() => {
+      this.#remainingTime -= 0.1;
+      if (this.#remainingTime <= 0) {
+        this.#remainingTime = 0;
+        this.#stopRoundTimer();
+        
+        if (this.#session && this.#currentStepState === 'guessing') {
+          if (this.#session.currentMode === 'target') {
+            this.#validateGuess(true);
+          } else if (this.#session.currentMode === 'sprint') {
+            // Sprint timeout submits null guess
+            this.#submitRoundToBackend(null, this.#totalTime).then(result => {
+              this.#session.gameToken = result.gameToken;
+              this.#session.score = result.totalScore;
+              this.#session.sprintHistory = result.sprintHistory;
+              this.#session.setFinished(result.isFinished);
+              this.#session.currentPrompt = result.nextPrompt;
+
+              this.#saveState();
+
+              if (result.isFinished) {
+                this.#endGame();
+              } else {
+                this.#loadNextQuestion();
+              }
+            }).catch(err => {
+              this.#gameView.showError(err.message);
+            });
+          } else {
+            this.#checkTextAnswer("", true);
+          }
+        }
+      } else {
+        this.#gameView.updateTimer(this.#remainingTime, this.#totalTime);
+      }
+    }, 100);
+  }
+
+  #stopRoundTimer() {
+    if (this.#timerInterval) {
+      clearInterval(this.#timerInterval);
+      this.#timerInterval = null;
+    }
+    this.#gameView.hideTimer();
   }
 
   hasActiveSession() {
@@ -98,16 +214,18 @@ export class GameController {
       return false;
     }
 
-    const cityKey = this.#session.city;
-    const cityCenter = this.#cityCenters[cityKey];
-    const bbox = this.#cityBboxes[cityKey];
+    const city = this.#session.city;
+    const cityKey = city.key;
+    const bbox = city.bbox;
+    const cityCenter = city.center;
 
     this.#gameView.showLoading('Restauration de votre partie...');
 
-    const mapReadyPromise = this.#mapView.initMap(cityCenter, 14, bbox);
+    const hideLabels = this.#session.currentMode === 'target';
+    const mapReadyPromise = this.#mapView.initMap(cityCenter, 14, bbox, hideLabels);
     this.#updateHUD();
 
-    const streetsPromise = this.#overpassService.fetchStreets(bbox);
+    const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
 
     Promise.all([mapReadyPromise, streetsPromise]).then(([_, geojson]) => {
       this.#allCityStreets = geojson.features.filter(f => f.properties.name);
@@ -118,11 +236,8 @@ export class GameController {
       }, 100);
     }).catch(err => {
       console.error('Failed to load city streets for snapping on resume', err);
-      this.#loadNextQuestion();
-      setTimeout(() => {
-        this.#gameView.showScreen('game');
-        this.#mapView.invalidateSize();
-      }, 100);
+      this.#clearState();
+      this.#router.navigate('/setup');
     });
 
     return true;
@@ -154,7 +269,7 @@ export class GameController {
       return;
     }
 
-    const street = this.#session.getCurrentStreet();
+    const prompt = this.#session.currentPrompt;
     const mode = this.#session.currentMode;
 
     this.#hasPlacedMarker = false;
@@ -164,25 +279,31 @@ export class GameController {
     this.#updateHUD();
     this.#saveState();
 
-    const cityCenter = this.#cityCenters[this.#session.city];
+    const cityCenter = this.#session.city.center;
 
-    if (mode === 'target') {
+    if (mode === 'target' || mode === 'sprint') {
       this.#mapView.clearStreets();
       this.#mapView.setView(cityCenter, 14);
       this.#gameView.showBanner(true);
-      this.#gameView.setInstruction(`📍 Placez un marqueur sur la carte pour trouver : ${street.properties.name}`);
+      if (mode === 'sprint') {
+        this.#gameView.setInstruction(`⚡ SPRINT ! Trouvez au plus vite : ${prompt.streetName}`);
+      } else {
+        this.#gameView.setInstruction(`📍 Placez un marqueur sur la carte pour trouver : ${prompt.streetName}`);
+      }
     } else if (mode === 'identify') {
-      this.#mapView.renderStreet(street, true);
-      const bounds = L.geoJSON(street.geometry).getBounds();
+      this.#mapView.renderStreet(prompt.geometry, true);
+      const bounds = L.geoJSON(prompt.geometry).getBounds();
       if (bounds.isValid()) {
         this.#mapView.setView(bounds.getCenter(), 15);
       }
       this.#gameView.showBanner(true);
       this.#gameView.setInstruction('🔎 Identifiez la rue en surbrillance. Saisissez son nom en bas :');
     }
+
+    this.#startRoundTimer();
   }
 
-  async #handleMapClick(lat, lng) {
+  #handleMapClick(lat, lng) {
     if (!this.#session) return;
 
     const mode = this.#session.currentMode;
@@ -192,43 +313,43 @@ export class GameController {
     let targetLng = lng;
     let selectedStreet = null;
 
-    // Placer le marqueur immédiatement pour un retour visuel instantané
     this.#mapView.placeTempMarker(targetLat, targetLng);
-    
-    // Bloquer les clics multiples pendant le traitement (s'il y a un await)
-    this.#currentStepState = 'calculating';
+    this.#mapView.renderSelection(null, false);
 
     if (this.#allCityStreets && this.#allCityStreets.length > 0) {
       const closest = this.#spatialService.findClosestStreet(lat, lng, this.#allCityStreets);
-      if (closest && closest.point && closest.distance < 40) {
+      if (closest && closest.point && closest.distance < 120) {
         targetLat = closest.point[0];
         targetLng = closest.point[1];
         selectedStreet = closest.street;
       }
-      
-      // Fallback uniqument si AUCUNE rue locale n'est trouvée très proche
-      if (!selectedStreet) {
-        try {
-          this.#mapView.showMapLoader('Recherche de la rue...', false);
-          const geojson = await this.#overpassService.fetchStreetNearPoint(lat, lng, 40);
-          if (geojson && geojson.features && geojson.features.length > 0) {
-            const closestAPI = this.#spatialService.findClosestStreet(lat, lng, geojson.features);
-            if (closestAPI && closestAPI.point && closestAPI.distance < 40) {
-              targetLat = closestAPI.point[0];
-              targetLng = closestAPI.point[1];
-              selectedStreet = closestAPI.street;
-              this.#allCityStreets.push(selectedStreet);
-            }
-          }
-        } catch (e) {
-          console.error('Failed to fetch street near click point fallback', e);
-        } finally {
-          this.#mapView.hideMapLoader();
-        }
-      }
     }
 
-    // Mettre à jour la position du marqueur sur la rue la plus proche
+    if (mode === 'sprint') {
+      this.#stopRoundTimer();
+      const elapsedSeconds = this.#totalTime - this.#remainingTime;
+      const guess = selectedStreet ? { lat: targetLat, lng: targetLng } : null;
+
+      this.#submitRoundToBackend(guess, elapsedSeconds).then(result => {
+        this.#session.gameToken = result.gameToken;
+        this.#session.score = result.totalScore;
+        this.#session.sprintHistory = result.sprintHistory;
+        this.#session.setFinished(result.isFinished);
+        this.#session.currentPrompt = result.nextPrompt;
+
+        this.#saveState();
+
+        if (result.isFinished) {
+          this.#endGame();
+        } else {
+          this.#loadNextQuestion();
+        }
+      }).catch(err => {
+        this.#gameView.showError(err.message);
+      });
+      return;
+    }
+
     this.#mapView.placeTempMarker(targetLat, targetLng);
     if (selectedStreet) {
       this.#mapView.renderSelection(selectedStreet, true);
@@ -238,82 +359,116 @@ export class GameController {
     
     this.#hasPlacedMarker = true;
     this.#gameView.setActionsState('validate');
-    
-    // Rétablir l'état pour permettre de re-cliquer si on change d'avis
-    this.#currentStepState = 'guessing';
   }
 
-  #validateGuess() {
-    if (!this.#session || this.#currentStepState !== 'guessing' || !this.#hasPlacedMarker) return;
+  async #submitRoundToBackend(guess, elapsedSeconds) {
+    const token = localStorage.getItem('token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
+    const response = await fetch('/api/game/submit-round', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...headers
+      },
+      body: JSON.stringify({
+        gameToken: this.#session.gameToken,
+        guess,
+        elapsedSeconds
+      })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json();
+      throw new Error(errData.error || 'Erreur lors de la soumission du round');
+    }
+
+    return await response.json();
+  }
+
+  async #validateGuess(forced = false) {
+    if (!this.#session || this.#currentStepState !== 'guessing') return;
+    if (!forced && !this.#hasPlacedMarker) return;
+
+    this.#stopRoundTimer();
     this.#currentStepState = 'validated';
-    const latlng = this.#mapView.getTempMarkerLatLng();
-    const street = this.#session.getCurrentStreet();
-    const mode = this.#session.currentMode;
-
-    const distance = this.#spatialService.getDistanceToStreet(latlng.lat, latlng.lng, street.geometry);
     
-    let pointsEarned = 0;
-    let message = '';
-    let isCorrect = false;
+    let latlng = this.#mapView.getTempMarkerLatLng();
+    const elapsedSeconds = this.#totalTime - this.#remainingTime;
 
-    if (distance <= 15) {
-      pointsEarned = 100;
-      isCorrect = true;
-      message = `✅ Parfait ! Vous êtes exactement sur la rue. (+100 pts)`;
-    } else if (distance <= 100) {
-      const ratio = 1 - ((distance - 15) / 85);
-      pointsEarned = Math.round(10 + (40 * ratio));
-      isCorrect = true;
-      message = `✅ Pas mal ! Vous êtes à ${Math.round(distance)}m de la rue. (+${pointsEarned} pts)`;
-    } else {
-      pointsEarned = 0;
-      isCorrect = false;
-      message = `❌ Raté. Vous étiez à ${Math.round(distance)}m. Voici le véritable emplacement.`;
+    const guess = latlng ? { lat: latlng.lat, lng: latlng.lng } : null;
+
+    try {
+      const result = await this.#submitRoundToBackend(guess, elapsedSeconds);
+
+      this.#session.gameToken = result.gameToken;
+      this.#session.score = result.totalScore;
+      this.#session.setFinished(result.isFinished);
+      this.#session.currentPrompt = result.nextPrompt;
+      this.#saveState();
+
+      const feedback = result.feedback;
+      this.#gameView.setInstruction(feedback.message);
+      this.#updateHUD();
+
+      const targetLatLng = this.#spatialService.getNearestPoint(
+        latlng ? latlng.lat : this.#session.city.center[0], 
+        latlng ? latlng.lng : this.#session.city.center[1], 
+        feedback.geometry
+      );
+
+      this.#mapView.renderSelection(feedback.geometry, true);
+      this.#mapView.showFeedbackLine(
+        latlng ? latlng.lat : targetLatLng[0], 
+        latlng ? latlng.lng : targetLatLng[1], 
+        targetLatLng[0], 
+        targetLatLng[1], 
+        feedback.isCorrect
+      );
+
+      this.#mapView.fitToGuessAndStreet(
+        latlng ? latlng.lat : targetLatLng[0], 
+        latlng ? latlng.lng : targetLatLng[1], 
+        targetLatLng[0], 
+        targetLatLng[1]
+      );
+
+      this.#gameView.setActionsState('next');
+    } catch (err) {
+      this.#gameView.showError(err.message);
     }
-
-    const nearest = this.#spatialService.getNearestPoint(latlng.lat, latlng.lng, street.geometry);
-
-    this.#mapView.showFeedbackLine(latlng.lat, latlng.lng, nearest[0], nearest[1], isCorrect);
-    this.#mapView.renderStreet(street, true);
-    this.#mapView.fitToGuessAndStreet(latlng.lat, latlng.lng, nearest[0], nearest[1]);
-
-    if (pointsEarned > 0) {
-      this.#session.incrementScore(pointsEarned);
-    }
-    
-    this.#gameView.setInstruction(message);
-
-    this.#updateHUD();
-    this.#gameView.setActionsState('next');
   }
 
   #nextStreet() {
     if (!this.#session) return;
-    this.#session.advance();
     this.#loadNextQuestion();
   }
 
-  #checkTextAnswer(answer) {
+  async #checkTextAnswer(answer, forced = false) {
     if (!this.#session || this.#currentStepState !== 'guessing') return;
 
+    this.#stopRoundTimer();
     this.#currentStepState = 'validated';
-    const street = this.#session.getCurrentStreet();
-    const cleanAnswer = answer.toLowerCase().trim();
-    const cleanCorrect = street.properties.name.toLowerCase().trim();
+    const elapsedSeconds = this.#totalTime - this.#remainingTime;
 
-    const isCorrect = cleanAnswer === cleanCorrect || cleanCorrect.includes(cleanAnswer);
+    try {
+      const result = await this.#submitRoundToBackend(answer, elapsedSeconds);
 
-    if (isCorrect) {
-      this.#session.incrementScore(15);
-      this.#gameView.setInstruction(`✅ Bonne réponse ! C'était bien : ${street.properties.name}`);
-    } else {
-      this.#gameView.setInstruction(`❌ Faux. La bonne réponse était : ${street.properties.name}`);
+      this.#session.gameToken = result.gameToken;
+      this.#session.score = result.totalScore;
+      this.#session.setFinished(result.isFinished);
+      this.#session.currentPrompt = result.nextPrompt;
+      this.#saveState();
+
+      const feedback = result.feedback;
+      this.#gameView.setInstruction(feedback.message);
+      this.#updateHUD();
+
+      this.#mapView.renderStreet(feedback.geometry, true);
+      this.#gameView.setActionsState('next');
+    } catch (err) {
+      this.#gameView.showError(err.message);
     }
-
-    this.#mapView.renderStreet(street, true);
-    this.#updateHUD();
-    this.#gameView.setActionsState('next');
   }
 
   async #endGame() {
@@ -321,55 +476,24 @@ export class GameController {
 
     const score = this.#session.score;
     const name = this.#session.playerName;
+    const mode = this.#session.currentMode;
+    const sprintHistory = this.#session.sprintHistory;
 
-    try {
-      const token = localStorage.getItem('token');
-      const response = await fetch('/api/scores', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ player: name, score })
-      });
-
-      if (response.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
-        this.#gameView.showError('Session expirée. Veuillez vous reconnecter pour enregistrer votre score.');
-        this.#router.navigate('/login');
-        return;
-      }
-    } catch (e) {
-      console.error('Failed to post score', e);
-    }
-
-    this.#gameView.showCertificate(name, score);
+    this.#certificateView.render(name, score, mode, sprintHistory);
+    this.#gameView.showScreen('certificate');
     this.#router.navigate('/certificate');
     this.#clearState();
   }
 
   #quitGame() {
+    this.#stopRoundTimer();
     this.#clearState();
     this.#router.navigate('/');
   }
 
   #restartGame() {
+    this.#stopRoundTimer();
     this.#clearState();
     this.#router.navigate('/');
-  }
-
-  async loadLeaderboard() {
-    try {
-      const response = await fetch('/api/scores');
-      if (response.ok) {
-        const scores = await response.json();
-        this.#gameView.renderLeaderboard(scores);
-      } else {
-        console.error('Failed to load leaderboard', response.status);
-      }
-    } catch (e) {
-      console.error('Failed to fetch leaderboard', e);
-    }
   }
 }

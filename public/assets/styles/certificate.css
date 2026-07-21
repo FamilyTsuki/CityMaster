@@ -1,0 +1,160 @@
+#certificate-screen {
+  align-items: center;
+  justify-content: flex-start;
+  padding: 40px 20px;
+  background: var(--bg-main);
+  overflow-y: auto;
+}
+
+.certificate-card {
+  text-align: center;
+  border: 2px solid rgba(245, 176, 65, 0.3);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .certificate-card {
+  border: 2px solid rgba(245, 176, 65, 0.2);
+  box-shadow: var(--shadow-lg);
+}
+
+.trophy-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.4) 0%, rgba(245, 158, 11, 0.1) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  margin-bottom: 16px;
+  color: #d97706;
+}
+
+[data-theme="dark"] .trophy-container {
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.05) 100%);
+  color: #fbbf24;
+}
+
+.trophy-svg {
+  width: 44px;
+  height: 44px;
+  stroke-width: 1.5;
+}
+
+.cert-title {
+  display: block;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 24px;
+}
+
+.cert-intro {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.certificate-card h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.cert-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+  margin: 16px auto;
+}
+
+.cert-score-label {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+#cert-score-container {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 36px;
+}
+
+.certificate-card #cert-score {
+  font-size: 4.5rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin: 0;
+  line-height: 1;
+  text-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
+}
+
+[data-theme="dark"] .certificate-card #cert-score {
+  color: #60a5fa;
+  text-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+}
+
+.cert-points-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sprint-recap {
+  margin-top: 24px;
+  text-align: left;
+  background: rgba(37, 99, 235, 0.03);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .sprint-recap {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sprint-recap h3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-top: 0;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sprint-recap-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.sprint-recap-table th {
+  text-align: left;
+  padding: 8px;
+  color: var(--text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sprint-recap-table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .sprint-recap-table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.sprint-recap-table tr:last-child td {
+  border-bottom: none;
+}

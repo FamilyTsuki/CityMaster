@@ -5,52 +5,58 @@ export class OverpassService {
     this.#apiUrl = apiUrl;
   }
 
-  async fetchStreets(bbox) {
-    let cityKey = null;
-    if (bbox.includes('48.835')) cityKey = 'paris';
-    else if (bbox.includes('44.815')) cityKey = 'bordeaux';
-    else if (bbox.includes('45.73')) cityKey = 'lyon';
-    else if (bbox.includes('47.80')) cityKey = 'saint_cyr';
+  async fetchStreets(bbox, cityKey = null) {
+    if (!cityKey) {
+      if (bbox.includes('48.835')) cityKey = 'paris';
+      else if (bbox.includes('44.815')) cityKey = 'bordeaux';
+      else if (bbox.includes('45.73')) cityKey = 'lyon';
+      else if (bbox.includes('47.80')) cityKey = 'saint_cyr';
+    }
 
     if (cityKey) {
       try {
         console.log(`Attempting to load static streets for ${cityKey}...`);
-        const response = await fetch(`/assets/data/${cityKey}.json`);
+        const response = await fetch(`/assets/data/${cityKey}.json?t=${Date.now()}`);
         if (response.ok) {
           const geojson = await response.json();
           console.log(`Loaded static streets for ${cityKey} successfully!`);
           return geojson;
         }
       } catch (err) {
-        console.warn(`Could not load static streets for ${cityKey}, falling back to Overpass API`, err);
+        console.warn(`Could not load static streets for ${cityKey}`, err);
       }
     }
 
-    const query = `[out:json][timeout:25];way["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["name"](${bbox});out geom;`;
-    
-    const response = await fetch('/api/overpass', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ query })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to fetch street data from Overpass via proxy');
-    }
-    const data = await response.json();
-    return this.#convertToGeoJSON(data);
+    throw new Error('Erreur lors du chargement des données cartographiques de la commune. Veuillez réessayer.');
   }
 
-  async fetchStreetNearPoint(lat, lng, radiusMeters = 150) {
-    const query = `[out:json][timeout:10];way(around:${radiusMeters},${lat},${lng})["highway"]["name"];out geom;`;
+  async fetchStreetNearPoint(lat, lng, radiusMeters = 150, osmId = null, signal = null) {
+    if (osmId instanceof AbortSignal) {
+      signal = osmId;
+      osmId = null;
+    }
+
+    let query;
+    if (osmId) {
+      const relId = osmId > 3600000000 ? osmId - 3600000000 : osmId;
+      query = `[out:json][timeout:10];relation(${relId});map_to_area->.a;way(around:${radiusMeters},${lat},${lng})(area.a)["highway"]["name"];out geom;`;
+    } else {
+      query = `[out:json][timeout:10];way(around:${radiusMeters},${lat},${lng})["highway"]["name"];out geom;`;
+    }
+
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch('/api/overpass', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ query })
+      headers,
+      body: JSON.stringify({ query }),
+      signal
     });
     if (!response.ok) return null;
     const data = await response.json();

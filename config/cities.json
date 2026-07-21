@@ -1,0 +1,212 @@
+[
+  {
+    "key": "paris",
+    "name": "Paris",
+    "osmId": 7444,
+    "bbox": "48.8155,2.2241,48.9021,2.4697",
+    "center": [
+      48.8566,
+      2.3522
+    ]
+  },
+  {
+    "key": "bordeaux",
+    "name": "Bordeaux",
+    "osmId": 105270,
+    "bbox": "44.8105,-0.6387,44.9158,-0.5317",
+    "center": [
+      44.8378,
+      -0.5792
+    ]
+  },
+  {
+    "key": "lyon",
+    "name": "Lyon",
+    "osmId": 8655,
+    "bbox": "45.7073,4.7718,45.8083,4.8983",
+    "center": [
+      45.75,
+      4.85
+    ]
+  },
+  {
+    "key": "saint_cyr",
+    "name": "Saint-Cyr-en-Val",
+    "osmId": 150427,
+    "bbox": "47.80,1.93,47.86,2.01",
+    "center": [
+      47.83,
+      1.97
+    ]
+  },
+  {
+    "key": "la_rochette",
+    "name": "La Rochette",
+    "osmId": 2144442,
+    "bbox": "43.8890698,6.8321979,43.9303905,6.91898",
+    "center": [
+      43.90973015,
+      6.87558895
+    ]
+  },
+  {
+    "key": "col_de_la_croix_de_fer",
+    "name": "Col de la Croix-de-Fer",
+    "osmId": 82606041,
+    "bbox": "45.2274402,6.2032809,45.2275402,6.2033809",
+    "center": [
+      45.2274902,
+      6.2033309
+    ]
+  },
+  {
+    "key": "agence_de_l_union_europeenne_pour_les_chemins_de_fer",
+    "name": "Agence de l’Union européenne pour les chemins de fer",
+    "osmId": 110125255,
+    "bbox": "50.364915,3.527144,50.365491,3.527967",
+    "center": [
+      50.365203,
+      3.5275555
+    ]
+  },
+  {
+    "key": "ancien_voie_du_chemin_de_fer_de_la_banlieue_de_reims_c_b_r",
+    "name": "Ancien voie du Chemin de fer de la Banlieue de Reims (C.B.R.)",
+    "osmId": 127194816,
+    "bbox": "49.0087591,3.8534331,49.0206231,3.8627431",
+    "center": [
+      49.0146911,
+      3.8580881
+    ]
+  },
+  {
+    "key": "ancienne_voie_du_chemin_de_fer_de_la_banlieue_de_reims_c_b_r",
+    "name": "Ancienne voie du Chemin de Fer de  la Banlieue de Reims (C.B.R.)",
+    "osmId": 1009331823,
+    "bbox": "49.0039625,3.8495998,49.0058406,3.8499141",
+    "center": [
+      49.00490155,
+      3.8497569499999997
+    ]
+  },
+  {
+    "key": "ancienne_gare_du_baizil_du_chemin_de_fer_de_la_banlieue_de_reims_cbr",
+    "name": "Ancienne Gare du Baizil du Chemin de Fer de la Banlieue de Reims (CBR)",
+    "osmId": 670697913,
+    "bbox": "48.967502,3.7946805,48.967623,3.7948135",
+    "center": [
+      48.9675625,
+      3.794747
+    ]
+  },
+  {
+    "key": "la_ferte",
+    "name": "La Ferté",
+    "osmId": 158794,
+    "bbox": "46.918271,5.6212926,46.9721383,5.6726991",
+    "center": [
+      46.945204649999994,
+      5.64699585
+    ]
+  },
+  {
+    "key": "chateau_de_saint_sauveur",
+    "name": "Château de Saint-Sauveur",
+    "osmId": 1395058470,
+    "bbox": "48.8324908,-0.4603873,48.8325908,-0.4602873",
+    "center": [
+      48.832540800000004,
+      -0.4603373
+    ]
+  },
+  {
+    "key": "eglise_saint_jean_baptiste",
+    "name": "Église Saint-Jean-Baptiste",
+    "osmId": 335802874,
+    "bbox": "48.6873598,2.0178232,48.6875522,2.0183032",
+    "center": [
+      48.687456,
+      2.0180632000000003
+    ]
+  },
+  {
+    "key": "chemin_rural_numero_15_de_saint_arnoult_en_yvelines_a_chevreuse",
+    "name": "Chemin Rural numéro 15 de Saint-Arnoult-en-Yvelines à Chevreuse",
+    "osmId": 185634965,
+    "bbox": "48.6679537,2.0009678,48.6778596,2.0056472",
+    "center": [
+      48.67290665,
+      2.0033075
+    ]
+  },
+  {
+    "key": "route_de_la_ferte_fresnel",
+    "name": "Route de la Ferté-Fresnel",
+    "osmId": 488542492,
+    "bbox": "48.7958989,0.4702786,48.8060806,0.4774859",
+    "center": [
+      48.80098975,
+      0.47388225
+    ]
+  },
+  {
+    "key": "le_bois_au_gue",
+    "name": "Le Bois au Gué",
+    "osmId": 11342073822,
+    "bbox": "47.7009598,1.7059299,47.7010598,1.7060299",
+    "center": [
+      47.7010098,
+      1.7059799
+    ]
+  },
+  {
+    "key": "etang_du_grand_bois_au_gue",
+    "name": "Étang du Grand Bois au Gué",
+    "osmId": 672547675,
+    "bbox": "47.7036483,1.7001182,47.7074044,1.7053914",
+    "center": [
+      47.70552635,
+      1.7027548
+    ]
+  },
+  {
+    "key": "rue_de_la_foret",
+    "name": "Rue de la Forêt",
+    "osmId": 114526079,
+    "bbox": "48.1428103,4.7896397,48.1453021,4.7898163",
+    "center": [
+      48.1440562,
+      4.789728
+    ]
+  },
+  {
+    "key": "rue_de_la_gare",
+    "name": "Rue de la Gare",
+    "osmId": 37988975,
+    "bbox": "48.1580129,4.795584,48.1589938,4.7966972",
+    "center": [
+      48.158503350000004,
+      4.796140599999999
+    ]
+  },
+  {
+    "key": "rue_momont_la_vigne_forges",
+    "name": "Rue Momont la Vigne Forges",
+    "osmId": 1124015085,
+    "bbox": "48.1580863,4.793495,48.1587931,4.7937687",
+    "center": [
+      48.1584397,
+      4.793631850000001
+    ]
+  },
+  {
+    "key": "chapelle_de_la_prison_des_enfants",
+    "name": "Chapelle de la prison des enfants",
+    "osmId": 436075972,
+    "bbox": "48.1458125,4.7868526,48.146226,4.7872681",
+    "center": [
+      48.146019249999995,
+      4.78706035
+    ]
+  }
+]

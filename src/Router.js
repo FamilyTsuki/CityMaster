@@ -7,7 +7,8 @@ export class Router {
     this.#currentPath = window.location.pathname;
 
     window.addEventListener('popstate', () => {
-      this.#handleRoute(window.location.pathname);
+      this.#currentPath = window.location.pathname;
+      this.#handleRoute(this.#currentPath);
     });
   }
 

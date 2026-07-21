@@ -2,8 +2,6 @@ export class GameView {
   #screens;
   #citySelect;
   #startBtn;
-  #hudMode;
-  #hudScore;
   #instruction;
   #identifyContainer;
   #streetInput;
@@ -12,8 +10,6 @@ export class GameView {
   #quitBtn;
   #gameError;
   #restartBtn;
-  #certPlayerName;
-  #certScore;
   #validateBtn;
   #nextBtn;
   #topBanner;
@@ -26,14 +22,13 @@ export class GameView {
       welcome: document.getElementById('welcome-screen'),
       game: document.getElementById('game-screen'),
       certificate: document.getElementById('certificate-screen'),
-      loading: document.getElementById('loading-screen')
+      loading: document.getElementById('loading-screen'),
+      profile: document.getElementById('profile-screen')
     };
 
     this.#citySelect = document.getElementById('city-select');
     this.#startBtn = document.getElementById('start-btn');
 
-    this.#hudMode = document.getElementById('hud-mode');
-    this.#hudScore = document.getElementById('hud-score');
     this.#instruction = document.getElementById('game-instruction');
 
     this.#identifyContainer = document.getElementById('identify-input-container');
@@ -43,9 +38,6 @@ export class GameView {
     this.#quitBtn = document.getElementById('quit-btn');
     this.#gameError = document.getElementById('game-error');
     this.#restartBtn = document.getElementById('restart-btn');
-
-    this.#certPlayerName = document.getElementById('cert-player-name');
-    this.#certScore = document.getElementById('cert-score');
 
     this.#validateBtn = document.getElementById('validate-btn');
     this.#nextBtn = document.getElementById('next-btn');
@@ -62,25 +54,73 @@ export class GameView {
       }
     });
 
-    const navHud = document.getElementById('nav-hud');
     const navLogoutBtn = document.getElementById('nav-logout-btn');
-    
-    if (navHud) {
-      if (screenName === 'game') {
-        navHud.classList.remove('hidden');
-        if (navLogoutBtn) navLogoutBtn.classList.add('hidden');
-      } else {
-        navHud.classList.add('hidden');
-        if (navLogoutBtn) navLogoutBtn.classList.remove('hidden');
-      }
+    if (screenName === 'game') {
+      if (navLogoutBtn) navLogoutBtn.classList.add('hidden');
+    } else {
+      if (navLogoutBtn) navLogoutBtn.classList.remove('hidden');
     }
   }
 
   onStart(callback) {
     const searchInput = document.getElementById('city-search');
     const dropdownList = document.getElementById('city-dropdown-list');
-    const listItems = dropdownList.querySelectorAll('li');
-    let selectedCity = localStorage.getItem('citymaster_last_city') || 'paris';
+    const token = localStorage.getItem('token');
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    
+    let selectedCityData = null;
+    try {
+      const stored = localStorage.getItem('citymaster_last_city_data');
+      if (stored) {
+        selectedCityData = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    const renderCities = (cities) => {
+      dropdownList.innerHTML = '';
+      if (cities.length === 0) {
+        const noResultItem = document.createElement('li');
+        noResultItem.className = 'no-results';
+        noResultItem.style.color = 'var(--text-muted)';
+        noResultItem.textContent = 'Aucune ville trouvée';
+        dropdownList.appendChild(noResultItem);
+        return;
+      }
+
+      cities.forEach(city => {
+        const li = document.createElement('li');
+        li.textContent = city.name;
+        li.setAttribute('data-value', city.key);
+        if (selectedCityData && selectedCityData.key === city.key) {
+          li.classList.add('selected');
+        }
+
+        li.addEventListener('click', () => {
+          dropdownList.querySelectorAll('li').forEach(i => i.classList.remove('selected'));
+          li.classList.add('selected');
+          selectedCityData = city;
+          localStorage.setItem('citymaster_last_city_data', JSON.stringify(city));
+          searchInput.value = city.name;
+          dropdownList.classList.add('hidden');
+        });
+
+        dropdownList.appendChild(li);
+      });
+    };
+
+    fetch('/api/cities', { headers })
+      .then(res => res.json())
+      .then(cities => {
+        renderCities(cities);
+        if (selectedCityData) {
+          searchInput.value = selectedCityData.name;
+        } else if (cities.length > 0) {
+          selectedCityData = cities[0];
+          searchInput.value = selectedCityData.name;
+        }
+      });
 
     searchInput.addEventListener('focus', () => {
       dropdownList.classList.remove('hidden');
@@ -92,34 +132,41 @@ export class GameView {
       }
     });
 
+    let debounceTimer = null;
+
     searchInput.addEventListener('input', (e) => {
       dropdownList.classList.remove('hidden');
-      const filter = e.target.value.toLowerCase();
-      listItems.forEach(item => {
-        const text = item.textContent.toLowerCase();
-        if (text.includes(filter)) {
-          item.style.display = '';
-        } else {
-          item.style.display = 'none';
+      const query = e.target.value.trim();
+
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+      }
+
+      if (query.length < 2) {
+        fetch('/api/cities', { headers })
+          .then(res => res.json())
+          .then(cities => renderCities(cities));
+        return;
+      }
+
+      debounceTimer = setTimeout(async () => {
+        try {
+          dropdownList.innerHTML = '';
+          const loadingItem = document.createElement('li');
+          loadingItem.style.color = 'var(--text-muted)';
+          loadingItem.textContent = 'Recherche...';
+          dropdownList.appendChild(loadingItem);
+
+          const response = await fetch(`/api/cities?q=${encodeURIComponent(query)}`, { headers });
+          if (response.ok) {
+            const cities = await response.json();
+            renderCities(cities);
+          }
+        } catch (error) {
+          console.error('Error fetching dynamic cities:', error);
         }
-      });
+      }, 300);
     });
-
-    listItems.forEach(item => {
-      item.addEventListener('click', () => {
-        listItems.forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        selectedCity = item.getAttribute('data-value');
-        searchInput.value = item.textContent.trim();
-        dropdownList.classList.add('hidden');
-      });
-    });
-
-    const defaultItem = Array.from(listItems).find(i => i.getAttribute('data-value') === selectedCity);
-    if (defaultItem) {
-      defaultItem.classList.add('selected');
-      searchInput.value = defaultItem.textContent.trim();
-    }
 
     const modeInput = document.getElementById('mode-search');
     const modeList = document.getElementById('mode-dropdown-list');
@@ -128,12 +175,6 @@ export class GameView {
 
     modeInput.addEventListener('click', () => {
       modeList.classList.remove('hidden');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!modeInput.contains(e.target) && !modeList.contains(e.target)) {
-        modeList.classList.add('hidden');
-      }
     });
 
     modeItems.forEach(item => {
@@ -152,13 +193,68 @@ export class GameView {
       modeInput.value = defaultModeItem.textContent.trim();
     }
 
+    const diffInput = document.getElementById('difficulty-search');
+    const diffList = document.getElementById('difficulty-dropdown-list');
+    const diffItems = diffList.querySelectorAll('li');
+    let selectedDifficulty = localStorage.getItem('citymaster_last_difficulty') || 'hard';
+
+    diffInput.addEventListener('click', () => {
+      diffList.classList.remove('hidden');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!modeInput.contains(e.target) && !modeList.contains(e.target)) {
+        modeList.classList.add('hidden');
+      }
+      if (!diffInput.contains(e.target) && !diffList.contains(e.target)) {
+        diffList.classList.add('hidden');
+      }
+    });
+
+    diffItems.forEach(item => {
+      item.addEventListener('click', () => {
+        diffItems.forEach(i => i.classList.remove('selected'));
+        item.classList.add('selected');
+        selectedDifficulty = item.getAttribute('data-value');
+        diffInput.value = item.textContent.trim();
+        diffList.classList.add('hidden');
+      });
+    });
+
+    const defaultDiffItem = Array.from(diffItems).find(i => i.getAttribute('data-value') === selectedDifficulty);
+    if (defaultDiffItem) {
+      defaultDiffItem.classList.add('selected');
+      diffInput.value = defaultDiffItem.textContent.trim();
+    }
+
     document.getElementById('start-btn').addEventListener('click', () => {
       this.#gameError.classList.add('hidden');
-      localStorage.setItem('citymaster_last_city', selectedCity);
+      
+      if (!selectedCityData) {
+        this.showError('Veuillez sélectionner une ville dans la liste.');
+        return;
+      }
+
       localStorage.setItem('citymaster_last_mode', selectedMode);
-      const playerName = document.getElementById('logged-in-user').textContent;
-      callback(playerName, selectedCity, selectedMode);
+      localStorage.setItem('citymaster_last_difficulty', selectedDifficulty);
+      const playerName = this.getPlayerName();
+
+      callback(playerName, selectedCityData, selectedMode, selectedDifficulty);
     });
+  }
+
+  #playerName = 'Joueur';
+
+  setPlayerName(name) {
+    this.#playerName = name;
+    const span = document.getElementById('logged-in-user');
+    if (span) {
+      span.textContent = name;
+    }
+  }
+
+  getPlayerName() {
+    return this.#playerName;
   }
 
   showError(message) {
@@ -197,13 +293,13 @@ export class GameView {
       
       const date = new Date(scoreData.date).toLocaleDateString('fr-FR');
       
-      let rankIcon = `${index + 1}`;
-      if (index === 0) rankIcon = '🥇';
-      else if (index === 1) rankIcon = '🥈';
-      else if (index === 2) rankIcon = '🥉';
+      let rankClass = 'rank-neutral';
+      if (index === 0) rankClass = 'rank-gold';
+      else if (index === 1) rankClass = 'rank-silver';
+      else if (index === 2) rankClass = 'rank-bronze';
       
       tr.innerHTML = `
-        <td>${rankIcon}</td>
+        <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
         <td><strong>${this.#escapeHtml(scoreData.player)}</strong></td>
         <td>${scoreData.score} pts</td>
         <td class="text-muted">${date}</td>
@@ -257,16 +353,16 @@ export class GameView {
   }
 
   updateHUD(mode, score) {
-    let modeFr = mode;
-    if (mode === 'target') modeFr = 'Cible';
-    if (mode === 'identify') modeFr = 'Identification';
-    
-    this.#hudMode.textContent = modeFr;
-    this.#hudScore.textContent = score;
   }
 
   setInstruction(text) {
     this.#instruction.textContent = text;
+    this.#instruction.classList.remove('success-text', 'error-text');
+    if (text.startsWith('Parfait') || text.startsWith('Pas mal') || text.startsWith('Bonne réponse')) {
+      this.#instruction.classList.add('success-text');
+    } else if (text.startsWith('Raté') || text.startsWith('Faux')) {
+      this.#instruction.classList.add('error-text');
+    }
   }
 
   setBannerStreetName(name) {
@@ -279,8 +375,45 @@ export class GameView {
     } else {
       this.#topBanner.classList.add('hidden');
       this.#bottomActions.classList.add('hidden');
+      this.hideTimer();
     }
   }
+
+  showTimer() {
+    const container = document.getElementById('timer-container');
+    const bar = document.getElementById('timer-bar');
+    if (container && bar) {
+      container.classList.remove('hidden');
+      bar.style.width = '100%';
+      bar.classList.remove('timer-warning', 'timer-danger');
+    }
+  }
+
+  updateTimer(remainingSeconds, totalSeconds) {
+    const bar = document.getElementById('timer-bar');
+    if (bar) {
+      const percentage = (remainingSeconds / totalSeconds) * 100;
+      bar.style.width = `${percentage}%`;
+
+      if (percentage <= 25) {
+        bar.classList.remove('timer-warning');
+        bar.classList.add('timer-danger');
+      } else if (percentage <= 50) {
+        bar.classList.remove('timer-danger');
+        bar.classList.add('timer-warning');
+      } else {
+        bar.classList.remove('timer-warning', 'timer-danger');
+      }
+    }
+  }
+
+  hideTimer() {
+    const container = document.getElementById('timer-container');
+    if (container) {
+      container.classList.add('hidden');
+    }
+  }
+
 
   setActionsState(state) {
     this.#validateBtn.classList.add('hidden');
@@ -299,11 +432,5 @@ export class GameView {
     } else {
       this.#identifyContainer.classList.add('hidden');
     }
-  }
-
-  showCertificate(playerName, score) {
-    this.#certPlayerName.textContent = playerName;
-    this.#certScore.textContent = score;
-    this.showScreen('certificate');
   }
 }

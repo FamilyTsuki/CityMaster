@@ -1,63 +1,49 @@
 export class ProfileController {
   #router;
-  #profileScreen;
-  #profileName;
-  #profileImg;
-  #totalScore;
-  #uploadInput;
-  #errorMsg;
-  #successMsg;
-  #backBtn;
-  
-  #navProfileImg;
-  #navProfileLink;
+  #profileView;
+  #navbarView;
+  #gameView;
 
-  constructor(router) {
+  constructor(router, profileView, navbarView, gameView) {
     this.#router = router;
-    
-    this.#profileScreen = document.getElementById('profile-screen');
-    this.#profileName = document.getElementById('profile-page-name');
-    this.#profileImg = document.getElementById('profile-page-img');
-    this.#totalScore = document.getElementById('profile-total-score');
-    this.#uploadInput = document.getElementById('profile-upload');
-    this.#errorMsg = document.getElementById('profile-error');
-    this.#successMsg = document.getElementById('profile-success');
-    this.#backBtn = document.getElementById('profile-back-btn');
+    this.#profileView = profileView;
+    this.#navbarView = navbarView;
+    this.#gameView = gameView;
 
-    this.#navProfileImg = document.getElementById('nav-profile-img');
-    this.#navProfileLink = document.getElementById('nav-profile-link');
-
-    this._initEvents();
+    this.#initEvents();
   }
 
-  _initEvents() {
-    this.#backBtn.addEventListener('click', () => {
+  #initEvents() {
+    this.#profileView.onBackClick(() => {
       this.#router.navigate('/');
     });
 
-    this.#navProfileLink.addEventListener('click', (e) => {
-      e.preventDefault();
+    this.#profileView.onLogoutClick(() => {
+      this.logout();
+    });
+
+    this.#profileView.onAvatarChange((file) => {
+      this.uploadAvatar(file);
+    });
+
+    this.#profileView.onThemeChange((isDark) => {
+      const newTheme = isDark ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      this.#navbarView.setTheme(newTheme);
+    });
+
+    this.#navbarView.onProfileClick(() => {
       this.#router.navigate('/profile');
     });
-
-    this.#uploadInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        this.uploadAvatar(file);
-      }
-    });
   }
 
-  showError(msg) {
-    this.#successMsg.classList.add('hidden');
-    this.#errorMsg.textContent = msg;
-    this.#errorMsg.classList.remove('hidden');
-  }
-
-  showSuccess(msg) {
-    this.#errorMsg.classList.add('hidden');
-    this.#successMsg.textContent = msg;
-    this.#successMsg.classList.remove('hidden');
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('citymaster_profile_image');
+    this.#navbarView.setLoggedOut();
+    this.#router.navigate('/');
   }
 
   async loadProfile() {
@@ -75,36 +61,37 @@ export class ProfileController {
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('username');
-          this.#router.navigate('/login');
+        if (response.status === 401 || response.status === 403) {
+          this.logout();
           return;
         }
         throw new Error('Erreur lors du chargement du profil');
       }
 
       const data = await response.json();
+      const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
       
-      this.#profileName.textContent = data.username;
-      this.#totalScore.textContent = data.totalScore;
-      
+      this.#profileView.renderProfile(
+        data.username,
+        data.totalScore,
+        data.profileImageUrl,
+        isDarkMode
+      );
+
       if (data.profileImageUrl) {
-        this.#profileImg.src = data.profileImageUrl;
-        this.#navProfileImg.src = data.profileImageUrl;
-        this.#navProfileImg.classList.remove('hidden');
+        localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
+        this.#navbarView.setLoggedIn(data.username, data.profileImageUrl);
+      } else {
+        localStorage.removeItem('citymaster_profile_image');
+        this.#navbarView.setLoggedIn(data.username, null);
       }
 
-      // Cacher les autres écrans et afficher le profil
-      document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
-      this.#profileScreen.style.display = 'flex';
-
+      this.#gameView.showScreen('profile');
     } catch (err) {
-      this.showError(err.message);
+      this.#profileView.showError(err.message);
     }
   }
 
-  // Utilisé par App.js pour précharger l'avatar au lancement
   async fetchNavAvatar() {
     const token = localStorage.getItem('token');
     if (!token) return;
@@ -115,10 +102,16 @@ export class ProfileController {
       });
       if (response.ok) {
         const data = await response.json();
+        const username = localStorage.getItem('username');
         if (data.profileImageUrl) {
-          this.#navProfileImg.src = data.profileImageUrl;
-          this.#navProfileImg.classList.remove('hidden');
+          localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
+          this.#navbarView.setLoggedIn(username, data.profileImageUrl);
+        } else {
+          localStorage.removeItem('citymaster_profile_image');
+          this.#navbarView.setLoggedIn(username, null);
         }
+      } else if (response.status === 401 || response.status === 403) {
+        this.logout();
       }
     } catch (e) {
       console.error('Erreur prefetch avatar', e);
@@ -127,7 +120,7 @@ export class ProfileController {
 
   async uploadAvatar(file) {
     if (file.size > 2 * 1024 * 1024) {
-      this.showError("L'image est trop lourde (max 2 Mo).");
+      this.#profileView.showError("L'image est trop lourde (max 2 Mo).");
       return;
     }
 
@@ -138,8 +131,7 @@ export class ProfileController {
     if (!token) return;
 
     try {
-      this.showSuccess('Envoi en cours...');
-      this.#errorMsg.classList.add('hidden');
+      this.#profileView.showSuccess('Envoi en cours...');
 
       const response = await fetch('/api/profile/upload', {
         method: 'POST',
@@ -155,16 +147,20 @@ export class ProfileController {
         throw new Error(data.error || 'Erreur lors du téléversement');
       }
 
-      this.showSuccess(data.message);
+      this.#profileView.showSuccess(data.message);
       if (data.profileImageUrl) {
-        this.#profileImg.src = data.profileImageUrl;
-        this.#navProfileImg.src = data.profileImageUrl;
-        this.#navProfileImg.classList.remove('hidden');
+        localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
+        const username = localStorage.getItem('username');
+        this.#profileView.renderProfile(
+          username,
+          document.getElementById('profile-total-score').textContent,
+          data.profileImageUrl,
+          document.documentElement.getAttribute('data-theme') === 'dark'
+        );
+        this.#navbarView.setLoggedIn(username, data.profileImageUrl);
       }
     } catch (err) {
-      this.showError(err.message);
-    } finally {
-      this.#uploadInput.value = '';
+      this.#profileView.showError(err.message);
     }
   }
 }

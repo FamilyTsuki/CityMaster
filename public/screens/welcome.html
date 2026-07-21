@@ -1,0 +1,57 @@
+<div id="welcome-screen" class="screen">
+  <div class="card">
+    <h1>CityMaster</h1>
+    <p>Maîtrisez la géographie de votre ville.</p>
+    <div class="form-group">
+      <label>Bienvenue, <span id="logged-in-user">Joueur</span> !</label>
+    </div>
+    <div class="form-group custom-select-container">
+      <label>Sélectionnez une ville :</label>
+      <input type="text" id="city-search" placeholder="Rechercher une ville..." autocomplete="off" />
+      <ul id="city-dropdown-list" class="dropdown-list hidden">
+      </ul>
+    </div>
+    
+    <div class="form-group custom-select-container">
+      <label>Mode de jeu :</label>
+      <input type="text" id="mode-search" readonly style="cursor: pointer;" />
+      <ul id="mode-dropdown-list" class="dropdown-list hidden">
+        <li data-value="target"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Cible (Placement classique)</li>
+        <li data-value="sprint"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Sprint (Contre-la-montre instantané)</li>
+        <li data-value="identify"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Identification (Saisir le nom)</li>
+      </ul>
+    </div>
+    
+    <div class="form-group custom-select-container">
+      <label>Difficulté :</label>
+      <input type="text" id="difficulty-search" readonly style="cursor: pointer;" />
+      <ul id="difficulty-dropdown-list" class="dropdown-list hidden">
+        <li data-value="easy"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg> Facile (Grands axes)</li>
+        <li data-value="medium"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg> Moyen (Rues & Axes)</li>
+        <li data-value="hard"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Difficile (Tout inclure)</li>
+      </ul>
+    </div>
+
+    <div id="game-error" class="error-msg hidden"></div>
+    <button id="start-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M4.5 16.5c-1.5 1.26-2 3.38-2 4.5 1.12 0 3.24-.5 4.5-2L14.5 11l-2-2L4.5 16.5z"></path><path d="M12 2s4-1 6 1 1 6 1 6-4 3-7 0-3-7-3-7z"></path><path d="M9 15l3-3"></path><path d="M17 3a2.83 2.83 0 1 1 4 4L17 3z"></path></svg> Démarrer l'aventure</button>
+    
+    <div class="leaderboard-section">
+      <h3><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path></svg> Classement (Top 10)</h3>
+      <div class="leaderboard-container">
+        <table id="leaderboard-table" class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>Rang</th>
+              <th>Joueur</th>
+              <th>Score</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <tr><td colspan="4" class="text-center">Chargement...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

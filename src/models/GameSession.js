@@ -1,18 +1,22 @@
 export class GameSession {
   #score;
-  #streets;
-  #currentIndex;
   #currentMode;
   #playerName;
   #city;
+  #sprintHistory;
+  #gameToken;
+  #currentPrompt;
+  #isFinished;
 
-  constructor(playerName, city, streets, initialMode = 'target') {
+  constructor(playerName, city, initialMode = 'target', gameToken = null, initialPrompt = null) {
     this.#playerName = playerName;
     this.#city = city;
-    this.#streets = this.#shuffle(streets);
-    this.#score = 0;
-    this.#currentIndex = 0;
     this.#currentMode = initialMode;
+    this.#score = 0;
+    this.#sprintHistory = [];
+    this.#gameToken = gameToken;
+    this.#currentPrompt = initialPrompt;
+    this.#isFinished = false;
   }
 
   get playerName() {
@@ -27,6 +31,10 @@ export class GameSession {
     return this.#score;
   }
 
+  set score(value) {
+    this.#score = value;
+  }
+
   get currentMode() {
     return this.#currentMode;
   }
@@ -35,42 +43,48 @@ export class GameSession {
     this.#currentMode = mode;
   }
 
-  getCurrentStreet() {
-    if (this.#currentIndex >= this.#streets.length) {
-      return null;
-    }
-    return this.#streets[this.#currentIndex];
+  get sprintHistory() {
+    return this.#sprintHistory;
   }
 
-  incrementScore(points) {
-    this.#score += points;
+  set sprintHistory(history) {
+    this.#sprintHistory = history || [];
   }
 
-  advance() {
-    this.#currentIndex++;
+  get gameToken() {
+    return this.#gameToken;
+  }
+
+  set gameToken(token) {
+    this.#gameToken = token;
+  }
+
+  get currentPrompt() {
+    return this.#currentPrompt;
+  }
+
+  set currentPrompt(prompt) {
+    this.#currentPrompt = prompt;
   }
 
   isFinished() {
-    return this.#currentIndex >= this.#streets.length;
+    return this.#isFinished;
   }
 
-  #shuffle(array) {
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
+  setFinished(finished) {
+    this.#isFinished = finished;
   }
 
   serialize() {
     return JSON.stringify({
       playerName: this.#playerName,
       city: this.#city,
-      streets: this.#streets,
+      currentMode: this.#currentMode,
       score: this.#score,
-      currentIndex: this.#currentIndex,
-      currentMode: this.#currentMode
+      sprintHistory: this.#sprintHistory,
+      gameToken: this.#gameToken,
+      currentPrompt: this.#currentPrompt,
+      isFinished: this.#isFinished
     });
   }
 
@@ -78,11 +92,16 @@ export class GameSession {
     if (!jsonString) return null;
     try {
       const data = JSON.parse(jsonString);
-      const session = new GameSession(data.playerName, data.city, []);
-      session.#streets = data.streets;
-      session.#score = data.score;
-      session.#currentIndex = data.currentIndex;
-      session.#currentMode = data.currentMode;
+      const session = new GameSession(
+        data.playerName,
+        data.city,
+        data.currentMode,
+        data.gameToken,
+        data.currentPrompt
+      );
+      session.score = data.score;
+      session.sprintHistory = data.sprintHistory || [];
+      session.setFinished(data.isFinished || false);
       return session;
     } catch (e) {
       console.error('Failed to parse game session', e);

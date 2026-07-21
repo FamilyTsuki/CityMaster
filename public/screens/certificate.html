@@ -1,0 +1,41 @@
+<div id="certificate-screen" class="screen">
+  <div class="card certificate-card">
+    <div class="certificate-header">
+      <div class="trophy-container">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trophy-svg">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+          <path d="M4 22h16"></path>
+          <path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path>
+          <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path>
+        </svg>
+      </div>
+      <span class="cert-title">Partie Terminée</span>
+    </div>
+    <div class="certificate-body">
+      <p class="cert-intro">Félicitations pour votre partie,</p>
+      <h1 id="cert-player-name">Player Name</h1>
+      <div class="cert-divider"></div>
+      <p class="cert-score-label">Votre score final est de :</p>
+      <div id="cert-score-container">
+        <span id="cert-score">0</span>
+        <span class="cert-points-label">points</span>
+      </div>
+      <div id="sprint-recap" class="sprint-recap hidden">
+        <h3>Détails de la course</h3>
+        <table class="sprint-recap-table">
+          <thead>
+            <tr>
+              <th>Voie</th>
+              <th>Distance</th>
+              <th>Points (Bonus)</th>
+            </tr>
+          </thead>
+          <tbody id="sprint-recap-body">
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button id="restart-btn" class="btn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg> Rejouer une partie</button>
+  </div>
+</div>
