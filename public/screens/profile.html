@@ -1,10 +1,10 @@
 <div id="profile-screen" class="screen">
-  <div class="card profile-card">
+  <div class="card profile-card" role="region" aria-label="Page de profil utilisateur">
     <div class="profile-header">
       <div class="profile-avatar-container">
         <img id="profile-page-img" src="assets/images/default-avatar.png" alt="Mon Avatar" class="profile-avatar" />
-        <label for="profile-upload" class="upload-btn" title="Changer d'avatar">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon">
+        <label for="profile-upload" class="upload-btn" title="Changer d'avatar" aria-label="Changer ma photo de profil">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon" aria-hidden="true">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
             <circle cx="12" cy="13" r="4"></circle>
           </svg>
@@ -21,10 +21,18 @@
       </div>
     </div>
 
-    <div id="profile-error" class="error-msg hidden"></div>
-    <div id="profile-success" class="success-msg hidden"></div>
+    <div id="profile-error" class="error-msg hidden" role="alert" aria-live="polite"></div>
+    <div id="profile-success" class="success-msg hidden" role="alert" aria-live="polite"></div>
 
     <div class="profile-actions">
+      <div class="theme-switch-container">
+        <span class="setting-label">Effets Sonores</span>
+        <label class="switch">
+          <input type="checkbox" id="profile-sound-switch" />
+          <span class="slider round"></span>
+        </label>
+      </div>
+
       <div class="theme-switch-container">
         <span class="setting-label">Mode Sombre</span>
         <label class="switch">
@@ -32,6 +40,7 @@
           <span class="slider round"></span>
         </label>
       </div>
+
       <button id="profile-back-btn" class="btn secondary">Retour à l'accueil</button>
       <a href="#" id="profile-logout-btn" class="profile-logout-link">Se déconnecter</a>
     </div>

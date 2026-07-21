@@ -4,8 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !">
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="CityMaster" />
   <title>CityMaster - Jeu Géographique Interactif</title>
-  <link rel="icon" type="image/png" href="favicon.png" />
+  
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="assets/images/icon.svg" />
+  <link rel="apple-touch-icon" href="assets/images/icon.svg" />
+
   <script>
     (function() {
       const savedTheme = localStorage.getItem('theme');
@@ -16,6 +24,7 @@
       }
     })();
   </script>
+
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,8 +39,8 @@
       <span id="logo-brand" class="logo-text" style="cursor: pointer;" tabindex="0" role="button" aria-label="CityMaster Accueil">CityMaster</span>
     </div>
     <div class="navbar-actions">
-      <button id="sound-toggle" class="icon-btn" title="Activer/Désactiver le son" aria-label="Activer ou désactiver le son">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      <button id="pwa-install-btn" class="btn secondary hidden" style="width: auto; padding: 8px 12px; font-size: 0.85rem;" title="Installer l'application sur votre appareil">
+        📲<span class="pwa-btn-text"> Installer</span>
       </button>
       <button id="theme-toggle" class="icon-btn" title="Changer de thème" aria-label="Basculer le thème clair ou sombre">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -61,5 +70,35 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>
   <script type="module" src="../src/app.js"></script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+          console.error('ServiceWorker registration failed:', err);
+        });
+      });
+    }
+
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      if (isMobileDevice) {
+        const installBtn = document.getElementById('pwa-install-btn');
+        if (installBtn) {
+          installBtn.classList.remove('hidden');
+          installBtn.addEventListener('click', () => {
+            installBtn.classList.add('hidden');
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(() => {
+              deferredPrompt = null;
+            });
+          });
+        }
+      }
+    });
+  </script>
 </body>
 </html>

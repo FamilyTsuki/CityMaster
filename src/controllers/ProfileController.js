@@ -3,12 +3,14 @@ export class ProfileController {
   #profileView;
   #navbarView;
   #gameView;
+  #audioService;
 
-  constructor(router, profileView, navbarView, gameView) {
+  constructor(router, profileView, navbarView, gameView, audioService) {
     this.#router = router;
     this.#profileView = profileView;
     this.#navbarView = navbarView;
     this.#gameView = gameView;
+    this.#audioService = audioService;
 
     this.#initEvents();
   }
@@ -31,6 +33,12 @@ export class ProfileController {
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
       this.#navbarView.setTheme(newTheme);
+    });
+
+    this.#profileView.onSoundChange((muted) => {
+      if (this.#audioService.isMuted() !== muted) {
+        this.#audioService.toggleMute();
+      }
     });
 
     this.#navbarView.onProfileClick(() => {
@@ -70,12 +78,14 @@ export class ProfileController {
 
       const data = await response.json();
       const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
+      const isSoundMuted = this.#audioService.isMuted();
       
       this.#profileView.renderProfile(
         data.username,
         data.totalScore,
         data.profileImageUrl,
-        isDarkMode
+        isDarkMode,
+        isSoundMuted
       );
 
       if (data.profileImageUrl) {
@@ -155,7 +165,8 @@ export class ProfileController {
           username,
           document.getElementById('profile-total-score').textContent,
           data.profileImageUrl,
-          document.documentElement.getAttribute('data-theme') === 'dark'
+          document.documentElement.getAttribute('data-theme') === 'dark',
+          this.#audioService.isMuted()
         );
         this.#navbarView.setLoggedIn(username, data.profileImageUrl);
       }

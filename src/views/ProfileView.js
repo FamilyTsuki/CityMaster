@@ -7,6 +7,7 @@ export class ProfileView {
   #successMsg;
   #backBtn;
   #themeSwitch;
+  #soundSwitch;
   #logoutBtn;
 
   constructor() {
@@ -18,6 +19,7 @@ export class ProfileView {
     this.#successMsg = document.getElementById('profile-success');
     this.#backBtn = document.getElementById('profile-back-btn');
     this.#themeSwitch = document.getElementById('profile-theme-switch');
+    this.#soundSwitch = document.getElementById('profile-sound-switch');
     this.#logoutBtn = document.getElementById('profile-logout-btn');
 
     if (this.#profileImg) {
@@ -61,7 +63,15 @@ export class ProfileView {
     }
   }
 
-  renderProfile(username, totalScore, profileImageUrl, isDarkMode) {
+  onSoundChange(callback) {
+    if (this.#soundSwitch) {
+      this.#soundSwitch.addEventListener('change', () => {
+        callback(!this.#soundSwitch.checked);
+      });
+    }
+  }
+
+  renderProfile(username, totalScore, profileImageUrl, isDarkMode, isSoundMuted = false) {
     if (this.#profileName) {
       this.#profileName.textContent = username;
     }
@@ -77,6 +87,9 @@ export class ProfileView {
     }
     if (this.#themeSwitch) {
       this.#themeSwitch.checked = isDarkMode;
+    }
+    if (this.#soundSwitch) {
+      this.#soundSwitch.checked = !isSoundMuted;
     }
   }
 

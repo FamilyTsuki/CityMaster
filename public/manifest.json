@@ -1,0 +1,36 @@
+{
+  "name": "CityMaster - Jeu Géographique",
+  "short_name": "CityMaster",
+  "description": "Jeu éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0f172a",
+  "theme_color": "#4f46e5",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "assets/images/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Démarrer une partie",
+      "short_name": "Jouer",
+      "description": "Lancer une nouvelle session de jeu",
+      "url": "/#/setup",
+      "icons": [{ "src": "assets/images/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mon Profil",
+      "short_name": "Profil",
+      "description": "Voir mes statistiques et mes scores",
+      "url": "/#/profile",
+      "icons": [{ "src": "assets/images/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 export class NavbarView {
   #themeToggle;
-  #soundToggle;
   #navAuthLoggedOut;
   #navAuthLoggedIn;
   #navLogoutBtn;
@@ -11,7 +10,6 @@ export class NavbarView {
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
-    this.#soundToggle = document.getElementById('sound-toggle');
     this.#navAuthLoggedOut = document.getElementById('nav-auth-logged-out');
     this.#navAuthLoggedIn = document.getElementById('nav-auth-logged-in');
     this.#navLogoutBtn = document.getElementById('nav-logout-btn');
@@ -30,12 +28,6 @@ export class NavbarView {
   onThemeToggle(callback) {
     if (this.#themeToggle) {
       this.#themeToggle.addEventListener('click', callback);
-    }
-  }
-
-  onSoundToggle(callback) {
-    if (this.#soundToggle) {
-      this.#soundToggle.addEventListener('click', callback);
     }
   }
 
@@ -112,14 +104,5 @@ export class NavbarView {
     const moonSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>`;
 
     this.#themeToggle.innerHTML = theme === 'dark' ? sunSvg : moonSvg;
-  }
-
-  setSoundState(muted) {
-    if (!this.#soundToggle) return;
-
-    const soundOnSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>`;
-    const soundOffSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>`;
-
-    this.#soundToggle.innerHTML = muted ? soundOffSvg : soundOnSvg;
   }
 }

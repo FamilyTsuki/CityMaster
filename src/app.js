@@ -36,12 +36,6 @@ class App {
     this.#profileView = new ProfileView();
     this.#scoreController = new ScoreController(this.#gameView);
 
-    this.#navbarView.setSoundState(this.#audioService.isMuted());
-    this.#navbarView.onSoundToggle(() => {
-      const isMuted = this.#audioService.toggleMute();
-      this.#navbarView.setSoundState(isMuted);
-    });
-
     document.addEventListener('click', (e) => {
       if (e.target.closest('button, .btn, a, li, .icon-btn')) {
         this.#audioService.playClick();
@@ -69,7 +63,7 @@ class App {
     });
 
     this.#authController = new AuthController(this.#router, this.#authView, this.#navbarView);
-    this.#profileController = new ProfileController(this.#router, this.#profileView, this.#navbarView, this.#gameView);
+    this.#profileController = new ProfileController(this.#router, this.#profileView, this.#navbarView, this.#gameView, this.#audioService);
     this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, this.#router, this.#audioService);
 
     if (this.#authController.isAuthenticated()) {
