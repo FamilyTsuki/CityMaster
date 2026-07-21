@@ -2,64 +2,74 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 32px;
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  padding: 14px 32px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
   z-index: 1000;
-  transition: background-color 0.3s, border-color 0.3s;
-}
-
-[data-theme="dark"] .navbar {
-  background-color: rgba(31, 41, 55, 0.85);
-  border-bottom: 1px solid rgba(55, 65, 81, 0.5);
+  transition: background-color var(--transition-smooth), border-color var(--transition-smooth);
 }
 
 .navbar-brand {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
 }
 
 .navbar-brand .logo-text {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-main);
-  letter-spacing: -0.025em;
+  font-size: 1.55rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.03em;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.navbar-brand .logo-text:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
 }
 
 .navbar-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 #nav-auth-logged-in {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .profile-name {
   font-weight: 600;
+  font-size: 0.92rem;
   color: var(--text-main);
+  transition: color var(--transition-fast);
 }
 
 .logout-link {
   color: var(--text-muted);
-  font-size: 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   text-decoration: none;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background-color: var(--secondary);
+  transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .logout-link:hover {
-  opacity: 1;
-  text-decoration: underline;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
 }
 
 .profile-link {
@@ -67,36 +77,83 @@
   align-items: center;
   gap: 8px;
   text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  transition: background-color var(--transition-fast);
+}
+
+.profile-link:hover {
+  background-color: var(--primary-light);
 }
 
 .nav-avatar {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
   border: 2px solid var(--primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-fast);
 }
 
-.theme-toggle {
-  background: transparent;
-  border: none;
+.profile-link:hover .nav-avatar {
+  transform: scale(1.08);
+}
+
+.icon-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--transition-fast);
   color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
-.theme-toggle:hover {
-  background-color: var(--secondary);
-  transform: scale(1.1);
+.icon-btn:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
-.theme-toggle:active {
-  transform: scale(0.95);
+.icon-btn:active {
+  transform: translateY(0);
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 10px 16px;
+  }
+  .navbar-brand .logo-text {
+    font-size: 1.25rem;
+  }
+  .navbar-actions {
+    gap: 8px;
+  }
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+  .logout-link {
+    padding: 5px 10px;
+    font-size: 0.78rem;
+  }
+  .nav-avatar {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-name {
+    display: none;
+  }
 }

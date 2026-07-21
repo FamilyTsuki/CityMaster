@@ -14,6 +14,8 @@ export class GameView {
   #nextBtn;
   #topBanner;
   #bottomActions;
+  #comboBadge;
+  #comboText;
 
   constructor() {
     this.#screens = {
@@ -28,7 +30,6 @@ export class GameView {
 
     this.#citySelect = document.getElementById('city-select');
     this.#startBtn = document.getElementById('start-btn');
-
     this.#instruction = document.getElementById('game-instruction');
 
     this.#identifyContainer = document.getElementById('identify-input-container');
@@ -43,6 +44,41 @@ export class GameView {
     this.#nextBtn = document.getElementById('next-btn');
     this.#topBanner = document.getElementById('top-banner');
     this.#bottomActions = document.getElementById('bottom-actions');
+
+    this.#comboBadge = document.getElementById('combo-badge');
+    this.#comboText = document.getElementById('combo-text');
+
+    this.#setupKeyboardShortcuts();
+  }
+
+  #setupKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+      const gameScreen = document.getElementById('game-screen');
+      if (!gameScreen || !gameScreen.classList.contains('active')) return;
+
+      const activeEl = document.activeElement;
+      const isInputFocused = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      if (e.code === 'Space') {
+        if (!isInputFocused) {
+          e.preventDefault();
+          if (this.#validateBtn && !this.#validateBtn.classList.contains('hidden')) {
+            this.#validateBtn.click();
+          } else if (this.#nextBtn && !this.#nextBtn.classList.contains('hidden')) {
+            this.#nextBtn.click();
+          }
+        }
+      } else if (e.code === 'Enter') {
+        if (this.#nextBtn && !this.#nextBtn.classList.contains('hidden')) {
+          e.preventDefault();
+          this.#nextBtn.click();
+        }
+      } else if (e.code === 'Escape') {
+        if (this.#quitBtn) {
+          this.#quitBtn.click();
+        }
+      }
+    });
   }
 
   showScreen(screenName) {
@@ -365,7 +401,14 @@ export class GameView {
     }
   }
 
-  setBannerStreetName(name) {
+  updateComboBadge(multiplier) {
+    if (!this.#comboBadge || !this.#comboText) return;
+    if (multiplier && multiplier > 1) {
+      this.#comboText.textContent = `Combo x${multiplier}`;
+      this.#comboBadge.classList.remove('hidden');
+    } else {
+      this.#comboBadge.classList.add('hidden');
+    }
   }
 
   showBanner(visible) {
@@ -376,6 +419,7 @@ export class GameView {
       this.#topBanner.classList.add('hidden');
       this.#bottomActions.classList.add('hidden');
       this.hideTimer();
+      this.updateComboBadge(1);
     }
   }
 
@@ -414,7 +458,6 @@ export class GameView {
     }
   }
 
-
   setActionsState(state) {
     this.#validateBtn.classList.add('hidden');
     this.#nextBtn.classList.add('hidden');
@@ -432,5 +475,18 @@ export class GameView {
     } else {
       this.#identifyContainer.classList.add('hidden');
     }
+  }
+
+  updateRoundProgress(currentRound, totalRounds = 5) {
+    const dots = document.querySelectorAll('.round-dot');
+    dots.forEach((dot, index) => {
+      const roundNum = index + 1;
+      dot.classList.remove('active', 'done-success', 'done-error');
+      if (roundNum === currentRound) {
+        dot.classList.add('active');
+      } else if (roundNum < currentRound) {
+        dot.classList.add('done-success');
+      }
+    });
   }
 }

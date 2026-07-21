@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CityMaster - Geographic Serious Game</title>
+  <meta name="description" content="CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !">
+  <title>CityMaster - Jeu Géographique Interactif</title>
   <link rel="icon" type="image/png" href="favicon.png" />
   <script>
     (function() {
@@ -22,33 +23,40 @@
   <link rel="stylesheet" href="assets/styles/style.css">
 </head>
 <body>
-  <nav id="main-nav" class="navbar">
+  <a href="#app" class="skip-link">Aller au contenu principal</a>
+
+  <nav id="main-nav" class="navbar" role="navigation" aria-label="Navigation principale">
     <div class="navbar-brand">
-      <span id="logo-brand" class="logo-text" style="cursor: pointer;">CityMaster</span>
+      <span id="logo-brand" class="logo-text" style="cursor: pointer;" tabindex="0" role="button" aria-label="CityMaster Accueil">CityMaster</span>
     </div>
     <div class="navbar-actions">
-      <button id="theme-toggle" class="theme-toggle" title="Changer de thème"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg></button>
+      <button id="sound-toggle" class="icon-btn" title="Activer/Désactiver le son" aria-label="Activer ou désactiver le son">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+      </button>
+      <button id="theme-toggle" class="icon-btn" title="Changer de thème" aria-label="Basculer le thème clair ou sombre">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+      </button>
       <div id="nav-auth-logged-out">
         <button id="nav-login-btn" class="btn secondary">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
         <a href="#" id="nav-logout-btn" class="logout-link">Se déconnecter</a>
-        <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil">
-          <img id="nav-profile-img" src="assets/images/default-avatar.png" alt="Avatar" class="nav-avatar hidden" />
+        <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil" aria-label="Voir mon profil">
+          <img id="nav-profile-img" src="assets/images/default-avatar.png" alt="Avatar utilisateur" class="nav-avatar hidden" />
           <span id="nav-profile-name" class="profile-name"></span>
         </a>
       </div>
     </div>
   </nav>
 
-  <div id="app">
+  <main id="app" role="main">
     <div id="loading-screen" class="screen active">
       <div class="loader-container">
-        <div class="loader-spinner"></div>
-        <p id="loading-message">Chargement de CityMaster...</p>
+        <div class="loader-spinner" role="status" aria-label="Chargement en cours"></div>
+        <p id="loading-message" aria-live="polite">Chargement de CityMaster...</p>
       </div>
     </div>
-  </div>
+  </main>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"></script>

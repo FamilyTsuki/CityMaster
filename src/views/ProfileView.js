@@ -19,6 +19,12 @@ export class ProfileView {
     this.#backBtn = document.getElementById('profile-back-btn');
     this.#themeSwitch = document.getElementById('profile-theme-switch');
     this.#logoutBtn = document.getElementById('profile-logout-btn');
+
+    if (this.#profileImg) {
+      this.#profileImg.onerror = () => {
+        this.#profileImg.src = 'assets/images/default-avatar.png';
+      };
+    }
   }
 
   onBackClick(callback) {

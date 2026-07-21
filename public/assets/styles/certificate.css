@@ -1,83 +1,88 @@
 #certificate-screen {
   align-items: center;
   justify-content: flex-start;
-  padding: 40px 20px;
-  background: var(--bg-main);
+  padding: 32px 16px;
+  background: radial-gradient(circle at top, rgba(245, 158, 11, 0.12), transparent 50%),
+              var(--bg-main);
   overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
 }
 
 .certificate-card {
   text-align: center;
-  border: 2px solid rgba(245, 176, 65, 0.3);
-  box-shadow: var(--shadow-lg);
+  border: 2px solid rgba(245, 158, 11, 0.4);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(245, 158, 11, 0.2);
   position: relative;
   overflow: hidden;
-}
-
-[data-theme="dark"] .certificate-card {
-  border: 2px solid rgba(245, 176, 65, 0.2);
-  box-shadow: var(--shadow-lg);
+  margin: auto;
 }
 
 .trophy-container {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 80px;
-  height: 80px;
+  width: clamp(64px, 15vw, 80px);
+  height: clamp(64px, 15vw, 80px);
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(254, 240, 138, 0.4) 0%, rgba(245, 158, 11, 0.1) 100%);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.5) 0%, rgba(245, 158, 11, 0.2) 100%);
+  border: 2px solid rgba(245, 158, 11, 0.4);
   margin-bottom: 16px;
   color: #d97706;
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  flex-shrink: 0;
 }
 
 [data-theme="dark"] .trophy-container {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2) 0%, rgba(251, 191, 36, 0.05) 100%);
+  background: linear-gradient(135deg, rgba(251, 191, 36, 0.25) 0%, rgba(251, 191, 36, 0.08) 100%);
   color: #fbbf24;
 }
 
 .trophy-svg {
-  width: 44px;
-  height: 44px;
-  stroke-width: 1.5;
+  width: clamp(36px, 10vw, 44px);
+  height: clamp(36px, 10vw, 44px);
+  min-width: 36px;
+  min-height: 36px;
+  stroke-width: 1.6;
+  flex-shrink: 0;
 }
 
 .cert-title {
   display: block;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  font-size: clamp(0.85rem, 2.5vw, 1rem);
+  font-weight: 800;
+  color: var(--warning);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-bottom: 24px;
+  letter-spacing: 0.12em;
+  margin-bottom: 16px;
 }
 
 .cert-intro {
   font-size: 0.95rem;
   color: var(--text-muted);
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .certificate-card h1 {
-  font-size: 2.2rem;
-  font-weight: 700;
+  font-size: clamp(1.6rem, 5vw, 2.2rem);
+  font-weight: 800;
   color: var(--text-main);
-  letter-spacing: -0.025em;
+  letter-spacing: -0.03em;
   margin: 0;
 }
 
 .cert-divider {
-  width: 60px;
-  height: 2px;
+  width: 80px;
+  height: 3px;
   background: linear-gradient(90deg, transparent, #fbbf24, transparent);
   margin: 16px auto;
+  border-radius: 99px;
 }
 
 .cert-score-label {
-  font-size: 0.95rem;
+  font-size: 0.92rem;
   color: var(--text-muted);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 #cert-score-container {
@@ -85,48 +90,42 @@
   align-items: baseline;
   justify-content: center;
   gap: 8px;
-  margin-bottom: 36px;
+  margin-bottom: 24px;
 }
 
 .certificate-card #cert-score {
-  font-size: 4.5rem;
+  font-size: clamp(3rem, 12vw, 4.5rem);
   font-weight: 800;
   color: var(--primary);
   margin: 0;
   line-height: 1;
-  text-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
-}
-
-[data-theme="dark"] .certificate-card #cert-score {
-  color: #60a5fa;
-  text-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
+  text-shadow: var(--shadow-glow);
 }
 
 .cert-points-label {
   font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
 .sprint-recap {
-  margin-top: 24px;
+  margin-top: 18px;
   text-align: left;
-  background: rgba(37, 99, 235, 0.03);
-  border-radius: 8px;
-  padding: 16px;
+  background: var(--bg-glass);
+  border-radius: var(--border-radius-sm);
+  padding: 14px;
   border: 1px solid var(--border-color);
-}
-
-[data-theme="dark"] .sprint-recap {
-  background: rgba(255, 255, 255, 0.02);
+  max-height: 180px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .sprint-recap h3 {
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.88rem;
+  font-weight: 800;
   color: var(--text-main);
   margin-top: 0;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -141,20 +140,42 @@
   text-align: left;
   padding: 8px;
   color: var(--text-muted);
-  font-weight: 600;
+  font-weight: 700;
   border-bottom: 1px solid var(--border-color);
+  font-size: 0.72rem;
+  text-transform: uppercase;
 }
 
 .sprint-recap-table td {
   padding: 8px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
 }
 
-[data-theme="dark"] .sprint-recap-table td {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.certificate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
 }
 
-.sprint-recap-table tr:last-child td {
-  border-bottom: none;
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .certificate-card, .certificate-card * {
+    visibility: visible;
+  }
+  .certificate-card {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none;
+    border: 4px solid #f59e0b;
+  }
+  .certificate-actions {
+    display: none;
+  }
 }

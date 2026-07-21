@@ -122,6 +122,14 @@ export class MapView {
       }
     });
 
+    let resizeTimeout = null;
+    window.addEventListener('resize', () => {
+      if (resizeTimeout) cancelAnimationFrame(resizeTimeout);
+      resizeTimeout = requestAnimationFrame(() => {
+        this.invalidateSize();
+      });
+    });
+
     return this.#getTilesLoadedPromise();
   }
 

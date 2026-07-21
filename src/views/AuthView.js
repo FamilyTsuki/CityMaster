@@ -20,12 +20,18 @@ export class AuthView {
   }
 
   onSubmit(callback) {
-    if (this.#authMainBtn) {
-      this.#authMainBtn.addEventListener('click', () => {
-        const username = this.#usernameInput.value.trim();
-        const password = this.#passwordInput.value.trim();
-        callback(username, password);
-      });
+    const form = document.getElementById('auth-form');
+    const handler = (e) => {
+      if (e) e.preventDefault();
+      const username = this.#usernameInput.value.trim();
+      const password = this.#passwordInput.value.trim();
+      callback(username, password);
+    };
+
+    if (form) {
+      form.addEventListener('submit', handler);
+    } else if (this.#authMainBtn) {
+      this.#authMainBtn.addEventListener('click', handler);
     }
   }
 
@@ -49,12 +55,14 @@ export class AuthView {
       if (this.#authMainBtn) this.#authMainBtn.textContent = 'Se connecter';
       if (this.#authSwitchText) this.#authSwitchText.textContent = 'Pas encore de compte ?';
       if (this.#authSwitchLink) this.#authSwitchLink.textContent = 'Créer un compte';
+      if (this.#passwordInput) this.#passwordInput.setAttribute('autocomplete', 'current-password');
     } else {
       if (this.#authTitle) this.#authTitle.textContent = 'Créer un compte';
       if (this.#authSubtitle) this.#authSubtitle.textContent = 'Rejoignez-nous pour jouer !';
       if (this.#authMainBtn) this.#authMainBtn.textContent = "S'inscrire";
       if (this.#authSwitchText) this.#authSwitchText.textContent = 'Déjà un compte ?';
       if (this.#authSwitchLink) this.#authSwitchLink.textContent = 'Se connecter';
+      if (this.#passwordInput) this.#passwordInput.setAttribute('autocomplete', 'new-password');
     }
   }
 

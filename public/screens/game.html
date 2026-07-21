@@ -1,31 +1,54 @@
 <div id="game-screen" class="screen">
   <div class="map-area">
     <div id="map"></div>
+    
     <div id="map-loader" class="map-overlay-loader">
       <div class="loader-spinner"></div>
-      <p id="map-loader-message">Chargement de la carte...</p>
+      <p id="map-loader-message">Chargement des données géographiques...</p>
     </div>
     
     <div id="top-banner" class="ui-overlay-top glass-panel hidden">
+      <div class="hud-round-indicators" id="round-indicators">
+        <span class="round-dot" data-round="1"></span>
+        <span class="round-dot" data-round="2"></span>
+        <span class="round-dot" data-round="3"></span>
+        <span class="round-dot" data-round="4"></span>
+        <span class="round-dot" data-round="5"></span>
+      </div>
+      
       <span id="game-instruction" class="instruction-text">Chargement...</span>
+      
+      <div id="combo-badge" class="combo-badge hidden">
+        <span class="combo-icon">⚡</span>
+        <span id="combo-text">Combo x2</span>
+      </div>
+
       <div id="timer-container" class="timer-container hidden">
         <div id="timer-bar" class="timer-bar"></div>
       </div>
     </div>
 
     <div id="top-right-actions" class="ui-overlay-top-right">
-      <button id="quit-btn" class="quit-btn" title="Quitter la partie"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" style="margin-right: 0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg></button>
+      <button id="quit-btn" class="quit-btn" title="Quitter la partie (Échap)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" style="margin-right: 0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      </button>
     </div>
 
     <div id="bottom-actions" class="ui-overlay-bottom glass-panel hidden">
       <div id="identify-input-container" class="input-container hidden">
-        <input type="text" id="street-name-input" placeholder="Nom de la rue..." />
+        <input type="text" id="street-name-input" placeholder="Nom de la rue... (Entrée pour valider)" autocomplete="off" />
         <button id="submit-answer-btn" class="btn">Valider la réponse</button>
       </div>
 
       <div id="game-actions" class="action-buttons">
-        <button id="validate-btn" class="btn hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Valider l'emplacement</button>
-        <button id="next-btn" class="btn hidden">Rue Suivante <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" style="margin-left: 6px; margin-right: 0;"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg></button>
+        <button id="validate-btn" class="btn hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          Valider l'emplacement (Espace)
+        </button>
+        <button id="next-btn" class="btn hidden">
+          Rue Suivante (Entrée / Espace)
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" style="margin-left: 6px; margin-right: 0;"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+        </button>
       </div>
     </div>
   </div>

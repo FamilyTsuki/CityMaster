@@ -8,6 +8,8 @@ import { GameController } from './controllers/GameController.js';
 import { AuthController } from './controllers/AuthController.js';
 import { ProfileController } from './controllers/ProfileController.js';
 import { ScoreController } from './controllers/ScoreController.js';
+import { AudioService } from './services/AudioService.js';
+import { ConfettiService } from './services/ConfettiService.js';
 import { Router } from './Router.js';
 
 class App {
@@ -21,9 +23,11 @@ class App {
   #controller;
   #authController;
   #profileController;
+  #audioService;
   #router;
 
   constructor() {
+    this.#audioService = new AudioService();
     this.#gameView = new GameView();
     this.#mapView = new MapView();
     this.#certificateView = new CertificateView();
@@ -31,7 +35,19 @@ class App {
     this.#authView = new AuthView();
     this.#profileView = new ProfileView();
     this.#scoreController = new ScoreController(this.#gameView);
-    
+
+    this.#navbarView.setSoundState(this.#audioService.isMuted());
+    this.#navbarView.onSoundToggle(() => {
+      const isMuted = this.#audioService.toggleMute();
+      this.#navbarView.setSoundState(isMuted);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('button, .btn, a, li, .icon-btn')) {
+        this.#audioService.playClick();
+      }
+    });
+
     this.#router = new Router({
       '/': () => this.#gameView.showScreen('landing'),
       '/setup': () => this.#showWelcome(),
@@ -44,14 +60,18 @@ class App {
         this.#gameView.showScreen('auth');
       },
       '/play': () => this.#showPlay(),
-      '/certificate': () => this.#gameView.showScreen('certificate'),
+      '/certificate': () => {
+        this.#gameView.showScreen('certificate');
+        ConfettiService.launch();
+        this.#audioService.playFanfare();
+      },
       '/profile': () => this.#profileController.loadProfile()
     });
 
     this.#authController = new AuthController(this.#router, this.#authView, this.#navbarView);
     this.#profileController = new ProfileController(this.#router, this.#profileView, this.#navbarView, this.#gameView);
-    this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, this.#router);
-    
+    this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, this.#router, this.#audioService);
+
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));
       this.#profileController.fetchNavAvatar();
@@ -87,7 +107,7 @@ class App {
       this.#router.navigate('/login');
       return;
     }
-    
+
     if (!this.#controller.hasActiveSession()) {
       if (!this.#controller.resumeGame()) {
         this.#router.navigate('/setup');
@@ -95,7 +115,7 @@ class App {
       }
       return;
     }
-    
+
     this.#gameView.showScreen('game');
     this.#mapView.invalidateSize();
   }

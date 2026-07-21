@@ -11,8 +11,7 @@ export class GameController {
   #overpassService;
   #session;
   #router;
-
-
+  #audioService;
 
   #hasPlacedMarker;
   #currentStepState;
@@ -22,12 +21,13 @@ export class GameController {
   #totalTime;
   #remainingTime;
 
-  constructor(gameView, mapView, certificateView, scoreController, router) {
+  constructor(gameView, mapView, certificateView, scoreController, router, audioService) {
     this.#gameView = gameView;
     this.#mapView = mapView;
     this.#certificateView = certificateView;
     this.#scoreController = scoreController;
     this.#router = router;
+    this.#audioService = audioService;
     this.#spatialService = new SpatialService();
     this.#overpassService = new OverpassService();
     this.#session = null;
@@ -164,7 +164,6 @@ export class GameController {
           if (this.#session.currentMode === 'target') {
             this.#validateGuess(true);
           } else if (this.#session.currentMode === 'sprint') {
-            // Sprint timeout submits null guess
             this.#submitRoundToBackend(null, this.#totalTime).then(result => {
               this.#session.gameToken = result.gameToken;
               this.#session.score = result.totalScore;
@@ -260,6 +259,7 @@ export class GameController {
         this.#session.currentMode,
         this.#session.score
       );
+      this.#gameView.updateRoundProgress(this.#session.roundIndex || 1);
     }
   }
 
@@ -409,6 +409,16 @@ export class GameController {
 
       const feedback = result.feedback;
       this.#gameView.setInstruction(feedback.message);
+      this.#gameView.updateComboBadge(feedback.multiplier);
+
+      if (feedback.multiplier > 1) {
+        this.#audioService.playCombo(feedback.multiplier);
+      } else if (feedback.isCorrect) {
+        this.#audioService.playSuccess();
+      } else {
+        this.#audioService.playError();
+      }
+
       this.#updateHUD();
 
       const targetLatLng = this.#spatialService.getNearestPoint(
@@ -462,6 +472,16 @@ export class GameController {
 
       const feedback = result.feedback;
       this.#gameView.setInstruction(feedback.message);
+      this.#gameView.updateComboBadge(feedback.multiplier);
+
+      if (feedback.multiplier > 1) {
+        this.#audioService.playCombo(feedback.multiplier);
+      } else if (feedback.isCorrect) {
+        this.#audioService.playSuccess();
+      } else {
+        this.#audioService.playError();
+      }
+
       this.#updateHUD();
 
       this.#mapView.renderStreet(feedback.geometry, true);

@@ -38,10 +38,10 @@ export class GameController {
         const fileContent = await fs.readFile(filePath, 'utf8');
         geojson = JSON.parse(fileContent);
       } catch (err) {
-        return res.status(404).json({ error: 'City data not found. Please generate it first.' });
+        return res.status(404).json({ error: 'City data not found.' });
       }
 
-      const allCityStreets = geojson.features.filter(f => f.properties.name);
+      const allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
       if (allCityStreets.length === 0) {
         return res.status(400).json({ error: 'No streets found for this city.' });
       }
@@ -90,13 +90,17 @@ export class GameController {
           geometry: s.geometry
         })),
         currentRound: 0,
+        streakCount: 0,
         scores: [],
         sprintHistory: []
       };
 
-      const secret = process.env.JWT_SECRET || 'fallback_secret';
-      const gameToken = encrypt(JSON.stringify(session), secret);
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        return res.status(500).json({ error: 'Server security configuration error' });
+      }
 
+      const gameToken = encrypt(JSON.stringify(session), secret);
       const currentStreet = session.streets[0];
       const nextPrompt = {
         roundIndex: 0,
@@ -109,14 +113,13 @@ export class GameController {
         nextPrompt.geometry = currentStreet.geometry;
       }
 
-      res.json({
+      return res.json({
         gameToken,
         nextPrompt,
         isFinished: false
       });
     } catch (error) {
-      console.error('Start game error:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Internal server error starting game' });
     }
   }
 
@@ -127,7 +130,11 @@ export class GameController {
         return res.status(400).json({ error: 'gameToken is required' });
       }
 
-      const secret = process.env.JWT_SECRET || 'fallback_secret';
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        return res.status(500).json({ error: 'Server security configuration error' });
+      }
+
       let session;
       try {
         session = JSON.parse(decrypt(gameToken, secret));
@@ -141,6 +148,10 @@ export class GameController {
 
       if (session.currentRound >= 5) {
         return res.status(400).json({ error: 'Game is already finished' });
+      }
+
+      if (session.streakCount === undefined) {
+        session.streakCount = 0;
       }
 
       const currentStreet = session.streets[session.currentRound];
@@ -158,7 +169,7 @@ export class GameController {
       };
 
       if (mode === 'target' || mode === 'sprint') {
-        if (!guess || guess.lat === undefined || guess.lng === undefined) {
+        if (!guess || typeof guess.lat !== 'number' || typeof guess.lng !== 'number') {
           distance = -1;
           pointsEarned = 0;
           isCorrect = false;
@@ -205,7 +216,7 @@ export class GameController {
           });
         }
       } else if (mode === 'identify') {
-        const normalize = (str) => str ? str.toLowerCase().replace(/^(le|la|les|l'|d'|du|de|des)\s+/, '').replace(/[^a-z0-9]/g, '').trim() : '';
+        const normalize = (str) => typeof str === 'string' ? str.toLowerCase().replace(/^(le|la|les|l'|d'|du|de|des)\s+/, '').replace(/[^a-z0-9]/g, '').trim() : '';
         const cleanAnswer = normalize(guess);
         const cleanCorrect = normalize(currentStreet.name);
 
@@ -231,6 +242,26 @@ export class GameController {
         }
       }
 
+      if (isCorrect) {
+        session.streakCount++;
+      } else {
+        session.streakCount = 0;
+      }
+
+      let multiplier = 1;
+      if (session.streakCount >= 3) {
+        multiplier = 3;
+      } else if (session.streakCount === 2) {
+        multiplier = 2;
+      }
+
+      if (pointsEarned > 0 && multiplier > 1) {
+        pointsEarned *= multiplier;
+        message += ` (Combo x${multiplier} !)`;
+      }
+
+      feedback.streakCount = session.streakCount;
+      feedback.multiplier = multiplier;
       feedback.pointsEarned = pointsEarned;
       feedback.message = message + ` (+${pointsEarned} pts)`;
       feedback.isCorrect = isCorrect;
@@ -261,7 +292,7 @@ export class GameController {
         await Score.create(session.username, finalScore);
       }
 
-      res.json({
+      return res.json({
         gameToken: newGameToken,
         feedback,
         nextPrompt,
@@ -270,8 +301,7 @@ export class GameController {
         sprintHistory: session.sprintHistory
       });
     } catch (error) {
-      console.error('Submit round error:', error);
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: 'Internal server error submitting round' });
     }
   }
 }
