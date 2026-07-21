@@ -49,6 +49,7 @@ export class GameController {
     this.#gameView.onNextStreet(() => this.#nextStreet());
     this.#gameView.onQuit(() => this.#quitGame());
     this.#gameView.onRestart(() => this.#restartGame());
+    this.#gameView.onMapStyleChange((style) => this.#mapView.setMapStyle(style));
 
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
   }

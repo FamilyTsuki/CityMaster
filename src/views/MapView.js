@@ -21,6 +21,19 @@ export class MapView {
     this.#tileLayer = null;
   }
 
+  setMapStyle(styleType) {
+    if (!this.#tileLayer) return;
+
+    let newUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    if (styleType === 'satellite') {
+      newUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    } else if (styleType === 'dark') {
+      newUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    }
+
+    this.#tileLayer.setUrl(newUrl);
+  }
+
   initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14, bboxString = null, hideLabels = false) {
     const tileUrl = hideLabels
       ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png'

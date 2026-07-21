@@ -353,6 +353,18 @@ export class GameView {
          .replace(/'/g, "&#039;");
   }
 
+  onMapStyleChange(callback) {
+    const styleBtns = document.querySelectorAll('.map-style-btn');
+    styleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        styleBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const style = btn.getAttribute('data-style');
+        callback(style);
+      });
+    });
+  }
+
   onSubmitAnswer(callback) {
     this.#submitBtn.addEventListener('click', () => {
       const answer = this.#streetInput.value.trim();
