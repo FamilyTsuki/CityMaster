@@ -68,7 +68,8 @@ class App {
         ConfettiService.launch();
         this.#audioService.playFanfare();
       },
-      '/profile': () => this.#profileController.loadProfile()
+      '/profile': () => this.#profileController.loadProfile(),
+      '/legal': () => this.#gameView.showScreen('legal')
     });
 
     this.#authController = new AuthController(this.#router, this.#authView, this.#navbarView);
@@ -130,7 +131,7 @@ class App {
           await document.fonts.ready;
         }
 
-        const screens = ['landing', 'auth', 'welcome', 'game', 'certificate', 'profile'];
+        const screens = ['landing', 'auth', 'welcome', 'game', 'certificate', 'profile', 'legal'];
         const appContainer = document.getElementById('app');
         const loadingHtml = appContainer.innerHTML;
 

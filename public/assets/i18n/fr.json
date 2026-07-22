@@ -6,8 +6,23 @@
     "theme_title": "Changer de thème",
     "login": "Se connecter",
     "logout": "Se déconnecter",
-    "profile": "Mon Profil"
+    "legal": "Mentions Légales & RGPD"
   },
+  "legal": {
+    "title": "Mentions Légales & Confidentialité",
+    "subtitle": "Informations réglementaires, RGPD et crédits cartographiques.",
+    "editor_title": "1. Éditeur du Site",
+    "editor_desc": "CityMaster est une application web éducative et interactive indépendante de cartographie.",
+    "hosting_title": "2. Hébergement & Infrastructure",
+    "hosting_desc": "Le site est hébergé localement ou sur des serveurs Cloud sécurisés conformément aux normes de sécurité modernes.",
+    "credits_title": "3. Crédits & Propriété Intellectuelle",
+    "credits_desc": "Données cartographiques fournies par OpenStreetMap (© Contributeurs OpenStreetMap, sous licence ODbL). Fonds de carte Leaflet et Esri. Traitements géospatiaux propulsés par Turf.js et Overpass API.",
+    "rgpd_title": "4. Protection des Données (RGPD)",
+    "rgpd_desc": "CityMaster respecte la confidentialité de vos données personnelles. Aucune donnée à caractère personnel n'est vendue ni transmise à des tiers. Les préférences utilisateur (langue, thème, avatar et scores) sont stockées de manière sécurisée en stockage local (LocalStorage/base de données d'application). Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès, de rectification et de suppression de vos données sur simple demande ou via votre espace profil.",
+    "cookies_title": "5. Cookies & Traqueurs",
+    "cookies_desc": "CityMaster n'utilise aucun cookie publicitaire ni aucun traceur tiers à des fins de profilage commercial. Seul le stockage technique local (LocalStorage) est utilisé pour conserver vos préférences de jeu."
+  },
+  "errors": {
   "landing": {
     "badge": "✨ Jeu Géographique Interactif",
     "hero_title": "Maîtrisez la Géographie de Votre Ville",

@@ -6,7 +6,21 @@
     "theme_title": "Toggle theme",
     "login": "Sign In",
     "logout": "Sign Out",
-    "profile": "My Profile"
+    "legal": "Legal Notice & Privacy"
+  },
+  "legal": {
+    "title": "Legal Notice & Privacy Policy",
+    "subtitle": "Regulatory information, GDPR compliance, and map credits.",
+    "editor_title": "1. Site Publisher",
+    "editor_desc": "CityMaster is an independent, interactive educational web mapping application.",
+    "hosting_title": "2. Hosting & Infrastructure",
+    "hosting_desc": "The application is hosted locally or on secure Cloud servers following modern security standards.",
+    "credits_title": "3. Credits & Intellectual Property",
+    "credits_desc": "Map data provided by OpenStreetMap (© OpenStreetMap contributors, ODbL license). Tiles by Leaflet and Esri. Geospatial processing powered by Turf.js and Overpass API.",
+    "rgpd_title": "4. Data Protection (GDPR)",
+    "rgpd_desc": "CityMaster respects your privacy. No personal data is sold or shared with third parties. User preferences (language, theme, avatar, and scores) are stored securely in local browser storage (LocalStorage/application database). Under GDPR rules, you have the right to access, modify, or delete your data anytime upon request or via your profile.",
+    "cookies_title": "5. Cookies & Trackers",
+    "cookies_desc": "CityMaster does not use advertising cookies or third-party tracking scripts. Technical local storage (LocalStorage) is strictly used to save your in-game preferences."
   },
   "landing": {
     "badge": "✨ Interactive Geography Game",
