@@ -25,7 +25,7 @@
   width: clamp(64px, 15vw, 80px);
   height: clamp(64px, 15vw, 80px);
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(254, 240, 138, 0.5) 0%, rgba(245, 158, 11, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(254, 240, 138, 0.6) 0%, rgba(245, 158, 11, 0.15) 100%);
   border: 2px solid rgba(245, 158, 11, 0.4);
   margin-bottom: 16px;
   color: #d97706;
@@ -138,16 +138,18 @@
 
 .sprint-recap-table th {
   text-align: left;
-  padding: 8px;
+  padding: 10px 12px;
   color: var(--text-muted);
   font-weight: 700;
   border-bottom: 1px solid var(--border-color);
   font-size: 0.72rem;
   text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--bg-card-solid);
 }
 
 .sprint-recap-table td {
-  padding: 8px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-main);
 }
@@ -159,13 +161,22 @@
   margin-top: 20px;
 }
 
+@media (max-width: 640px) {
+  #certificate-screen {
+    padding: 20px 12px;
+  }
+}
+
 @media print {
   body * {
     visibility: hidden;
   }
-  .certificate-card, .certificate-card * {
+
+  .certificate-card,
+  .certificate-card * {
     visibility: visible;
   }
+
   .certificate-card {
     position: absolute;
     left: 0;
@@ -175,6 +186,7 @@
     box-shadow: none;
     border: 4px solid #f59e0b;
   }
+
   .certificate-actions {
     display: none;
   }

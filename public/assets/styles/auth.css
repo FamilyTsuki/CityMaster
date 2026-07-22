@@ -1,9 +1,12 @@
 #auth-screen {
   align-items: center;
   justify-content: flex-start;
-  padding: 40px 20px;
-  background: var(--bg-main);
+  padding: 32px 16px;
+  background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 45%),
+              var(--bg-main);
   overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
 }
 
 .auth-actions {
@@ -31,10 +34,16 @@
   font-size: 0.875rem;
   font-weight: 600;
   text-decoration: none;
-  transition: color 0.2s;
+  transition: color var(--transition-fast);
 }
 
 .auth-link:hover {
   color: var(--primary-hover);
   text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  #auth-screen {
+    padding: 20px 12px;
+  }
 }

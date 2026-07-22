@@ -1,0 +1,172 @@
+.form-group {
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 13px 16px;
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.95rem;
+  outline: none;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.75rem;
+}
+
+[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-light);
+  background-color: var(--bg-card-solid);
+}
+
+.custom-select-container {
+  position: relative;
+}
+
+.dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-lg);
+  margin-top: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: var(--z-dropdown, 1000);
+  list-style: none;
+  padding: 6px;
+  transform: translate3d(0, 0, 0);
+  will-change: opacity, transform;
+}
+
+.dropdown-list li {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  display: flex;
+  align-items: center;
+}
+
+.dropdown-list li:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+  transform: translate3d(3px, 0, 0);
+}
+
+.dropdown-list li.selected {
+  background-color: var(--primary);
+  color: #ffffff;
+}
+
+.dropdown-list li.selected .select-icon {
+  stroke: #ffffff;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--secondary-hover);
+  border: 1px solid var(--border-color);
+  transition: var(--transition-fast);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: var(--text-main);
+  transition: var(--transition-fast);
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+  background-color: #ffffff;
+}
+
+.slider.round {
+  border-radius: 9999px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="password"],
+  select {
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+}
+
+@media (max-width: 380px) {
+  .form-group {
+    margin-bottom: 16px;
+  }
+}

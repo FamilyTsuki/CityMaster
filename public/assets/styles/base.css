@@ -42,7 +42,7 @@ body {
   font-weight: 700;
   text-decoration: none;
   box-shadow: var(--shadow-lg);
-  transition: top 0.2s ease;
+  transition: top var(--transition-fast);
 }
 
 .skip-link:focus {
@@ -156,12 +156,16 @@ svg {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(148, 163, 184, 0.35);
+  background: var(--border-color);
   border-radius: 99px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(148, 163, 184, 0.6);
+  background: var(--text-muted);
+}
+
+[data-theme="light"] .leaflet-tile-container {
+  filter: none;
 }
 
 [data-theme="dark"] .leaflet-tile-container {

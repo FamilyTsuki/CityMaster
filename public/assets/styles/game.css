@@ -75,7 +75,7 @@
   background: transparent;
   border: none;
   box-shadow: none;
-  z-index: 1000;
+  z-index: var(--z-navbar, 1000);
 }
 
 .ui-overlay-top {
@@ -99,13 +99,19 @@
   align-items: center;
   gap: 6px;
   animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  z-index: 1000;
+  z-index: var(--z-navbar, 1000);
   will-change: transform, opacity;
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translate3d(-50%, -20px, 0); }
-  to { opacity: 1; transform: translate3d(-50%, 0, 0); }
+  from {
+    opacity: 0;
+    transform: translate3d(-50%, -20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(-50%, 0, 0);
+  }
 }
 
 .hud-round-indicators {
@@ -182,7 +188,7 @@
   position: absolute;
   top: 20px;
   left: 20px;
-  z-index: 1000;
+  z-index: var(--z-navbar, 1000);
   display: flex;
   gap: 6px;
   background: var(--bg-card);
@@ -223,7 +229,7 @@
   position: absolute;
   top: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: var(--z-navbar, 1000);
 }
 
 .quit-btn {
@@ -270,7 +276,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  z-index: 1000;
+  z-index: var(--z-navbar, 1000);
   pointer-events: auto;
   will-change: transform, opacity;
 }
@@ -294,8 +300,8 @@
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-sm);
-  box-shadow: var(--shadow-xl);
-  z-index: 2500;
+  box-shadow: var(--shadow-lg);
+  z-index: var(--z-toast, 2500);
   list-style: none;
   padding: 6px 0;
   margin: 0;
@@ -335,7 +341,7 @@
   height: 100%;
   background: var(--bg-card);
   backdrop-filter: blur(12px);
-  z-index: 2000;
+  z-index: var(--z-modal, 2000);
   display: flex;
   flex-direction: column;
   align-items: center;

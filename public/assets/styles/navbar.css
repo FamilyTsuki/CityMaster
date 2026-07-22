@@ -10,7 +10,7 @@
   box-shadow: var(--shadow-sm);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: var(--z-navbar, 1000);
   transition: background-color var(--transition-smooth), border-color var(--transition-smooth);
   width: 100%;
   max-width: 100vw;
@@ -49,7 +49,8 @@
   flex-shrink: 0;
 }
 
-#nav-auth-logged-in, #nav-auth-logged-out {
+#nav-auth-logged-in,
+#nav-auth-logged-out {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -169,7 +170,8 @@
     gap: 6px;
   }
 
-  #nav-auth-logged-in, #nav-auth-logged-out {
+  #nav-auth-logged-in,
+  #nav-auth-logged-out {
     gap: 6px;
   }
 

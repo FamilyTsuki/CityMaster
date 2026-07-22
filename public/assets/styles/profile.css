@@ -2,7 +2,7 @@
   align-items: center;
   justify-content: flex-start;
   padding: 32px 16px;
-  background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.1), transparent 45%),
+  background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.12), transparent 45%),
               var(--bg-main);
   overflow-y: auto;
   overflow-x: hidden;
@@ -68,7 +68,7 @@
 
 .stat-box {
   background: var(--primary-light);
-  border: 1px solid rgba(79, 70, 229, 0.2);
+  border: 1px solid var(--border-color);
   padding: 16px 20px;
   border-radius: var(--border-radius-sm);
   min-width: 130px;
@@ -150,14 +150,17 @@
   #profile-screen {
     padding: 20px 12px;
   }
+
   .profile-avatar-container {
     width: 100px;
     height: 100px;
   }
+
   .upload-btn {
     width: 32px;
     height: 32px;
   }
+
   .stat-box {
     padding: 12px 14px;
     min-width: 100px;
