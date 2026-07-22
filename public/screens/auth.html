@@ -1,13 +1,13 @@
 <div id="auth-screen" class="screen">
   <div class="card" role="region" aria-labelledby="auth-title">
-    <h1 id="auth-title">Connexion</h1>
+    <h1 id="auth-title" data-i18n="nav.login">Connexion</h1>
     <p id="auth-subtitle">Connectez-vous pour enregistrer vos scores.</p>
     
     <form id="auth-form" action="#" method="POST" onsubmit="event.preventDefault();">
       <div class="form-group">
         <label for="auth-username">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="label-icon" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          Nom d'utilisateur :
+          <span data-i18n="welcome.player">Nom d'utilisateur</span> :
         </label>
         <input 
           type="text" 
@@ -39,7 +39,7 @@
       <div id="auth-error" class="error-msg hidden" role="alert" aria-live="polite"></div>
       
       <div class="auth-actions">
-        <button type="submit" id="auth-main-btn" class="btn">Se connecter</button>
+        <button type="submit" id="auth-main-btn" class="btn" data-i18n="nav.login">Se connecter</button>
         <div class="auth-link-container">
           <span id="auth-switch-text" class="text-muted">Pas encore de compte ?</span>
           <a href="#" id="auth-switch-link" class="auth-link">Créer un compte</a>

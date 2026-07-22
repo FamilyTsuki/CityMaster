@@ -1,0 +1,126 @@
+{
+  "nav": {
+    "home": "CityMaster Home",
+    "install": "Install",
+    "install_title": "Install application on your device",
+    "theme_title": "Toggle theme",
+    "login": "Sign In",
+    "logout": "Sign Out",
+    "profile": "My Profile"
+  },
+  "landing": {
+    "badge": "✨ Interactive Geography Game",
+    "hero_title": "Master Your City's Geography",
+    "hero_subtitle": "Test your knowledge of streets, housing estates, and neighborhoods in real-time with OpenStreetMap.",
+    "play_now": "Play Now",
+    "stat_cities": "French Cities",
+    "stat_streets": "Mapped Streets",
+    "stat_modes": "Game Modes",
+    "feature_1_title": "Real-Time Data",
+    "feature_1_desc": "Explore any municipality using live OpenStreetMap geographical data.",
+    "feature_2_title": "Innovative Game Modes",
+    "feature_2_desc": "Target placement, Sprint time-attack, or Name identification mode.",
+    "feature_3_title": "Cross-Platform & PWA",
+    "feature_3_desc": "Play on smartphone, tablet, or desktop with offline support."
+  },
+  "auth": {
+    "login_title": "Sign In",
+    "login_subtitle": "Sign in to save your scores.",
+    "login_btn": "Sign In",
+    "no_account": "Don't have an account?",
+    "register_link": "Create account",
+    "register_title": "Create Account",
+    "register_subtitle": "Create an account to save your achievements.",
+    "register_btn": "Sign Up",
+    "has_account": "Already have an account?",
+    "login_link": "Sign In",
+    "account_created": "Account created! Signing in..."
+  },
+  "welcome": {
+    "title": "CityMaster",
+    "subtitle": "Master the geography, streets, and housing estates of your city.",
+    "greeting": "Welcome",
+    "select_city": "Select a city:",
+    "city_placeholder": "Search a city (e.g. Paris, London, New York...)",
+    "select_mode": "Game Mode:",
+    "mode_target": "Target (Classic Pinpoint)",
+    "mode_sprint": "Sprint (Instant Time-Attack)",
+    "mode_identify": "Identification (Type Street / District Name)",
+    "select_difficulty": "Level & Filter:",
+    "diff_easy": "Easy (Main Roads)",
+    "diff_medium": "Medium (Streets & Roads)",
+    "diff_hard": "Hard (All Streets & Districts)",
+    "diff_lotissement": "🏡 Housing Estates & Districts (Dispatch SDIS Mode)",
+    "start_game": "Start Adventure",
+    "leaderboard": "Leaderboard (Top 10)",
+    "rank": "Rank",
+    "player": "Player",
+    "score": "Score",
+    "date": "Date"
+  },
+  "loading": {
+    "generating_city": "Generating map data (this may take a few seconds)...",
+    "init_session": "Initializing secure game session...",
+    "loading_streets": "Loading map data..."
+  },
+  "game": {
+    "loading_geo": "Loading map data...",
+    "quit_title": "Quit Game (Esc)",
+    "identify_placeholder": "Street or district name...",
+    "submit_answer": "Submit Answer",
+    "validate_guess": "Confirm Location (Space)",
+    "next_street": "Next Street (Enter / Space)",
+    "combo": "Combo x{multiplier}",
+    "map_street": "Standard Street Plan",
+    "map_satellite": "Esri Satellite View",
+    "map_dark": "Cyber Dark Mode"
+  },
+  "feedback": {
+    "prompt_target": "Where is: {name} ?",
+    "prompt_identify": "What is the name of this street or district?",
+    "perfect": "Perfect! You are right on the street.",
+    "near": "Not bad! You are {distance}m from the street.",
+    "miss": "Missed! You were {distance}m away. Here is the actual location.",
+    "timeout_guess": "Time's up! You did not select a location.",
+    "passed": "Round passed.",
+    "identify_correct": "Correct answer! It was indeed: {name}",
+    "identify_timeout": "Time's up! The correct answer was: {name}",
+    "identify_false": "Incorrect. The correct answer was: {name}",
+    "time_bonus": " Time bonus: +{bonus} pts."
+  },
+  "leaderboard": {
+    "no_scores": "No scores recorded yet. Be the first!"
+  },
+  "sprint": {
+    "time_out": "Time's up"
+  },
+  "profile": {
+    "title": "My Profile",
+    "avatar_title": "Change avatar",
+    "total_score": "Total Score",
+    "sound_effects": "Sound Effects",
+    "dark_mode": "Dark Mode",
+    "language": "Language",
+    "back_home": "Back to Home",
+    "logout": "Sign Out"
+  },
+  "certificate": {
+    "title": "Official Cartographer Certificate",
+    "subtitle": "This certificate testifies to the geographical mastery of",
+    "score_label": "Final Score obtained:",
+    "points": "points",
+    "session_details": "Session details",
+    "street": "Street",
+    "distance": "Distance",
+    "restart": "Play Again",
+    "print": "Print My Certificate"
+  },
+  "errors": {
+    "fill_fields": "Please fill in all fields.",
+    "network_error": "Unable to contact the server. Please check your connection.",
+    "select_city_first": "Please select a city from the list.",
+    "select_city_valid": "Please select a valid city.",
+    "session_expired": "Session expired. Please sign in again.",
+    "file_too_large": "Image file is too large (max 2 MB)."
+  }
+}

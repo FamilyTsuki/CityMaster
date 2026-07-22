@@ -1,18 +1,19 @@
 <div id="welcome-screen" class="screen">
   <div class="card" role="region" aria-labelledby="welcome-title">
-    <h1 id="welcome-title">CityMaster</h1>
-    <p>Maîtrisez la géographie de votre ville.</p>
+    <h1 id="welcome-title" data-i18n="welcome.title">CityMaster</h1>
+    <p data-i18n="welcome.subtitle">Maîtrisez la géographie, les rues et les lotissements de votre commune.</p>
     
     <div class="form-group">
-      <label id="user-greeting">Bienvenue, <span id="logged-in-user">Joueur</span> !</label>
+      <label id="user-greeting"><span data-i18n="welcome.greeting">Bienvenue</span>, <span id="logged-in-user">Joueur</span> !</label>
     </div>
 
     <div class="form-group custom-select-container">
-      <label for="city-search">Sélectionnez une ville :</label>
+      <label for="city-search" data-i18n="welcome.select_city">Sélectionnez une commune :</label>
       <input 
         type="text" 
         id="city-search" 
-        placeholder="Rechercher une ville..." 
+        placeholder="Rechercher une commune (ex: Ligny-le-Ribault, Orléans...)" 
+        data-i18n-placeholder="welcome.city_placeholder"
         autocomplete="off" 
         role="combobox"
         aria-expanded="false"
@@ -24,7 +25,7 @@
     </div>
     
     <div class="form-group custom-select-container">
-      <label for="mode-search">Mode de jeu :</label>
+      <label for="mode-search" data-i18n="welcome.select_mode">Mode de jeu :</label>
       <input 
         type="text" 
         id="mode-search" 
@@ -35,14 +36,14 @@
         aria-controls="mode-dropdown-list"
       />
       <ul id="mode-dropdown-list" class="dropdown-list hidden" role="listbox" aria-label="Modes de jeu">
-        <li data-value="target" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Cible (Placement classique)</li>
-        <li data-value="sprint" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Sprint (Contre-la-montre instantané)</li>
-        <li data-value="identify" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> Identification (Saisir le nom)</li>
+        <li data-value="target" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> <span data-i18n="welcome.mode_target">Cible (Placement classique)</span></li>
+        <li data-value="sprint" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> <span data-i18n="welcome.mode_sprint">Sprint (Contre-la-montre instantané)</span></li>
+        <li data-value="identify" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg> <span data-i18n="welcome.mode_identify">Identification (Saisir le nom de rue / lotissement)</span></li>
       </ul>
     </div>
     
     <div class="form-group custom-select-container">
-      <label for="difficulty-search">Difficulté :</label>
+      <label for="difficulty-search" data-i18n="welcome.select_difficulty">Niveau & Filtre :</label>
       <input 
         type="text" 
         id="difficulty-search" 
@@ -52,10 +53,11 @@
         aria-expanded="false"
         aria-controls="difficulty-dropdown-list"
       />
-      <ul id="difficulty-dropdown-list" class="dropdown-list hidden" role="listbox" aria-label="Niveaux de difficulté">
-        <li data-value="easy" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg> Facile (Grands axes)</li>
-        <li data-value="medium" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg> Moyen (Rues & Axes)</li>
-        <li data-value="hard" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> Difficile (Tout inclure)</li>
+      <ul id="difficulty-dropdown-list" class="dropdown-list hidden" role="listbox" aria-label="Niveaux et types de recherche">
+        <li data-value="easy" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg> <span data-i18n="welcome.diff_easy">Facile (Grands axes)</span></li>
+        <li data-value="medium" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 8v8M8 12h8"></path></svg> <span data-i18n="welcome.diff_medium">Moyen (Rues & Axes)</span></li>
+        <li data-value="hard" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg> <span data-i18n="welcome.diff_hard">Difficile (Inclus les Lotissements & Voies)</span></li>
+        <li data-value="lotissement" role="option"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-icon" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> <span data-i18n="welcome.diff_lotissement">🏡 Spécial Lotissements & Quartiers (Mode Dispatch SDIS)</span></li>
       </ul>
     </div>
 
@@ -63,26 +65,26 @@
     
     <button id="start-btn" class="btn">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.26-2 3.38-2 4.5 1.12 0 3.24-.5 4.5-2L14.5 11l-2-2L4.5 16.5z"></path><path d="M12 2s4-1 6 1 1 6 1 6-4 3-7 0-3-7-3-7z"></path><path d="M9 15l3-3"></path><path d="M17 3a2.83 2.83 0 1 1 4 4L17 3z"></path></svg> 
-      Démarrer l'aventure
+      <span data-i18n="welcome.start_game">Démarrer l'aventure</span>
     </button>
     
     <div class="leaderboard-section" role="region" aria-label="Classement des joueurs">
       <h2>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path></svg> 
-        Classement (Top 10)
+        <span data-i18n="welcome.leaderboard">Classement (Top 10)</span>
       </h2>
       <div class="leaderboard-container">
         <table id="leaderboard-table" class="leaderboard-table" aria-label="Tableau des meilleurs scores">
           <thead>
             <tr>
-              <th scope="col">Rang</th>
-              <th scope="col">Joueur</th>
-              <th scope="col">Score</th>
-              <th scope="col">Date</th>
+              <th scope="col" data-i18n="welcome.rank">Rang</th>
+              <th scope="col" data-i18n="welcome.player">Joueur</th>
+              <th scope="col" data-i18n="welcome.score">Score</th>
+              <th scope="col" data-i18n="welcome.date">Date</th>
             </tr>
           </thead>
           <tbody id="leaderboard-body">
-            <tr><td colspan="4" class="text-center">Chargement...</td></tr>
+            <tr><td colspan="4" class="text-center" data-i18n="game.loading_geo">Chargement...</td></tr>
           </tbody>
         </table>
       </div>

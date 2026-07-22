@@ -27,7 +27,8 @@ export class OverpassService {
       }
     }
 
-    throw new Error('Erreur lors du chargement des données cartographiques de la commune. Veuillez réessayer.');
+    const { I18nService } = await import('./I18nService.js');
+    throw new Error(I18nService.getInstance().t('errors.network_error'));
   }
 
   async fetchStreetNearPoint(lat, lng, radiusMeters = 150, osmId = null, signal = null) {
@@ -39,9 +40,9 @@ export class OverpassService {
     let query;
     if (osmId) {
       const relId = osmId > 3600000000 ? osmId - 3600000000 : osmId;
-      query = `[out:json][timeout:10];relation(${relId});map_to_area->.a;way(around:${radiusMeters},${lat},${lng})(area.a)["highway"]["name"];out geom;`;
+      query = `[out:json][timeout:10];relation(${relId});map_to_area->.a;(way(around:${radiusMeters},${lat},${lng})(area.a)["highway"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];);out geom;`;
     } else {
-      query = `[out:json][timeout:10];way(around:${radiusMeters},${lat},${lng})["highway"]["name"];out geom;`;
+      query = `[out:json][timeout:10];(way(around:${radiusMeters},${lat},${lng})["highway"]["name"];way(around:${radiusMeters},${lat},${lng})["place"]["name"];way(around:${radiusMeters},${lat},${lng})["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})["place"]["name"];);out geom;`;
     }
 
     const token = localStorage.getItem('token');
@@ -64,32 +65,65 @@ export class OverpassService {
   }
 
   #convertToGeoJSON(data) {
-    const streetGroups = {};
+    const itemGroups = {};
     if (data && data.elements) {
       for (const element of data.elements) {
-        if (element.type === 'way' && element.geometry && element.tags && element.tags.name) {
-          const name = element.tags.name;
-          if (!streetGroups[name]) {
-            streetGroups[name] = [];
+        if (!element.tags) continue;
+        const name = element.tags.name || element.tags.ref;
+        if (!name) continue;
+
+        const isLotissement = !!(
+          element.tags.place ||
+          element.tags.landuse === 'residential' ||
+          element.tags.residential === 'housing_estate' ||
+          /^(lotissement|résidence|residence|quartier|hameau|domaine|zone|clos|pavilion)/i.test(name)
+        );
+
+        if (element.type === 'way' && element.geometry) {
+          if (!itemGroups[name]) {
+            itemGroups[name] = { coords: [], isLotissement };
           }
-          streetGroups[name].push(element.geometry.map(point => [point.lon, point.lat]));
+          itemGroups[name].coords.push(element.geometry.map(point => [point.lon, point.lat]));
+        } else if (element.type === 'node' && element.lat && element.lon) {
+          if (!itemGroups[name]) {
+            itemGroups[name] = { coords: [], isLotissement: true, nodePoint: [element.lon, element.lat] };
+          }
         }
       }
     }
 
-    const features = Object.entries(streetGroups).map(([name, coordsList], index) => {
-      return {
-        type: 'Feature',
-        id: index,
-        properties: {
-          name: name
-        },
-        geometry: {
-          type: 'MultiLineString',
-          coordinates: coordsList
-        }
-      };
-    });
+    const features = Object.entries(itemGroups).map(([name, group], index) => {
+      if (group.coords.length > 0) {
+        return {
+          type: 'Feature',
+          id: index,
+          properties: {
+            name: name,
+            isLotissement: group.isLotissement,
+            itemType: group.isLotissement ? 'lotissement' : 'street'
+          },
+          geometry: {
+            type: 'MultiLineString',
+            coordinates: group.coords
+          }
+        };
+      } else if (group.nodePoint) {
+        return {
+          type: 'Feature',
+          id: index,
+          properties: {
+            name: name,
+            isLotissement: true,
+            itemType: 'lotissement'
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: group.nodePoint
+          }
+        };
+      }
+      return null;
+    }).filter(Boolean);
 
     return {
       type: 'FeatureCollection',

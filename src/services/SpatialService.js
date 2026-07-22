@@ -17,7 +17,11 @@ export class SpatialService {
       throw new Error('Turf.js library is not loaded');
     }
     const point = this.#turf.point([longitude, latitude]);
-    return this.#turf.booleanPointInPolygon(point, polygonGeoJSON);
+    try {
+      return this.#turf.booleanPointInPolygon(point, polygonGeoJSON);
+    } catch (e) {
+      return false;
+    }
   }
 
   getCenter(geojson) {
@@ -33,17 +37,56 @@ export class SpatialService {
       throw new Error('Turf.js library is not loaded');
     }
     const point = this.#turf.point([longitude, latitude]);
-    const nearest = this.#turf.nearestPointOnLine(lineGeoJSON, point);
-    return [nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]];
+
+    if (lineGeoJSON.geometry && (lineGeoJSON.geometry.type === 'Polygon' || lineGeoJSON.geometry.type === 'MultiPolygon')) {
+      try {
+        if (this.#turf.booleanPointInPolygon(point, lineGeoJSON)) {
+          return [latitude, longitude];
+        }
+      } catch (e) {}
+    }
+
+    try {
+      const nearest = this.#turf.nearestPointOnLine(lineGeoJSON, point);
+      return [nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]];
+    } catch (e) {
+      const center = this.getCenter(lineGeoJSON);
+      return [center[1], center[0]];
+    }
   }
 
-  getDistanceToStreet(latitude, longitude, lineGeoJSON) {
+  getDistanceToStreet(latitude, longitude, streetGeoJSON) {
     if (!this.#turf) {
       throw new Error('Turf.js library is not loaded');
     }
     const point = this.#turf.point([longitude, latitude]);
-    const nearest = this.#turf.nearestPointOnLine(lineGeoJSON, point);
-    return this.#turf.distance(point, nearest, { units: 'meters' });
+
+    const isPolygon = streetGeoJSON.geometry && (
+      streetGeoJSON.geometry.type === 'Polygon' ||
+      streetGeoJSON.geometry.type === 'MultiPolygon' ||
+      streetGeoJSON.properties?.isLotissement
+    );
+
+    if (isPolygon) {
+      try {
+        if (this.#turf.booleanPointInPolygon(point, streetGeoJSON)) {
+          return 0;
+        }
+      } catch (e) {}
+    }
+
+    try {
+      const nearest = this.#turf.nearestPointOnLine(streetGeoJSON, point);
+      return this.#turf.distance(point, nearest, { units: 'meters' });
+    } catch (e) {
+      try {
+        const center = this.getCenter(streetGeoJSON);
+        const centerPoint = this.#turf.point(center);
+        return this.#turf.distance(point, centerPoint, { units: 'meters' });
+      } catch (err) {
+        return 0;
+      }
+    }
   }
 
   findClosestStreet(latitude, longitude, streetsGeoJSON) {
@@ -55,8 +98,8 @@ export class SpatialService {
     let closestStreet = null;
     let closestPoint = null;
 
-    const latTol = 0.005;
-    const lngTol = 0.007;
+    const latTol = 0.01;
+    const lngTol = 0.015;
 
     const candidates = streetsGeoJSON.filter(street => {
       if (!street.geometry || !street.geometry.coordinates) return false;
@@ -71,11 +114,13 @@ export class SpatialService {
         if (pt[0] > maxLng) maxLng = pt[0];
       };
 
-      if (street.geometry.type === 'LineString') {
+      if (street.geometry.type === 'Point') {
+        updateBounds(street.geometry.coordinates);
+      } else if (street.geometry.type === 'LineString') {
         for (let i = 0; i < street.geometry.coordinates.length; i++) {
           updateBounds(street.geometry.coordinates[i]);
         }
-      } else if (street.geometry.type === 'MultiLineString') {
+      } else if (street.geometry.type === 'MultiLineString' || street.geometry.type === 'Polygon') {
         for (let i = 0; i < street.geometry.coordinates.length; i++) {
           const line = street.geometry.coordinates[i];
           for (let j = 0; j < line.length; j++) {
@@ -102,15 +147,22 @@ export class SpatialService {
 
     candidates.forEach(street => {
       try {
-        const nearest = this.#turf.nearestPointOnLine(street, point);
-        const distance = this.#turf.distance(point, nearest, { units: 'meters' });
+        const isPoly = street.geometry.type === 'Polygon' || street.geometry.type === 'MultiPolygon' || street.properties?.isLotissement;
+        if (isPoly && this.#turf.booleanPointInPolygon(point, street)) {
+          minDistance = 0;
+          closestStreet = street;
+          closestPoint = [latitude, longitude];
+          return;
+        }
+
+        const distance = this.getDistanceToStreet(latitude, longitude, street);
         if (distance < minDistance) {
           minDistance = distance;
           closestStreet = street;
-          closestPoint = [nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]];
+          closestPoint = this.getNearestPoint(latitude, longitude, street);
         }
       } catch (e) {
-        console.error('Error in turf.nearestPointOnLine for street:', street.properties.name, e);
+        console.error('Error in distance check for street:', street.properties?.name, e);
       }
     });
 

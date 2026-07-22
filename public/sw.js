@@ -21,6 +21,8 @@ const STATIC_ASSETS = [
   '/screens/game.html',
   '/screens/certificate.html',
   '/screens/profile.html',
+  '/assets/i18n/fr.json',
+  '/assets/i18n/en.json',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
   'https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js'

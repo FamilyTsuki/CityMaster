@@ -1,3 +1,5 @@
+import { I18nService } from '../services/I18nService.js';
+
 export class AuthView {
   #usernameInput;
   #passwordInput;
@@ -49,19 +51,21 @@ export class AuthView {
       this.#errorMsg.classList.add('hidden');
     }
 
+    const i18n = I18nService.getInstance();
+
     if (isLogin) {
-      if (this.#authTitle) this.#authTitle.textContent = 'Connexion';
-      if (this.#authSubtitle) this.#authSubtitle.textContent = 'Connectez-vous pour enregistrer vos scores.';
-      if (this.#authMainBtn) this.#authMainBtn.textContent = 'Se connecter';
-      if (this.#authSwitchText) this.#authSwitchText.textContent = 'Pas encore de compte ?';
-      if (this.#authSwitchLink) this.#authSwitchLink.textContent = 'Créer un compte';
+      if (this.#authTitle) this.#authTitle.textContent = i18n.t('auth.login_title');
+      if (this.#authSubtitle) this.#authSubtitle.textContent = i18n.t('auth.login_subtitle');
+      if (this.#authMainBtn) this.#authMainBtn.textContent = i18n.t('auth.login_btn');
+      if (this.#authSwitchText) this.#authSwitchText.textContent = i18n.t('auth.no_account');
+      if (this.#authSwitchLink) this.#authSwitchLink.textContent = i18n.t('auth.register_link');
       if (this.#passwordInput) this.#passwordInput.setAttribute('autocomplete', 'current-password');
     } else {
-      if (this.#authTitle) this.#authTitle.textContent = 'Créer un compte';
-      if (this.#authSubtitle) this.#authSubtitle.textContent = 'Rejoignez-nous pour jouer !';
-      if (this.#authMainBtn) this.#authMainBtn.textContent = "S'inscrire";
-      if (this.#authSwitchText) this.#authSwitchText.textContent = 'Déjà un compte ?';
-      if (this.#authSwitchLink) this.#authSwitchLink.textContent = 'Se connecter';
+      if (this.#authTitle) this.#authTitle.textContent = i18n.t('auth.register_title');
+      if (this.#authSubtitle) this.#authSubtitle.textContent = i18n.t('auth.register_subtitle');
+      if (this.#authMainBtn) this.#authMainBtn.textContent = i18n.t('auth.register_btn');
+      if (this.#authSwitchText) this.#authSwitchText.textContent = i18n.t('auth.has_account');
+      if (this.#authSwitchLink) this.#authSwitchLink.textContent = i18n.t('auth.login_link');
       if (this.#passwordInput) this.#passwordInput.setAttribute('autocomplete', 'new-password');
     }
   }

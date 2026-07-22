@@ -71,7 +71,23 @@ export class ProfileView {
     }
   }
 
-  renderProfile(username, totalScore, profileImageUrl, isDarkMode, isSoundMuted = false) {
+  onLangChange(callback) {
+    const langSelect = document.getElementById('profile-lang-select');
+    if (langSelect) {
+      langSelect.addEventListener('change', (e) => {
+        callback(e.target.value);
+      });
+    }
+  }
+
+  setLangSelect(lang) {
+    const langSelect = document.getElementById('profile-lang-select');
+    if (langSelect) {
+      langSelect.value = lang;
+    }
+  }
+
+  renderProfile(username, totalScore, profileImageUrl, isDarkMode, isSoundMuted = false, currentLang = 'fr') {
     if (this.#profileName) {
       this.#profileName.textContent = username;
     }
@@ -91,6 +107,7 @@ export class ProfileView {
     if (this.#soundSwitch) {
       this.#soundSwitch.checked = !isSoundMuted;
     }
+    this.setLangSelect(currentLang);
   }
 
   showError(message) {

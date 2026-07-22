@@ -60,7 +60,10 @@ export class GameController {
       const bbox = cityData.bbox;
       const center = cityData.center;
 
-      this.#gameView.showLoading('Génération des données cartographiques (cela peut prendre quelques secondes)...');
+      const { I18nService } = await import('../services/I18nService.js');
+      const i18n = I18nService.getInstance();
+
+      this.#gameView.showLoading(i18n.t('loading.generating_city'));
 
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -81,10 +84,10 @@ export class GameController {
 
       if (!generateResponse.ok) {
         const errData = await generateResponse.json();
-        throw new Error(errData.error || 'Erreur lors de la génération de la ville');
+        throw new Error(errData.error || i18n.t('errors.network_error'));
       }
 
-      this.#gameView.showLoading('Initialisation de la session de jeu sécurisée...');
+      this.#gameView.showLoading(i18n.t('loading.init_session'));
 
       const startResponse = await fetch('/api/game/start', {
         method: 'POST',
@@ -101,12 +104,12 @@ export class GameController {
 
       if (!startResponse.ok) {
         const errData = await startResponse.json();
-        throw new Error(errData.error || 'Erreur lors du démarrage du jeu');
+        throw new Error(errData.error || i18n.t('errors.network_error'));
       }
 
       const startData = await startResponse.json();
 
-      this.#gameView.showLoading('Chargement des données cartographiques...');
+      this.#gameView.showLoading(i18n.t('loading.loading_streets'));
 
       const hideLabels = selectedMode === 'target';
       const mapReadyPromise = this.#mapView.initMap(center, 14, bbox, hideLabels);
@@ -114,7 +117,9 @@ export class GameController {
 
       const [_, geojson] = await Promise.all([mapReadyPromise, streetsPromise]);
       
-      this.#allCityStreets = geojson.features.filter(f => f.properties.name);
+      this.#allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
+      const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
+      this.#gameView.setupAutocomplete(streetNames);
       
       if (this.#allCityStreets.length === 0) {
         throw new Error('No streets found in this region. Please try again.');
@@ -228,7 +233,9 @@ export class GameController {
     const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
 
     Promise.all([mapReadyPromise, streetsPromise]).then(([_, geojson]) => {
-      this.#allCityStreets = geojson.features.filter(f => f.properties.name);
+      this.#allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
+      const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
+      this.#gameView.setupAutocomplete(streetNames);
       this.#loadNextQuestion();
       setTimeout(() => {
         this.#gameView.showScreen('game');
@@ -286,11 +293,9 @@ export class GameController {
       this.#mapView.clearStreets();
       this.#mapView.setView(cityCenter, 14);
       this.#gameView.showBanner(true);
-      if (mode === 'sprint') {
-        this.#gameView.setInstruction(`⚡ SPRINT ! Trouvez au plus vite : ${prompt.streetName}`);
-      } else {
-        this.#gameView.setInstruction(`📍 Placez un marqueur sur la carte pour trouver : ${prompt.streetName}`);
-      }
+      const { I18nService } = await import('../services/I18nService.js');
+      const promptText = I18nService.getInstance().t('feedback.prompt_target', { name: prompt.streetName });
+      this.#gameView.setInstruction(mode === 'sprint' ? `⚡ ${promptText}` : `📍 ${promptText}`);
     } else if (mode === 'identify') {
       this.#mapView.renderStreet(prompt.geometry, true);
       const bounds = L.geoJSON(prompt.geometry).getBounds();
@@ -298,7 +303,8 @@ export class GameController {
         this.#mapView.setView(bounds.getCenter(), 15);
       }
       this.#gameView.showBanner(true);
-      this.#gameView.setInstruction('🔎 Identifiez la rue en surbrillance. Saisissez son nom en bas :');
+      const { I18nService } = await import('../services/I18nService.js');
+      this.#gameView.setInstruction(`🔎 ${I18nService.getInstance().t('feedback.prompt_identify')}`);
     }
 
     this.#startRoundTimer();
@@ -409,7 +415,19 @@ export class GameController {
       this.#saveState();
 
       const feedback = result.feedback;
-      this.#gameView.setInstruction(feedback.message);
+      const { I18nService } = await import('../services/I18nService.js');
+      const i18n = I18nService.getInstance();
+      let displayMsg = feedback.message;
+      if (feedback.code) {
+        displayMsg = i18n.t(`feedback.${feedback.code}`, {
+          distance: feedback.distance,
+          name: feedback.correctName
+        });
+        if (feedback.timeBonus) {
+          displayMsg += i18n.t('feedback.time_bonus', { bonus: feedback.timeBonus });
+        }
+      }
+      this.#gameView.setInstruction(displayMsg);
       this.#gameView.updateComboBadge(feedback.multiplier);
 
       if (feedback.multiplier > 1) {

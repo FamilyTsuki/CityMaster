@@ -4,7 +4,7 @@
     
     <div id="map-loader" class="map-overlay-loader">
       <div class="loader-spinner"></div>
-      <p id="map-loader-message">Chargement des données géographiques...</p>
+      <p id="map-loader-message" data-i18n="game.loading_geo">Chargement des données géographiques...</p>
     </div>
     
     <div id="top-banner" class="ui-overlay-top glass-panel hidden">
@@ -29,30 +29,31 @@
     </div>
 
     <div id="top-left-actions" class="ui-overlay-top-left map-style-widget" role="group" aria-label="Changer le style de la carte">
-      <button class="map-style-btn active" data-style="street" title="Plan Urbain Standard">🏙️</button>
-      <button class="map-style-btn" data-style="satellite" title="Vue Satellite Esri">🛰️</button>
-      <button class="map-style-btn" data-style="dark" title="Mode Sombre Cyber">🌙</button>
+      <button class="map-style-btn active" data-style="street" title="Plan Urbain Standard" data-i18n-title="game.map_street">🏙️</button>
+      <button class="map-style-btn" data-style="satellite" title="Vue Satellite Esri" data-i18n-title="game.map_satellite">🛰️</button>
+      <button class="map-style-btn" data-style="dark" title="Mode Sombre Cyber" data-i18n-title="game.map_dark">🌙</button>
     </div>
 
     <div id="top-right-actions" class="ui-overlay-top-right">
-      <button id="quit-btn" class="quit-btn" title="Quitter la partie (Échap)">
+      <button id="quit-btn" class="quit-btn" title="Quitter la partie (Échap)" data-i18n-title="game.quit_title">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" style="margin-right: 0;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
       </button>
     </div>
 
     <div id="bottom-actions" class="ui-overlay-bottom glass-panel hidden">
-      <div id="identify-input-container" class="input-container hidden">
-        <input type="text" id="street-name-input" placeholder="Nom de la rue... (Entrée pour valider)" autocomplete="off" />
-        <button id="submit-answer-btn" class="btn">Valider la réponse</button>
+      <div id="identify-input-container" class="input-container hidden" style="position: relative;">
+        <input type="text" id="street-name-input" placeholder="Nom de la rue ou lotissement..." data-i18n-placeholder="game.identify_placeholder" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="autocomplete-suggestions" />
+        <ul id="autocomplete-suggestions" class="dropdown-list hidden" role="listbox" aria-label="Suggestions de rues et lotissements"></ul>
+        <button id="submit-answer-btn" class="btn" data-i18n="game.submit_answer">Valider la réponse</button>
       </div>
 
       <div id="game-actions" class="action-buttons">
         <button id="validate-btn" class="btn hidden">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-          Valider l'emplacement (Espace)
+          <span data-i18n="game.validate_guess">Valider l'emplacement (Espace)</span>
         </button>
         <button id="next-btn" class="btn hidden">
-          Rue Suivante (Entrée / Espace)
+          <span data-i18n="game.next_street">Rue Suivante (Entrée / Espace)</span>
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" style="margin-left: 6px; margin-right: 0;"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
         </button>
       </div>

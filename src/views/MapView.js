@@ -122,10 +122,27 @@ export class MapView {
     }).addTo(this.#map);
 
     this.#selectionLayer = L.geoJSON(null, {
-      style: {
-        color: '#10b981',
-        weight: 6,
-        opacity: 0.7
+      style: (feature) => {
+        const isPoly = feature && (
+          feature.properties?.isLotissement ||
+          feature.geometry?.type === 'Polygon' ||
+          feature.geometry?.type === 'MultiPolygon'
+        );
+        if (isPoly) {
+          return {
+            color: '#f59e0b',
+            weight: 3,
+            opacity: 0.9,
+            fillColor: '#fbbf24',
+            fillOpacity: 0.35,
+            dashArray: '6, 6'
+          };
+        }
+        return {
+          color: '#10b981',
+          weight: 6,
+          opacity: 0.7
+        };
       }
     }).addTo(this.#map);
 

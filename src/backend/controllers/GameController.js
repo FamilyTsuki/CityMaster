@@ -173,21 +173,26 @@ export class GameController {
           distance = -1;
           pointsEarned = 0;
           isCorrect = false;
+          feedback.code = remainingTime <= 0 ? 'timeout_guess' : 'passed';
           message = remainingTime <= 0 ? "Temps écoulé ! Vous n'avez pas sélectionné d'emplacement." : "Passé.";
         } else {
           distance = getDistanceToStreet(guess.lat, guess.lng, currentStreet.geometry);
+          feedback.distance = Math.round(distance);
           if (distance <= 15) {
             pointsEarned = 100;
             isCorrect = true;
+            feedback.code = 'perfect';
             message = 'Parfait ! Vous êtes exactement sur la rue.';
           } else if (distance <= 100) {
             const ratio = 1 - ((distance - 15) / 85);
             pointsEarned = Math.round(10 + (40 * ratio));
             isCorrect = true;
+            feedback.code = 'near';
             message = `Pas mal ! Vous êtes à ${Math.round(distance)}m de la rue.`;
           } else {
             pointsEarned = 0;
             isCorrect = false;
+            feedback.code = 'miss';
             message = `Raté. Vous étiez à ${Math.round(distance)}m. Voici le véritable emplacement.`;
           }
 
@@ -223,6 +228,7 @@ export class GameController {
         isCorrect = cleanAnswer.length > 0 && (cleanAnswer === cleanCorrect || cleanCorrect.includes(cleanAnswer));
         if (isCorrect) {
           pointsEarned = 15;
+          feedback.code = 'identify_correct';
           message = `Bonne réponse ! C'était bien : ${currentStreet.name}`;
           
           let timeBonus = 0;
@@ -236,6 +242,7 @@ export class GameController {
           }
         } else {
           pointsEarned = 0;
+          feedback.code = remainingTime <= 0 ? 'identify_timeout' : 'identify_false';
           message = remainingTime <= 0
             ? `Temps écoulé ! La bonne réponse était : ${currentStreet.name}`
             : `Faux. La bonne réponse était : ${currentStreet.name}`;

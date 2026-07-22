@@ -24,14 +24,23 @@ export class CityController {
       res.status(500).json({ error: error.message });
     }
   }
+
   static convertToGeoJSON(data, bboxLimits = null) {
-    const streetGroups = {};
+    const itemGroups = {};
     if (data && data.elements) {
       for (const element of data.elements) {
-        if (element.type === 'way' && element.geometry && element.tags) {
-          const name = element.tags.name || element.tags.ref;
-          if (!name) continue;
+        if (!element.tags) continue;
+        const name = element.tags.name || element.tags.ref;
+        if (!name) continue;
 
+        const isLotissement = !!(
+          element.tags.place ||
+          element.tags.landuse === 'residential' ||
+          element.tags.residential === 'housing_estate' ||
+          /^(lotissement|résidence|residence|quartier|hameau|domaine|zone|clos|pavilion)/i.test(name)
+        );
+
+        if (element.type === 'way' && element.geometry) {
           const coords = [];
           for (const point of element.geometry) {
             if (bboxLimits) {
@@ -45,27 +54,56 @@ export class CityController {
 
           if (coords.length < 2) continue;
 
-          if (!streetGroups[name]) {
-            streetGroups[name] = [];
+          if (!itemGroups[name]) {
+            itemGroups[name] = { coords: [], isLotissement };
           }
-          streetGroups[name].push(coords);
+          itemGroups[name].coords.push(coords);
+        } else if (element.type === 'node' && element.lat && element.lon) {
+          if (bboxLimits) {
+            if (element.lat < bboxLimits.minLat || element.lat > bboxLimits.maxLat ||
+                element.lon < bboxLimits.minLng || element.lon > bboxLimits.maxLng) {
+              continue;
+            }
+          }
+          if (!itemGroups[name]) {
+            itemGroups[name] = { coords: [], isLotissement: true, nodePoint: [element.lon, element.lat] };
+          }
         }
       }
     }
 
-    const features = Object.entries(streetGroups).map(([name, coordsList], index) => {
-      return {
-        type: 'Feature',
-        id: index,
-        properties: {
-          name: name
-        },
-        geometry: {
-          type: 'MultiLineString',
-          coordinates: coordsList
-        }
-      };
-    });
+    const features = Object.entries(itemGroups).map(([name, group], index) => {
+      if (group.coords.length > 0) {
+        return {
+          type: 'Feature',
+          id: index,
+          properties: {
+            name: name,
+            isLotissement: group.isLotissement,
+            itemType: group.isLotissement ? 'lotissement' : 'street'
+          },
+          geometry: {
+            type: 'MultiLineString',
+            coordinates: group.coords
+          }
+        };
+      } else if (group.nodePoint) {
+        return {
+          type: 'Feature',
+          id: index,
+          properties: {
+            name: name,
+            isLotissement: true,
+            itemType: 'lotissement'
+          },
+          geometry: {
+            type: 'Point',
+            coordinates: group.nodePoint
+          }
+        };
+      }
+      return null;
+    }).filter(Boolean);
 
     return {
       type: 'FeatureCollection',
@@ -126,6 +164,12 @@ export class CityController {
         (
           way(area.a)["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["name"];
           way(area.a)["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["ref"];
+          way(area.a)["place"~"suburb|neighbourhood|quarter|hamlet|isolated_dwelling"]["name"];
+          relation(area.a)["place"~"suburb|neighbourhood|quarter|hamlet|isolated_dwelling"]["name"];
+          node(area.a)["place"~"suburb|neighbourhood|quarter|hamlet|isolated_dwelling"]["name"];
+          way(area.a)["landuse"="residential"]["name"];
+          relation(area.a)["landuse"="residential"]["name"];
+          way(area.a)["residential"="housing_estate"]["name"];
         );
         out geom;`;
 
@@ -172,7 +216,7 @@ export class CityController {
       }
 
       fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2), 'utf8');
-      console.log(`Saved ${geojson.features.length} streets to ${outputPath}`);
+      console.log(`Saved ${geojson.features.length} streets and lotissements to ${outputPath}`);
       res.json({ success: true, cached: false, streetCount: geojson.features.length });
     } catch (error) {
       console.error('Error generating city:', error);

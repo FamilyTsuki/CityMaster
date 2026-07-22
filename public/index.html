@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !">
   <meta name="theme-color" content="#4f46e5" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CityMaster" />
@@ -28,6 +29,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/styles/style.css">
 </head>
@@ -39,18 +41,21 @@
       <span id="logo-brand" class="logo-text" style="cursor: pointer;" tabindex="0" role="button" aria-label="CityMaster Accueil">CityMaster</span>
     </div>
     <div class="navbar-actions">
-      <button id="pwa-install-btn" class="btn secondary hidden" style="width: auto; padding: 8px 12px; font-size: 0.85rem;" title="Installer l'application sur votre appareil">
-        📲<span class="pwa-btn-text"> Installer</span>
+      <button id="pwa-install-btn" class="btn secondary hidden" style="width: auto; padding: 8px 12px; font-size: 0.85rem;" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title">
+        📲<span class="pwa-btn-text" data-i18n="nav.install"> Installer</span>
       </button>
-      <button id="theme-toggle" class="icon-btn" title="Changer de thème" aria-label="Basculer le thème clair ou sombre">
+      <button id="lang-toggle" class="icon-btn" title="Changer de langue / Change language" aria-label="Changer de langue">
+        <span id="lang-flag" style="font-size: 1rem; font-weight: 800;">🇫🇷</span>
+      </button>
+      <button id="theme-toggle" class="icon-btn" title="Changer de thème" data-i18n-title="nav.theme_title" aria-label="Basculer le thème clair ou sombre">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </button>
       <div id="nav-auth-logged-out">
-        <button id="nav-login-btn" class="btn secondary">Se connecter</button>
+        <button id="nav-login-btn" class="btn secondary" data-i18n="nav.login">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
-        <a href="#" id="nav-logout-btn" class="logout-link">Se déconnecter</a>
-        <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil" aria-label="Voir mon profil">
+        <a href="#" id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</a>
+        <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="nav.profile" aria-label="Voir mon profil">
           <img id="nav-profile-img" src="assets/images/default-avatar.png" alt="Avatar utilisateur" class="nav-avatar hidden" />
           <span id="nav-profile-name" class="profile-name"></span>
         </a>
@@ -62,7 +67,7 @@
     <div id="loading-screen" class="screen active">
       <div class="loader-container">
         <div class="loader-spinner" role="status" aria-label="Chargement en cours"></div>
-        <p id="loading-message" aria-live="polite">Chargement de CityMaster...</p>
+        <p id="loading-message" aria-live="polite" data-i18n="loading.loading_streets">Chargement de CityMaster...</p>
       </div>
     </div>
   </main>

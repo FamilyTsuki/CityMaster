@@ -1,3 +1,5 @@
+import { I18nService } from '../services/I18nService.js';
+
 export class CertificateView {
   #certPlayerName;
   #certScore;
@@ -21,10 +23,11 @@ export class CertificateView {
 
     if (this.#recapContainer && this.#recapBody) {
       if (mode === 'sprint' && sprintHistory && sprintHistory.length > 0) {
+        const i18n = I18nService.getInstance();
         this.#recapBody.innerHTML = '';
         sprintHistory.forEach(record => {
           const tr = document.createElement('tr');
-          const distText = record.distance === -1 ? 'Temps écoulé' : `${record.distance}m`;
+          const distText = record.distance === -1 ? i18n.t('sprint.time_out') : `${record.distance}m`;
           const bonusText = record.timeBonus > 0 ? ` (+${record.timeBonus})` : '';
           tr.innerHTML = `
             <td><strong>${record.name}</strong></td>

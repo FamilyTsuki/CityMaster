@@ -41,6 +41,12 @@ export class ProfileController {
       }
     });
 
+    this.#profileView.onLangChange(async (lang) => {
+      const { I18nService } = await import('../services/I18nService.js');
+      await I18nService.getInstance().setLanguage(lang);
+      this.#navbarView.setLangFlag(lang);
+    });
+
     this.#navbarView.onProfileClick(() => {
       this.#router.navigate('/profile');
     });

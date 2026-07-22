@@ -10,29 +10,29 @@
           <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path>
         </svg>
       </div>
-      <span class="cert-title">Diplôme Officiel de Cartographe</span>
+      <span class="cert-title" data-i18n="certificate.title">Diplôme Officiel de Cartographe</span>
     </div>
     
     <div class="certificate-body">
-      <p class="cert-intro">Ce diplôme atteste de la maîtrise géographique de</p>
+      <p class="cert-intro" data-i18n="certificate.subtitle">Ce diplôme atteste de la maîtrise géographique de</p>
       <h1 id="cert-player-name">Joueur</h1>
       
       <div class="cert-divider"></div>
       
-      <p class="cert-score-label">Score final obtenu :</p>
+      <p class="cert-score-label" data-i18n="certificate.score_label">Score final obtenu :</p>
       <div id="cert-score-container">
         <span id="cert-score">0</span>
-        <span class="cert-points-label">points</span>
+        <span class="cert-points-label" data-i18n="certificate.points">points</span>
       </div>
 
       <div id="sprint-recap" class="sprint-recap hidden">
-        <h3>Détails de la session</h3>
+        <h3 data-i18n="certificate.session_details">Détails de la session</h3>
         <table class="sprint-recap-table">
           <thead>
             <tr>
-              <th>Voie</th>
-              <th>Distance</th>
-              <th>Score (Bonus)</th>
+              <th data-i18n="certificate.street">Voie</th>
+              <th data-i18n="certificate.distance">Distance</th>
+              <th data-i18n="welcome.score">Score</th>
             </tr>
           </thead>
           <tbody id="sprint-recap-body">
@@ -44,11 +44,11 @@
     <div class="certificate-actions">
       <button id="restart-btn" class="btn">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-        Rejouer une partie
+        <span data-i18n="certificate.restart">Rejouer une partie</span>
       </button>
       <button id="print-cert-btn" class="btn secondary" onclick="window.print()">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-        Imprimer mon Diplôme
+        <span data-i18n="certificate.print">Imprimer mon Diplôme</span>
       </button>
     </div>
   </div>

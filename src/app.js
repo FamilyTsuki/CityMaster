@@ -10,6 +10,7 @@ import { ProfileController } from './controllers/ProfileController.js';
 import { ScoreController } from './controllers/ScoreController.js';
 import { AudioService } from './services/AudioService.js';
 import { ConfettiService } from './services/ConfettiService.js';
+import { I18nService } from './services/I18nService.js';
 import { Router } from './Router.js';
 
 class App {
@@ -35,6 +36,14 @@ class App {
     this.#authView = new AuthView();
     this.#profileView = new ProfileView();
     this.#scoreController = new ScoreController(this.#gameView);
+
+    this.#navbarView.onLangToggle(async () => {
+      const i18n = I18nService.getInstance();
+      const nextLang = i18n.currentLang === 'fr' ? 'en' : 'fr';
+      await i18n.setLanguage(nextLang);
+      this.#navbarView.setLangFlag(nextLang);
+    });
+    this.#navbarView.setLangFlag(I18nService.getInstance().currentLang);
 
     document.addEventListener('click', (e) => {
       if (e.target.closest('button, .btn, a, li, .icon-btn')) {
@@ -117,6 +126,10 @@ class App {
   static init() {
     document.addEventListener('DOMContentLoaded', async () => {
       try {
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+
         const screens = ['landing', 'auth', 'welcome', 'game', 'certificate', 'profile'];
         const appContainer = document.getElementById('app');
         const loadingHtml = appContainer.innerHTML;
@@ -132,6 +145,7 @@ class App {
         );
 
         appContainer.innerHTML = htmlTemplates.join('\n') + '\n' + loadingHtml;
+        await I18nService.getInstance().init();
         new App();
       } catch (error) {
         console.error('Failed to initialize CityMaster application:', error);

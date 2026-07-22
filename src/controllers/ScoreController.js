@@ -36,7 +36,8 @@ export class ScoreController {
       if (response.status === 401 || response.status === 403) {
         localStorage.removeItem('token');
         localStorage.removeItem('username');
-        this.#gameView.showError('Session expirée. Veuillez vous reconnecter pour enregistrer votre score.');
+        const { I18nService } = await import('../services/I18nService.js');
+        this.#gameView.showError(I18nService.getInstance().t('errors.session_expired'));
         return false;
       }
       

@@ -1,5 +1,7 @@
 export class NavbarView {
   #themeToggle;
+  #langToggle;
+  #langFlag;
   #navAuthLoggedOut;
   #navAuthLoggedIn;
   #navLogoutBtn;
@@ -10,6 +12,8 @@ export class NavbarView {
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
+    this.#langToggle = document.getElementById('lang-toggle');
+    this.#langFlag = document.getElementById('lang-flag');
     this.#navAuthLoggedOut = document.getElementById('nav-auth-logged-out');
     this.#navAuthLoggedIn = document.getElementById('nav-auth-logged-in');
     this.#navLogoutBtn = document.getElementById('nav-logout-btn');
@@ -28,6 +32,18 @@ export class NavbarView {
   onThemeToggle(callback) {
     if (this.#themeToggle) {
       this.#themeToggle.addEventListener('click', callback);
+    }
+  }
+
+  onLangToggle(callback) {
+    if (this.#langToggle) {
+      this.#langToggle.addEventListener('click', callback);
+    }
+  }
+
+  setLangFlag(lang) {
+    if (this.#langFlag) {
+      this.#langFlag.textContent = lang === 'en' ? '🇬🇧' : '🇫🇷';
     }
   }
 

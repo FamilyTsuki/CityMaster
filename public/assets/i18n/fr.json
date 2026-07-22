@@ -1,0 +1,126 @@
+{
+  "nav": {
+    "home": "CityMaster Accueil",
+    "install": "Installer",
+    "install_title": "Installer l'application sur votre appareil",
+    "theme_title": "Changer de thème",
+    "login": "Se connecter",
+    "logout": "Se déconnecter",
+    "profile": "Mon Profil"
+  },
+  "landing": {
+    "badge": "✨ Jeu Géographique Interactif",
+    "hero_title": "Maîtrisez la Géographie de Votre Ville",
+    "hero_subtitle": "Testez vos connaissances sur les rues, lotissements et quartiers en temps réel grâce à OpenStreetMap.",
+    "play_now": "Jouer maintenant",
+    "stat_cities": "Villes Françaises",
+    "stat_streets": "Rues Cartographiées",
+    "stat_modes": "Modes de Jeu",
+    "feature_1_title": "Données en Temps Réel",
+    "feature_1_desc": "Explorez n'importe quelle commune grâce aux données géographiques d'OpenStreetMap.",
+    "feature_2_title": "Modes de Jeu Inédits",
+    "feature_2_desc": "Cible, Sprint contre-la-montre ou Identification par saisie de nom.",
+    "feature_3_title": "Multi-Plateforme & PWA",
+    "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur avec prise en charge hors-ligne."
+  },
+  "auth": {
+    "login_title": "Connexion",
+    "login_subtitle": "Connectez-vous pour enregistrer vos scores.",
+    "login_btn": "Se connecter",
+    "no_account": "Pas encore de compte ?",
+    "register_link": "Créer un compte",
+    "register_title": "Créer un compte",
+    "register_subtitle": "Créez votre compte pour enregistrer vos réussites.",
+    "register_btn": "S'inscrire",
+    "has_account": "Déjà un compte ?",
+    "login_link": "Se connecter",
+    "account_created": "Compte créé ! Connexion..."
+  },
+  "welcome": {
+    "title": "CityMaster",
+    "subtitle": "Maîtrisez la géographie, les rues et les lotissements de votre commune.",
+    "greeting": "Bienvenue",
+    "select_city": "Sélectionnez une commune :",
+    "city_placeholder": "Rechercher une commune (ex: Ligny-le-Ribault, Orléans...)",
+    "select_mode": "Mode de jeu :",
+    "mode_target": "Cible (Placement classique)",
+    "mode_sprint": "Sprint (Contre-la-montre instantané)",
+    "mode_identify": "Identification (Saisir le nom de rue / lotissement)",
+    "select_difficulty": "Niveau & Filtre :",
+    "diff_easy": "Facile (Grands axes)",
+    "diff_medium": "Moyen (Rues & Axes)",
+    "diff_hard": "Difficile (Inclus les Lotissements & Voies)",
+    "diff_lotissement": "🏡 Spécial Lotissements & Quartiers (Mode Dispatch SDIS)",
+    "start_game": "Démarrer l'aventure",
+    "leaderboard": "Classement (Top 10)",
+    "rank": "Rang",
+    "player": "Joueur",
+    "score": "Score",
+    "date": "Date"
+  },
+  "loading": {
+    "generating_city": "Génération des données cartographiques (cela peut prendre quelques secondes)...",
+    "init_session": "Initialisation de la session de jeu sécurisée...",
+    "loading_streets": "Chargement des données cartographiques..."
+  },
+  "game": {
+    "loading_geo": "Chargement des données géographiques...",
+    "quit_title": "Quitter la partie (Échap)",
+    "identify_placeholder": "Nom de la rue ou lotissement...",
+    "submit_answer": "Valider la réponse",
+    "validate_guess": "Valider l'emplacement (Espace)",
+    "next_street": "Rue Suivante (Entrée / Espace)",
+    "combo": "Combo x{multiplier}",
+    "map_street": "Plan Urbain Standard",
+    "map_satellite": "Vue Satellite Esri",
+    "map_dark": "Mode Sombre Cyber"
+  },
+  "feedback": {
+    "prompt_target": "Où se trouve : {name} ?",
+    "prompt_identify": "Quelle est cette rue ou ce lotissement ?",
+    "perfect": "Parfait ! Vous êtes exactement sur la rue.",
+    "near": "Pas mal ! Vous êtes à {distance}m de la rue.",
+    "miss": "Raté. Vous étiez à {distance}m. Voici le véritable emplacement.",
+    "timeout_guess": "Temps écoulé ! Vous n'avez pas sélectionné d'emplacement.",
+    "passed": "Manche passée.",
+    "identify_correct": "Bonne réponse ! C'était bien : {name}",
+    "identify_timeout": "Temps écoulé ! La bonne réponse était : {name}",
+    "identify_false": "Faux. La bonne réponse était : {name}",
+    "time_bonus": " Bonus de temps : +{bonus} pts."
+  },
+  "leaderboard": {
+    "no_scores": "Aucun score enregistré. Soyez le premier !"
+  },
+  "sprint": {
+    "time_out": "Temps écoulé"
+  },
+  "profile": {
+    "title": "Mon Profil",
+    "avatar_title": "Changer d'avatar",
+    "total_score": "Score Total",
+    "sound_effects": "Effets Sonores",
+    "dark_mode": "Mode Sombre",
+    "language": "Langue",
+    "back_home": "Retour à l'accueil",
+    "logout": "Se déconnecter"
+  },
+  "certificate": {
+    "title": "Diplôme Officiel de Cartographe",
+    "subtitle": "Ce diplôme atteste de la maîtrise géographique de",
+    "score_label": "Score final obtenu :",
+    "points": "points",
+    "session_details": "Détails de la session",
+    "street": "Voie",
+    "distance": "Distance",
+    "restart": "Rejouer une partie",
+    "print": "Imprimer mon Diplôme"
+  },
+  "errors": {
+    "fill_fields": "Veuillez remplir tous les champs.",
+    "network_error": "Impossible de contacter le serveur. Veuillez vérifier votre connexion.",
+    "select_city_first": "Veuillez sélectionner une commune dans la liste.",
+    "select_city_valid": "Veuillez sélectionner une commune valide.",
+    "session_expired": "Session expirée. Veuillez vous reconnecter.",
+    "file_too_large": "L'image est trop lourde (max 2 Mo)."
+  }
+}

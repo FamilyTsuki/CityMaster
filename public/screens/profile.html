@@ -3,7 +3,7 @@
     <div class="profile-header">
       <div class="profile-avatar-container">
         <img id="profile-page-img" src="assets/images/default-avatar.png" alt="Mon Avatar" class="profile-avatar" />
-        <label for="profile-upload" class="upload-btn" title="Changer d'avatar" aria-label="Changer ma photo de profil">
+        <label for="profile-upload" class="upload-btn" title="Changer d'avatar" data-i18n-title="profile.avatar_title" aria-label="Changer ma photo de profil">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon" aria-hidden="true">
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
             <circle cx="12" cy="13" r="4"></circle>
@@ -16,7 +16,7 @@
     
     <div class="profile-stats">
       <div class="stat-box">
-        <span class="stat-label">Score Total</span>
+        <span class="stat-label" data-i18n="profile.total_score">Score Total</span>
         <span id="profile-total-score" class="stat-value">0</span>
       </div>
     </div>
@@ -26,7 +26,15 @@
 
     <div class="profile-actions">
       <div class="theme-switch-container">
-        <span class="setting-label">Effets Sonores</span>
+        <span class="setting-label" data-i18n="profile.language">Langue / Language</span>
+        <select id="profile-lang-select" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 9999px; font-weight: 600; cursor: pointer;">
+          <option value="fr">🇫🇷 Français</option>
+          <option value="en">🇬🇧 English</option>
+        </select>
+      </div>
+
+      <div class="theme-switch-container">
+        <span class="setting-label" data-i18n="profile.sound_effects">Effets Sonores</span>
         <label class="switch">
           <input type="checkbox" id="profile-sound-switch" />
           <span class="slider round"></span>
@@ -34,15 +42,15 @@
       </div>
 
       <div class="theme-switch-container">
-        <span class="setting-label">Mode Sombre</span>
+        <span class="setting-label" data-i18n="profile.dark_mode">Mode Sombre</span>
         <label class="switch">
           <input type="checkbox" id="profile-theme-switch" />
           <span class="slider round"></span>
         </label>
       </div>
 
-      <button id="profile-back-btn" class="btn secondary">Retour à l'accueil</button>
-      <a href="#" id="profile-logout-btn" class="profile-logout-link">Se déconnecter</a>
+      <button id="profile-back-btn" class="btn secondary" data-i18n="profile.back_home">Retour à l'accueil</button>
+      <a href="#" id="profile-logout-btn" class="profile-logout-link" data-i18n="profile.logout">Se déconnecter</a>
     </div>
   </div>
 </div>

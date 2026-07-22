@@ -16,6 +16,7 @@ export class GameView {
   #bottomActions;
   #comboBadge;
   #comboText;
+  #autocompleteList;
 
   constructor() {
     this.#screens = {
@@ -35,6 +36,7 @@ export class GameView {
     this.#identifyContainer = document.getElementById('identify-input-container');
     this.#streetInput = document.getElementById('street-name-input');
     this.#submitBtn = document.getElementById('submit-answer-btn');
+    this.#autocompleteList = document.getElementById('autocomplete-suggestions');
 
     this.#quitBtn = document.getElementById('quit-btn');
     this.#gameError = document.getElementById('game-error');
@@ -59,243 +61,121 @@ export class GameView {
       const activeEl = document.activeElement;
       const isInputFocused = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
 
-      if (e.code === 'Space') {
-        if (!isInputFocused) {
-          e.preventDefault();
-          if (this.#validateBtn && !this.#validateBtn.classList.contains('hidden')) {
-            this.#validateBtn.click();
-          } else if (this.#nextBtn && !this.#nextBtn.classList.contains('hidden')) {
-            this.#nextBtn.click();
-          }
-        }
-      } else if (e.code === 'Enter') {
-        if (this.#nextBtn && !this.#nextBtn.classList.contains('hidden')) {
-          e.preventDefault();
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        if (this.#quitBtn) this.#quitBtn.click();
+        return;
+      }
+
+      if (isInputFocused) return;
+
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        if (this.#validateBtn && !this.#validateBtn.classList.contains('hidden')) {
+          this.#validateBtn.click();
+        } else if (this.#nextBtn && !this.#nextBtn.classList.contains('hidden')) {
           this.#nextBtn.click();
         }
-      } else if (e.code === 'Escape') {
-        if (this.#quitBtn) {
-          this.#quitBtn.click();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (this.#nextBtn && !this.#nextBtn.classList.contains('hidden')) {
+          this.#nextBtn.click();
         }
       }
     });
   }
 
   showScreen(screenName) {
-    Object.keys(this.#screens).forEach(name => {
-      if (name === screenName) {
-        this.#screens[name].classList.add('active');
-      } else {
-        this.#screens[name].classList.remove('active');
-      }
+    Object.values(this.#screens).forEach((screen) => {
+      if (screen) screen.classList.remove('active');
     });
+    if (this.#screens[screenName]) {
+      this.#screens[screenName].classList.add('active');
+    }
+  }
 
-    const navLogoutBtn = document.getElementById('nav-logout-btn');
-    if (screenName === 'game') {
-      if (navLogoutBtn) navLogoutBtn.classList.add('hidden');
-    } else {
-      if (navLogoutBtn) navLogoutBtn.classList.remove('hidden');
+  setPlayerName(name) {
+    const loggedInUser = document.getElementById('logged-in-user');
+    if (loggedInUser) loggedInUser.textContent = name;
+  }
+
+  populateCities(cities) {
+    if (!this.#citySelect) return;
+    this.#citySelect.innerHTML = '';
+    cities.forEach((city) => {
+      const option = document.createElement('option');
+      option.value = city.id;
+      option.textContent = city.name;
+      this.#citySelect.appendChild(option);
+    });
+  }
+
+  onHeroPlay(callback) {
+    const heroPlayBtn = document.getElementById('hero-play-btn') || document.getElementById('landing-play-btn');
+    if (heroPlayBtn) {
+      heroPlayBtn.addEventListener('click', callback);
     }
   }
 
   onStart(callback) {
-    const searchInput = document.getElementById('city-search');
-    const dropdownList = document.getElementById('city-dropdown-list');
-    const token = localStorage.getItem('token');
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    
-    let selectedCityData = null;
-    try {
-      const stored = localStorage.getItem('citymaster_last_city_data');
-      if (stored) {
-        selectedCityData = JSON.parse(stored);
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    if (this.#startBtn) {
+      this.#startBtn.addEventListener('click', () => {
+        const cityKeyInput = document.getElementById('city-search');
+        const modeInput = document.getElementById('mode-search');
+        const difficultyInput = document.getElementById('difficulty-search');
 
-    const renderCities = (cities) => {
-      dropdownList.innerHTML = '';
-      if (cities.length === 0) {
-        const noResultItem = document.createElement('li');
-        noResultItem.className = 'no-results';
-        noResultItem.style.color = 'var(--text-muted)';
-        noResultItem.textContent = 'Aucune ville trouvée';
-        dropdownList.appendChild(noResultItem);
-        return;
-      }
+        const cityKey = cityKeyInput ? cityKeyInput.dataset.value : null;
+        const mode = modeInput ? modeInput.dataset.value : 'target';
+        const difficulty = difficultyInput ? difficultyInput.dataset.value : 'hard';
 
-      cities.forEach(city => {
-        const li = document.createElement('li');
-        li.textContent = city.name;
-        li.setAttribute('data-value', city.key);
-        if (selectedCityData && selectedCityData.key === city.key) {
-          li.classList.add('selected');
+        const { I18nService } = await import('../services/I18nService.js');
+        const i18n = I18nService.getInstance();
+
+        if (!cityKey) {
+          this.showError(i18n.t('errors.select_city_first'));
+          return;
         }
 
-        li.addEventListener('click', () => {
-          dropdownList.querySelectorAll('li').forEach(i => i.classList.remove('selected'));
-          li.classList.add('selected');
-          selectedCityData = city;
-          localStorage.setItem('citymaster_last_city_data', JSON.stringify(city));
-          searchInput.value = city.name;
-          dropdownList.classList.add('hidden');
-        });
-
-        dropdownList.appendChild(li);
-      });
-    };
-
-    fetch('/api/cities', { headers })
-      .then(res => res.json())
-      .then(cities => {
-        renderCities(cities);
-        if (selectedCityData) {
-          searchInput.value = selectedCityData.name;
-        } else if (cities.length > 0) {
-          selectedCityData = cities[0];
-          searchInput.value = selectedCityData.name;
+        const selectedCityData = window.citymaster_selected_city_data;
+        if (!selectedCityData) {
+          this.showError(i18n.t('errors.select_city_valid'));
+          return;
         }
+
+        const playerName = localStorage.getItem('username') || 'Joueur';
+        callback(playerName, selectedCityData, mode, difficulty);
       });
-
-    searchInput.addEventListener('focus', () => {
-      dropdownList.classList.remove('hidden');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!searchInput.contains(e.target) && !dropdownList.contains(e.target)) {
-        dropdownList.classList.add('hidden');
-      }
-    });
-
-    let debounceTimer = null;
-
-    searchInput.addEventListener('input', (e) => {
-      dropdownList.classList.remove('hidden');
-      const query = e.target.value.trim();
-
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-      }
-
-      if (query.length < 2) {
-        fetch('/api/cities', { headers })
-          .then(res => res.json())
-          .then(cities => renderCities(cities));
-        return;
-      }
-
-      debounceTimer = setTimeout(async () => {
-        try {
-          dropdownList.innerHTML = '';
-          const loadingItem = document.createElement('li');
-          loadingItem.style.color = 'var(--text-muted)';
-          loadingItem.textContent = 'Recherche...';
-          dropdownList.appendChild(loadingItem);
-
-          const response = await fetch(`/api/cities?q=${encodeURIComponent(query)}`, { headers });
-          if (response.ok) {
-            const cities = await response.json();
-            renderCities(cities);
-          }
-        } catch (error) {
-          console.error('Error fetching dynamic cities:', error);
-        }
-      }, 300);
-    });
-
-    const modeInput = document.getElementById('mode-search');
-    const modeList = document.getElementById('mode-dropdown-list');
-    const modeItems = modeList.querySelectorAll('li');
-    let selectedMode = localStorage.getItem('citymaster_last_mode') || 'target';
-
-    modeInput.addEventListener('click', () => {
-      modeList.classList.remove('hidden');
-    });
-
-    modeItems.forEach(item => {
-      item.addEventListener('click', () => {
-        modeItems.forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        selectedMode = item.getAttribute('data-value');
-        modeInput.value = item.textContent.trim();
-        modeList.classList.add('hidden');
-      });
-    });
-
-    const defaultModeItem = Array.from(modeItems).find(i => i.getAttribute('data-value') === selectedMode);
-    if (defaultModeItem) {
-      defaultModeItem.classList.add('selected');
-      modeInput.value = defaultModeItem.textContent.trim();
     }
-
-    const diffInput = document.getElementById('difficulty-search');
-    const diffList = document.getElementById('difficulty-dropdown-list');
-    const diffItems = diffList.querySelectorAll('li');
-    let selectedDifficulty = localStorage.getItem('citymaster_last_difficulty') || 'hard';
-
-    diffInput.addEventListener('click', () => {
-      diffList.classList.remove('hidden');
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!modeInput.contains(e.target) && !modeList.contains(e.target)) {
-        modeList.classList.add('hidden');
-      }
-      if (!diffInput.contains(e.target) && !diffList.contains(e.target)) {
-        diffList.classList.add('hidden');
-      }
-    });
-
-    diffItems.forEach(item => {
-      item.addEventListener('click', () => {
-        diffItems.forEach(i => i.classList.remove('selected'));
-        item.classList.add('selected');
-        selectedDifficulty = item.getAttribute('data-value');
-        diffInput.value = item.textContent.trim();
-        diffList.classList.add('hidden');
-      });
-    });
-
-    const defaultDiffItem = Array.from(diffItems).find(i => i.getAttribute('data-value') === selectedDifficulty);
-    if (defaultDiffItem) {
-      defaultDiffItem.classList.add('selected');
-      diffInput.value = defaultDiffItem.textContent.trim();
-    }
-
-    document.getElementById('start-btn').addEventListener('click', () => {
-      this.#gameError.classList.add('hidden');
-      
-      if (!selectedCityData) {
-        this.showError('Veuillez sélectionner une ville dans la liste.');
-        return;
-      }
-
-      localStorage.setItem('citymaster_last_mode', selectedMode);
-      localStorage.setItem('citymaster_last_difficulty', selectedDifficulty);
-      const playerName = this.getPlayerName();
-
-      callback(playerName, selectedCityData, selectedMode, selectedDifficulty);
-    });
-  }
-
-  #playerName = 'Joueur';
-
-  setPlayerName(name) {
-    this.#playerName = name;
-    const span = document.getElementById('logged-in-user');
-    if (span) {
-      span.textContent = name;
-    }
-  }
-
-  getPlayerName() {
-    return this.#playerName;
   }
 
   showError(message) {
-    this.#gameError.textContent = message;
-    this.#gameError.classList.remove('hidden');
+    if (this.#gameError) {
+      this.#gameError.textContent = message;
+      this.#gameError.classList.remove('hidden');
+    }
+  }
+
+  hideError() {
+    if (this.#gameError) {
+      this.#gameError.classList.add('hidden');
+    }
+  }
+
+  setInstruction(text) {
+    if (this.#instruction) {
+      this.#instruction.textContent = text;
+    }
+  }
+
+  updateComboBadge(multiplier) {
+    if (!this.#comboBadge || !this.#comboText) return;
+
+    if (multiplier > 1) {
+      this.#comboText.textContent = `Combo x${multiplier}`;
+      this.#comboBadge.classList.remove('hidden');
+    } else {
+      this.#comboBadge.classList.add('hidden');
+    }
   }
 
   showLoading(message = 'Chargement...') {
@@ -306,37 +186,128 @@ export class GameView {
     this.showScreen('loading');
   }
 
-  onHeroPlay(callback) {
-    document.getElementById('hero-play-btn').addEventListener('click', () => {
-      callback();
+  setMode(mode) {
+    if (this.#identifyContainer) this.#identifyContainer.classList.add('hidden');
+
+    if (mode === 'identify') {
+      if (this.#identifyContainer) this.#identifyContainer.classList.remove('hidden');
+      if (this.#streetInput) {
+        this.#streetInput.value = '';
+        this.#streetInput.focus();
+      }
+    }
+  }
+
+  setActionsState(state) {
+    if (this.#validateBtn) this.#validateBtn.classList.add('hidden');
+    if (this.#nextBtn) this.#nextBtn.classList.add('hidden');
+
+    if (state === 'guessing') {
+      if (this.#validateBtn) this.#validateBtn.classList.remove('hidden');
+    } else if (state === 'validated') {
+      if (this.#nextBtn) this.#nextBtn.classList.remove('hidden');
+    }
+  }
+
+  setOverlaysVisible(visible) {
+    if (this.#topBanner) {
+      if (visible) this.#topBanner.classList.remove('hidden');
+      else this.#topBanner.classList.add('hidden');
+    }
+    if (this.#bottomActions) {
+      if (visible) this.#bottomActions.classList.remove('hidden');
+      else this.#bottomActions.classList.add('hidden');
+    }
+  }
+
+  updateRoundIndicators(currentRound, totalRounds = 5, history = []) {
+    const indicatorsContainer = document.getElementById('round-indicators');
+    if (!indicatorsContainer) return;
+
+    indicatorsContainer.innerHTML = '';
+    for (let i = 1; i <= totalRounds; i++) {
+      const dot = document.createElement('span');
+      dot.className = 'round-dot';
+      dot.setAttribute('data-round', i);
+
+      const pastResult = history[i - 1];
+      if (pastResult) {
+        if (pastResult.score > 0) {
+          dot.classList.add('done-success');
+        } else {
+          dot.classList.add('done-error');
+        }
+      } else if (i === currentRound) {
+        dot.classList.add('active');
+      }
+
+      indicatorsContainer.appendChild(dot);
+    }
+  }
+
+  onQuit(callback) {
+    if (this.#quitBtn) {
+      this.#quitBtn.addEventListener('click', callback);
+    }
+  }
+
+  onRestart(callback) {
+    if (this.#restartBtn) {
+      this.#restartBtn.addEventListener('click', callback);
+    }
+  }
+
+  onValidate(callback) {
+    if (this.#validateBtn) {
+      this.#validateBtn.addEventListener('click', callback);
+    }
+  }
+
+  onNextStreet(callback) {
+    if (this.#nextBtn) {
+      this.#nextBtn.addEventListener('click', callback);
+    }
+  }
+
+  renderSprintResults(history) {
+    const tbody = document.getElementById('sprint-history-body');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    history.forEach((item, index) => {
+      const tr = document.createElement('tr');
+      const timeSec = (item.time / 1000).toFixed(1);
+      const isSuccess = item.score > 0;
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td><strong>${this.#escapeHtml(item.streetName)}</strong></td>
+        <td><span class="badge ${isSuccess ? 'badge-success' : 'badge-danger'}">${timeSec}s</span></td>
+        <td><strong>${item.score} pts</strong></td>
+      `;
+      tbody.appendChild(tr);
     });
   }
 
-  renderLeaderboard(scores) {
+  renderLeaderboard(leaderboardData) {
     const tbody = document.getElementById('leaderboard-body');
     if (!tbody) return;
-    
+
     tbody.innerHTML = '';
-    
-    if (!scores || scores.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="4" class="text-center">Aucun score pour le moment.</td></tr>';
+
+    if (!leaderboardData || leaderboardData.length === 0) {
+      import('../services/I18nService.js').then(({ I18nService }) => {
+        const noScoresText = I18nService.getInstance().t('leaderboard.no_scores');
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center">${noScoresText}</td></tr>`;
+      });
       return;
     }
-    const topScores = scores.slice(0, 10);
-    
-    topScores.forEach((scoreData, index) => {
+
+    leaderboardData.forEach((scoreData, index) => {
       const tr = document.createElement('tr');
-      
-      const date = new Date(scoreData.date).toLocaleDateString('fr-FR');
-      
-      let rankClass = 'rank-neutral';
-      if (index === 0) rankClass = 'rank-gold';
-      else if (index === 1) rankClass = 'rank-silver';
-      else if (index === 2) rankClass = 'rank-bronze';
-      
+      const date = new Date(scoreData.created_at).toLocaleDateString('fr-FR');
       tr.innerHTML = `
-        <td><span class="rank-badge ${rankClass}">${index + 1}</span></td>
-        <td><strong>${this.#escapeHtml(scoreData.player)}</strong></td>
+        <td>#${index + 1}</td>
+        <td><strong>${this.#escapeHtml(scoreData.username)}</strong></td>
         <td>${scoreData.score} pts</td>
         <td class="text-muted">${date}</td>
       `;
@@ -365,6 +336,129 @@ export class GameView {
     });
   }
 
+  #getAdaptiveSettings() {
+    const logicalCores = navigator.hardwareConcurrency || 4;
+    const memoryGb = navigator.deviceMemory || 4;
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const effectiveType = connection ? connection.effectiveType : '4g';
+    const saveData = connection ? connection.saveData : false;
+
+    let maxSuggestions = 5;
+    let debounceMs = 0;
+    let minChars = 2;
+
+    if (logicalCores >= 8 && memoryGb >= 8 && effectiveType === '4g' && !saveData) {
+      maxSuggestions = 10;
+      debounceMs = 0;
+      minChars = 1;
+    } else if (logicalCores <= 2 || memoryGb <= 2 || effectiveType === '2g' || effectiveType === 'slow-2g' || saveData) {
+      maxSuggestions = 3;
+      debounceMs = 150;
+      minChars = 2;
+    } else {
+      maxSuggestions = 5;
+      debounceMs = 50;
+      minChars = 2;
+    }
+
+    return { maxSuggestions, debounceMs, minChars };
+  }
+
+  setupAutocomplete(streetsList) {
+    if (!this.#streetInput || !this.#autocompleteList || !Array.isArray(streetsList)) return;
+
+    let selectedIndex = -1;
+    let debounceTimer = null;
+    const settings = this.#getAdaptiveSettings();
+
+    const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+    const hideDropdown = () => {
+      if (!this.#autocompleteList) return;
+      this.#autocompleteList.classList.add('hidden');
+      this.#autocompleteList.innerHTML = '';
+      this.#streetInput.setAttribute('aria-expanded', 'false');
+      selectedIndex = -1;
+    };
+
+    const performFilter = () => {
+      const query = normalize(this.#streetInput.value.trim());
+      if (query.length < settings.minChars) {
+        hideDropdown();
+        return;
+      }
+
+      const matches = streetsList.filter(streetName => {
+        return normalize(streetName).includes(query);
+      }).slice(0, settings.maxSuggestions);
+
+      if (matches.length === 0) {
+        hideDropdown();
+        return;
+      }
+
+      this.#autocompleteList.innerHTML = matches.map((match, i) => `
+        <li data-index="${i}" data-value="${this.#escapeHtml(match)}" role="option" class="dropdown-item">
+          ${this.#escapeHtml(match)}
+        </li>
+      `).join('');
+
+      this.#autocompleteList.classList.remove('hidden');
+      this.#streetInput.setAttribute('aria-expanded', 'true');
+      selectedIndex = -1;
+
+      this.#autocompleteList.querySelectorAll('li').forEach(item => {
+        item.addEventListener('click', () => {
+          this.#streetInput.value = item.getAttribute('data-value');
+          hideDropdown();
+          this.#streetInput.focus();
+        });
+      });
+    };
+
+    this.#streetInput.addEventListener('input', () => {
+      if (settings.debounceMs > 0) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(performFilter, settings.debounceMs);
+      } else {
+        performFilter();
+      }
+    });
+
+    this.#streetInput.addEventListener('keydown', (e) => {
+      const items = this.#autocompleteList.querySelectorAll('li');
+      if (items.length === 0 || this.#autocompleteList.classList.contains('hidden')) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % items.length;
+        items.forEach((item, index) => {
+          item.classList.toggle('selected', index === selectedIndex);
+        });
+        if (items[selectedIndex]) {
+          this.#streetInput.value = items[selectedIndex].getAttribute('data-value');
+        }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        items.forEach((item, index) => {
+          item.classList.toggle('selected', index === selectedIndex);
+        });
+        if (items[selectedIndex]) {
+          this.#streetInput.value = items[selectedIndex].getAttribute('data-value');
+        }
+      } else if (e.key === 'Escape') {
+        hideDropdown();
+      }
+    });
+
+    document.addEventListener('click', (e) => {
+      if (this.#identifyContainer && !this.#identifyContainer.contains(e.target)) {
+        hideDropdown();
+      }
+    });
+  }
+
   onSubmitAnswer(callback) {
     this.#submitBtn.addEventListener('click', () => {
       const answer = this.#streetInput.value.trim();
@@ -380,124 +474,6 @@ export class GameView {
           callback(answer);
           this.#streetInput.value = '';
         }
-      }
-    });
-  }
-
-  onValidate(callback) {
-    this.#validateBtn.addEventListener('click', callback);
-  }
-
-  onNextStreet(callback) {
-    this.#nextBtn.addEventListener('click', callback);
-  }
-
-  onQuit(callback) {
-    this.#quitBtn.addEventListener('click', callback);
-  }
-
-  onRestart(callback) {
-    this.#restartBtn.addEventListener('click', callback);
-  }
-
-  updateHUD(mode, score) {
-  }
-
-  setInstruction(text) {
-    this.#instruction.textContent = text;
-    this.#instruction.classList.remove('success-text', 'error-text');
-    if (text.startsWith('Parfait') || text.startsWith('Pas mal') || text.startsWith('Bonne réponse')) {
-      this.#instruction.classList.add('success-text');
-    } else if (text.startsWith('Raté') || text.startsWith('Faux')) {
-      this.#instruction.classList.add('error-text');
-    }
-  }
-
-  updateComboBadge(multiplier) {
-    if (!this.#comboBadge || !this.#comboText) return;
-    if (multiplier && multiplier > 1) {
-      this.#comboText.textContent = `Combo x${multiplier}`;
-      this.#comboBadge.classList.remove('hidden');
-    } else {
-      this.#comboBadge.classList.add('hidden');
-    }
-  }
-
-  showBanner(visible) {
-    if (visible) {
-      this.#topBanner.classList.remove('hidden');
-      this.#bottomActions.classList.remove('hidden');
-    } else {
-      this.#topBanner.classList.add('hidden');
-      this.#bottomActions.classList.add('hidden');
-      this.hideTimer();
-      this.updateComboBadge(1);
-    }
-  }
-
-  showTimer() {
-    const container = document.getElementById('timer-container');
-    const bar = document.getElementById('timer-bar');
-    if (container && bar) {
-      container.classList.remove('hidden');
-      bar.style.width = '100%';
-      bar.classList.remove('timer-warning', 'timer-danger');
-    }
-  }
-
-  updateTimer(remainingSeconds, totalSeconds) {
-    const bar = document.getElementById('timer-bar');
-    if (bar) {
-      const percentage = (remainingSeconds / totalSeconds) * 100;
-      bar.style.width = `${percentage}%`;
-
-      if (percentage <= 25) {
-        bar.classList.remove('timer-warning');
-        bar.classList.add('timer-danger');
-      } else if (percentage <= 50) {
-        bar.classList.remove('timer-danger');
-        bar.classList.add('timer-warning');
-      } else {
-        bar.classList.remove('timer-warning', 'timer-danger');
-      }
-    }
-  }
-
-  hideTimer() {
-    const container = document.getElementById('timer-container');
-    if (container) {
-      container.classList.add('hidden');
-    }
-  }
-
-  setActionsState(state) {
-    this.#validateBtn.classList.add('hidden');
-    this.#nextBtn.classList.add('hidden');
-
-    if (state === 'validate') {
-      this.#validateBtn.classList.remove('hidden');
-    } else if (state === 'next') {
-      this.#nextBtn.classList.remove('hidden');
-    }
-  }
-
-  setModeLayout(mode) {
-    if (mode === 'identify') {
-      this.#identifyContainer.classList.remove('hidden');
-    } else {
-      this.#identifyContainer.classList.add('hidden');
-    }
-  }
-
-  updateRoundProgress(currentRound, totalRounds = 5) {
-    const dots = document.querySelectorAll('.round-dot');
-    dots.forEach((dot, index) => {
-      const roundNum = index + 1;
-      dot.classList.remove('active', 'done-success', 'done-error');
-      if (roundNum === currentRound) {
-        dot.classList.add('active');
-      } else if (roundNum < currentRound) {
-        dot.classList.add('done-success');
       }
     });
   }

@@ -70,7 +70,7 @@ export class AuthController {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Authentication error');
+        throw new Error(data.error || 'Erreur de connexion');
       }
 
       if (this.#isLoginMode) {
@@ -87,7 +87,11 @@ export class AuthController {
         await this.#handleAuthSubmit(username, password);
       }
     } catch (err) {
-      this.#authView.showError(err.message);
+      let friendlyMessage = err.message;
+      if (err.name === 'TypeError' || err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('connection')) {
+        friendlyMessage = 'Impossible de contacter le serveur. Veuillez vérifier que le serveur est démarré et réessayez.';
+      }
+      this.#authView.showError(friendlyMessage);
     }
   }
 
