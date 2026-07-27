@@ -1,29 +1,65 @@
 import pool from '../config/database.js';
 
+const memoryUsers = new Map();
+
 export class User {
   static async create(username, hashedPassword) {
-    const result = await pool.query(
-      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username, profile_image_url',
-      [username, hashedPassword]
-    );
-    return result.rows[0];
+    try {
+      const result = await pool.query(
+        'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username, profile_image_url',
+        [username, hashedPassword]
+      );
+      return result.rows[0];
+    } catch (err) {
+      if (err.code === '23505') throw err;
+      const existing = [...memoryUsers.values()].find(u => u.username.toLowerCase() === username.toLowerCase());
+      if (existing) {
+        const error = new Error('Username already exists');
+        error.code = '23505';
+        throw error;
+      }
+      const newUser = {
+        id: memoryUsers.size + 1,
+        username,
+        password: hashedPassword,
+        profile_image_url: null
+      };
+      memoryUsers.set(newUser.id, newUser);
+      return newUser;
+    }
   }
 
   static async findByUsername(username) {
-    const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
-    return result.rows[0] || null;
+    try {
+      const result = await pool.query('SELECT * FROM users WHERE username = $1', [username]);
+      return result.rows[0] || null;
+    } catch (err) {
+      return [...memoryUsers.values()].find(u => u.username.toLowerCase() === username.toLowerCase()) || null;
+    }
   }
 
   static async findById(id) {
-    const result = await pool.query('SELECT id, username, profile_image_url FROM users WHERE id = $1', [id]);
-    return result.rows[0] || null;
+    try {
+      const result = await pool.query('SELECT id, username, profile_image_url FROM users WHERE id = $1', [id]);
+      return result.rows[0] || null;
+    } catch (err) {
+      return memoryUsers.get(Number(id)) || null;
+    }
   }
 
   static async updateProfileImage(id, profileImageUrl) {
-    const result = await pool.query(
-      'UPDATE users SET profile_image_url = $1 WHERE id = $2 RETURNING id, username, profile_image_url',
-      [profileImageUrl, id]
-    );
-    return result.rows[0];
+    try {
+      const result = await pool.query(
+        'UPDATE users SET profile_image_url = $1 WHERE id = $2 RETURNING id, username, profile_image_url',
+        [profileImageUrl, id]
+      );
+      return result.rows[0];
+    } catch (err) {
+      const user = memoryUsers.get(Number(id));
+      if (user) {
+        user.profile_image_url = profileImageUrl;
+      }
+      return user || null;
+    }
   }
 }

@@ -28,10 +28,14 @@
       </div>
     </div>
 
-    <div id="top-left-actions" class="ui-overlay-top-left map-style-widget" role="group" aria-label="Changer le style de la carte">
-      <button class="map-style-btn active" data-style="street" title="Plan Urbain Standard" data-i18n-title="game.map_street">🏙️</button>
-      <button class="map-style-btn" data-style="satellite" title="Vue Satellite Esri" data-i18n-title="game.map_satellite">🛰️</button>
-      <button class="map-style-btn" data-style="dark" title="Mode Sombre Cyber" data-i18n-title="game.map_dark">🌙</button>
+    <div id="bottom-left-actions" class="ui-overlay-bottom-left">
+      <button id="satellite-toggle-btn" class="satellite-btn" title="Vue Satellite (Activer/Désactiver)" data-i18n-title="game.toggle_satellite" aria-label="Basculer la vue satellite">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="satellite-icon" aria-hidden="true">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+      </button>
     </div>
 
     <div id="top-right-actions" class="ui-overlay-top-right">

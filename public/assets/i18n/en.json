@@ -6,6 +6,7 @@
     "theme_title": "Toggle theme",
     "login": "Sign In",
     "logout": "Sign Out",
+    "admin": "Admin Districts",
     "legal": "Legal Notice & Privacy"
   },
   "legal": {
@@ -23,7 +24,7 @@
     "cookies_desc": "CityMaster does not use advertising cookies or third-party tracking scripts. Technical local storage (LocalStorage) is strictly used to save your in-game preferences."
   },
   "landing": {
-    "badge": "✨ Interactive Geography Game",
+    "badge": "Interactive Geography Game",
     "hero_title": "Master Your City's Geography",
     "hero_subtitle": "Test your knowledge of streets, housing estates, and neighborhoods in real-time with OpenStreetMap.",
     "play_now": "Play Now",
@@ -64,7 +65,17 @@
     "diff_easy": "Easy (Main Roads)",
     "diff_medium": "Medium (Streets & Roads)",
     "diff_hard": "Hard (All Streets & Districts)",
-    "diff_lotissement": "🏡 Housing Estates & Districts (Dispatch SDIS Mode)",
+    "diff_lotissement": "Housing Estates & Districts (Dispatch SDIS Mode)",
+    "custom_lotissement_btn": "Manage Custom Districts",
+    "custom_lotissement_title": "Custom Housing Estates & Districts",
+    "custom_lotissement_subtitle": "Manually define missing districts or housing developments.",
+    "custom_lotissement_name_label": "District / Estate Name:",
+    "custom_lotissement_name_placeholder": "e.g. Oak Estate",
+    "custom_lotissement_lat": "Latitude (e.g. 47.68):",
+    "custom_lotissement_lng": "Longitude (e.g. 1.78):",
+    "custom_lotissement_add_btn": "Add This District",
+    "custom_lotissement_empty": "No custom districts added for this city yet.",
+    "custom_lotissement_delete": "Delete",
     "start_game": "Start Adventure",
     "leaderboard": "Leaderboard (Top 10)",
     "rank": "Rank",
@@ -131,10 +142,12 @@
   },
   "errors": {
     "fill_fields": "Please fill in all fields.",
-    "network_error": "Unable to contact the server. Please check your connection.",
+    "network_error": "Service temporarily unavailable. Please try again in a moment.",
     "select_city_first": "Please select a city from the list.",
     "select_city_valid": "Please select a valid city.",
     "session_expired": "Session expired. Please sign in again.",
-    "file_too_large": "Image file is too large (max 2 MB)."
+    "file_too_large": "Image file is too large (max 2 MB).",
+    "invalid_credentials": "Invalid username or password.",
+    "user_exists": "Username is already taken."
   }
 }

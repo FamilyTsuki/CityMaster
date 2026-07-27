@@ -6,6 +6,7 @@
     "theme_title": "Changer de thème",
     "login": "Se connecter",
     "logout": "Se déconnecter",
+    "admin": "Admin Quartiers",
     "legal": "Mentions Légales & RGPD"
   },
   "legal": {
@@ -22,9 +23,8 @@
     "cookies_title": "5. Cookies & Traqueurs",
     "cookies_desc": "CityMaster n'utilise aucun cookie publicitaire ni aucun traceur tiers à des fins de profilage commercial. Seul le stockage technique local (LocalStorage) est utilisé pour conserver vos préférences de jeu."
   },
-  "errors": {
   "landing": {
-    "badge": "✨ Jeu Géographique Interactif",
+    "badge": "Jeu Géographique Interactif",
     "hero_title": "Maîtrisez la Géographie de Votre Ville",
     "hero_subtitle": "Testez vos connaissances sur les rues, lotissements et quartiers en temps réel grâce à OpenStreetMap.",
     "play_now": "Jouer maintenant",
@@ -65,7 +65,17 @@
     "diff_easy": "Facile (Grands axes)",
     "diff_medium": "Moyen (Rues & Axes)",
     "diff_hard": "Difficile (Inclus les Lotissements & Voies)",
-    "diff_lotissement": "🏡 Spécial Lotissements & Quartiers (Mode Dispatch SDIS)",
+    "diff_lotissement": "Spécial Lotissements & Quartiers (Mode Dispatch SDIS)",
+    "custom_lotissement_btn": "Gérer les Lotissements Manuels",
+    "custom_lotissement_title": "Lotissements & Quartiers Personnalisés",
+    "custom_lotissement_subtitle": "Définissez à la main des lotissements manquants sur OpenStreetMap.",
+    "custom_lotissement_name_label": "Nom du lotissement / quartier :",
+    "custom_lotissement_name_placeholder": "ex: Lotissement Les Chênes",
+    "custom_lotissement_lat": "Latitude (ex: 47.68) :",
+    "custom_lotissement_lng": "Longitude (ex: 1.78) :",
+    "custom_lotissement_add_btn": "Ajouter ce lotissement",
+    "custom_lotissement_empty": "Aucun lotissement manuel ajouté pour cette commune.",
+    "custom_lotissement_delete": "Supprimer",
     "start_game": "Démarrer l'aventure",
     "leaderboard": "Classement (Top 10)",
     "rank": "Rang",
@@ -132,10 +142,12 @@
   },
   "errors": {
     "fill_fields": "Veuillez remplir tous les champs.",
-    "network_error": "Impossible de contacter le serveur. Veuillez vérifier votre connexion.",
+    "network_error": "Service momentanément indisponible. Veuillez réessayer dans quelques instants.",
     "select_city_first": "Veuillez sélectionner une commune dans la liste.",
     "select_city_valid": "Veuillez sélectionner une commune valide.",
     "session_expired": "Session expirée. Veuillez vous reconnecter.",
-    "file_too_large": "L'image est trop lourde (max 2 Mo)."
+    "file_too_large": "L'image est trop lourde (max 2 Mo).",
+    "invalid_credentials": "Identifiant ou mot de passe incorrect.",
+    "user_exists": "Nom d'utilisateur déjà utilisé."
   }
 }

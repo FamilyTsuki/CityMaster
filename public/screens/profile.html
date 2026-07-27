@@ -25,12 +25,19 @@
     <div id="profile-success" class="success-msg hidden" role="alert" aria-live="polite"></div>
 
     <div class="profile-actions">
-      <div class="theme-switch-container">
+      <div class="theme-switch-container custom-dropdown-wrapper">
         <span class="setting-label" data-i18n="profile.language">Langue / Language</span>
-        <select id="profile-lang-select" style="background: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); padding: 6px 12px; border-radius: 9999px; font-weight: 600; cursor: pointer;">
-          <option value="fr">🇫🇷 Français</option>
-          <option value="en">🇬🇧 English</option>
-        </select>
+        <div class="custom-select-box">
+          <button type="button" id="profile-lang-trigger" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span id="profile-lang-current">Français (FR)</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <ul id="profile-lang-dropdown" class="custom-select-menu hidden" role="listbox">
+            <li data-value="fr" role="option" class="custom-select-item selected">Français (FR)</li>
+            <li data-value="en" role="option" class="custom-select-item">English (EN)</li>
+          </ul>
+          <input type="hidden" id="profile-lang-select" value="fr" />
+        </div>
       </div>
 
       <div class="theme-switch-container">

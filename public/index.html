@@ -41,11 +41,9 @@
       <span id="logo-brand" class="logo-text" style="cursor: pointer;" tabindex="0" role="button" aria-label="CityMaster Accueil">CityMaster</span>
     </div>
     <div class="navbar-actions">
-      <button id="pwa-install-btn" class="btn secondary hidden" style="width: auto; padding: 8px 12px; font-size: 0.85rem;" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title">
-        📲<span class="pwa-btn-text" data-i18n="nav.install"> Installer</span>
-      </button>
-      <button id="lang-toggle" class="icon-btn" title="Changer de langue / Change language" aria-label="Changer de langue">
-        <span id="lang-flag" style="font-size: 1rem; font-weight: 800;">🇫🇷</span>
+      <button id="pwa-install-btn" class="btn secondary hidden" style="width: auto; padding: 8px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        <span class="pwa-btn-text" data-i18n="nav.install">Installer</span>
       </button>
       <button id="theme-toggle" class="icon-btn" title="Changer de thème" data-i18n-title="nav.theme_title" aria-label="Basculer le thème clair ou sombre">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -54,6 +52,10 @@
         <button id="nav-login-btn" class="btn secondary" data-i18n="nav.login">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
+        <a href="#/admin" id="nav-admin-link" class="nav-admin-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 15px; height: 15px;" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span data-i18n="nav.admin">Admin Quartiers</span>
+        </a>
         <a href="#" id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</a>
         <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="nav.profile" aria-label="Voir mon profil">
           <img id="nav-profile-img" src="assets/images/default-avatar.png" alt="Avatar utilisateur" class="nav-avatar hidden" />
@@ -87,21 +89,17 @@
 
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
       deferredPrompt = e;
-      const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (isMobileDevice) {
-        const installBtn = document.getElementById('pwa-install-btn');
-        if (installBtn) {
-          installBtn.classList.remove('hidden');
-          installBtn.addEventListener('click', () => {
-            installBtn.classList.add('hidden');
+      const installBtn = document.getElementById('pwa-install-btn');
+      if (installBtn) {
+        installBtn.classList.remove('hidden');
+        installBtn.onclick = () => {
+          installBtn.classList.add('hidden');
+          if (deferredPrompt) {
             deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(() => {
-              deferredPrompt = null;
-            });
-          });
-        }
+            deferredPrompt = null;
+          }
+        };
       }
     });
   </script>

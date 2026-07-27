@@ -11,6 +11,8 @@ import { ScoreController } from './controllers/ScoreController.js';
 import { AudioService } from './services/AudioService.js';
 import { ConfettiService } from './services/ConfettiService.js';
 import { I18nService } from './services/I18nService.js';
+import { AdminView } from './views/AdminView.js';
+import { AdminController } from './controllers/AdminController.js';
 import { Router } from './Router.js';
 
 class App {
@@ -20,10 +22,12 @@ class App {
   #navbarView;
   #authView;
   #profileView;
+  #adminView;
   #scoreController;
   #controller;
   #authController;
   #profileController;
+  #adminController;
   #audioService;
   #router;
 
@@ -35,15 +39,8 @@ class App {
     this.#navbarView = new NavbarView();
     this.#authView = new AuthView();
     this.#profileView = new ProfileView();
+    this.#adminView = new AdminView();
     this.#scoreController = new ScoreController(this.#gameView);
-
-    this.#navbarView.onLangToggle(async () => {
-      const i18n = I18nService.getInstance();
-      const nextLang = i18n.currentLang === 'fr' ? 'en' : 'fr';
-      await i18n.setLanguage(nextLang);
-      this.#navbarView.setLangFlag(nextLang);
-    });
-    this.#navbarView.setLangFlag(I18nService.getInstance().currentLang);
 
     document.addEventListener('click', (e) => {
       if (e.target.closest('button, .btn, a, li, .icon-btn')) {
@@ -69,12 +66,14 @@ class App {
         this.#audioService.playFanfare();
       },
       '/profile': () => this.#profileController.loadProfile(),
+      '/admin': () => this.#showAdmin(),
       '/legal': () => this.#gameView.showScreen('legal')
     });
 
     this.#authController = new AuthController(this.#router, this.#authView, this.#navbarView);
     this.#profileController = new ProfileController(this.#router, this.#profileView, this.#navbarView, this.#gameView, this.#audioService);
     this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, this.#router, this.#audioService);
+    this.#adminController = new AdminController(this.#adminView, this.#gameView);
 
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));
@@ -124,6 +123,12 @@ class App {
     this.#mapView.invalidateSize();
   }
 
+  #showAdmin() {
+    this.#authController.isAuthenticated();
+    this.#gameView.showScreen('admin');
+    this.#adminView.initMap();
+  }
+
   static init() {
     document.addEventListener('DOMContentLoaded', async () => {
       try {
@@ -131,7 +136,7 @@ class App {
           await document.fonts.ready;
         }
 
-        const screens = ['landing', 'auth', 'welcome', 'game', 'certificate', 'profile', 'legal'];
+        const screens = ['landing', 'auth', 'welcome', 'game', 'certificate', 'profile', 'legal', 'admin'];
         const appContainer = document.getElementById('app');
         const loadingHtml = appContainer.innerHTML;
 

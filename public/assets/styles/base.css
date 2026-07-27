@@ -164,14 +164,6 @@ svg {
   background: var(--text-muted);
 }
 
-[data-theme="light"] .leaflet-tile-container {
-  filter: none;
-}
-
-[data-theme="dark"] .leaflet-tile-container {
-  filter: brightness(0.7) invert(1) contrast(1.2) hue-rotate(200deg) saturate(0.6);
-}
-
 @media (max-height: 500px) {
   .screen {
     padding-top: 12px;

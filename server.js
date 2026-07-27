@@ -13,6 +13,7 @@ import overpassRoutes from './src/backend/routes/overpass.routes.js';
 import profileRoutes from './src/backend/routes/profile.routes.js';
 import citiesRoutes from './src/backend/routes/cities.routes.js';
 import gameRoutes from './src/backend/routes/game.routes.js';
+import adminRoutes from './src/backend/routes/admin.routes.js';
 
 dotenv.config();
 
@@ -57,6 +58,7 @@ app.use('/api/overpass', overpassRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/cities', citiesRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(dirname, 'public', 'index.html'));

@@ -87,9 +87,11 @@ export class AuthController {
         await this.#handleAuthSubmit(username, password);
       }
     } catch (err) {
+      const { I18nService } = await import('../services/I18nService.js');
+      const i18n = I18nService.getInstance();
       let friendlyMessage = err.message;
       if (err.name === 'TypeError' || err.message.includes('Failed to fetch') || err.message.includes('NetworkError') || err.message.includes('connection')) {
-        friendlyMessage = 'Impossible de contacter le serveur. Veuillez vérifier que le serveur est démarré et réessayez.';
+        friendlyMessage = i18n.t('errors.network_error');
       }
       this.#authView.showError(friendlyMessage);
     }

@@ -1,40 +1,29 @@
-const CACHE_NAME = 'citymaster-v1';
+const CACHE_NAME = 'citymaster-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/assets/styles/style.css',
   '/assets/styles/variables.css',
   '/assets/styles/base.css',
-  '/assets/styles/components.css',
+  '/assets/styles/navbar.css',
   '/assets/styles/components/buttons.css',
   '/assets/styles/components/cards.css',
   '/assets/styles/components/forms.css',
   '/assets/styles/components/badges.css',
   '/assets/styles/components/messages.css',
   '/assets/styles/components/loaders.css',
-  '/assets/styles/navbar.css',
+  '/assets/styles/components.css',
   '/assets/styles/landing.css',
   '/assets/styles/auth.css',
   '/assets/styles/welcome.css',
   '/assets/styles/game.css',
-  '/assets/styles/profile.css',
   '/assets/styles/certificate.css',
+  '/assets/styles/profile.css',
   '/assets/styles/legal.css',
-  '/assets/images/icon.svg',
-  '/assets/images/default-avatar.png',
-  '/screens/landing.html',
-  '/screens/auth.html',
-  '/screens/welcome.html',
-  '/screens/game.html',
-  '/screens/certificate.html',
-  '/screens/profile.html',
+  '/assets/styles/style.css',
   '/screens/legal.html',
   '/assets/i18n/fr.json',
-  '/assets/i18n/en.json',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-  'https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js'
+  '/assets/i18n/en.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -76,6 +65,17 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (url.origin !== location.origin) {
+    event.respondWith(
+      caches.match(event.request).then((cachedResponse) => {
+        return cachedResponse || fetch(event.request).catch(() => {
+          return new Response('', { status: 408 });
+        });
+      })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
@@ -93,6 +93,8 @@ self.addEventListener('fetch', (event) => {
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
         return networkResponse;
+      }).catch(() => {
+        return new Response('', { status: 408 });
       });
     })
   );

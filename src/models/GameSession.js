@@ -4,6 +4,8 @@ export class GameSession {
   #playerName;
   #city;
   #sprintHistory;
+  #roundHistory;
+  #roundIndex;
   #gameToken;
   #currentPrompt;
   #isFinished;
@@ -14,6 +16,8 @@ export class GameSession {
     this.#currentMode = initialMode;
     this.#score = 0;
     this.#sprintHistory = [];
+    this.#roundHistory = [];
+    this.#roundIndex = (initialPrompt && typeof initialPrompt.roundIndex === 'number') ? initialPrompt.roundIndex + 1 : 1;
     this.#gameToken = gameToken;
     this.#currentPrompt = initialPrompt;
     this.#isFinished = false;
@@ -51,6 +55,26 @@ export class GameSession {
     this.#sprintHistory = history || [];
   }
 
+  get roundHistory() {
+    return this.#roundHistory;
+  }
+
+  set roundHistory(history) {
+    this.#roundHistory = history || [];
+  }
+
+  get roundIndex() {
+    return this.#roundIndex;
+  }
+
+  set roundIndex(val) {
+    this.#roundIndex = val;
+  }
+
+  addRoundResult(result) {
+    this.#roundHistory.push(result);
+  }
+
   get gameToken() {
     return this.#gameToken;
   }
@@ -65,6 +89,9 @@ export class GameSession {
 
   set currentPrompt(prompt) {
     this.#currentPrompt = prompt;
+    if (prompt && typeof prompt.roundIndex === 'number') {
+      this.#roundIndex = prompt.roundIndex + 1;
+    }
   }
 
   isFinished() {
@@ -82,6 +109,8 @@ export class GameSession {
       currentMode: this.#currentMode,
       score: this.#score,
       sprintHistory: this.#sprintHistory,
+      roundHistory: this.#roundHistory,
+      roundIndex: this.#roundIndex,
       gameToken: this.#gameToken,
       currentPrompt: this.#currentPrompt,
       isFinished: this.#isFinished
@@ -101,6 +130,8 @@ export class GameSession {
       );
       session.score = data.score;
       session.sprintHistory = data.sprintHistory || [];
+      session.roundHistory = data.roundHistory || [];
+      session.roundIndex = data.roundIndex || 1;
       session.setFinished(data.isFinished || false);
       return session;
     } catch (e) {

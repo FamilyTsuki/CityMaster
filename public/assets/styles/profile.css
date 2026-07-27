@@ -114,18 +114,109 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   width: 100%;
-  margin-bottom: 12px;
-  padding: 10px 14px;
+  margin-bottom: 10px;
+  padding: 8px 14px;
+  min-height: 48px;
   background: var(--bg-glass);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
 }
 
 .setting-label {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--text-main);
+  flex: 1;
+  text-align: left;
+}
+
+.custom-select-box {
+  position: relative;
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.custom-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 34px;
+  padding: 0 12px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.custom-select-trigger:hover {
+  border-color: var(--primary);
+  background-color: var(--bg-glass);
+}
+
+.custom-select-trigger:focus-visible,
+.custom-select-trigger.active {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+  outline: none;
+}
+
+.select-chevron {
+  width: 14px;
+  height: 14px;
+  stroke: var(--primary);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.custom-select-trigger.active .select-chevron {
+  transform: rotate(180deg);
+}
+
+.custom-select-menu {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  width: 100%;
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-lg);
+  padding: 4px;
+  list-style: none;
+  z-index: var(--z-dropdown, 1000);
+}
+
+.custom-select-item {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.custom-select-item:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.custom-select-item.selected {
+  background-color: var(--primary);
+  color: #ffffff;
 }
 
 .profile-logout-link {

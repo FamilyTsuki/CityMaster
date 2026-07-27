@@ -81,6 +81,31 @@ export class I18nService {
     return text;
   }
 
+  formatError(rawError) {
+    if (!rawError || typeof rawError !== 'string') {
+      return this.t('errors.network_error');
+    }
+
+    const lower = rawError.toLowerCase();
+    if (lower.includes('token') || lower.includes('expired') || lower.includes('unauthorized') || lower.includes('access token')) {
+      return this.t('errors.session_expired');
+    }
+    if (lower.includes('invalid username or password') || lower.includes('credentials')) {
+      return this.t('errors.invalid_credentials');
+    }
+    if (lower.includes('already exists') || lower.includes('existe déjà')) {
+      return this.t('errors.user_exists');
+    }
+    if (lower.includes('large') || lower.includes('volumineuse')) {
+      return this.t('errors.file_too_large');
+    }
+    if (lower.includes('city') || lower.includes('commune')) {
+      return this.t('errors.select_city_valid');
+    }
+
+    return this.t('errors.network_error');
+  }
+
   translateDOM() {
     const elements = document.querySelectorAll('[data-i18n]');
     elements.forEach(el => {

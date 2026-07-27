@@ -10,6 +10,11 @@ export class ProfileView {
   #soundSwitch;
   #logoutBtn;
 
+  #langTrigger;
+  #langDropdown;
+  #langCurrent;
+  #langSelectInput;
+
   constructor() {
     this.#profileName = document.getElementById('profile-page-name');
     this.#profileImg = document.getElementById('profile-page-img');
@@ -22,11 +27,94 @@ export class ProfileView {
     this.#soundSwitch = document.getElementById('profile-sound-switch');
     this.#logoutBtn = document.getElementById('profile-logout-btn');
 
+    this.#langTrigger = document.getElementById('profile-lang-trigger');
+    this.#langDropdown = document.getElementById('profile-lang-dropdown');
+    this.#langCurrent = document.getElementById('profile-lang-current');
+    this.#langSelectInput = document.getElementById('profile-lang-select');
+
     if (this.#profileImg) {
       this.#profileImg.onerror = () => {
         this.#profileImg.src = 'assets/images/default-avatar.png';
       };
     }
+
+    this.#initCustomLangDropdown();
+    this.#initThemeObserver();
+  }
+
+  #initThemeObserver() {
+    if (!this.#themeSwitch) return;
+
+    const syncThemeSwitch = () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      this.#themeSwitch.checked = isDark;
+    };
+
+    syncThemeSwitch();
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+          syncThemeSwitch();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+  }
+
+  #initCustomLangDropdown() {
+    if (!this.#langTrigger || !this.#langDropdown) return;
+
+    const closeDropdown = () => {
+      this.#langDropdown.classList.add('hidden');
+      this.#langTrigger.classList.remove('active');
+      this.#langTrigger.setAttribute('aria-expanded', 'false');
+    };
+
+    const toggleDropdown = (e) => {
+      e.stopPropagation();
+      const isHidden = this.#langDropdown.classList.contains('hidden');
+      if (isHidden) {
+        this.#langDropdown.classList.remove('hidden');
+        this.#langTrigger.classList.add('active');
+        this.#langTrigger.setAttribute('aria-expanded', 'true');
+      } else {
+        closeDropdown();
+      }
+    };
+
+    this.#langTrigger.addEventListener('click', toggleDropdown);
+
+    const items = this.#langDropdown.querySelectorAll('.custom-select-item');
+    items.forEach((item) => {
+      item.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const value = item.getAttribute('data-value');
+        this.setLangSelect(value);
+        closeDropdown();
+
+        if (this.#langSelectInput) {
+          const event = new Event('change', { bubbles: true });
+          this.#langSelectInput.dispatchEvent(event);
+        }
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!this.#langTrigger.contains(e.target) && !this.#langDropdown.contains(e.target)) {
+        closeDropdown();
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeDropdown();
+      }
+    });
   }
 
   onBackClick(callback) {
@@ -72,18 +160,29 @@ export class ProfileView {
   }
 
   onLangChange(callback) {
-    const langSelect = document.getElementById('profile-lang-select');
-    if (langSelect) {
-      langSelect.addEventListener('change', (e) => {
+    if (this.#langSelectInput) {
+      this.#langSelectInput.addEventListener('change', (e) => {
         callback(e.target.value);
       });
     }
   }
 
   setLangSelect(lang) {
-    const langSelect = document.getElementById('profile-lang-select');
-    if (langSelect) {
-      langSelect.value = lang;
+    if (this.#langSelectInput) {
+      this.#langSelectInput.value = lang;
+    }
+
+    if (this.#langDropdown && this.#langCurrent) {
+      const items = this.#langDropdown.querySelectorAll('.custom-select-item');
+      items.forEach((item) => {
+        const itemVal = item.getAttribute('data-value');
+        if (itemVal === lang) {
+          item.classList.add('selected');
+          this.#langCurrent.textContent = item.textContent.trim();
+        } else {
+          item.classList.remove('selected');
+        }
+      });
     }
   }
 

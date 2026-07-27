@@ -49,7 +49,8 @@ export class GameController {
       const filteredStreets = allCityStreets.filter(f => {
         const name = f.properties.name;
         const nameLower = name.toLowerCase().trim();
-        const firstWord = nameLower.split(/[\s'-]+/)[0];
+        const cleanName = nameLower.replace(/^(l'|d'|le\s+|la\s+|les\s+|du\s+|de\s+|des\s+)/i, '').trim();
+        const firstWord = cleanName.split(/[\s'-]+/)[0];
 
         if (difficulty === 'easy') {
           return MAJOR_TYPES.includes(firstWord);
@@ -58,11 +59,14 @@ export class GameController {
           const isMinor = MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin');
           return !isMinor;
         }
+        if (difficulty === 'lotissement') {
+          return f.properties.isCustom && f.properties.isLotissement;
+        }
         return true;
       });
 
       const uniqueStreetsMap = new Map();
-      const streetsToChoose = filteredStreets.length > 0 ? filteredStreets : allCityStreets;
+      const streetsToChoose = filteredStreets.length >= 5 ? filteredStreets : allCityStreets;
       
       streetsToChoose.forEach(street => {
         const nameKey = street.properties.name.toLowerCase().trim();
@@ -156,7 +160,7 @@ export class GameController {
 
       const currentStreet = session.streets[session.currentRound];
       const mode = session.mode;
-      const totalTime = session.difficulty === 'easy' ? 45 : (session.difficulty === 'medium' ? 60 : 90);
+      const totalTime = session.difficulty === 'easy' ? 45 : (session.difficulty === 'medium' || session.difficulty === 'lotissement' ? 60 : 90);
       const remainingTime = Math.max(0, totalTime - (elapsedSeconds || 0));
 
       let pointsEarned = 0;

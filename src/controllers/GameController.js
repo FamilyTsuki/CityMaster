@@ -1,6 +1,8 @@
 import { GameSession } from '../models/GameSession.js';
 import { OverpassService } from '../services/OverpassService.js';
 import { SpatialService } from '../services/SpatialService.js';
+import { I18nService } from '../services/I18nService.js';
+import { CustomLotissementService } from '../services/CustomLotissementService.js';
 
 export class GameController {
   #gameView;
@@ -56,11 +58,11 @@ export class GameController {
 
   async #startGame(playerName, cityData, selectedMode, difficulty = 'hard') {
     try {
+      localStorage.setItem('citymaster_last_difficulty', difficulty);
       const cityKey = cityData.key;
       const bbox = cityData.bbox;
       const center = cityData.center;
 
-      const { I18nService } = await import('../services/I18nService.js');
       const i18n = I18nService.getInstance();
 
       this.#gameView.showLoading(i18n.t('loading.generating_city'));
@@ -83,8 +85,12 @@ export class GameController {
       });
 
       if (!generateResponse.ok) {
-        const errData = await generateResponse.json();
-        throw new Error(errData.error || i18n.t('errors.network_error'));
+        if (generateResponse.status === 401 || generateResponse.status === 403) {
+          this.#handleAuthError();
+          return;
+        }
+        const errData = await generateResponse.json().catch(() => ({}));
+        throw new Error(i18n.formatError(errData.error));
       }
 
       this.#gameView.showLoading(i18n.t('loading.init_session'));
@@ -103,8 +109,12 @@ export class GameController {
       });
 
       if (!startResponse.ok) {
-        const errData = await startResponse.json();
-        throw new Error(errData.error || i18n.t('errors.network_error'));
+        if (startResponse.status === 401 || startResponse.status === 403) {
+          this.#handleAuthError();
+          return;
+        }
+        const errData = await startResponse.json().catch(() => ({}));
+        throw new Error(i18n.formatError(errData.error));
       }
 
       const startData = await startResponse.json();
@@ -117,12 +127,13 @@ export class GameController {
 
       const [_, geojson] = await Promise.all([mapReadyPromise, streetsPromise]);
       
-      this.#allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
+      const customFeatures = CustomLotissementService.getCustomLotissements(cityKey);
+      this.#allCityStreets = [...geojson.features.filter(f => f.properties && f.properties.name), ...customFeatures];
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);
       
       if (this.#allCityStreets.length === 0) {
-        throw new Error('No streets found in this region. Please try again.');
+        throw new Error(i18n.t('errors.network_error'));
       }
 
       this.#session = new GameSession(
@@ -135,13 +146,23 @@ export class GameController {
       this.#saveState();
       
       this.#loadNextQuestion();
-      setTimeout(() => {
-        this.#router.navigate('/play');
-      }, 100);
+      this.#gameView.showScreen('game');
+      this.#mapView.invalidateSize();
+      this.#router.navigate('/play', true);
     } catch (error) {
-      this.#gameView.showError(error.message);
+      const i18n = I18nService.getInstance();
+      this.#gameView.showError(i18n.formatError(error.message));
       this.#router.navigate('/setup');
     }
+  }
+
+  #handleAuthError() {
+    this.#clearState();
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    const i18n = I18nService.getInstance();
+    this.#gameView.showError(i18n.t('errors.session_expired'));
+    this.#router.navigate('/login');
   }
 
   #startRoundTimer() {
@@ -150,7 +171,7 @@ export class GameController {
     const difficulty = localStorage.getItem('citymaster_last_difficulty') || 'hard';
     if (difficulty === 'easy') {
       this.#totalTime = 45;
-    } else if (difficulty === 'medium') {
+    } else if (difficulty === 'medium' || difficulty === 'lotissement') {
       this.#totalTime = 60;
     } else {
       this.#totalTime = 90;
@@ -237,10 +258,9 @@ export class GameController {
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);
       this.#loadNextQuestion();
-      setTimeout(() => {
-        this.#gameView.showScreen('game');
-        this.#mapView.invalidateSize();
-      }, 100);
+      this.#gameView.showScreen('game');
+      this.#mapView.invalidateSize();
+      this.#router.navigate('/play', true);
     }).catch(err => {
       console.error('Failed to load city streets for snapping on resume', err);
       this.#clearState();
@@ -267,7 +287,11 @@ export class GameController {
         this.#session.currentMode,
         this.#session.score
       );
-      this.#gameView.updateRoundProgress(this.#session.roundIndex || 1);
+      this.#gameView.updateRoundProgress(
+        this.#session.roundIndex || 1,
+        5,
+        this.#session.roundHistory || []
+      );
     }
   }
 
@@ -293,7 +317,6 @@ export class GameController {
       this.#mapView.clearStreets();
       this.#mapView.setView(cityCenter, 14);
       this.#gameView.showBanner(true);
-      const { I18nService } = await import('../services/I18nService.js');
       const promptText = I18nService.getInstance().t('feedback.prompt_target', { name: prompt.streetName });
       this.#gameView.setInstruction(mode === 'sprint' ? `⚡ ${promptText}` : `📍 ${promptText}`);
     } else if (mode === 'identify') {
@@ -303,7 +326,6 @@ export class GameController {
         this.#mapView.setView(bounds.getCenter(), 15);
       }
       this.#gameView.showBanner(true);
-      const { I18nService } = await import('../services/I18nService.js');
       this.#gameView.setInstruction(`🔎 ${I18nService.getInstance().t('feedback.prompt_identify')}`);
     }
 
@@ -386,8 +408,12 @@ export class GameController {
     });
 
     if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.error || 'Erreur lors de la soumission du round');
+      if (response.status === 401 || response.status === 403) {
+        this.#handleAuthError();
+        throw new Error(I18nService.getInstance().t('errors.session_expired'));
+      }
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(I18nService.getInstance().formatError(errData.error));
     }
 
     return await response.json();
@@ -411,11 +437,16 @@ export class GameController {
       this.#session.gameToken = result.gameToken;
       this.#session.score = result.totalScore;
       this.#session.setFinished(result.isFinished);
+      if (result.feedback) {
+        this.#session.addRoundResult({
+          score: result.feedback.pointsEarned || 0,
+          isCorrect: result.feedback.isCorrect || false
+        });
+      }
       this.#session.currentPrompt = result.nextPrompt;
       this.#saveState();
 
       const feedback = result.feedback;
-      const { I18nService } = await import('../services/I18nService.js');
       const i18n = I18nService.getInstance();
       let displayMsg = feedback.message;
       if (feedback.code) {
@@ -486,6 +517,12 @@ export class GameController {
       this.#session.gameToken = result.gameToken;
       this.#session.score = result.totalScore;
       this.#session.setFinished(result.isFinished);
+      if (result.feedback) {
+        this.#session.addRoundResult({
+          score: result.feedback.pointsEarned || 0,
+          isCorrect: result.feedback.isCorrect || false
+        });
+      }
       this.#session.currentPrompt = result.nextPrompt;
       this.#saveState();
 

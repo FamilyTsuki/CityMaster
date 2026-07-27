@@ -8,6 +8,8 @@ export class MapView {
   #feedbackLine;
   #boundaryRect;
   #tileLayer;
+  #hideLabels;
+  #isSatellite;
 
   constructor() {
     this.#map = null;
@@ -19,25 +21,97 @@ export class MapView {
     this.#feedbackLine = null;
     this.#boundaryRect = null;
     this.#tileLayer = null;
+    this.#hideLabels = false;
+    this.#isSatellite = false;
+
+    this.#initThemeObserver();
+    this.#initSatelliteButton();
+  }
+
+  #initThemeObserver() {
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+          this.updateTileUrl();
+        }
+      });
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme']
+    });
+  }
+
+  #initSatelliteButton() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('#satellite-toggle-btn');
+      if (btn) {
+        this.toggleSatellite();
+      }
+    });
+  }
+
+  toggleSatellite() {
+    this.#isSatellite = !this.#isSatellite;
+    const mapEl = document.getElementById('map');
+    const btn = document.getElementById('satellite-toggle-btn');
+    if (mapEl) {
+      if (this.#isSatellite) {
+        mapEl.classList.add('map-satellite-active');
+      } else {
+        mapEl.classList.remove('map-satellite-active');
+      }
+    }
+    if (btn) {
+      if (this.#isSatellite) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    }
+    this.updateTileUrl();
+  }
+
+  #getTileUrl() {
+    if (this.#isSatellite) {
+      return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    }
+
+    return this.#hideLabels
+      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png'
+      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+  }
+
+  updateTileUrl() {
+    if (!this.#tileLayer) return;
+    this.#tileLayer.setUrl(this.#getTileUrl());
   }
 
   setMapStyle(styleType) {
-    if (!this.#tileLayer) return;
-
-    let newUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    if (styleType === 'satellite') {
-      newUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    } else if (styleType === 'dark') {
-      newUrl = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+    this.#isSatellite = styleType === 'satellite';
+    const mapEl = document.getElementById('map');
+    const btn = document.getElementById('satellite-toggle-btn');
+    if (mapEl) {
+      if (this.#isSatellite) {
+        mapEl.classList.add('map-satellite-active');
+      } else {
+        mapEl.classList.remove('map-satellite-active');
+      }
     }
-
-    this.#tileLayer.setUrl(newUrl);
+    if (btn) {
+      if (this.#isSatellite) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    }
+    this.updateTileUrl();
   }
 
   initMap(centerCoordinates = [48.8566, 2.3522], zoom = 14, bboxString = null, hideLabels = false) {
-    const tileUrl = hideLabels
-      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    this.#hideLabels = hideLabels;
+    const tileUrl = this.#getTileUrl();
 
     if (this.#map) {
       if (this.#tileLayer) {
@@ -130,18 +204,18 @@ export class MapView {
         );
         if (isPoly) {
           return {
-            color: '#f59e0b',
+            color: feature.properties?.color || '#f59e0b',
             weight: 3,
             opacity: 0.9,
-            fillColor: '#fbbf24',
+            fillColor: feature.properties?.color || '#fbbf24',
             fillOpacity: 0.35,
             dashArray: '6, 6'
           };
         }
         return {
           color: '#10b981',
-          weight: 6,
-          opacity: 0.7
+          weight: 8,
+          opacity: 0.9
         };
       }
     }).addTo(this.#map);
@@ -236,9 +310,6 @@ export class MapView {
 
   showFeedbackLine(guessLat, guessLng, targetLat, targetLng, isCorrect) {
     this.clearFeedback();
-    if (this.#selectionLayer) {
-      this.#selectionLayer.clearLayers();
-    }
     
     this.showFeedback(guessLat, guessLng, isCorrect);
     

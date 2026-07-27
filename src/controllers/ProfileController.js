@@ -44,7 +44,6 @@ export class ProfileController {
     this.#profileView.onLangChange(async (lang) => {
       const { I18nService } = await import('../services/I18nService.js');
       await I18nService.getInstance().setLanguage(lang);
-      this.#navbarView.setLangFlag(lang);
     });
 
     this.#navbarView.onProfileClick(() => {
@@ -85,13 +84,16 @@ export class ProfileController {
       const data = await response.json();
       const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
       const isSoundMuted = this.#audioService.isMuted();
+      const { I18nService } = await import('../services/I18nService.js');
+      const currentLang = I18nService.getInstance().currentLang;
       
       this.#profileView.renderProfile(
         data.username,
         data.totalScore,
         data.profileImageUrl,
         isDarkMode,
-        isSoundMuted
+        isSoundMuted,
+        currentLang
       );
 
       if (data.profileImageUrl) {
@@ -104,7 +106,8 @@ export class ProfileController {
 
       this.#gameView.showScreen('profile');
     } catch (err) {
-      this.#profileView.showError(err.message);
+      const i18n = I18nService.getInstance();
+      this.#profileView.showError(i18n.formatError(err.message));
     }
   }
 
@@ -135,8 +138,10 @@ export class ProfileController {
   }
 
   async uploadAvatar(file) {
+    const i18n = I18nService.getInstance();
+
     if (file.size > 2 * 1024 * 1024) {
-      this.#profileView.showError("L'image est trop lourde (max 2 Mo).");
+      this.#profileView.showError(i18n.t('errors.file_too_large'));
       return;
     }
 
@@ -147,7 +152,7 @@ export class ProfileController {
     if (!token) return;
 
     try {
-      this.#profileView.showSuccess('Envoi en cours...');
+      this.#profileView.showSuccess(i18n.t('loading.loading_streets'));
 
       const response = await fetch('/api/profile/upload', {
         method: 'POST',
@@ -157,13 +162,19 @@ export class ProfileController {
         body: formData
       });
 
+      if (response.status === 401 || response.status === 403) {
+        this.logout();
+        this.#profileView.showError(i18n.t('errors.session_expired'));
+        return;
+      }
+
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors du téléversement');
+        throw new Error(data.error);
       }
 
-      this.#profileView.showSuccess(data.message);
+      this.#profileView.showSuccess(data.message || i18n.t('profile.title'));
       if (data.profileImageUrl) {
         localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
         const username = localStorage.getItem('username');
@@ -177,7 +188,7 @@ export class ProfileController {
         this.#navbarView.setLoggedIn(username, data.profileImageUrl);
       }
     } catch (err) {
-      this.#profileView.showError(err.message);
+      this.#profileView.showError(i18n.formatError(err.message));
     }
   }
 }

@@ -33,12 +33,7 @@ export class CityController {
         const name = element.tags.name || element.tags.ref;
         if (!name) continue;
 
-        const isLotissement = !!(
-          element.tags.place ||
-          element.tags.landuse === 'residential' ||
-          element.tags.residential === 'housing_estate' ||
-          /^(lotissement|résidence|residence|quartier|hameau|domaine|zone|clos|pavilion)/i.test(name)
-        );
+        const isLotissement = false;
 
         if (element.type === 'way' && element.geometry) {
           const coords = [];
@@ -55,7 +50,7 @@ export class CityController {
           if (coords.length < 2) continue;
 
           if (!itemGroups[name]) {
-            itemGroups[name] = { coords: [], isLotissement };
+            itemGroups[name] = { coords: [], isLotissement: false };
           }
           itemGroups[name].coords.push(coords);
         } else if (element.type === 'node' && element.lat && element.lon) {

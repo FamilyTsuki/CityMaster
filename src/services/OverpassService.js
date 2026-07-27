@@ -72,16 +72,11 @@ export class OverpassService {
         const name = element.tags.name || element.tags.ref;
         if (!name) continue;
 
-        const isLotissement = !!(
-          element.tags.place ||
-          element.tags.landuse === 'residential' ||
-          element.tags.residential === 'housing_estate' ||
-          /^(lotissement|résidence|residence|quartier|hameau|domaine|zone|clos|pavilion)/i.test(name)
-        );
+        const isLotissement = false;
 
         if (element.type === 'way' && element.geometry) {
           if (!itemGroups[name]) {
-            itemGroups[name] = { coords: [], isLotissement };
+            itemGroups[name] = { coords: [], isLotissement: false };
           }
           itemGroups[name].coords.push(element.geometry.map(point => [point.lon, point.lat]));
         } else if (element.type === 'node' && element.lat && element.lon) {

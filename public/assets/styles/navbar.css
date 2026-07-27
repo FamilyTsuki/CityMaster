@@ -67,35 +67,40 @@
 
 .logout-link {
   color: var(--text-muted);
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-radius: 9999px;
-  background-color: var(--secondary);
-  transition: all var(--transition-fast);
+  background: transparent;
+  transition: color var(--transition-fast);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .logout-link:hover {
-  background-color: rgba(239, 68, 68, 0.15);
+  background: transparent;
   color: var(--danger);
 }
 
 .profile-link {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   text-decoration: none;
   padding: 2px 4px;
   border-radius: 9999px;
-  transition: background-color var(--transition-fast);
+  background: transparent;
+  transition: color var(--transition-fast);
   flex-shrink: 0;
 }
 
 .profile-link:hover {
-  background-color: var(--primary-light);
+  background: transparent;
+}
+
+.profile-link:hover .profile-name {
+  color: var(--primary);
 }
 
 .nav-avatar {

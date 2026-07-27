@@ -1,0 +1,72 @@
+<div id="admin-screen" class="screen" role="main" aria-label="Espace Administration des Quartiers">
+  <div class="admin-layout" style="display: flex; height: calc(100vh - 64px); width: 100%; position: relative; overflow: hidden;">
+    <aside class="admin-sidebar glass-card" style="width: 380px; min-width: 320px; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border-color); background: var(--bg-card); overflow-y: auto; z-index: 10;">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+        <h1 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: var(--primary-color);"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span data-i18n="admin.title">Gestion des Quartiers</span>
+        </h1>
+        <a href="#/setup" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">Retour</a>
+      </div>
+
+      <div class="form-group custom-select-container">
+        <label for="admin-city-search" style="font-weight: 600; color: var(--text-main);" data-i18n="admin.select_city">Commune à modifier :</label>
+        <input type="text" id="admin-city-search" placeholder="Rechercher une commune..." class="input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" />
+        <ul id="admin-city-dropdown" class="dropdown-list hidden" role="listbox"></ul>
+      </div>
+
+      <div id="admin-city-info" class="hidden" style="padding: 10px 14px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; font-size: 13px; color: var(--text-main);">
+        Commune sélectionnée : <strong id="admin-city-name"></strong>
+      </div>
+
+      <button id="admin-add-district-btn" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        <span data-i18n="admin.add_district">Ajouter un Quartier</span>
+      </button>
+
+      <div id="admin-district-editor" class="hidden glass-card" style="padding: 16px; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px;">
+        <h3 style="font-size: 16px; margin: 0; color: var(--text-main);" id="admin-editor-title">Nouveau Quartier</h3>
+        
+        <div class="form-group">
+          <label for="admin-district-name" style="font-size: 13px; color: var(--text-main);">Nom du quartier / lotissement :</label>
+          <input type="text" id="admin-district-name" placeholder="ex: Quartier du Val de Loire" class="input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);" />
+        </div>
+
+        <div class="form-group">
+          <label style="font-size: 13px; color: var(--text-main);">Couleur de la zone :</label>
+          <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <button type="button" class="color-picker-btn active" data-color="#f59e0b" style="width: 28px; height: 28px; border-radius: 50%; background: #f59e0b; border: 2px solid #fff; cursor: pointer;"></button>
+            <button type="button" class="color-picker-btn" data-color="#10b981" style="width: 28px; height: 28px; border-radius: 50%; background: #10b981; border: 2px solid transparent; cursor: pointer;"></button>
+            <button type="button" class="color-picker-btn" data-color="#6366f1" style="width: 28px; height: 28px; border-radius: 50%; background: #6366f1; border: 2px solid transparent; cursor: pointer;"></button>
+            <button type="button" class="color-picker-btn" data-color="#f43f5e" style="width: 28px; height: 28px; border-radius: 50%; background: #f43f5e; border: 2px solid transparent; cursor: pointer;"></button>
+            <button type="button" class="color-picker-btn" data-color="#06b6d4" style="width: 28px; height: 28px; border-radius: 50%; background: #06b6d4; border: 2px solid transparent; cursor: pointer;"></button>
+          </div>
+        </div>
+
+        <div style="font-size: 12px; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; line-height: 1.4;">
+          <strong>Outil polygone :</strong><br />
+          • Clic sur la carte = ajouter un sommet.<br />
+          • Glisser un sommet = ajuster le contour.<br />
+          • Clic sur un sommet = supprimer le sommet.<br />
+          • <strong>Ctrl + Z</strong> = annuler le dernier point.
+        </div>
+
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+          <button id="admin-save-district-btn" class="btn" style="flex: 1; padding: 8px;">Enregistrer</button>
+          <button id="admin-cancel-district-btn" class="btn btn-secondary" style="flex: 1; padding: 8px;">Annuler</button>
+        </div>
+      </div>
+
+      <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+        <h3 style="font-size: 15px; margin: 0 0 10px 0; color: var(--text-main);">Quartiers définis (<span id="admin-district-count">0</span>)</h3>
+        <div id="admin-district-list-container" style="flex: 1; overflow-y: auto;">
+          <ul id="admin-district-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;"></ul>
+        </div>
+      </div>
+    </aside>
+
+    <main class="admin-map-area" style="flex: 1; height: 100%; position: relative;">
+      <div id="admin-map" style="width: 100%; height: 100%; z-index: 1;"></div>
+    </main>
+  </div>
+</div>
