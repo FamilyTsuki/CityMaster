@@ -1,6 +1,7 @@
 export class MapView {
   #map;
   #streetLayer;
+  #lotissementLayer;
   #selectionLayer;
   #clickCallback;
   #tempMarker;
@@ -14,6 +15,7 @@ export class MapView {
   constructor() {
     this.#map = null;
     this.#streetLayer = null;
+    this.#lotissementLayer = null;
     this.#selectionLayer = null;
     this.#clickCallback = null;
     this.#tempMarker = null;
@@ -229,6 +231,19 @@ export class MapView {
       }
     }).addTo(this.#map);
 
+    this.#lotissementLayer = L.geoJSON(null, {
+      style: () => {
+        return {
+          color: '#6b7280',
+          weight: 2,
+          opacity: 0.6,
+          fillOpacity: 0,
+          interactive: false,
+          dashArray: '4, 4'
+        };
+      }
+    }).addTo(this.#map);
+
     this.#selectionLayer = L.geoJSON(null, {
       style: (feature) => {
         const isPoly = feature && (
@@ -291,6 +306,15 @@ export class MapView {
     if (this.#tempMarker) {
       this.#tempMarker.remove();
       this.#tempMarker = null;
+    }
+  }
+
+  renderLotissements(features) {
+    if (this.#lotissementLayer) {
+      this.#lotissementLayer.clearLayers();
+      if (features && features.length > 0) {
+        this.#lotissementLayer.addData({ type: 'FeatureCollection', features });
+      }
     }
   }
 

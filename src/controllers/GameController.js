@@ -136,6 +136,10 @@ export class GameController {
       ]);
       
       this.#allCityStreets = [...geojson.features.filter(f => f.properties && f.properties.name), ...customFeatures];
+      
+      const lotissements = this.#allCityStreets.filter(f => f.properties && f.properties.isLotissement);
+      this.#mapView.renderLotissements(lotissements);
+
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);
       
@@ -338,11 +342,6 @@ export class GameController {
       this.#mapView.clearStreets();
       this.#mapView.setView(cityCenter, 14);
       
-      if (this.#session.difficulty === 'lotissement' && this.#allCityStreets) {
-        const lotissements = this.#allCityStreets.filter(f => f.properties && f.properties.isLotissement);
-        this.#mapView.renderStreet({ type: 'FeatureCollection', features: lotissements }, true);
-      }
-
       this.#gameView.showBanner(true);
       const promptText = I18nService.getInstance().t('feedback.prompt_target', { name: prompt.streetName });
       this.#gameView.setInstruction(mode === 'sprint' ? `⚡ ${promptText}` : `📍 ${promptText}`);
