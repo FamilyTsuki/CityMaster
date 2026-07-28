@@ -138,7 +138,6 @@ export class AdminController {
             this.#deleteDistrict(id);
           }
         }
-        }
       });
     }
 
