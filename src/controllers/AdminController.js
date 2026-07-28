@@ -24,6 +24,15 @@ export class AdminController {
     const districtList = document.getElementById('admin-district-list');
 
     if (cityInput && cityDropdown) {
+      const lastCityRaw = localStorage.getItem('citymaster_last_city');
+      if (lastCityRaw && !cityInput.value) {
+        try {
+          const lastCity = JSON.parse(lastCityRaw);
+          cityInput.value = lastCity.name;
+          this.selectCity(lastCity);
+        } catch(e) {}
+      }
+
       let debounceTimer = null;
 
       const searchCities = async (query = '') => {
