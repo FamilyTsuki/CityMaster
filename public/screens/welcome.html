@@ -68,10 +68,6 @@
       <span data-i18n="welcome.start_game">Démarrer l'aventure</span>
     </button>
     
-    <button id="custom-lotissement-btn" class="btn btn-secondary" style="margin-top: 10px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border-color); color: var(--text-main);">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-      <span data-i18n="welcome.custom_lotissement_btn">Gérer les Lotissements Manuels</span>
-    </button>
 
     <div class="leaderboard-section" role="region" aria-label="Classement des joueurs">
       <h2>
@@ -100,32 +96,3 @@
   </div>
 </div>
 
-<div id="custom-lotissement-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="custom-lotissement-modal-title" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 3000; display: flex; align-items: center; justify-content: center;">
-  <div class="modal-content glass-card" style="max-width: 500px; width: 90%; padding: 24px; border-radius: 16px; position: relative; background: var(--bg-card); border: 1px solid var(--border-color);">
-    <button id="close-lotissement-modal-btn" type="button" class="modal-close-btn" style="position: absolute; top: 16px; right: 16px; background: transparent; border: none; font-size: 24px; cursor: pointer; color: var(--text-main);">&times;</button>
-    <h2 id="custom-lotissement-modal-title" style="margin-bottom: 8px; font-size: 20px; color: var(--text-main);" data-i18n="welcome.custom_lotissement_title">Lotissements & Quartiers Personnalisés</h2>
-    <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;" data-i18n="welcome.custom_lotissement_subtitle">Définissez à la main des lotissements manquants sur OpenStreetMap.</p>
-
-    <form id="custom-lotissement-form" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-      <div class="form-group">
-        <label for="custom-lotissement-name" style="color: var(--text-main);" data-i18n="welcome.custom_lotissement_name_label">Nom du lotissement / quartier :</label>
-        <input type="text" id="custom-lotissement-name" required data-i18n-placeholder="welcome.custom_lotissement_name_placeholder" placeholder="ex: Lotissement Les Chênes" class="input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" />
-      </div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-        <div class="form-group">
-          <label for="custom-lotissement-lat" style="color: var(--text-main);" data-i18n="welcome.custom_lotissement_lat">Latitude :</label>
-          <input type="number" step="any" id="custom-lotissement-lat" required placeholder="47.68" class="input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" />
-        </div>
-        <div class="form-group">
-          <label for="custom-lotissement-lng" style="color: var(--text-main);" data-i18n="welcome.custom_lotissement_lng">Longitude :</label>
-          <input type="number" step="any" id="custom-lotissement-lng" required placeholder="1.78" class="input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" />
-        </div>
-      </div>
-      <button type="submit" class="btn" style="width: 100%; margin-top: 8px;" data-i18n="welcome.custom_lotissement_add_btn">Ajouter ce lotissement</button>
-    </form>
-
-    <div id="custom-lotissement-list-container">
-      <ul id="custom-lotissement-list" class="custom-lotissement-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; max-height: 180px; overflow-y: auto;"></ul>
-    </div>
-  </div>
-</div>

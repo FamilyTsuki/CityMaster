@@ -148,6 +148,7 @@
     "session_expired": "Session expirée. Veuillez vous reconnecter.",
     "file_too_large": "L'image est trop lourde (max 2 Mo).",
     "invalid_credentials": "Identifiant ou mot de passe incorrect.",
-    "user_exists": "Nom d'utilisateur déjà utilisé."
+    "user_exists": "Nom d'utilisateur déjà utilisé.",
+    "not_enough_streets_difficulty": "Cette commune ne possède pas assez de routes compatibles avec ce niveau de difficulté (ex: pas assez de grands axes pour Facile). Veuillez choisir une autre difficulté."
   }
 }

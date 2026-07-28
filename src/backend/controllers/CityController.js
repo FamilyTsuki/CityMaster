@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import * as turf from '@turf/turf';
 import { City } from '../models/City.js';
 
 const filename = fileURLToPath(import.meta.url);
@@ -104,6 +105,53 @@ export class CityController {
       type: 'FeatureCollection',
       features: features
     };
+  }
+
+  static async getDifficulties(req, res) {
+    try {
+      const { key } = req.params;
+      const filePath = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data', `${key}.json`);
+
+      if (!fs.existsSync(filePath)) {
+        return res.json(['easy', 'medium', 'hard']);
+      }
+
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      const geojson = JSON.parse(fileContent);
+
+      const allCityStreets = geojson.features.filter(f => f.properties && f.properties.name && !f.properties.isLotissement);
+
+      const diffCount = { easy: new Set(), medium: new Set(), hard: new Set() };
+
+      allCityStreets.forEach(f => {
+        let streetLength = 0;
+        if (f.geometry.type === 'Point') {
+          diffCount.hard.add(f.properties.name.toLowerCase().trim());
+          return;
+        }
+        try {
+          streetLength = turf.length(f, { units: 'meters' });
+        } catch (e) {
+          diffCount.hard.add(f.properties.name.toLowerCase().trim());
+          return;
+        }
+
+        const nameKey = f.properties.name.toLowerCase().trim();
+        if (streetLength > 800) diffCount.easy.add(nameKey);
+        else if (streetLength >= 250) diffCount.medium.add(nameKey);
+        else diffCount.hard.add(nameKey);
+      });
+
+      const available = [];
+      if (diffCount.easy.size >= 5) available.push('easy');
+      if (diffCount.medium.size >= 5) available.push('medium');
+      if (diffCount.hard.size >= 5) available.push('hard');
+
+      res.json(available);
+    } catch (error) {
+      console.error('Error in getDifficulties:', error);
+      res.status(500).json({ error: error.message });
+    }
   }
 
   static async generateCity(req, res) {

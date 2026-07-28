@@ -18,6 +18,11 @@
   margin: auto;
 }
 
+.certificate-card:hover {
+  border-color: rgba(245, 158, 11, 0.2);
+  box-shadow: var(--shadow-lg), 0 10px 15px -3px rgba(245, 158, 11, 0.1);
+}
+
 .trophy-container {
   display: inline-flex;
   align-items: center;

@@ -56,7 +56,6 @@ export class GameView {
 
     this.#setupKeyboardShortcuts();
     this.#setupWelcomeForm();
-    this.#initCustomLotissementModal();
   }
 
   #setupWelcomeForm() {
@@ -203,38 +202,73 @@ export class GameView {
     });
   }
 
-  async checkCityDistricts(cityKey) {
+  async checkCityDifficulties(cityKey) {
     const lotissementOption = document.querySelector('#difficulty-dropdown-list li[data-value="lotissement"]');
+    const easyOption = document.querySelector('#difficulty-dropdown-list li[data-value="easy"]');
+    const mediumOption = document.querySelector('#difficulty-dropdown-list li[data-value="medium"]');
+    const hardOption = document.querySelector('#difficulty-dropdown-list li[data-value="hard"]');
     const difficultySearch = document.getElementById('difficulty-search');
-    if (!lotissementOption) return;
-
+    
     if (!cityKey) {
-      lotissementOption.classList.add('hidden');
+      if (lotissementOption) lotissementOption.classList.add('hidden');
+      if (easyOption) easyOption.classList.remove('hidden');
+      if (mediumOption) mediumOption.classList.remove('hidden');
+      if (hardOption) hardOption.classList.remove('hidden');
       return;
     }
 
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch(`/api/admin/districts?cityKey=${encodeURIComponent(cityKey)}`, { headers });
+      
       let districts = [];
-      if (res.ok) {
-        districts = await res.json();
+      try {
+        const resDist = await fetch(`/api/admin/districts?cityKey=${encodeURIComponent(cityKey)}`, { headers });
+        if (resDist.ok) districts = await resDist.json();
+      } catch (e) {}
+
+      if (lotissementOption) {
+        if (districts.length >= 5) lotissementOption.classList.remove('hidden');
+        else lotissementOption.classList.add('hidden');
       }
 
-      if (districts.length >= 5) {
-        lotissementOption.classList.remove('hidden');
-      } else {
-        lotissementOption.classList.add('hidden');
-        if (difficultySearch && difficultySearch.dataset.value === 'lotissement') {
-          difficultySearch.dataset.value = 'hard';
+      let availableDiffs = ['easy', 'medium', 'hard'];
+      try {
+        const resDiff = await fetch(`/api/cities/${encodeURIComponent(cityKey)}/difficulties`, { headers });
+        if (resDiff.ok) availableDiffs = await resDiff.json();
+      } catch (e) {}
+
+      if (easyOption) {
+        if (availableDiffs.includes('easy')) easyOption.classList.remove('hidden');
+        else easyOption.classList.add('hidden');
+      }
+      if (mediumOption) {
+        if (availableDiffs.includes('medium')) mediumOption.classList.remove('hidden');
+        else mediumOption.classList.add('hidden');
+      }
+      if (hardOption) {
+        if (availableDiffs.includes('hard')) hardOption.classList.remove('hidden');
+        else hardOption.classList.add('hidden');
+      }
+
+      if (difficultySearch && difficultySearch.dataset.value) {
+        const currentVal = difficultySearch.dataset.value;
+        const isHidden = (currentVal === 'lotissement' && districts.length < 5) || 
+                         (['easy', 'medium', 'hard'].includes(currentVal) && !availableDiffs.includes(currentVal));
+        
+        if (isHidden) {
+          const fallback = availableDiffs.includes('hard') ? 'hard' : availableDiffs[0];
+          difficultySearch.dataset.value = fallback;
           const { I18nService } = await import('../services/I18nService.js');
           const i18n = I18nService.getInstance();
-          difficultySearch.value = i18n.t('welcome.diff_hard');
+          difficultySearch.value = i18n.t(`welcome.diff_${fallback}`);
         }
       }
     } catch (e) {
-      lotissementOption.classList.add('hidden');
+      if (lotissementOption) lotissementOption.classList.add('hidden');
+      if (easyOption) easyOption.classList.remove('hidden');
+      if (mediumOption) mediumOption.classList.remove('hidden');
+      if (hardOption) hardOption.classList.remove('hidden');
     }
   }
 
@@ -244,7 +278,7 @@ export class GameView {
     const difficultyInput = document.getElementById('difficulty-search');
     const difficultyDropdown = document.getElementById('difficulty-dropdown-list');
 
-    this.checkCityDistricts(window.citymaster_selected_city_data?.key);
+    this.checkCityDifficulties(window.citymaster_selected_city_data?.key);
 
     if (modeInput && modeDropdown) {
       const firstMode = modeDropdown.querySelector('li');
@@ -295,98 +329,7 @@ export class GameView {
     });
   }
 
-  #initCustomLotissementModal() {
-    const btn = document.getElementById('custom-lotissement-btn');
-    const modal = document.getElementById('custom-lotissement-modal');
-    const closeBtn = document.getElementById('close-lotissement-modal-btn');
-    const form = document.getElementById('custom-lotissement-form');
-    const list = document.getElementById('custom-lotissement-list');
-    const latInput = document.getElementById('custom-lotissement-lat');
-    const lngInput = document.getElementById('custom-lotissement-lng');
 
-    if (!btn || !modal) return;
-
-    const renderList = () => {
-      const cityData = window.citymaster_selected_city_data;
-      if (!cityData || !cityData.key) {
-        list.innerHTML = `<li style="color: var(--text-muted); font-size: 13px;">Veuillez d'abord sélectionner une commune.</li>`;
-        return;
-      }
-      const items = CustomLotissementService.getCustomLotissements(cityData.key);
-      if (items.length === 0) {
-        const { I18nService } = import('../services/I18nService.js');
-        list.innerHTML = `<li style="color: var(--text-muted); font-size: 13px;" data-i18n="welcome.custom_lotissement_empty">Aucun lotissement manuel ajouté pour cette commune.</li>`;
-        return;
-      }
-      list.innerHTML = '';
-      items.forEach(item => {
-        const li = document.createElement('li');
-        li.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: var(--bg-main); border-radius: 8px; border: 1px solid var(--border-color);';
-        li.innerHTML = `
-          <div>
-            <strong style="color: var(--text-main); font-size: 14px;">${item.properties.name}</strong>
-            <span style="font-size: 12px; color: var(--text-muted); display: block;">📍 ${item.geometry.coordinates[0][0][1].toFixed(4)}, ${item.geometry.coordinates[0][0][0].toFixed(4)}</span>
-          </div>
-          <button type="button" class="btn-delete-lotissement" data-id="${item.properties.id}" style="background: #ef4444; color: #fff; border: none; border-radius: 6px; padding: 4px 8px; font-size: 12px; cursor: pointer;">Supprimer</button>
-        `;
-        list.appendChild(li);
-      });
-    };
-
-    btn.addEventListener('click', () => {
-      const cityData = window.citymaster_selected_city_data;
-      if (cityData && cityData.center) {
-        if (latInput) latInput.value = cityData.center[0];
-        if (lngInput) lngInput.value = cityData.center[1];
-      }
-      renderList();
-      modal.classList.remove('hidden');
-    });
-
-    if (closeBtn) {
-      closeBtn.addEventListener('click', () => {
-        modal.classList.add('hidden');
-      });
-    }
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.classList.add('hidden');
-      }
-    });
-
-    list.addEventListener('click', (e) => {
-      const delBtn = e.target.closest('.btn-delete-lotissement');
-      if (delBtn) {
-        const id = delBtn.dataset.id;
-        const cityData = window.citymaster_selected_city_data;
-        if (cityData && cityData.key && id) {
-          CustomLotissementService.deleteCustomLotissement(cityData.key, id);
-          renderList();
-        }
-      }
-    });
-
-    if (form) {
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const cityData = window.citymaster_selected_city_data;
-        if (!cityData || !cityData.key) {
-          return;
-        }
-        const nameInput = document.getElementById('custom-lotissement-name');
-        const name = nameInput ? nameInput.value.trim() : '';
-        const lat = parseFloat(latInput ? latInput.value : '');
-        const lng = parseFloat(lngInput ? lngInput.value : '');
-
-        if (name && !isNaN(lat) && !isNaN(lng)) {
-          CustomLotissementService.addCustomLotissement(cityData.key, name, lat, lng);
-          if (nameInput) nameInput.value = '';
-          renderList();
-        }
-      });
-    }
-  }
 
   showScreen(screenName) {
     Object.values(this.#screens).forEach((screen) => {

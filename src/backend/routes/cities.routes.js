@@ -6,5 +6,6 @@ const router = express.Router();
 
 router.get('/', authenticateToken, CityController.getCities);
 router.post('/generate', authenticateToken, CityController.generateCity);
+router.get('/:key/difficulties', authenticateToken, CityController.getDifficulties);
 
 export default router;

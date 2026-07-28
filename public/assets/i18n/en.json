@@ -148,6 +148,7 @@
     "session_expired": "Session expired. Please sign in again.",
     "file_too_large": "Image file is too large (max 2 MB).",
     "invalid_credentials": "Invalid username or password.",
-    "user_exists": "Username is already taken."
+    "user_exists": "Username is already taken.",
+    "not_enough_streets_difficulty": "This municipality does not have enough compatible roads for this difficulty level (e.g. not enough major roads for Easy). Please choose another difficulty."
   }
 }

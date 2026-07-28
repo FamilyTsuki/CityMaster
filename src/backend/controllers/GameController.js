@@ -8,17 +8,7 @@ import { Score } from '../models/Score.js';
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
-const MAJOR_TYPES = [
-  'avenue', 'boulevard', 'route', 'allée', 'place', 'cours', 
-  'pont', 'rocade', 'quai', 'carrefour', 'esplanade', 'mail', 
-  'faubourg', 'chaussée', 'promenade', 'voie', 'traverse', 'viaduc'
-];
-
-const MINOR_TYPES = [
-  'impasse', 'ruelle', 'passage', 'chemin', 'sentier', 'sente', 
-  'cour', 'raccourci', 'venelle', 'sentez', 'escalier', 'clos', 
-  'square', 'villa', 'cité', 'passerelle'
-];
+import * as turf from '@turf/turf';
 
 export class GameController {
   static async startGame(req, res) {
@@ -47,34 +37,46 @@ export class GameController {
       }
 
       const filteredStreets = allCityStreets.filter(f => {
-        const name = f.properties.name;
-        const nameLower = name.toLowerCase().trim();
-        const cleanName = nameLower.replace(/^(l'|d'|le\s+|la\s+|les\s+|du\s+|de\s+|des\s+)/i, '').trim();
-        const firstWord = cleanName.split(/[\s'-]+/)[0];
-
-        if (difficulty === 'easy') {
-          return MAJOR_TYPES.includes(firstWord);
-        }
-        if (difficulty === 'medium') {
-          const isMinor = MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin');
-          return !isMinor;
-        }
         if (difficulty === 'lotissement') {
           return f.properties.isCustom && f.properties.isLotissement;
+        }
+
+        if (f.geometry.type === 'Point') {
+          return difficulty === 'hard';
+        }
+
+        let streetLength = 0;
+        try {
+          streetLength = turf.length(f, { units: 'meters' });
+        } catch (e) {
+          return difficulty === 'hard';
+        }
+
+        if (difficulty === 'easy') {
+          return streetLength > 800;
+        }
+        if (difficulty === 'medium') {
+          return streetLength >= 250 && streetLength <= 800;
+        }
+        if (difficulty === 'hard') {
+          return streetLength < 250;
         }
         return true;
       });
 
       const uniqueStreetsMap = new Map();
-      const streetsToChoose = filteredStreets.length >= 5 ? filteredStreets : allCityStreets;
       
-      streetsToChoose.forEach(street => {
+      filteredStreets.forEach(street => {
         const nameKey = street.properties.name.toLowerCase().trim();
         if (!uniqueStreetsMap.has(nameKey)) {
           uniqueStreetsMap.set(nameKey, street);
         }
       });
       const uniqueStreetsList = Array.from(uniqueStreetsMap.values());
+
+      if (uniqueStreetsList.length < 5) {
+        return res.status(400).json({ error: 'not_enough_streets_difficulty' });
+      }
 
       for (let i = uniqueStreetsList.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
