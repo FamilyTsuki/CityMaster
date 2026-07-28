@@ -74,10 +74,9 @@ export class GameView {
       }
     }
     if (difficultyInput) {
-      const hardDiff = difficultyDropdown ? (difficultyDropdown.querySelector('li[data-value="hard"]') || difficultyDropdown.querySelector('li')) : null;
-      if (hardDiff && (!difficultyInput.value || !difficultyInput.dataset.value)) {
-        difficultyInput.value = hardDiff.textContent.trim();
-        difficultyInput.dataset.value = hardDiff.getAttribute('data-value') || 'hard';
+      const lastDiff = localStorage.getItem('citymaster_last_difficulty');
+      if (lastDiff && (!difficultyInput.value || !difficultyInput.dataset.value)) {
+        difficultyInput.dataset.value = lastDiff;
       }
     }
 
@@ -122,10 +121,11 @@ export class GameView {
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;
             window.citymaster_selected_city_data = city;
+            localStorage.setItem('citymaster_last_city', JSON.stringify(city));
             cityDropdown.classList.add('hidden');
             cityInput.setAttribute('aria-expanded', 'false');
             this.hideError();
-            this.checkCityDistricts(city.key);
+            this.checkCityDifficulties(city.key, true);
           });
           cityDropdown.appendChild(li);
         });
@@ -202,7 +202,7 @@ export class GameView {
     });
   }
 
-  async checkCityDifficulties(cityKey) {
+  async checkCityDifficulties(cityKey, forceEasiest = false) {
     const lotissementOption = document.querySelector('#difficulty-dropdown-list li[data-value="lotissement"]');
     const easyOption = document.querySelector('#difficulty-dropdown-list li[data-value="easy"]');
     const mediumOption = document.querySelector('#difficulty-dropdown-list li[data-value="medium"]');
@@ -251,13 +251,23 @@ export class GameView {
         else hardOption.classList.add('hidden');
       }
 
-      if (difficultySearch && difficultySearch.dataset.value) {
+      if (difficultySearch) {
         const currentVal = difficultySearch.dataset.value;
         const isHidden = (currentVal === 'lotissement' && districts.length < 5) || 
                          (['easy', 'medium', 'hard'].includes(currentVal) && !availableDiffs.includes(currentVal));
         
-        if (isHidden) {
-          const fallback = availableDiffs.includes('hard') ? 'hard' : availableDiffs[0];
+        if (isHidden || forceEasiest || !currentVal) {
+          let fallback = 'easy';
+          if (districts.length >= 5) {
+            fallback = 'lotissement';
+          } else if (availableDiffs.includes('easy')) {
+            fallback = 'easy';
+          } else if (availableDiffs.includes('medium')) {
+            fallback = 'medium';
+          } else if (availableDiffs.includes('hard')) {
+            fallback = 'hard';
+          }
+          
           difficultySearch.dataset.value = fallback;
           const { I18nService } = await import('../services/I18nService.js');
           const i18n = I18nService.getInstance();
@@ -277,6 +287,21 @@ export class GameView {
     const modeDropdown = document.getElementById('mode-dropdown-list');
     const difficultyInput = document.getElementById('difficulty-search');
     const difficultyDropdown = document.getElementById('difficulty-dropdown-list');
+    const cityInput = document.getElementById('city-search');
+
+    if (cityInput && !cityInput.value) {
+      const lastCityStr = localStorage.getItem('citymaster_last_city');
+      if (lastCityStr) {
+        try {
+          const lastCity = JSON.parse(lastCityStr);
+          if (lastCity && lastCity.name && lastCity.key) {
+            cityInput.value = lastCity.name;
+            cityInput.dataset.value = lastCity.key;
+            window.citymaster_selected_city_data = lastCity;
+          }
+        } catch(e) {}
+      }
+    }
 
     this.checkCityDifficulties(window.citymaster_selected_city_data?.key);
 
@@ -289,10 +314,9 @@ export class GameView {
     }
 
     if (difficultyInput && difficultyDropdown) {
-      const hardDiff = difficultyDropdown.querySelector('li[data-value="hard"]') || difficultyDropdown.querySelector('li');
-      if (hardDiff && (!difficultyInput.value || !difficultyInput.dataset.value)) {
-        difficultyInput.value = hardDiff.textContent.trim();
-        difficultyInput.dataset.value = hardDiff.getAttribute('data-value') || 'hard';
+      const lastDiff = localStorage.getItem('citymaster_last_difficulty');
+      if (lastDiff && (!difficultyInput.value || !difficultyInput.dataset.value)) {
+        difficultyInput.dataset.value = lastDiff;
       }
     }
   }

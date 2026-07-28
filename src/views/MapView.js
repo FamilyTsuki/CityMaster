@@ -182,7 +182,8 @@ export class MapView {
     this.#tileLayer = L.tileLayer(tileUrl, {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
-      maxZoom: 20
+      maxZoom: 20,
+      maxNativeZoom: 18
     }).addTo(this.#map);
 
     this.showMapLoader('Chargement de la carte...', true);
