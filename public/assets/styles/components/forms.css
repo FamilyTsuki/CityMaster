@@ -101,6 +101,11 @@ select:focus {
   stroke: #ffffff;
 }
 
+.dropdown-list::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Toggle Switch Styles */
 .switch {
   position: relative;
   display: inline-block;
