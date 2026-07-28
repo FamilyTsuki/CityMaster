@@ -32,6 +32,17 @@ export class GameController {
       }
 
       const allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
+
+      try {
+        const districtsFilePath = path.join(process.cwd(), 'public', 'assets', 'data', 'custom_districts.json');
+        const content = await fs.readFile(districtsFilePath, 'utf8');
+        const customDistrictsObj = JSON.parse(content);
+        const cityDistricts = customDistrictsObj[cityKey] || [];
+        allCityStreets.push(...cityDistricts);
+      } catch (err) {
+        // Ignorer si le fichier n'existe pas
+      }
+
       if (allCityStreets.length === 0) {
         return res.status(400).json({ error: 'No streets found for this city.' });
       }

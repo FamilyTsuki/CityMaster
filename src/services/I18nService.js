@@ -102,6 +102,9 @@ export class I18nService {
     if (lower.includes('city') || lower.includes('commune')) {
       return this.t('errors.select_city_valid');
     }
+    if (lower.includes('not_enough_streets_difficulty') || lower.includes('not enough streets')) {
+      return this.t('errors.not_enough_streets_difficulty');
+    }
 
     return this.t('errors.network_error');
   }
