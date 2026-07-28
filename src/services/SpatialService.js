@@ -63,8 +63,7 @@ export class SpatialService {
 
     const isPolygon = streetGeoJSON.geometry && (
       streetGeoJSON.geometry.type === 'Polygon' ||
-      streetGeoJSON.geometry.type === 'MultiPolygon' ||
-      streetGeoJSON.properties?.isLotissement
+      streetGeoJSON.geometry.type === 'MultiPolygon'
     );
 
     if (isPolygon) {
@@ -147,7 +146,7 @@ export class SpatialService {
 
     candidates.forEach(street => {
       try {
-        const isPoly = street.geometry.type === 'Polygon' || street.geometry.type === 'MultiPolygon' || street.properties?.isLotissement;
+        const isPoly = street.geometry.type === 'Polygon' || street.geometry.type === 'MultiPolygon';
         if (isPoly && this.#turf.booleanPointInPolygon(point, street)) {
           minDistance = 0;
           closestStreet = street;

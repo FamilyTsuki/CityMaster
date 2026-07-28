@@ -125,9 +125,12 @@ export class GameController {
       const mapReadyPromise = this.#mapView.initMap(center, 14, bbox, hideLabels);
       const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
 
-      const [_, geojson] = await Promise.all([mapReadyPromise, streetsPromise]);
+      const [_, geojson, customFeatures] = await Promise.all([
+        mapReadyPromise, 
+        streetsPromise,
+        this.#fetchCustomDistricts(cityKey)
+      ]);
       
-      const customFeatures = CustomLotissementService.getCustomLotissements(cityKey);
       this.#allCityStreets = [...geojson.features.filter(f => f.properties && f.properties.name), ...customFeatures];
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);
@@ -252,9 +255,10 @@ export class GameController {
     this.#updateHUD();
 
     const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
+    const customDistrictsPromise = this.#fetchCustomDistricts(cityKey);
 
-    Promise.all([mapReadyPromise, streetsPromise]).then(([_, geojson]) => {
-      this.#allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
+    Promise.all([mapReadyPromise, streetsPromise, customDistrictsPromise]).then(([_, geojson, customFeatures]) => {
+      this.#allCityStreets = [...geojson.features.filter(f => f.properties && f.properties.name), ...customFeatures];
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);
       this.#loadNextQuestion();
@@ -279,6 +283,19 @@ export class GameController {
   #clearState() {
     localStorage.removeItem('citymaster_session');
     this.#session = null;
+  }
+
+  async #fetchCustomDistricts(cityKey) {
+    try {
+      const response = await fetch('/assets/data/custom_districts.json');
+      if (response.ok) {
+        const data = await response.json();
+        return data[cityKey] || [];
+      }
+    } catch (err) {
+      console.warn('Could not fetch custom districts:', err);
+    }
+    return [];
   }
 
   #updateHUD() {
@@ -316,6 +333,12 @@ export class GameController {
     if (mode === 'target' || mode === 'sprint') {
       this.#mapView.clearStreets();
       this.#mapView.setView(cityCenter, 14);
+      
+      if (this.#session.difficulty === 'lotissement' && this.#allCityStreets) {
+        const lotissements = this.#allCityStreets.filter(f => f.properties && f.properties.isLotissement);
+        this.#mapView.renderStreet({ type: 'FeatureCollection', features: lotissements }, true);
+      }
+
       this.#gameView.showBanner(true);
       const promptText = I18nService.getInstance().t('feedback.prompt_target', { name: prompt.streetName });
       this.#gameView.setInstruction(mode === 'sprint' ? `⚡ ${promptText}` : `📍 ${promptText}`);
@@ -346,7 +369,11 @@ export class GameController {
     this.#mapView.renderSelection(null, false);
 
     if (this.#allCityStreets && this.#allCityStreets.length > 0) {
-      const closest = this.#spatialService.findClosestStreet(lat, lng, this.#allCityStreets);
+      let streetsToSearch = this.#allCityStreets;
+      if (this.#session.difficulty === 'lotissement') {
+        streetsToSearch = this.#allCityStreets.filter(f => f.properties && f.properties.isLotissement);
+      }
+      const closest = this.#spatialService.findClosestStreet(lat, lng, streetsToSearch);
       if (closest && closest.point && closest.distance < 120) {
         targetLat = closest.point[0];
         targetLng = closest.point[1];
