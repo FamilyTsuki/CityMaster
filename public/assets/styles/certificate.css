@@ -172,27 +172,3 @@
   }
 }
 
-@media print {
-  body * {
-    visibility: hidden;
-  }
-
-  .certificate-card,
-  .certificate-card * {
-    visibility: visible;
-  }
-
-  .certificate-card {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    max-width: 100%;
-    box-shadow: none;
-    border: 4px solid #f59e0b;
-  }
-
-  .certificate-actions {
-    display: none;
-  }
-}
