@@ -35,6 +35,12 @@ export const initDB = async () => {
     } catch (e) {
       if (e.code !== '42701') console.error('Erreur modif google_id/password:', e);
     }
+
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;');
+    } catch (e) {
+      if (e.code !== '42701') console.error('Erreur ajout is_admin:', e);
+    }
     await pool.query(`
       CREATE TABLE IF NOT EXISTS scores (
         id SERIAL PRIMARY KEY,

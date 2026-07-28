@@ -66,7 +66,13 @@ class App {
         this.#audioService.playFanfare();
       },
       '/profile': () => this.#profileController.loadProfile(),
-      '/admin': () => this.#showAdmin(),
+      '/admin': () => {
+        if (localStorage.getItem('is_admin') === 'true') {
+          this.#showAdmin();
+        } else {
+          this.#router.navigate('/');
+        }
+      },
       '/legal': () => this.#gameView.showScreen('legal')
     });
 

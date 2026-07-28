@@ -6,7 +6,7 @@ export class User {
   static async create(username, hashedPassword) {
     try {
       const result = await pool.query(
-        'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username, profile_image_url',
+        'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username, profile_image_url, is_admin',
         [username, hashedPassword]
       );
       return result.rows[0];
@@ -22,7 +22,8 @@ export class User {
         id: memoryUsers.size + 1,
         username,
         password: hashedPassword,
-        profile_image_url: null
+        profile_image_url: null,
+        is_admin: false
       };
       memoryUsers.set(newUser.id, newUser);
       return newUser;
@@ -40,7 +41,7 @@ export class User {
 
   static async findById(id) {
     try {
-      const result = await pool.query('SELECT id, username, profile_image_url FROM users WHERE id = $1', [id]);
+      const result = await pool.query('SELECT id, username, profile_image_url, is_admin FROM users WHERE id = $1', [id]);
       return result.rows[0] || null;
     } catch (err) {
       return memoryUsers.get(Number(id)) || null;
@@ -50,7 +51,7 @@ export class User {
   static async updateProfileImage(id, profileImageUrl) {
     try {
       const result = await pool.query(
-        'UPDATE users SET profile_image_url = $1 WHERE id = $2 RETURNING id, username, profile_image_url',
+        'UPDATE users SET profile_image_url = $1 WHERE id = $2 RETURNING id, username, profile_image_url, is_admin',
         [profileImageUrl, id]
       );
       return result.rows[0];
@@ -75,7 +76,7 @@ export class User {
   static async createGoogleUser(username, googleId, profileImageUrl) {
     try {
       const result = await pool.query(
-        'INSERT INTO users (username, google_id, profile_image_url) VALUES ($1, $2, $3) RETURNING id, username, profile_image_url',
+        'INSERT INTO users (username, google_id, profile_image_url) VALUES ($1, $2, $3) RETURNING id, username, profile_image_url, is_admin',
         [username, googleId, profileImageUrl]
       );
       return result.rows[0];
@@ -92,7 +93,8 @@ export class User {
         username,
         password: null,
         google_id: googleId,
-        profile_image_url: profileImageUrl
+        profile_image_url: profileImageUrl,
+        is_admin: false
       };
       memoryUsers.set(newUser.id, newUser);
       return newUser;

@@ -65,12 +65,12 @@ export class AuthController {
       }
 
       const token = jwt.sign(
-        { id: user.id, username: user.username },
+        { id: user.id, username: user.username, is_admin: user.is_admin },
         secret,
         { expiresIn: '30d' }
       );
 
-      return res.json({ token, username: user.username });
+      return res.json({ token, username: user.username, isAdmin: user.is_admin });
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error during login' });
     }
@@ -118,12 +118,12 @@ export class AuthController {
 
       const secret = process.env.JWT_SECRET;
       const token = jwt.sign(
-        { id: user.id, username: user.username },
+        { id: user.id, username: user.username, is_admin: user.is_admin },
         secret,
         { expiresIn: '30d' }
       );
 
-      return res.json({ token, username: user.username, profile_image_url: user.profile_image_url || picture });
+      return res.json({ token, username: user.username, profile_image_url: user.profile_image_url || picture, isAdmin: user.is_admin });
     } catch (error) {
       console.error('Google Auth Error:', error);
       return res.status(401).json({ error: 'Invalid Google token' });

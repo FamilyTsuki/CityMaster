@@ -21,3 +21,13 @@ export const authenticateToken = (req, res, next) => {
     next();
   });
 };
+
+export const requireAdmin = (req, res, next) => {
+  authenticateToken(req, res, () => {
+    if (req.user && req.user.is_admin) {
+      next();
+    } else {
+      res.status(403).json({ error: 'Admin access required' });
+    }
+  });
+};

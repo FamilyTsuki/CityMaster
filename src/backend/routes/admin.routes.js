@@ -1,11 +1,11 @@
 import express from 'express';
 import { AdminController } from '../controllers/AdminController.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.get('/districts', authenticateToken, AdminController.getDistricts);
-router.post('/districts', authenticateToken, AdminController.saveDistrict);
-router.delete('/districts/:cityKey/:id', authenticateToken, AdminController.deleteDistrict);
+router.get('/districts', requireAdmin, AdminController.getDistricts);
+router.post('/districts', requireAdmin, AdminController.saveDistrict);
+router.delete('/districts/:cityKey/:id', requireAdmin, AdminController.deleteDistrict);
 
 export default router;

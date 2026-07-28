@@ -6,7 +6,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "make-admin": "node scripts/make-admin.js"
   },
   "dependencies": {
     "@turf/turf": "^6.5.0",

@@ -77,6 +77,11 @@ export class AuthController {
       if (this.#isLoginMode) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
+        if (data.isAdmin) {
+          localStorage.setItem('is_admin', 'true');
+        } else {
+          localStorage.removeItem('is_admin');
+        }
         if (data.profileImageUrl) {
           localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
         }
@@ -114,6 +119,11 @@ export class AuthController {
 
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username);
+      if (data.isAdmin) {
+        localStorage.setItem('is_admin', 'true');
+      } else {
+        localStorage.removeItem('is_admin');
+      }
       if (data.profile_image_url) {
         localStorage.setItem('citymaster_profile_image', data.profile_image_url);
       }
@@ -128,9 +138,10 @@ export class AuthController {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
     const profileImageUrl = localStorage.getItem('citymaster_profile_image');
+    const isAdmin = localStorage.getItem('is_admin') === 'true';
 
     if (token && username) {
-      this.#navbarView.setLoggedIn(username, profileImageUrl);
+      this.#navbarView.setLoggedIn(username, profileImageUrl, isAdmin);
       return true;
     }
 
@@ -141,6 +152,7 @@ export class AuthController {
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('is_admin');
     localStorage.removeItem('citymaster_profile_image');
     this.isAuthenticated();
     this.#router.navigate('/');

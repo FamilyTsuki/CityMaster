@@ -9,6 +9,7 @@ export class NavbarView {
   #navProfileImg;
   #navProfileName;
   #logoBrand;
+  #navAdminLink;
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
@@ -21,6 +22,7 @@ export class NavbarView {
     this.#navProfileImg = document.getElementById('nav-profile-img');
     this.#navProfileName = document.getElementById('nav-profile-name');
     this.#logoBrand = document.getElementById('logo-brand');
+    this.#navAdminLink = document.getElementById('nav-admin-link');
 
     if (this.#navProfileImg) {
       this.#navProfileImg.onerror = () => {
@@ -81,16 +83,25 @@ export class NavbarView {
     }
   }
 
-  setLoggedIn(username, profileImageUrl) {
-    if (this.#navAuthLoggedOut) {
-      this.#navAuthLoggedOut.classList.add('hidden');
-    }
+  setLoggedIn(username, profileImageUrl = null, isAdmin = false) {
+    if (this.#navAuthLoggedOut) this.#navAuthLoggedOut.classList.add('hidden');
     if (this.#navAuthLoggedIn) {
       this.#navAuthLoggedIn.classList.remove('hidden');
+      // Forcer le layout flex pour que le lien admin s'affiche correctement
+      this.#navAuthLoggedIn.style.display = 'flex';
+      this.#navAuthLoggedIn.style.alignItems = 'center';
+      this.#navAuthLoggedIn.style.gap = '15px';
     }
-    if (this.#navProfileName) {
-      this.#navProfileName.textContent = username;
+    
+    if (this.#navAdminLink) {
+      if (isAdmin) {
+        this.#navAdminLink.style.display = 'flex';
+      } else {
+        this.#navAdminLink.style.display = 'none';
+      }
     }
+
+    if (this.#navProfileName) this.#navProfileName.textContent = username;
     if (this.#navProfileImg) {
       if (profileImageUrl) {
         this.#navProfileImg.src = profileImageUrl;
