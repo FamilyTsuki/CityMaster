@@ -252,7 +252,7 @@ export class GameView {
       }
 
       if (difficultySearch) {
-        const currentVal = difficultySearch.dataset.value;
+        let currentVal = difficultySearch.dataset.value;
         const isHidden = (currentVal === 'lotissement' && districts.length < 5) || 
                          (['easy', 'medium', 'hard'].includes(currentVal) && !availableDiffs.includes(currentVal));
         
@@ -267,12 +267,13 @@ export class GameView {
           } else if (availableDiffs.includes('hard')) {
             fallback = 'hard';
           }
-          
+          currentVal = fallback;
           difficultySearch.dataset.value = fallback;
-          const { I18nService } = await import('../services/I18nService.js');
-          const i18n = I18nService.getInstance();
-          difficultySearch.value = i18n.t(`welcome.diff_${fallback}`);
         }
+
+        const { I18nService } = await import('../services/I18nService.js');
+        const i18n = I18nService.getInstance();
+        difficultySearch.value = i18n.t(`welcome.diff_${currentVal}`);
       }
     } catch (e) {
       if (lotissementOption) lotissementOption.classList.add('hidden');
