@@ -343,6 +343,10 @@
   background-color: var(--bg-main) !important;
 }
 
+.leaflet-control-layers {
+  color: #1e293b !important;
+}
+
 .map-overlay-loader {
   position: absolute;
   top: 0;
