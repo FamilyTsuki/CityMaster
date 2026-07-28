@@ -45,12 +45,9 @@ export class AdminView {
 
     L.control.zoom({ position: 'bottomright' }).addTo(this.#map);
 
-    const isDarkMode = document.documentElement.getAttribute('data-theme') === 'dark';
-    const tileUrl = isDarkMode
-      ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
-      : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+    const tileUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
 
-    this.#tileLayer = L.tileLayer(tileUrl, { maxZoom: 19 }).addTo(this.#map);
+    this.#tileLayer = L.tileLayer(tileUrl, { maxZoom: 20, maxNativeZoom: 18 }).addTo(this.#map);
 
     this.#districtsLayer = L.geoJSON(null, {
       style: (feature) => ({
