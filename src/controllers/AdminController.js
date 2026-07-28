@@ -16,6 +16,16 @@ export class AdminController {
   }
 
   #initEvents() {
+    const goDistrictsBtn = document.getElementById('admin-go-districts-btn');
+    const backDashboardBtn = document.getElementById('admin-back-dashboard-btn');
+
+    if (goDistrictsBtn) {
+      goDistrictsBtn.addEventListener('click', () => this.showDistricts());
+    }
+    if (backDashboardBtn) {
+      backDashboardBtn.addEventListener('click', () => this.showDashboard());
+    }
+
     const cityInput = document.getElementById('admin-city-search');
     const cityDropdown = document.getElementById('admin-city-dropdown');
     const addBtn = document.getElementById('admin-add-district-btn');
@@ -128,7 +138,49 @@ export class AdminController {
             this.#deleteDistrict(id);
           }
         }
+        }
       });
+    }
+
+    const difficultyToggle = document.getElementById('admin-difficulty-mode-toggle');
+    if (difficultyToggle) {
+      this.#loadSettings();
+      difficultyToggle.addEventListener('change', async (e) => {
+        const mode = e.target.checked ? 'nomenclature' : 'length';
+        await this.#saveSetting('difficulty_mode', mode);
+      });
+    }
+  }
+
+  async #loadSettings() {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const res = await fetch('/api/admin/settings', { headers });
+      if (res.ok) {
+        const settings = await res.json();
+        const toggle = document.getElementById('admin-difficulty-mode-toggle');
+        if (toggle && settings.difficulty_mode === 'nomenclature') {
+          toggle.checked = true;
+        }
+      }
+    } catch (e) {
+      console.error('Failed to load settings', e);
+    }
+  }
+
+  async #saveSetting(key, value) {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ key, value })
+      });
+    } catch (e) {
+      console.error('Failed to save setting', e);
     }
   }
 
@@ -244,5 +296,20 @@ export class AdminController {
     } catch (err) {
       alert(err.message);
     }
+  }
+
+  showDashboard() {
+    const dashboard = document.getElementById('admin-dashboard-view');
+    const districts = document.getElementById('admin-districts-view');
+    if (dashboard) dashboard.classList.remove('hidden');
+    if (districts) districts.classList.add('hidden');
+  }
+
+  showDistricts() {
+    const dashboard = document.getElementById('admin-dashboard-view');
+    const districts = document.getElementById('admin-districts-view');
+    if (dashboard) dashboard.classList.add('hidden');
+    if (districts) districts.classList.remove('hidden');
+    this.#adminView.initMap();
   }
 }

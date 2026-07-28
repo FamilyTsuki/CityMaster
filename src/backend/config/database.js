@@ -41,6 +41,23 @@ export const initDB = async () => {
     } catch (e) {
       if (e.code !== '42701') console.error('Erreur ajout is_admin:', e);
     }
+
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS global_settings (
+          key VARCHAR(50) PRIMARY KEY,
+          value VARCHAR(255) NOT NULL
+        );
+      `);
+      await pool.query(`
+        INSERT INTO global_settings (key, value) 
+        VALUES ('difficulty_mode', 'length') 
+        ON CONFLICT (key) DO NOTHING;
+      `);
+    } catch (e) {
+      console.error('Erreur création global_settings:', e);
+    }
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS scores (
         id SERIAL PRIMARY KEY,

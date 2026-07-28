@@ -343,8 +343,24 @@
   background-color: var(--bg-main) !important;
 }
 
-.leaflet-control-layers {
-  color: #1e293b !important;
+.leaflet-control-layers,
+.leaflet-control-layers-expanded {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 8px !important;
+}
+
+.leaflet-control-layers label {
+  color: var(--text-main) !important;
+}
+
+.leaflet-control-layers-separator {
+  border-top-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .leaflet-control-layers-toggle {
+  filter: invert(1) brightness(2);
 }
 
 .map-overlay-loader {

@@ -136,7 +136,7 @@ class App {
   #showAdmin() {
     this.#authController.isAuthenticated();
     this.#gameView.showScreen('admin');
-    this.#adminView.initMap();
+    this.#adminController.showDashboard();
   }
 
   static init() {

@@ -1,12 +1,51 @@
 <div id="admin-screen" class="screen" role="main" aria-label="Espace Administration des Quartiers">
-  <div class="admin-layout" style="display: flex; height: calc(100vh - 64px); width: 100%; position: relative; overflow: hidden;">
-    <aside class="admin-sidebar glass-card" style="width: 380px; min-width: 320px; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border-color); background: var(--bg-card); overflow-y: auto; z-index: 10;">
-      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-        <h1 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: var(--primary-color);"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          <span data-i18n="admin.title">Gestion des Quartiers</span>
-        </h1>
-        <a href="#/setup" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">Retour</a>
+  
+  <!-- DASHBOARD VIEW -->
+  <div id="admin-dashboard-view" style="padding: 40px; max-width: 1000px; margin: 0 auto; min-height: calc(100vh - 64px);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
+      <h1 style="font-size: 28px; font-weight: 700; color: var(--text-main); margin: 0;">Paramètres Globaux</h1>
+      <a href="#/setup" class="btn btn-secondary">Retour à l'accueil</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
+      <div class="glass-card" style="padding: 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px; color: var(--primary-color);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px;"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <h2 style="font-size: 20px; font-weight: 600; margin: 0; color: var(--text-main);">Gestion des Quartiers</h2>
+        </div>
+        <p style="font-size: 14px; color: var(--text-muted); margin: 0; flex: 1;">Dessinez et modifiez les limites des quartiers et lotissements pour chaque commune.</p>
+        <button id="admin-go-districts-btn" class="btn" style="width: 100%;">Accéder à la carte</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DISTRICTS VIEW -->
+  <div id="admin-districts-view" class="hidden">
+    <div class="admin-layout" style="display: flex; height: calc(100vh - 64px); width: 100%; position: relative; overflow: hidden;">
+      <aside class="admin-sidebar glass-card" style="width: 380px; min-width: 320px; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border-color); background: var(--bg-card); overflow-y: auto; z-index: 10;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+          <h1 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: var(--primary-color);"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span data-i18n="admin.title">Gestion des Quartiers</span>
+          </h1>
+          <button id="admin-back-dashboard-btn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">Retour</button>
+        </div>
+
+      <div class="glass-card" style="padding: 16px; border-radius: 12px; margin-bottom: 20px;">
+        <h2 style="font-size: 16px; margin: 0 0 12px 0; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          Paramètres Globaux
+        </h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-top: 1px solid var(--border-color);">
+          <div>
+            <span style="font-weight: 600; font-size: 14px; color: var(--text-main); display: block;">Calcul de la Difficulté</span>
+            <span style="font-size: 12px; color: var(--text-muted);">Basé sur la nomenclature des rues (au lieu de leur taille).</span>
+          </div>
+          <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px;">
+            <input type="checkbox" id="admin-difficulty-mode-toggle" style="opacity: 0; width: 0; height: 0;">
+            <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px;"></span>
+          </label>
+        </div>
       </div>
 
       <div class="form-group custom-select-container">
@@ -68,5 +107,6 @@
     <main class="admin-map-area" style="flex: 1; height: 100%; position: relative;">
       <div id="admin-map" style="width: 100%; height: 100%; z-index: 1;"></div>
     </main>
+  </div>
   </div>
 </div>

@@ -3,6 +3,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import * as turf from '@turf/turf';
 import { City } from '../models/City.js';
+import pool from '../config/database.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -51,7 +52,9 @@ export class CityController {
           if (coords.length < 2) continue;
 
           if (!itemGroups[name]) {
-            itemGroups[name] = { coords: [], isLotissement: false };
+            itemGroups[name] = { coords: [], isLotissement: false, highway: element.tags.highway };
+          } else if (element.tags.highway && !itemGroups[name].highway) {
+            itemGroups[name].highway = element.tags.highway;
           }
           itemGroups[name].coords.push(coords);
         } else if (element.type === 'node' && element.lat && element.lon) {
@@ -76,7 +79,8 @@ export class CityController {
           properties: {
             name: name,
             isLotissement: group.isLotissement,
-            itemType: group.isLotissement ? 'lotissement' : 'street'
+            itemType: group.isLotissement ? 'lotissement' : 'street',
+            highway: group.highway || 'unclassified'
           },
           geometry: {
             type: 'MultiLineString',
@@ -123,23 +127,46 @@ export class CityController {
 
       const diffCount = { easy: new Set(), medium: new Set(), hard: new Set() };
 
-      allCityStreets.forEach(f => {
-        let streetLength = 0;
-        if (f.geometry.type === 'Point') {
-          diffCount.hard.add(f.properties.name.toLowerCase().trim());
-          return;
+      let diffMode = 'length';
+      try {
+        const modeRes = await pool.query("SELECT value FROM global_settings WHERE key = 'difficulty_mode'");
+        if (modeRes.rows.length > 0) {
+          diffMode = modeRes.rows[0].value;
         }
-        try {
-          streetLength = turf.length(f, { units: 'meters' });
-        } catch (e) {
-          diffCount.hard.add(f.properties.name.toLowerCase().trim());
-          return;
-        }
+      } catch (e) {}
 
+      allCityStreets.forEach(f => {
         const nameKey = f.properties.name.toLowerCase().trim();
-        if (streetLength > 800) diffCount.easy.add(nameKey);
-        else if (streetLength >= 250) diffCount.medium.add(nameKey);
-        else diffCount.hard.add(nameKey);
+
+        if (diffMode === 'nomenclature') {
+          const highway = f.properties.highway || 'unclassified';
+          const easyTypes = ['motorway', 'trunk', 'primary', 'secondary', 'primary_link', 'secondary_link', 'trunk_link'];
+          const mediumTypes = ['tertiary', 'unclassified', 'residential', 'tertiary_link', 'living_street'];
+          
+          if (easyTypes.includes(highway)) {
+            diffCount.easy.add(nameKey);
+          } else if (mediumTypes.includes(highway)) {
+            diffCount.medium.add(nameKey);
+          } else {
+            diffCount.hard.add(nameKey);
+          }
+        } else {
+          let streetLength = 0;
+          if (f.geometry.type === 'Point') {
+            diffCount.hard.add(nameKey);
+            return;
+          }
+          try {
+            streetLength = turf.length(f, { units: 'meters' });
+          } catch (e) {
+            diffCount.hard.add(nameKey);
+            return;
+          }
+
+          if (streetLength > 800) diffCount.easy.add(nameKey);
+          else if (streetLength >= 250) diffCount.medium.add(nameKey);
+          else diffCount.hard.add(nameKey);
+        }
       });
 
       const available = [];

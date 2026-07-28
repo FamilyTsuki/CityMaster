@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import pool from '../config/database.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -94,6 +95,35 @@ export class AdminController {
       return res.json({ message: 'District deleted successfully' });
     } catch (err) {
       return res.status(500).json({ error: 'Internal server error deleting district' });
+    }
+  }
+
+  static async getSettings(req, res) {
+    try {
+      const result = await pool.query('SELECT key, value FROM global_settings');
+      const settings = {};
+      for (const row of result.rows) {
+        settings[row.key] = row.value;
+      }
+      return res.json(settings);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error getting settings' });
+    }
+  }
+
+  static async saveSettings(req, res) {
+    try {
+      const { key, value } = req.body;
+      if (!key || value === undefined) {
+        return res.status(400).json({ error: 'key and value are required' });
+      }
+      await pool.query(
+        'INSERT INTO global_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
+        [key, value]
+      );
+      return res.json({ success: true });
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error saving settings' });
     }
   }
 }

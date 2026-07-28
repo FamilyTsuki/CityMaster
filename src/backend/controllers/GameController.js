@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { fileURLToPath } from 'url';
 import { encrypt, decrypt, getDistanceToStreet } from '../utils/game.js';
 import { Score } from '../models/Score.js';
+import pool from '../config/database.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -47,6 +48,16 @@ export class GameController {
         return res.status(400).json({ error: 'No streets found for this city.' });
       }
 
+      let diffMode = 'length';
+      try {
+        const modeRes = await pool.query("SELECT value FROM global_settings WHERE key = 'difficulty_mode'");
+        if (modeRes.rows.length > 0) {
+          diffMode = modeRes.rows[0].value;
+        }
+      } catch (e) {
+        // Fallback to length
+      }
+
       const filteredStreets = allCityStreets.filter(f => {
         if (difficulty === 'lotissement') {
           return f.properties.isCustom && f.properties.isLotissement;
@@ -56,23 +67,38 @@ export class GameController {
           return difficulty === 'hard';
         }
 
-        let streetLength = 0;
-        try {
-          streetLength = turf.length(f, { units: 'meters' });
-        } catch (e) {
-          return difficulty === 'hard';
-        }
+        if (diffMode === 'nomenclature') {
+          const highway = f.properties.highway || 'unclassified';
+          const easyTypes = ['motorway', 'trunk', 'primary', 'secondary', 'primary_link', 'secondary_link', 'trunk_link'];
+          const mediumTypes = ['tertiary', 'unclassified', 'residential', 'tertiary_link', 'living_street'];
+          
+          if (difficulty === 'easy') {
+            return easyTypes.includes(highway);
+          } else if (difficulty === 'medium') {
+            return mediumTypes.includes(highway);
+          } else {
+            return !easyTypes.includes(highway) && !mediumTypes.includes(highway);
+          }
+        } else {
+          // Default: length
+          let streetLength = 0;
+          try {
+            streetLength = turf.length(f, { units: 'meters' });
+          } catch (e) {
+            return difficulty === 'hard';
+          }
 
-        if (difficulty === 'easy') {
-          return streetLength > 800;
+          if (difficulty === 'easy') {
+            return streetLength > 800;
+          }
+          if (difficulty === 'medium') {
+            return streetLength >= 250 && streetLength <= 800;
+          }
+          if (difficulty === 'hard') {
+            return streetLength < 250;
+          }
+          return true;
         }
-        if (difficulty === 'medium') {
-          return streetLength >= 250 && streetLength <= 800;
-        }
-        if (difficulty === 'hard') {
-          return streetLength < 250;
-        }
-        return true;
       });
 
       const uniqueStreetsMap = new Map();
