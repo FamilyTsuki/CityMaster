@@ -96,16 +96,18 @@ export class ProfileController {
         currentLang
       );
 
+      const isAdmin = localStorage.getItem('is_admin') === 'true';
       if (data.profileImageUrl) {
         localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
-        this.#navbarView.setLoggedIn(data.username, data.profileImageUrl);
+        this.#navbarView.setLoggedIn(data.username, data.profileImageUrl, isAdmin);
       } else {
         localStorage.removeItem('citymaster_profile_image');
-        this.#navbarView.setLoggedIn(data.username, null);
+        this.#navbarView.setLoggedIn(data.username, null, isAdmin);
       }
 
       this.#gameView.showScreen('profile');
     } catch (err) {
+      const { I18nService } = await import('../services/I18nService.js');
       const i18n = I18nService.getInstance();
       this.#profileView.showError(i18n.formatError(err.message));
     }
@@ -122,12 +124,13 @@ export class ProfileController {
       if (response.ok) {
         const data = await response.json();
         const username = localStorage.getItem('username');
+        const isAdmin = localStorage.getItem('is_admin') === 'true';
         if (data.profileImageUrl) {
           localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
-          this.#navbarView.setLoggedIn(username, data.profileImageUrl);
+          this.#navbarView.setLoggedIn(username, data.profileImageUrl, isAdmin);
         } else {
           localStorage.removeItem('citymaster_profile_image');
-          this.#navbarView.setLoggedIn(username, null);
+          this.#navbarView.setLoggedIn(username, null, isAdmin);
         }
       } else if (response.status === 401 || response.status === 403) {
         this.logout();
