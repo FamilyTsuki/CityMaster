@@ -205,10 +205,27 @@ export class MapView {
     this.showMapLoader('Chargement de la carte...', true);
 
     this.#streetLayer = L.geoJSON(null, {
-      style: {
-        color: '#2563eb',
-        weight: 4,
-        opacity: 0.8
+      style: (feature) => {
+        const isPoly = feature && (
+          feature.properties?.isLotissement ||
+          feature.geometry?.type === 'Polygon' ||
+          feature.geometry?.type === 'MultiPolygon'
+        );
+        if (isPoly) {
+          return {
+            color: feature.properties?.color || '#2563eb',
+            weight: 3,
+            opacity: 0.9,
+            fillColor: feature.properties?.color || '#3b82f6',
+            fillOpacity: 0.35,
+            dashArray: '6, 6'
+          };
+        }
+        return {
+          color: '#2563eb',
+          weight: 4,
+          opacity: 0.8
+        };
       }
     }).addTo(this.#map);
 

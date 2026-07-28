@@ -23,8 +23,29 @@ export function decrypt(text, secret) {
   return decrypted;
 }
 
-export function getDistanceToStreet(latitude, longitude, lineGeoJSON) {
-  const point = turf.point([longitude, latitude]);
-  const nearest = turf.nearestPointOnLine(lineGeoJSON, point);
-  return turf.distance(point, nearest, { units: 'meters' });
+export function getDistanceToStreet(latitude, longitude, geometry) {
+  try {
+    const point = turf.point([longitude, latitude]);
+    const type = geometry.type;
+    
+    // Pour que booleanPointInPolygon fonctionne, turf a besoin d'une feature complète
+    const targetFeature = turf.feature(geometry);
+
+    if (type === 'Polygon' || type === 'MultiPolygon') {
+      if (turf.booleanPointInPolygon(point, targetFeature)) {
+        return 0;
+      }
+      const lines = turf.polygonToLine(targetFeature);
+      const nearest = turf.nearestPointOnLine(lines, point);
+      return turf.distance(point, nearest, { units: 'meters' });
+    } else if (type === 'Point') {
+      return turf.distance(point, targetFeature, { units: 'meters' });
+    } else {
+      const nearest = turf.nearestPointOnLine(targetFeature, point);
+      return turf.distance(point, nearest, { units: 'meters' });
+    }
+  } catch (error) {
+    console.error('Error calculating distance:', error);
+    return null;
+  }
 }
