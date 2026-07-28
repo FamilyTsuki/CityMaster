@@ -98,6 +98,10 @@ class App {
       this.#router.navigate('/');
     });
 
+    this.#gameView.onLeaderboardTabClick((type) => {
+      this.#scoreController.loadLeaderboard(type);
+    });
+
     this.#router.init();
   }
 

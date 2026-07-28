@@ -362,6 +362,30 @@ export class GameView {
     });
   }
 
+  onProfileClick(callback) {
+    const btn = document.getElementById('nav-profile-link');
+    if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); callback(); });
+  }
+
+  onLeaderboardTabClick(callback) {
+    const tabMonthly = document.getElementById('tab-monthly');
+    const tabAllTime = document.getElementById('tab-alltime');
+    
+    if (tabMonthly) {
+      tabMonthly.addEventListener('click', (e) => {
+        e.preventDefault();
+        callback('monthly');
+      });
+    }
+    
+    if (tabAllTime) {
+      tabAllTime.addEventListener('click', (e) => {
+        e.preventDefault();
+        callback('all_time');
+      });
+    }
+  }
+
   onHeroPlay(callback) {
     const heroPlayBtn = document.getElementById('hero-play-btn') || document.getElementById('landing-play-btn');
     if (heroPlayBtn) {
@@ -583,8 +607,21 @@ export class GameView {
     });
   }
 
-  renderLeaderboard(leaderboardData) {
+  renderLeaderboard(leaderboardData, type = 'monthly') {
     const tbody = document.getElementById('leaderboard-body');
+    const tabMonthly = document.getElementById('tab-monthly');
+    const tabAllTime = document.getElementById('tab-alltime');
+    
+    if (tabMonthly && tabAllTime) {
+      if (type === 'monthly') {
+        tabMonthly.classList.add('active');
+        tabAllTime.classList.remove('active');
+      } else {
+        tabAllTime.classList.add('active');
+        tabMonthly.classList.remove('active');
+      }
+    }
+
     if (!tbody) return;
 
     tbody.innerHTML = '';

@@ -78,6 +78,8 @@
     "custom_lotissement_delete": "Delete",
     "start_game": "Start Adventure",
     "leaderboard": "Leaderboard (Top 10)",
+    "leaderboard_monthly": "This Month",
+    "leaderboard_alltime": "All Time",
     "rank": "Rank",
     "player": "Player",
     "score": "Score",

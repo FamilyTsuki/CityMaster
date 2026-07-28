@@ -3,7 +3,8 @@ import { Score } from '../models/Score.js';
 export class ScoreController {
   static async getLeaderboard(req, res) {
     try {
-      const scores = await Score.getTopScores();
+      const type = req.query.type === 'all_time' ? 'all_time' : 'monthly';
+      const scores = await Score.getTopScores(100, type);
       res.json(scores);
     } catch (error) {
       res.status(500).json({ error: error.message });

@@ -25,14 +25,30 @@ export class Score {
     }
   }
 
-  static async getTopScores(limit = 100) {
+  static async getTopScores(limit = 100, type = 'monthly') {
     try {
-      const result = await pool.query(
-        'SELECT id, player as username, score, date as created_at FROM scores ORDER BY score DESC LIMIT $1',
-        [limit]
-      );
+      let query = 'SELECT id, player as username, score, date as created_at FROM scores ORDER BY score DESC LIMIT $1';
+      if (type === 'monthly') {
+        query = 'SELECT id, player as username, score, date as created_at FROM scores WHERE date >= date_trunc(\'month\', CURRENT_DATE) ORDER BY score DESC LIMIT $1';
+      }
+      
+      const result = await pool.query(query, [limit]);
       return result.rows;
     } catch (err) {
+      if (type === 'monthly') {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        return [...memoryScores]
+          .filter(s => {
+            const scoreDate = new Date(s.date);
+            return scoreDate.getMonth() === currentMonth && scoreDate.getFullYear() === currentYear;
+          })
+          .sort((a, b) => b.score - a.score)
+          .slice(0, limit);
+      }
+      
       return [...memoryScores]
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);

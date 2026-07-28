@@ -302,7 +302,9 @@ export class GameController {
         newGameToken = encrypt(JSON.stringify(session), secret);
       } else {
         finalScore = session.scores.reduce((a, b) => a + b, 0);
-        await Score.create(session.username, finalScore);
+        if (finalScore > 0) {
+          await Score.create(session.username, finalScore);
+        }
       }
 
       return res.json({
