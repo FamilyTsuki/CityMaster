@@ -38,20 +38,41 @@ export class SpatialService {
     }
     const point = this.#turf.point([longitude, latitude]);
 
-    if (lineGeoJSON.geometry && (lineGeoJSON.geometry.type === 'Polygon' || lineGeoJSON.geometry.type === 'MultiPolygon')) {
+    // Ensure we have a feature
+    const feature = lineGeoJSON.type === 'Feature' ? lineGeoJSON : this.#turf.feature(lineGeoJSON);
+    const type = feature.geometry ? feature.geometry.type : null;
+
+    if (type === 'Polygon' || type === 'MultiPolygon') {
       try {
-        if (this.#turf.booleanPointInPolygon(point, lineGeoJSON)) {
+        if (this.#turf.booleanPointInPolygon(point, feature)) {
           return [latitude, longitude];
         }
-      } catch (e) {}
+        const lines = this.#turf.polygonToLine(feature);
+        const nearest = this.#turf.nearestPointOnLine(lines, point);
+        return [nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]];
+      } catch (e) {
+        console.error('Error in polygon distance calc', e);
+      }
     }
 
     try {
-      const nearest = this.#turf.nearestPointOnLine(lineGeoJSON, point);
+      const nearest = this.#turf.nearestPointOnLine(feature, point);
       return [nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]];
     } catch (e) {
-      const center = this.getCenter(lineGeoJSON);
-      return [center[1], center[0]];
+      try {
+        const center = this.getCenter(feature);
+        return [center[1], center[0]];
+      } catch (err) {
+        // Fallback ultime si rien ne marche (ex: coordonnées invalides)
+        if (feature.geometry && feature.geometry.coordinates && feature.geometry.coordinates.length > 0) {
+           // Retourner le premier point
+           const firstCoords = feature.geometry.coordinates[0];
+           if (Array.isArray(firstCoords) && typeof firstCoords[0] === 'number') {
+             return [firstCoords[1], firstCoords[0]];
+           }
+        }
+        return [latitude, longitude]; // Fallback silently
+      }
     }
   }
 
