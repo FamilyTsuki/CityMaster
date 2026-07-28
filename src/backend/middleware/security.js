@@ -21,7 +21,8 @@ export const configureHelmet = () => helmet({
   crossOriginEmbedderPolicy: false,
   frameguard: { action: 'deny' },
   xssFilter: true,
-  noSniff: true
+  noSniff: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 });
 
 export const loginRateLimiter = rateLimit({
