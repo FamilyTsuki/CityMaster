@@ -5,12 +5,13 @@ export const configureHelmet = () => helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
       scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://accounts.google.com"],
       imgSrc: ["'self'", "data:", "blob:", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://unpkg.com"],
       fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
-      connectSrc: ["'self'", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://overpass-api.de", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://overpass-api.de", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://accounts.google.com"],
+      frameSrc: ["'self'", "https://accounts.google.com"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
     },

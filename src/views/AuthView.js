@@ -23,7 +23,7 @@ export class AuthView {
 
   async initGoogleSignIn(callback) {
     try {
-      const response = await fetch('/api/auth/config');
+      const response = await fetch('/api/config');
       const config = await response.json();
       
       if (config.googleClientId && window.google) {

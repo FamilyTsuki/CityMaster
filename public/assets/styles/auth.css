@@ -158,11 +158,11 @@
 }
 
 .btn-glow {
-  box-shadow: 0 4px 14px 0 var(--primary-glow);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .btn-glow:hover {
-  box-shadow: 0 6px 20px 0 var(--primary-glow);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   transform: translateY(-1px);
 }
 

@@ -100,7 +100,7 @@ export class AuthController {
 
   async #handleGoogleLogin(credential) {
     try {
-      const response = await fetch('/api/auth/google', {
+      const response = await fetch('/api/google', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ credential })
