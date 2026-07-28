@@ -54,7 +54,7 @@
 
 .btn.danger:hover {
   background: linear-gradient(135deg, var(--danger-hover) 0%, #991b1b 100%);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+  box-shadow: 0 6px 12px -2px rgba(239, 68, 68, 0.3);
 }
 
 @media (max-width: 640px) {

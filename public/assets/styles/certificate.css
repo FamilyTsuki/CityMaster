@@ -11,8 +11,8 @@
 
 .certificate-card {
   text-align: center;
-  border: 2px solid rgba(245, 158, 11, 0.4);
-  box-shadow: var(--shadow-lg), 0 0 30px rgba(245, 158, 11, 0.2);
+  border: 2px solid rgba(245, 158, 11, 0.2);
+  box-shadow: var(--shadow-lg), 0 10px 15px -3px rgba(245, 158, 11, 0.1);
   position: relative;
   overflow: hidden;
   margin: auto;
@@ -29,7 +29,7 @@
   border: 2px solid rgba(245, 158, 11, 0.4);
   margin-bottom: 16px;
   color: #d97706;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
   flex-shrink: 0;
 }
 

@@ -172,7 +172,7 @@
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.25);
   animation: pulseGlow 1.2s infinite alternate ease-in-out;
   margin-top: 4px;
   will-change: transform;
@@ -181,11 +181,11 @@
 @keyframes pulseGlow {
   from {
     transform: scale(1);
-    box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.15);
   }
   to {
     transform: scale(1.06);
-    box-shadow: 0 0 20px rgba(245, 158, 11, 0.7);
+    box-shadow: 0 6px 12px -2px rgba(245, 158, 11, 0.35);
   }
 }
 
