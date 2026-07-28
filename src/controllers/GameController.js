@@ -22,6 +22,7 @@ export class GameController {
   #timerInterval;
   #totalTime;
   #remainingTime;
+  #lastGameSettings;
 
   constructor(gameView, mapView, certificateView, scoreController, router, audioService) {
     this.#gameView = gameView;
@@ -51,6 +52,9 @@ export class GameController {
     this.#gameView.onNextStreet(() => this.#nextStreet());
     this.#gameView.onQuit(() => this.#quitGame());
     this.#gameView.onRestart(() => this.#restartGame());
+    if (this.#gameView.onHome) {
+      this.#gameView.onHome(() => this.#goHome());
+    }
     this.#gameView.onMapStyleChange((style) => this.#mapView.setMapStyle(style));
 
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
@@ -370,11 +374,13 @@ export class GameController {
 
     if (this.#allCityStreets && this.#allCityStreets.length > 0) {
       let streetsToSearch = this.#allCityStreets;
+      let maxDist = 120;
       if (this.#session.difficulty === 'lotissement') {
         streetsToSearch = this.#allCityStreets.filter(f => f.properties && f.properties.isLotissement);
+        maxDist = 0; // Ne sélectionne le quartier que si on clique exactement dedans
       }
       const closest = this.#spatialService.findClosestStreet(lat, lng, streetsToSearch);
-      if (closest && closest.point && closest.distance < 120) {
+      if (closest && closest.point && closest.distance <= maxDist) {
         targetLat = closest.point[0];
         targetLng = closest.point[1];
         selectedStreet = closest.street;
@@ -582,6 +588,13 @@ export class GameController {
     const mode = this.#session.currentMode;
     const sprintHistory = this.#session.sprintHistory;
 
+    this.#lastGameSettings = {
+      playerName: name,
+      cityData: this.#session.city,
+      selectedMode: mode,
+      difficulty: this.#session.difficulty
+    };
+
     this.#certificateView.render(name, score, mode, sprintHistory);
     this.#gameView.showScreen('certificate');
     this.#router.navigate('/certificate');
@@ -594,9 +607,24 @@ export class GameController {
     this.#router.navigate('/');
   }
 
-  #restartGame() {
+  #goHome() {
     this.#stopRoundTimer();
     this.#clearState();
     this.#router.navigate('/');
+  }
+
+  #restartGame() {
+    this.#stopRoundTimer();
+    this.#clearState();
+    if (this.#lastGameSettings) {
+      this.#startGame(
+        this.#lastGameSettings.playerName,
+        this.#lastGameSettings.cityData,
+        this.#lastGameSettings.selectedMode,
+        this.#lastGameSettings.difficulty
+      );
+    } else {
+      this.#router.navigate('/');
+    }
   }
 }

@@ -12,6 +12,7 @@ export class GameView {
   #quitBtn;
   #gameError;
   #restartBtn;
+  #homeBtn;
   #validateBtn;
   #nextBtn;
   #topBanner;
@@ -45,6 +46,7 @@ export class GameView {
     this.#quitBtn = document.getElementById('quit-btn');
     this.#gameError = document.getElementById('game-error');
     this.#restartBtn = document.getElementById('restart-btn');
+    this.#homeBtn = document.getElementById('home-btn');
 
     this.#validateBtn = document.getElementById('validate-btn');
     this.#nextBtn = document.getElementById('next-btn');
@@ -598,6 +600,12 @@ export class GameView {
   onRestart(callback) {
     if (this.#restartBtn) {
       this.#restartBtn.addEventListener('click', callback);
+    }
+  }
+
+  onHome(callback) {
+    if (this.#homeBtn) {
+      this.#homeBtn.addEventListener('click', callback);
     }
   }
 
