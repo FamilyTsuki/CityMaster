@@ -26,6 +26,22 @@ export class MapView {
 
     this.#initThemeObserver();
     this.#initSatelliteButton();
+    this.#initVisibilityFix();
+  }
+
+  #initVisibilityFix() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.#map) {
+        if (this.#map.dragging && this.#map.dragging.enabled()) {
+          this.#map.dragging.disable();
+          this.#map.dragging.enable();
+        }
+        if (this.#map.touchZoom && this.#map.touchZoom.enabled()) {
+          this.#map.touchZoom.disable();
+          this.#map.touchZoom.enable();
+        }
+      }
+    });
   }
 
   #initThemeObserver() {

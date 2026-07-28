@@ -17,6 +17,19 @@ export class AdminView {
     this.#activePoints = [];
     this.#activeColor = '#f59e0b';
     this.#editingDistrictId = null;
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.#map) {
+        if (this.#map.dragging && this.#map.dragging.enabled()) {
+          this.#map.dragging.disable();
+          this.#map.dragging.enable();
+        }
+        if (this.#map.touchZoom && this.#map.touchZoom.enabled()) {
+          this.#map.touchZoom.disable();
+          this.#map.touchZoom.enable();
+        }
+      }
+    });
   }
 
   initMap() {
