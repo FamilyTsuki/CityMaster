@@ -161,9 +161,7 @@
 
 .certificate-actions {
   display: flex;
-  flex-direction: row;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 1rem;
   margin-top: 24px;
 }

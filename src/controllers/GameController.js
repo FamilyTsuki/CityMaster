@@ -291,7 +291,7 @@ export class GameController {
 
   async #fetchCustomDistricts(cityKey) {
     try {
-      const response = await fetch('/assets/data/custom_districts.json');
+      const response = await fetch(`/assets/data/custom_districts.json?t=${Date.now()}`);
       if (response.ok) {
         const data = await response.json();
         return data[cityKey] || [];
