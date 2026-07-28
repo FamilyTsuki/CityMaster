@@ -16,6 +16,7 @@ export class AuthController {
   #initEvents() {
     this.#authView.onSubmit((username, password) => this.#handleAuthSubmit(username, password));
     this.#authView.onSwitchMode(() => this.#toggleMode());
+    this.#authView.initGoogleSignIn((credential) => this.#handleGoogleLogin(credential));
 
     this.#navbarView.onThemeToggle(() => this.#toggleTheme());
     this.#navbarView.onLoginClick(() => this.#router.navigate('/login'));
@@ -94,6 +95,32 @@ export class AuthController {
         friendlyMessage = i18n.t('errors.network_error');
       }
       this.#authView.showError(friendlyMessage);
+    }
+  }
+
+  async #handleGoogleLogin(credential) {
+    try {
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credential })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Erreur Google Auth');
+      }
+
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('username', data.username);
+      if (data.profile_image_url) {
+        localStorage.setItem('citymaster_profile_image', data.profile_image_url);
+      }
+      this.#authView.clearInputs();
+      window.location.href = '/';
+    } catch (err) {
+      this.#authView.showError('Erreur de connexion via Google: ' + err.message);
     }
   }
 

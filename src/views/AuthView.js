@@ -21,6 +21,33 @@ export class AuthView {
     this.#errorMsg = document.getElementById('auth-error');
   }
 
+  async initGoogleSignIn(callback) {
+    try {
+      const response = await fetch('/api/auth/config');
+      const config = await response.json();
+      
+      if (config.googleClientId && window.google) {
+        window.google.accounts.id.initialize({
+          client_id: config.googleClientId,
+          callback: (response) => {
+            callback(response.credential);
+          }
+        });
+        window.google.accounts.id.renderButton(
+          document.getElementById('google-login-btn'),
+          { theme: 'outline', size: 'large', width: 250 }
+        );
+      } else {
+        const btnContainer = document.getElementById('google-login-btn');
+        if (btnContainer) {
+          btnContainer.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">(Google Auth non configuré)</span>`;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load Google Auth config', error);
+    }
+  }
+
   onSubmit(callback) {
     const form = document.getElementById('auth-form');
     const handler = (e) => {

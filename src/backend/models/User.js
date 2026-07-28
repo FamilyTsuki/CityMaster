@@ -62,4 +62,40 @@ export class User {
       return user || null;
     }
   }
+
+  static async findByGoogleId(googleId) {
+    try {
+      const result = await pool.query('SELECT * FROM users WHERE google_id = $1', [googleId]);
+      return result.rows[0] || null;
+    } catch (err) {
+      return [...memoryUsers.values()].find(u => u.google_id === googleId) || null;
+    }
+  }
+
+  static async createGoogleUser(username, googleId, profileImageUrl) {
+    try {
+      const result = await pool.query(
+        'INSERT INTO users (username, google_id, profile_image_url) VALUES ($1, $2, $3) RETURNING id, username, profile_image_url',
+        [username, googleId, profileImageUrl]
+      );
+      return result.rows[0];
+    } catch (err) {
+      if (err.code === '23505') throw err;
+      const existing = [...memoryUsers.values()].find(u => u.username.toLowerCase() === username.toLowerCase());
+      if (existing) {
+        const error = new Error('Username already exists');
+        error.code = '23505';
+        throw error;
+      }
+      const newUser = {
+        id: memoryUsers.size + 1,
+        username,
+        password: null,
+        google_id: googleId,
+        profile_image_url: profileImageUrl
+      };
+      memoryUsers.set(newUser.id, newUser);
+      return newUser;
+    }
+  }
 }

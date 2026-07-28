@@ -26,9 +26,14 @@ export const initDB = async () => {
     try {
       await pool.query('ALTER TABLE users ADD COLUMN profile_image_url VARCHAR(500);');
     } catch (e) {
-      if (e.code !== '42701') {
-        console.error('Erreur lors de l\'ajout de la colonne:', e);
-      }
+      if (e.code !== '42701') console.error('Erreur ajout profile_image_url:', e);
+    }
+    
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN google_id VARCHAR(255) UNIQUE;');
+      await pool.query('ALTER TABLE users ALTER COLUMN password DROP NOT NULL;');
+    } catch (e) {
+      if (e.code !== '42701') console.error('Erreur modif google_id/password:', e);
     }
     await pool.query(`
       CREATE TABLE IF NOT EXISTS scores (

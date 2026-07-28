@@ -1,6 +1,9 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/User.js';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export class AuthController {
   static async register(req, res) {
@@ -70,6 +73,60 @@ export class AuthController {
       return res.json({ token, username: user.username });
     } catch (error) {
       return res.status(500).json({ error: 'Internal server error during login' });
+    }
+  }
+
+  static async googleLogin(req, res) {
+    try {
+      const { credential } = req.body;
+      if (!credential) {
+        return res.status(400).json({ error: 'Google credential missing' });
+      }
+
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      if (!clientId) {
+        return res.status(500).json({ error: 'Google Client ID not configured on server' });
+      }
+
+      const ticket = await googleClient.verifyIdToken({
+        idToken: credential,
+        audience: clientId,
+      });
+
+      const payload = ticket.getPayload();
+      const googleId = payload['sub'];
+      const email = payload['email'];
+      const name = payload['name'];
+      const picture = payload['picture'];
+
+      let user = await User.findByGoogleId(googleId);
+      
+      if (!user) {
+        // Try to generate a unique username based on the first part of the email
+        let baseUsername = email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '');
+        if (baseUsername.length < 3) baseUsername += 'user';
+        
+        let username = baseUsername;
+        let suffix = 1;
+        while (await User.findByUsername(username)) {
+          username = `${baseUsername}${suffix}`;
+          suffix++;
+        }
+
+        user = await User.createGoogleUser(username, googleId, picture);
+      }
+
+      const secret = process.env.JWT_SECRET;
+      const token = jwt.sign(
+        { id: user.id, username: user.username },
+        secret,
+        { expiresIn: '30d' }
+      );
+
+      return res.json({ token, username: user.username, profile_image_url: user.profile_image_url || picture });
+    } catch (error) {
+      console.error('Google Auth Error:', error);
+      return res.status(401).json({ error: 'Invalid Google token' });
     }
   }
 }
