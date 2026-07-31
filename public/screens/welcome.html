@@ -30,7 +30,7 @@
         type="text" 
         id="mode-search" 
         readonly 
-        style="cursor: pointer;" 
+        class="welcome-cursor-pointer" 
         role="combobox"
         aria-expanded="false"
         aria-controls="mode-dropdown-list"
@@ -48,7 +48,7 @@
         type="text" 
         id="difficulty-search" 
         readonly 
-        style="cursor: pointer;" 
+        class="welcome-cursor-pointer" 
         role="combobox"
         aria-expanded="false"
         aria-controls="difficulty-dropdown-list"
@@ -74,9 +74,9 @@
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="title-icon" aria-hidden="true"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path></svg> 
         <span data-i18n="welcome.leaderboard">Classement (Top 10)</span>
       </h2>
-      <div class="leaderboard-tabs" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-        <button id="tab-monthly" class="btn secondary active" data-i18n="welcome.leaderboard_monthly" style="padding: 5px 15px; font-size: 0.9em; flex: 1;">Ce Mois-ci</button>
-        <button id="tab-alltime" class="btn secondary" data-i18n="welcome.leaderboard_alltime" style="padding: 5px 15px; font-size: 0.9em; flex: 1;">Tous les temps</button>
+      <div class="leaderboard-tabs welcome-leaderboard-tabs">
+        <button id="tab-monthly" class="btn secondary active welcome-leaderboard-tab-btn" data-i18n="welcome.leaderboard_monthly">Ce Mois-ci</button>
+        <button id="tab-alltime" class="btn secondary welcome-leaderboard-tab-btn" data-i18n="welcome.leaderboard_alltime">Tous les temps</button>
       </div>
       <div class="leaderboard-container">
         <table id="leaderboard-table" class="leaderboard-table" aria-label="Tableau des meilleurs scores">
@@ -94,7 +94,7 @@
         </table>
       </div>
     </div>
-    <div style="text-align: center; margin-top: 16px;">
+    <div class="welcome-footer-container">
       <a href="#/legal" class="legal-footer-link" data-i18n="nav.legal">Mentions Légales & RGPD</a>
     </div>
   </div>

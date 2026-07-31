@@ -2,21 +2,32 @@ export class AdminView {
   #map;
   #tileLayer;
   #districtsLayer;
+  #routesLayer;
   #activePolygonLayer;
+  #activeLineLayer;
   #vertexMarkers;
   #activePoints;
+  #activeRoutePoints;
   #activeColor;
   #editingDistrictId;
+  #editingRouteId;
+  #editMode;
 
   constructor() {
     this.#map = null;
     this.#tileLayer = null;
     this.#districtsLayer = null;
+    this.#routesLayer = null;
     this.#activePolygonLayer = null;
+    this.#activeLineLayer = null;
     this.#vertexMarkers = [];
     this.#activePoints = [];
+    this.#activeRoutePoints = [];
     this.#activeColor = '#f59e0b';
     this.#editingDistrictId = null;
+    this.#editingRouteId = null;
+    this.#editMode = 'district';
+    this.onRouteMapClick = null;
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && this.#map) {
@@ -30,6 +41,12 @@ export class AdminView {
         }
       }
     });
+  }
+
+  setEditMode(mode) {
+    this.#editMode = mode;
+    this.clearActiveDrawing();
+    this.clearActiveRouteDrawing();
   }
 
   initMap() {
@@ -57,16 +74,50 @@ export class AdminView {
     satelliteLayer.addTo(this.#map);
     labelsLayer.addTo(this.#map);
 
+    const routeNamesLayer = L.layerGroup().addTo(this.#map);
+    const districtNamesLayer = L.layerGroup().addTo(this.#map);
+
     const baseMaps = {
       "Satellite": satelliteLayer,
       "Plan (Carto)": cartoLayer
     };
 
     const overlayMaps = {
-      "Nomenclature (Rues)": labelsLayer
+      "Nomenclature (Rues)": labelsLayer,
+      "Noms des quartiers définis": districtNamesLayer,
+      "Noms des routes définies": routeNamesLayer
     };
 
     L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(this.#map);
+
+    this.#map.on('overlayadd', (e) => {
+      if (e.name === "Noms des routes définies") {
+        this.#map.getContainer().classList.remove('hide-route-names');
+      }
+      if (e.name === "Noms des quartiers définis") {
+        this.#map.getContainer().classList.remove('hide-district-names');
+      }
+    });
+
+    this.#map.on('overlayremove', (e) => {
+      if (e.name === "Noms des routes définies") {
+        this.#map.getContainer().classList.add('hide-route-names');
+      }
+      if (e.name === "Noms des quartiers définis") {
+        this.#map.getContainer().classList.add('hide-district-names');
+      }
+    });
+
+    this.#map.on('baselayerchange', (e) => {
+      if (e.name === "Satellite") {
+        this.#map.getContainer().classList.add('map-satellite-active');
+      } else {
+        this.#map.getContainer().classList.remove('map-satellite-active');
+      }
+    });
+    
+    // Initialize default baselayer class
+    this.#map.getContainer().classList.add('map-satellite-active');
 
     this.#districtsLayer = L.geoJSON(null, {
       style: (feature) => ({
@@ -84,23 +135,58 @@ export class AdminView {
       }
     }).addTo(this.#map);
 
+    this.#routesLayer = L.geoJSON(null, {
+      style: () => ({
+        color: '#3b82f6',
+        weight: 4,
+        opacity: 0.8
+      }),
+      onEachFeature: (feature, layer) => {
+        if (feature.properties && feature.properties.name) {
+          layer.bindTooltip(feature.properties.name, { permanent: true, direction: 'center', className: 'route-tooltip' });
+        }
+        layer.on('click', (e) => {
+          L.DomEvent.stopPropagation(e);
+          if (this.#editMode === 'route' && this.onRouteMapClick) {
+            this.onRouteMapClick(feature);
+          }
+        });
+      }
+    }).addTo(this.#map);
+
     this.#map.on('click', (e) => {
-      const editor = document.getElementById('admin-district-editor');
-      if (editor && !editor.classList.contains('hidden')) {
-        this.#addVertex([e.latlng.lat, e.latlng.lng]);
+      if (this.#editMode === 'district') {
+        const editor = document.getElementById('admin-district-editor');
+        if (editor && !editor.classList.contains('hidden')) {
+          this.#addVertex([e.latlng.lat, e.latlng.lng]);
+        }
+      } else if (this.#editMode === 'route') {
+        const editor = document.getElementById('admin-route-editor');
+        if (editor && !editor.classList.contains('hidden')) {
+          this.#addRouteVertex([e.latlng.lat, e.latlng.lng]);
+        }
       }
     });
 
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        const editor = document.getElementById('admin-district-editor');
-        if (editor && !editor.classList.contains('hidden')) {
-          const activeEl = document.activeElement;
-          if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-            return;
+        const activeEl = document.activeElement;
+        if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+          return;
+        }
+        
+        if (this.#editMode === 'district') {
+          const editor = document.getElementById('admin-district-editor');
+          if (editor && !editor.classList.contains('hidden')) {
+            e.preventDefault();
+            this.undo();
           }
-          e.preventDefault();
-          this.undo();
+        } else if (this.#editMode === 'route') {
+          const editor = document.getElementById('admin-route-editor');
+          if (editor && !editor.classList.contains('hidden')) {
+            e.preventDefault();
+            this.undoRoute();
+          }
         }
       }
     });
@@ -151,7 +237,19 @@ export class AdminView {
     }
   }
 
+  renderSavedRoutes(features) {
+    if (this.#routesLayer) {
+      this.#routesLayer.clearLayers();
+      if (features && features.length > 0) {
+        this.#routesLayer.addData(features);
+      }
+    }
+  }
+
+
+
   startEditingDistrict(districtFeature = null) {
+    this.#editMode = 'district';
     this.clearActiveDrawing();
     const editor = document.getElementById('admin-district-editor');
     const titleEl = document.getElementById('admin-editor-title');
@@ -206,7 +304,7 @@ export class AdminView {
     this.#activePoints.forEach((latlng, idx) => {
       const icon = L.divIcon({
         className: 'vertex-handle-icon',
-        html: `<div style="width: 14px; height: 14px; background: ${this.#activeColor}; border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 8px rgba(0,0,0,0.5); cursor: move;"></div>`,
+        html: `<div class="admin-marker" style="background: ${this.#activeColor};"></div>`,
         iconSize: [14, 14],
         iconAnchor: [7, 7]
       });
@@ -281,6 +379,139 @@ export class AdminView {
       name,
       color: this.#activeColor,
       coordinates: ring
+    };
+  }
+
+  startEditingRoute(routeFeature = null) {
+    this.#editMode = 'route';
+    this.clearActiveRouteDrawing();
+    const editor = document.getElementById('admin-route-editor');
+    const titleEl = document.getElementById('admin-editor-title-routes');
+    const nameInput = document.getElementById('admin-route-name');
+
+    if (editor) editor.classList.remove('hidden');
+
+    if (routeFeature) {
+      this.#editingRouteId = routeFeature.properties.id;
+      if (titleEl) titleEl.textContent = 'Éditer la Route';
+      if (nameInput) nameInput.value = routeFeature.properties.name || '';
+
+      if (routeFeature.geometry) {
+        let line = [];
+        if (routeFeature.geometry.type === 'LineString') {
+          line = routeFeature.geometry.coordinates || [];
+        } else if (routeFeature.geometry.type === 'MultiLineString') {
+          // Flatten array of lines into a single continuous line for the editor
+          line = (routeFeature.geometry.coordinates || []).flat(1);
+        }
+        line.forEach(coord => {
+          this.#addRouteVertex([coord[1], coord[0]]);
+        });
+      }
+    } else {
+      this.#editingRouteId = null;
+      if (titleEl) titleEl.textContent = 'Nouvelle Route';
+      if (nameInput) nameInput.value = '';
+    }
+  }
+
+  #addRouteVertex(latlng) {
+    this.#activeRoutePoints.push(latlng);
+    this.#updateRouteLine();
+    this.#renderRouteVertexMarkers();
+  }
+
+  #updateRouteLine() {
+    if (this.#activeLineLayer) {
+      this.#activeLineLayer.setLatLngs(this.#activeRoutePoints);
+    } else {
+      this.#activeLineLayer = L.polyline(this.#activeRoutePoints, {
+        color: '#f43f5e', // Highlight color when editing
+        weight: 5
+      }).addTo(this.#map);
+    }
+  }
+
+  #renderRouteVertexMarkers() {
+    this.#vertexMarkers.forEach(m => m.remove());
+    this.#vertexMarkers = [];
+
+    this.#activeRoutePoints.forEach((latlng, idx) => {
+      const icon = L.divIcon({
+        className: 'vertex-handle-icon',
+        html: `<div class="admin-marker" style="background: #f43f5e;"></div>`,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+
+      const marker = L.marker(latlng, { icon, draggable: true }).addTo(this.#map);
+
+      marker.on('drag', (e) => {
+        const newPos = e.target.getLatLng();
+        this.#activeRoutePoints[idx] = [newPos.lat, newPos.lng];
+        this.#updateRouteLine();
+      });
+
+      marker.on('contextmenu', (e) => {
+        L.DomEvent.stopPropagation(e);
+        if (this.#activeRoutePoints.length > 2) {
+          this.#activeRoutePoints.splice(idx, 1);
+          this.#updateRouteLine();
+          this.#renderRouteVertexMarkers();
+        }
+      });
+
+      marker.on('click', (e) => {
+        L.DomEvent.stopPropagation(e);
+      });
+
+      this.#vertexMarkers.push(marker);
+    });
+  }
+
+  undoRoute() {
+    if (this.#activeRoutePoints.length > 0) {
+      this.#activeRoutePoints.pop();
+      if (this.#activeRoutePoints.length === 0) {
+        if (this.#activeLineLayer) {
+          this.#activeLineLayer.remove();
+          this.#activeLineLayer = null;
+        }
+      } else {
+        this.#updateRouteLine();
+      }
+      this.#renderRouteVertexMarkers();
+    }
+  }
+
+  clearActiveRouteDrawing() {
+    this.#activeRoutePoints = [];
+    this.#vertexMarkers.forEach(m => m.remove());
+    this.#vertexMarkers = [];
+    if (this.#activeLineLayer) {
+      this.#activeLineLayer.remove();
+      this.#activeLineLayer = null;
+    }
+    this.#editingRouteId = null;
+
+    const editor = document.getElementById('admin-route-editor');
+    if (editor) editor.classList.add('hidden');
+  }
+
+  getActiveRoutePayload() {
+    const nameInput = document.getElementById('admin-route-name');
+    const name = nameInput ? nameInput.value.trim() : '';
+
+    if (!name || this.#activeRoutePoints.length < 2) {
+      return null;
+    }
+
+    const line = this.#activeRoutePoints.map(pt => [pt[1], pt[0]]);
+
+    return {
+      id: this.#editingRouteId,
+      name,
+      coordinates: line
     };
   }
 }

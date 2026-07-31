@@ -499,3 +499,17 @@
   border-color: var(--primary-color);
   transform: translateY(-1px);
 }
+
+/* Game Utility Classes */
+.game-input-container {
+  position: relative;
+}
+
+.game-action-icon-left {
+  margin-right: 0;
+}
+
+.game-action-icon-right {
+  margin-left: 6px;
+  margin-right: 0;
+}

@@ -1,37 +1,46 @@
 <div id="admin-screen" class="screen" role="main" aria-label="Espace Administration des Quartiers">
   
   <!-- DASHBOARD VIEW -->
-  <div id="admin-dashboard-view" style="padding: 40px; max-width: 1000px; margin: 0 auto; min-height: calc(100vh - 64px);">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px;">
-      <h1 style="font-size: 28px; font-weight: 700; color: var(--text-main); margin: 0;">Paramètres Globaux</h1>
+  <div id="admin-dashboard-view" class="admin-dashboard-view">
+    <div class="admin-dashboard-header">
+      <h1 class="admin-dashboard-title">Paramètres Globaux</h1>
       <a href="#/setup" class="btn btn-secondary">Retour à l'accueil</a>
     </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 24px;">
-      <div class="glass-card" style="padding: 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 12px; color: var(--primary-color);">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px;"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          <h2 style="font-size: 20px; font-weight: 600; margin: 0; color: var(--text-main);">Gestion des Quartiers</h2>
+    <div class="admin-cards-grid">
+      <div class="glass-card admin-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <h2 class="admin-card-title">Gestion des Quartiers</h2>
         </div>
-        <p style="font-size: 14px; color: var(--text-muted); margin: 0; flex: 1;">Dessinez et modifiez les limites des quartiers et lotissements pour chaque commune.</p>
-        <button id="admin-go-districts-btn" class="btn" style="width: 100%;">Accéder à la carte</button>
+        <p class="admin-card-desc">Dessinez et modifiez les limites des quartiers et lotissements pour chaque commune.</p>
+        <button id="admin-go-districts-btn" class="btn admin-btn-full">Accéder à la carte</button>
       </div>
 
-      <div class="glass-card" style="padding: 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 16px;">
-        <div style="display: flex; align-items: center; gap: 12px; color: var(--primary-color);">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 32px; height: 32px;"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          <h2 style="font-size: 20px; font-weight: 600; margin: 0; color: var(--text-main);">Paramètres Globaux</h2>
+      <div class="glass-card admin-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+          <h2 class="admin-card-title">Gestion des Routes</h2>
         </div>
-        <p style="font-size: 14px; color: var(--text-muted); margin: 0; flex: 1;">Ajustez les paramètres généraux du jeu applicables à toutes les communes.</p>
+        <p class="admin-card-desc">Dessinez et modifiez les routes pour corriger les erreurs de la carte.</p>
+        <button id="admin-go-routes-btn" class="btn admin-btn-full">Accéder à la carte</button>
+      </div>
+
+      <div class="glass-card admin-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <h2 class="admin-card-title">Paramètres Globaux</h2>
+        </div>
+        <p class="admin-card-desc">Ajustez les paramètres généraux du jeu applicables à toutes les communes.</p>
         
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--border-color);">
+        <div class="admin-settings-row">
           <div>
-            <span style="font-weight: 600; font-size: 14px; color: var(--text-main); display: block;">Difficulté par nomenclature</span>
-            <span style="font-size: 12px; color: var(--text-muted);">Basé sur le mot dans le nom (Rue, Impasse...) au lieu de la distance.</span>
+            <span class="admin-setting-title">Difficulté par nomenclature</span>
+            <span class="admin-setting-desc">Basé sur le mot dans le nom (Rue, Impasse...) au lieu de la distance.</span>
           </div>
-          <label class="switch" style="position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0;">
-            <input type="checkbox" id="admin-difficulty-mode-toggle" style="opacity: 0; width: 0; height: 0;">
-            <span class="slider round" style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border-color); transition: .4s; border-radius: 24px;"></span>
+          <label class="switch admin-switch-container">
+            <input type="checkbox" id="admin-difficulty-mode-toggle" class="admin-switch-input">
+            <span class="slider round admin-switch-slider"></span>
           </label>
         </div>
       </div>
@@ -40,52 +49,41 @@
 
   <!-- DISTRICTS VIEW -->
   <div id="admin-districts-view" class="hidden">
-    <div class="admin-layout" style="display: flex; height: calc(100vh - 64px); width: 100%; position: relative; overflow: hidden;">
-      <aside class="admin-sidebar glass-card" style="width: 380px; min-width: 320px; padding: 20px; display: flex; flex-direction: column; gap: 16px; border-right: 1px solid var(--border-color); background: var(--bg-card); overflow-y: auto; z-index: 10;">
-        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-          <h1 style="font-size: 20px; font-weight: 700; color: var(--text-main); margin: 0; display: flex; align-items: center; gap: 8px;">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px; color: var(--primary-color);"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+    <div class="admin-layout-container">
+      <aside class="admin-sidebar glass-card">
+        <div class="admin-sidebar-header">
+          <h1 class="admin-sidebar-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-sidebar-icon"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
             <span data-i18n="admin.title">Gestion des Quartiers</span>
           </h1>
-          <button id="admin-back-dashboard-btn" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;">Retour</button>
         </div>
 
-
       <div class="form-group custom-select-container">
-        <label for="admin-city-search" style="font-weight: 600; color: var(--text-main);" data-i18n="admin.select_city">Commune à modifier :</label>
-        <input type="text" id="admin-city-search" placeholder="Rechercher une commune..." class="input" style="width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main);" />
+        <label for="admin-city-search" class="admin-form-label" style="font-weight: 600;" data-i18n="admin.select_city">Commune à modifier :</label>
+        <input type="text" id="admin-city-search" placeholder="Rechercher une commune..." class="input admin-input-full" />
         <ul id="admin-city-dropdown" class="dropdown-list hidden" role="listbox"></ul>
       </div>
 
-      <div id="admin-city-info" class="hidden" style="padding: 10px 14px; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; font-size: 13px; color: var(--text-main);">
-        Commune sélectionnée : <strong id="admin-city-name"></strong>
-      </div>
-
-      <button id="admin-add-district-btn" class="btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 18px; height: 18px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        <span data-i18n="admin.add_district">Ajouter un Quartier</span>
-      </button>
-
-      <div id="admin-district-editor" class="hidden glass-card" style="padding: 16px; border-radius: 12px; background: var(--bg-main); border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px;">
-        <h3 style="font-size: 16px; margin: 0; color: var(--text-main);" id="admin-editor-title">Nouveau Quartier</h3>
+      <div id="admin-district-editor" class="hidden glass-card admin-editor-card">
+        <h3 class="admin-editor-title" id="admin-editor-title">Nouveau Quartier</h3>
         
         <div class="form-group">
-          <label for="admin-district-name" style="font-size: 13px; color: var(--text-main);">Nom du quartier / lotissement :</label>
-          <input type="text" id="admin-district-name" placeholder="ex: Quartier du Val de Loire" class="input" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-card); color: var(--text-main);" />
+          <label for="admin-district-name" class="admin-form-label">Nom du quartier / lotissement :</label>
+          <input type="text" id="admin-district-name" placeholder="ex: Quartier du Val de Loire" class="input admin-input-small" />
         </div>
 
         <div class="form-group">
-          <label style="font-size: 13px; color: var(--text-main);">Couleur de la zone :</label>
-          <div style="display: flex; gap: 8px; margin-top: 4px;">
-            <button type="button" class="color-picker-btn active" data-color="#f59e0b" style="width: 28px; height: 28px; border-radius: 50%; background: #f59e0b; border: 2px solid #fff; cursor: pointer;"></button>
-            <button type="button" class="color-picker-btn" data-color="#10b981" style="width: 28px; height: 28px; border-radius: 50%; background: #10b981; border: 2px solid transparent; cursor: pointer;"></button>
-            <button type="button" class="color-picker-btn" data-color="#6366f1" style="width: 28px; height: 28px; border-radius: 50%; background: #6366f1; border: 2px solid transparent; cursor: pointer;"></button>
-            <button type="button" class="color-picker-btn" data-color="#f43f5e" style="width: 28px; height: 28px; border-radius: 50%; background: #f43f5e; border: 2px solid transparent; cursor: pointer;"></button>
-            <button type="button" class="color-picker-btn" data-color="#06b6d4" style="width: 28px; height: 28px; border-radius: 50%; background: #06b6d4; border: 2px solid transparent; cursor: pointer;"></button>
+          <label class="admin-form-label">Couleur de la zone :</label>
+          <div class="admin-color-picker-row">
+            <button type="button" class="color-picker-btn active" data-color="#f59e0b" style="background: #f59e0b;"></button>
+            <button type="button" class="color-picker-btn" data-color="#10b981" style="background: #10b981;"></button>
+            <button type="button" class="color-picker-btn" data-color="#6366f1" style="background: #6366f1;"></button>
+            <button type="button" class="color-picker-btn" data-color="#f43f5e" style="background: #f43f5e;"></button>
+            <button type="button" class="color-picker-btn" data-color="#06b6d4" style="background: #06b6d4;"></button>
           </div>
         </div>
 
-        <div style="font-size: 12px; color: var(--text-muted); background: rgba(0,0,0,0.2); padding: 10px; border-radius: 6px; line-height: 1.4;">
+        <div class="admin-help-box">
           <strong>Outil polygone :</strong><br />
           • Clic sur la carte = ajouter un sommet.<br />
           • Glisser un sommet = ajuster le contour.<br />
@@ -93,23 +91,94 @@
           • <strong>Ctrl + Z</strong> = annuler le dernier point.
         </div>
 
-        <div style="display: flex; gap: 8px; margin-top: 4px;">
-          <button id="admin-save-district-btn" class="btn" style="flex: 1; padding: 8px;">Enregistrer</button>
-          <button id="admin-cancel-district-btn" class="btn btn-secondary" style="flex: 1; padding: 8px;">Annuler</button>
+        <div class="admin-action-row">
+          <button id="admin-save-district-btn" class="btn">Enregistrer</button>
+          <button id="admin-cancel-district-btn" class="btn btn-secondary">Annuler</button>
         </div>
       </div>
 
-      <div style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
-        <h3 style="font-size: 15px; margin: 0 0 10px 0; color: var(--text-main);">Quartiers définis (<span id="admin-district-count">0</span>)</h3>
-        <div id="admin-district-list-container" style="flex: 1; overflow-y: auto;">
-          <ul id="admin-district-list" style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px;"></ul>
+      <div class="admin-list-section">
+        <div class="admin-list-header">
+          <h3 class="admin-list-title">Quartiers définis (<span id="admin-district-count">0</span>)</h3>
+          <button id="admin-add-district-btn" class="btn admin-add-btn-small">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-add-btn-icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span data-i18n="admin.add_district_short">Ajouter</span>
+          </button>
+        </div>
+        <div id="admin-district-list-container" class="admin-list-container">
+          <ul id="admin-district-list" class="admin-list"></ul>
         </div>
       </div>
     </aside>
 
-    <main class="admin-map-area" style="flex: 1; height: 100%; position: relative;">
-      <div id="admin-map" style="width: 100%; height: 100%; z-index: 1;"></div>
+    <main class="admin-map-area admin-map-main">
+      <div id="admin-map" class="admin-map-element"></div>
     </main>
   </div>
+  </div>
+
+  <!-- ROUTES VIEW -->
+  <div id="admin-routes-view" class="hidden">
+    <div class="admin-layout-container">
+      <aside class="admin-sidebar glass-card">
+        <div class="admin-sidebar-header">
+          <h1 class="admin-sidebar-title">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-sidebar-icon"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+            <span data-i18n="admin.title_routes">Gestion des Routes</span>
+          </h1>
+        </div>
+
+        <div class="form-group custom-select-container">
+          <label for="admin-city-search-routes" class="admin-form-label" style="font-weight: 600;" data-i18n="admin.select_city">Commune à modifier :</label>
+          <input type="text" id="admin-city-search-routes" placeholder="Rechercher une commune..." class="input admin-input-full" />
+          <ul id="admin-city-dropdown-routes" class="dropdown-list hidden" role="listbox"></ul>
+        </div>
+
+        <div id="admin-route-editor" class="hidden glass-card admin-editor-card">
+          <h3 class="admin-editor-title" id="admin-editor-title-routes">Nouvelle Route</h3>
+          
+          <div class="form-group">
+            <label for="admin-route-name" class="admin-form-label">Nom de la route :</label>
+            <input type="text" id="admin-route-name" placeholder="ex: Rue de la Paix" class="input admin-input-small" />
+          </div>
+
+          <div class="admin-help-box">
+            <strong>Outil ligne :</strong><br />
+            • Clic sur la carte = ajouter un point.<br />
+            • Glisser un point = ajuster la route.<br />
+            • Clic sur un point = supprimer le point.<br />
+            • <strong>Ctrl + Z</strong> = annuler le dernier point.
+          </div>
+
+          <div class="admin-action-row">
+            <button id="admin-save-route-btn" class="btn">Enregistrer</button>
+            <button id="admin-cancel-route-btn" class="btn btn-secondary">Annuler</button>
+          </div>
+        </div>
+
+        <div class="admin-list-section">
+          <div class="admin-list-header">
+            <h3 class="admin-list-title">Routes définies (<span id="admin-route-count">0</span>)</h3>
+            <button id="admin-add-route-btn" class="btn admin-add-btn-small">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-add-btn-icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              <span>Ajouter</span>
+            </button>
+          </div>
+          <div class="form-group" style="margin-bottom: 10px;">
+            <input type="text" id="admin-route-filter" placeholder="Rechercher une route..." class="input admin-input-small" />
+          </div>
+          <div id="admin-route-list-container" class="admin-list-container">
+            <ul id="admin-route-list" class="admin-list"></ul>
+          </div>
+        </div>
+      </aside>
+
+      <main class="admin-map-area admin-map-main">
+        <!-- Reusing admin-map by detaching/attaching, or we just move the map container visually -->
+        <!-- Actually we should probably have a distinct map div or just share the view logic -->
+        <!-- AdminView.js initializes L.map('admin-map'). It's better if we only have one #admin-map element in the document -->
+        <div id="admin-map-container-routes" class="admin-map-element"></div>
+      </main>
+    </div>
   </div>
 </div>

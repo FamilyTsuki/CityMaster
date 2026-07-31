@@ -7,6 +7,8 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const districtsFilePath = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data', 'custom_districts.json');
 
+const routesFilePath = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data', 'custom_routes.json');
+
 async function readDistrictsFile() {
   try {
     const content = await fs.readFile(districtsFilePath, 'utf8');
@@ -18,6 +20,19 @@ async function readDistrictsFile() {
 
 async function writeDistrictsFile(data) {
   await fs.writeFile(districtsFilePath, JSON.stringify(data, null, 2), 'utf8');
+}
+
+async function readRoutesFile() {
+  try {
+    const content = await fs.readFile(routesFilePath, 'utf8');
+    return JSON.parse(content);
+  } catch (e) {
+    return {};
+  }
+}
+
+async function writeRoutesFile(data) {
+  await fs.writeFile(routesFilePath, JSON.stringify(data, null, 2), 'utf8');
 }
 
 export class AdminController {
@@ -95,6 +110,81 @@ export class AdminController {
       return res.json({ message: 'District deleted successfully' });
     } catch (err) {
       return res.status(500).json({ error: 'Internal server error deleting district' });
+    }
+  }
+
+  static async getRoutes(req, res) {
+    try {
+      const { cityKey } = req.query;
+      if (!cityKey) {
+        return res.status(400).json({ error: 'cityKey is required' });
+      }
+
+      const allData = await readRoutesFile();
+      const cityRoutes = allData[cityKey] || [];
+      return res.json(cityRoutes);
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error getting routes' });
+    }
+  }
+
+  static async saveRoute(req, res) {
+    try {
+      const { cityKey, route } = req.body;
+      if (!cityKey || !route || !route.name || !route.coordinates || !Array.isArray(route.coordinates)) {
+        return res.status(400).json({ error: 'cityKey and valid route payload are required' });
+      }
+
+      const allData = await readRoutesFile();
+      if (!allData[cityKey]) {
+        allData[cityKey] = [];
+      }
+
+      const routeId = route.id || `route_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const feature = {
+        type: 'Feature',
+        properties: {
+          id: routeId,
+          name: route.name.trim(),
+          isCustom: true,
+          itemType: 'route'
+        },
+        geometry: {
+          type: 'LineString',
+          coordinates: route.coordinates
+        }
+      };
+
+      const existingIndex = allData[cityKey].findIndex(d => d.properties && d.properties.id === routeId);
+      if (existingIndex >= 0) {
+        allData[cityKey][existingIndex] = feature;
+      } else {
+        allData[cityKey].push(feature);
+      }
+
+      await writeRoutesFile(allData);
+      return res.json({ message: 'Route saved successfully', feature });
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error saving route' });
+    }
+  }
+
+  static async deleteRoute(req, res) {
+    try {
+      const { cityKey, id } = req.params;
+      if (!cityKey || !id) {
+        return res.status(400).json({ error: 'cityKey and id are required' });
+      }
+
+      const allData = await readRoutesFile();
+      if (allData[cityKey]) {
+        allData[cityKey] = allData[cityKey].filter(d => d.properties && d.properties.id !== id);
+        await writeRoutesFile(allData);
+      }
+
+      return res.json({ message: 'Route deleted successfully' });
+    } catch (err) {
+      return res.status(500).json({ error: 'Internal server error deleting route' });
     }
   }
 

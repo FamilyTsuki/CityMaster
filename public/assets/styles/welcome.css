@@ -115,3 +115,26 @@
     padding: 20px 12px;
   }
 }
+
+/* Welcome Utility Classes */
+.welcome-cursor-pointer {
+  cursor: pointer;
+}
+
+.welcome-leaderboard-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.welcome-leaderboard-tab-btn {
+  padding: 5px 15px;
+  font-size: 0.9em;
+  flex: 1;
+}
+
+.welcome-footer-container {
+  text-align: center;
+  margin-top: 16px;
+}

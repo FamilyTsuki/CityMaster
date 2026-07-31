@@ -76,7 +76,9 @@ export class OverpassService {
 
         if (element.type === 'way' && element.geometry) {
           if (!itemGroups[name]) {
-            itemGroups[name] = { coords: [], isLotissement: false };
+            itemGroups[name] = { coords: [], isLotissement: false, highway: element.tags.highway };
+          } else if (!itemGroups[name].highway && element.tags.highway) {
+            itemGroups[name].highway = element.tags.highway;
           }
           itemGroups[name].coords.push(element.geometry.map(point => [point.lon, point.lat]));
         } else if (element.type === 'node' && element.lat && element.lon) {
@@ -95,7 +97,8 @@ export class OverpassService {
           properties: {
             name: name,
             isLotissement: group.isLotissement,
-            itemType: group.isLotissement ? 'lotissement' : 'street'
+            itemType: group.isLotissement ? 'lotissement' : 'street',
+            highway: group.highway || 'unclassified'
           },
           geometry: {
             type: 'MultiLineString',

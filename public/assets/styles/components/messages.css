@@ -22,3 +22,15 @@
   font-weight: 600;
   border: 1px solid rgba(239, 68, 68, 0.25);
 }
+
+.info-msg {
+  color: var(--text-success);
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.error-msg-default {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
+}

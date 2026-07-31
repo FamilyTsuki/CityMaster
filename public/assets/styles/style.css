@@ -9,3 +9,55 @@
 @import 'certificate.css';
 @import 'profile.css';
 @import 'legal.css';
+@import 'admin.css';
+
+/* Main App Container */
+#app {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bg-main);
+}
+
+/* Global Utilities */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.pwa-install-btn-style {
+  width: auto;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon-small {
+  width: 15px;
+  height: 15px;
+}
+
+/* Leaflet Dark Mode Overrides */
+[data-theme="dark"] .leaflet-bar a {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .leaflet-bar a:hover {
+  background-color: var(--secondary-hover) !important;
+}
+
+[data-theme="dark"] .leaflet-tooltip {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+[data-theme="dark"] .leaflet-tooltip::before {
+  border-right-color: var(--border-color) !important;
+  border-left-color: var(--border-color) !important;
+}

@@ -102,13 +102,11 @@ export class AuthView {
 
     this.#errorMsg.textContent = message;
     if (isInfo) {
-      this.#errorMsg.style.color = 'var(--text-success)';
-      this.#errorMsg.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
-      this.#errorMsg.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+      this.#errorMsg.classList.add('info-msg');
+      this.#errorMsg.classList.remove('error-msg-default');
     } else {
-      this.#errorMsg.style.color = '';
-      this.#errorMsg.style.backgroundColor = '';
-      this.#errorMsg.style.borderColor = '';
+      this.#errorMsg.classList.remove('info-msg');
+      this.#errorMsg.classList.add('error-msg-default');
     }
     this.#errorMsg.classList.remove('hidden');
   }

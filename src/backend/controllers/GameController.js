@@ -68,16 +68,19 @@ export class GameController {
         }
 
         if (diffMode === 'nomenclature') {
-          const highway = f.properties.highway || 'unclassified';
-          const easyTypes = ['motorway', 'trunk', 'primary', 'secondary', 'primary_link', 'secondary_link', 'trunk_link'];
-          const mediumTypes = ['tertiary', 'unclassified', 'residential', 'tertiary_link', 'living_street'];
+          const name = f.properties.name || '';
+          const nameLower = name.toLowerCase().trim();
+          const firstWord = nameLower.split(/[\s'-]+/)[0];
+          const MAJOR_TYPES = ['boulevard', 'avenue', 'place', 'cours', 'quai', 'pont'];
+          const MINOR_TYPES = ['impasse', 'allée', 'chemin', 'passage', 'ruelle', 'square', 'cour', 'villa', 'cité', 'sentier', 'traverse'];
           
           if (difficulty === 'easy') {
-            return easyTypes.includes(highway);
+            return MAJOR_TYPES.includes(firstWord);
           } else if (difficulty === 'medium') {
-            return mediumTypes.includes(highway);
+            const isMinor = MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin');
+            return !isMinor;
           } else {
-            return !easyTypes.includes(highway) && !mediumTypes.includes(highway);
+            return true;
           }
         } else {
           // Default: length
