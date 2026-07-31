@@ -146,7 +146,8 @@ export class AdminController {
         const deleteBtn = e.target.closest('.btn-delete-district');
         if (editBtn) {
           const id = editBtn.dataset.id;
-          const district = this.#currentDistricts.find(d => d.properties.id === id);
+          const name = editBtn.dataset.name;
+          const district = this.#currentDistricts.find(d => (d.properties.id === id) || (!d.properties.id && d.properties.name === name));
           if (district) {
             this.#adminView.startEditingDistrict(district);
           }
@@ -297,12 +298,27 @@ export class AdminController {
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-      const res = await fetch(`/api/admin/districts?cityKey=${encodeURIComponent(this.#selectedCity.key)}`, { headers });
-      if (!res.ok) {
-        this.#currentDistricts = [];
-      } else {
-        this.#currentDistricts = await res.json();
+
+      const defaultRes = await fetch(`/assets/data/${this.#selectedCity.key}.json`);
+      let defaultDistricts = [];
+      if (defaultRes.ok) {
+        const defaultData = await defaultRes.json();
+        if (defaultData && defaultData.features) {
+          defaultDistricts = defaultData.features.filter(f => f.properties && f.properties.isLotissement && (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon'));
+        }
       }
+
+      const res = await fetch(`/api/admin/districts?cityKey=${encodeURIComponent(this.#selectedCity.key)}`, { headers });
+      let customDistricts = [];
+      if (res.ok) {
+        customDistricts = await res.json();
+      }
+
+      const customNames = new Set(customDistricts.map(d => d.properties.name));
+      const filteredDefaultDistricts = defaultDistricts.filter(f => !customNames.has(f.properties.name));
+
+      this.#currentDistricts = [...filteredDefaultDistricts, ...customDistricts];
+
       this.#adminView.renderSavedDistricts(this.#currentDistricts);
       this.#renderDistrictList();
     } catch (e) {
@@ -325,12 +341,12 @@ export class AdminController {
       li.className = 'route-list-item';
       li.innerHTML = `
         <div class="route-list-info">
-          <div class="district-color-dot" style="background: ${d.properties.color};"></div>
+          <div class="district-color-dot" style="background: ${d.properties.color || '#3b82f6'};"></div>
           <strong class="route-list-name">${d.properties.name}</strong>
         </div>
         <div class="route-list-actions">
-          <button type="button" class="btn-edit-item btn-edit-district" data-id="${d.properties.id}">Éditer</button>
-          <button type="button" class="btn-delete-item btn-delete-district" data-id="${d.properties.id}">Supprimer</button>
+          <button type="button" class="btn-edit-item btn-edit-district" data-id="${d.properties.id || d.properties.name}" data-name="${d.properties.name}">Éditer</button>
+          <button type="button" class="btn-delete-item btn-delete-district" data-id="${d.properties.id || d.properties.name}">Supprimer</button>
         </div>
       `;
       listEl.appendChild(li);
