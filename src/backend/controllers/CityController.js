@@ -135,17 +135,53 @@ export class CityController {
         }
       } catch (e) {}
 
-      allCityStreets.forEach(f => {
+      let centroids = [];
+      if (diffMode === 'center') {
+        centroids = allCityStreets.map(f => {
+          if (f.geometry.type === 'Point') return f;
+          try { return turf.centroid(f); } catch(e) { return null; }
+        });
+      }
+
+      allCityStreets.forEach((f, i) => {
         const nameKey = f.properties.name.toLowerCase().trim();
 
         if (diffMode === 'nomenclature') {
-          const highway = f.properties.highway || 'unclassified';
-          const easyTypes = ['motorway', 'trunk', 'primary', 'secondary', 'primary_link', 'secondary_link', 'trunk_link'];
-          const mediumTypes = ['tertiary', 'unclassified', 'residential', 'tertiary_link', 'living_street'];
+          const firstWord = nameKey.split(/[\s'-]+/)[0];
+          const MAJOR_TYPES = ['boulevard', 'avenue', 'place', 'cours', 'quai', 'pont'];
+          const MINOR_TYPES = ['impasse', 'allée', 'chemin', 'passage', 'ruelle', 'square', 'cour', 'villa', 'cité', 'sentier', 'traverse'];
           
-          if (easyTypes.includes(highway)) {
+          if (MAJOR_TYPES.includes(firstWord)) {
             diffCount.easy.add(nameKey);
-          } else if (mediumTypes.includes(highway)) {
+          } else if (MINOR_TYPES.includes(firstWord) || nameKey.startsWith('grand chemin')) {
+            diffCount.hard.add(nameKey);
+          } else {
+            diffCount.medium.add(nameKey);
+          }
+        } else if (diffMode === 'center') {
+          const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
+          const easyWords = [...mediumWords, 'impasse'];
+          let isEasyType = easyWords.some(w => nameKey.includes(w));
+          let isMediumType = mediumWords.some(w => nameKey.includes(w));
+          let isHardType = nameKey.includes('chemin') || nameKey.includes('allée') || nameKey.includes('ruelle');
+          
+          let nearCount = 0;
+          if (centroids[i]) {
+            for (let j = 0; j < centroids.length; j++) {
+              if (i === j || !centroids[j]) continue;
+              try {
+                const dist = turf.distance(centroids[i], centroids[j], { units: 'meters' });
+                if (dist <= 200) nearCount++;
+              } catch(e) {}
+            }
+          }
+          
+          const inCenter = nearCount >= 4;
+          if (isHardType) {
+            diffCount.hard.add(nameKey);
+          } else if (inCenter && isEasyType) {
+            diffCount.easy.add(nameKey);
+          } else if (isMediumType) {
             diffCount.medium.add(nameKey);
           } else {
             diffCount.hard.add(nameKey);

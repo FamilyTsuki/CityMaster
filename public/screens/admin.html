@@ -35,13 +35,14 @@
         
         <div class="admin-settings-row">
           <div>
-            <span class="admin-setting-title">Difficulté par nomenclature</span>
-            <span class="admin-setting-desc">Basé sur le mot dans le nom (Rue, Impasse...) au lieu de la distance.</span>
+            <span class="admin-setting-title">Méthode de difficulté</span>
+            <span class="admin-setting-desc">Critère pour classer les rues (Facile/Moyen/Difficile).</span>
           </div>
-          <label class="switch admin-switch-container">
-            <input type="checkbox" id="admin-difficulty-mode-toggle" class="admin-switch-input">
-            <span class="slider round admin-switch-slider"></span>
-          </label>
+          <select id="admin-difficulty-mode-select" class="input admin-input-small" style="width: auto;">
+            <option value="length">Par longueur</option>
+            <option value="nomenclature">Par nomenclature</option>
+            <option value="center">Par centre-ville (densité)</option>
+          </select>
         </div>
       </div>
     </div>

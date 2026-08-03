@@ -60,6 +60,16 @@ app.use('/api/cities', citiesRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/admin', adminRoutes);
 
+import fs from 'fs';
+app.get('/api/version', (req, res) => {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(dirname, 'package.json'), 'utf8'));
+    res.json({ version: pkg.version });
+  } catch (err) {
+    res.json({ version: 'unknown' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(dirname, 'public', 'index.html'));
 });

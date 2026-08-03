@@ -225,11 +225,11 @@ export class AdminController {
       });
     }
 
-    const difficultyToggle = document.getElementById('admin-difficulty-mode-toggle');
-    if (difficultyToggle) {
+    const difficultySelect = document.getElementById('admin-difficulty-mode-select');
+    if (difficultySelect) {
       this.#loadSettings();
-      difficultyToggle.addEventListener('change', async (e) => {
-        const mode = e.target.checked ? 'nomenclature' : 'length';
+      difficultySelect.addEventListener('change', async (e) => {
+        const mode = e.target.value;
         this.#difficultyMode = mode;
         await this.#saveSetting('difficulty_mode', mode);
         this.#renderRouteList();
@@ -252,12 +252,12 @@ export class AdminController {
       const res = await fetch('/api/admin/settings', { headers });
       if (res.ok) {
         const settings = await res.json();
-        const toggle = document.getElementById('admin-difficulty-mode-toggle');
+        const select = document.getElementById('admin-difficulty-mode-select');
         if (settings.difficulty_mode) {
           this.#difficultyMode = settings.difficulty_mode;
         }
-        if (toggle && this.#difficultyMode === 'nomenclature') {
-          toggle.checked = true;
+        if (select) {
+          select.value = this.#difficultyMode;
         }
       }
     } catch (e) {
@@ -433,8 +433,43 @@ export class AdminController {
     }
 
     const grouped = { easy: [], medium: [], hard: [] };
-    displayRoutes.forEach(r => {
-      const diff = this.#getRouteDifficulty(r);
+    
+    let centroids = [];
+    if (this.#difficultyMode === 'center' && window.turf) {
+      centroids = displayRoutes.map(r => {
+        if (r.geometry.type === 'Point') return r;
+        try { return window.turf.centroid(r); } catch(e) { return null; }
+      });
+    }
+
+    displayRoutes.forEach((r, i) => {
+      let diff = 'hard';
+      if (this.#difficultyMode === 'center') {
+        const nameLower = (r.properties.name || '').toLowerCase().trim();
+        const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
+        const easyWords = [...mediumWords, 'impasse'];
+        let isEasyType = easyWords.some(w => nameLower.includes(w));
+        let isMediumType = mediumWords.some(w => nameLower.includes(w));
+        let isHardType = nameLower.includes('chemin') || nameLower.includes('allée') || nameLower.includes('ruelle');
+        
+        let nearCount = 0;
+        if (centroids[i] && window.turf) {
+          for (let j = 0; j < centroids.length; j++) {
+            if (i === j || !centroids[j]) continue;
+            try {
+              const dist = window.turf.distance(centroids[i], centroids[j], { units: 'meters' });
+              if (dist <= 200) nearCount++;
+            } catch(e) {}
+          }
+        }
+        
+        const inCenter = nearCount >= 4;
+        if (isHardType) diff = 'hard';
+        else if (inCenter && isEasyType) diff = 'easy';
+        else if (isMediumType) diff = 'medium';
+      } else {
+        diff = this.#getRouteDifficulty(r);
+      }
       grouped[diff].push(r);
     });
 

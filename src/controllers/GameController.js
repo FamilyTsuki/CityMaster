@@ -69,6 +69,7 @@ export class GameController {
 
       const i18n = I18nService.getInstance();
 
+      this.#gameView.updateComboBadge(1);
       this.#gameView.showLoading(i18n.t('loading.generating_city'));
 
       const token = localStorage.getItem('token');

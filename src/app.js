@@ -141,6 +141,17 @@ class App {
 
   static init() {
     document.addEventListener('DOMContentLoaded', async () => {
+      fetch('/api/version').then(res => res.json()).then(data => {
+        if (data.version && data.version !== 'unknown') {
+          const logoBrand = document.getElementById('logo-brand');
+          if (logoBrand) {
+            const vSpan = document.createElement('small');
+            vSpan.style.cssText = 'font-size: 0.4em; color: var(--text-muted); vertical-align: middle; margin-left: 5px;';
+            vSpan.textContent = `v${data.version}`;
+            logoBrand.appendChild(vSpan);
+          }
+        }
+      }).catch(() => {});
       try {
         if (document.fonts && document.fonts.ready) {
           await document.fonts.ready;
