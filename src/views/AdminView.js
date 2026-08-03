@@ -116,7 +116,6 @@ export class AdminView {
       }
     });
     
-    // Initialize default baselayer class
     this.#map.getContainer().classList.add('map-satellite-active');
 
     this.#districtsLayer = L.geoJSON(null, {
@@ -402,7 +401,6 @@ export class AdminView {
         if (routeFeature.geometry.type === 'LineString') {
           line = routeFeature.geometry.coordinates || [];
         } else if (routeFeature.geometry.type === 'MultiLineString') {
-          // Flatten array of lines into a single continuous line for the editor
           line = (routeFeature.geometry.coordinates || []).flat(1);
         }
         line.forEach(coord => {
@@ -427,7 +425,7 @@ export class AdminView {
       this.#activeLineLayer.setLatLngs(this.#activeRoutePoints);
     } else {
       this.#activeLineLayer = L.polyline(this.#activeRoutePoints, {
-        color: '#f43f5e', // Highlight color when editing
+        color: '#f43f5e',
         weight: 5,
         fill: false
       }).addTo(this.#map);

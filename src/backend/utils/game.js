@@ -27,8 +27,6 @@ export function getDistanceToStreet(latitude, longitude, geometry) {
   try {
     const point = turf.point([longitude, latitude]);
     const type = geometry.type;
-    
-    // Pour que booleanPointInPolygon fonctionne, turf a besoin d'une feature complète
     const targetFeature = turf.feature(geometry);
 
     if (type === 'Polygon' || type === 'MultiPolygon') {

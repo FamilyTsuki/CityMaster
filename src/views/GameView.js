@@ -888,7 +888,6 @@ export class GameView {
           if (firstMatch) {
             answer = firstMatch;
           } else {
-            // No valid match found, prevent submission
             return;
           }
         }

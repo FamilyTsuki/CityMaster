@@ -102,7 +102,6 @@ export class AuthController {
       let user = await User.findByGoogleId(googleId);
       
       if (!user) {
-        // Try to generate a unique username based on the first part of the email
         let baseUsername = email.split('@')[0].replace(/[^a-zA-Z0-9_-]/g, '');
         if (baseUsername.length < 3) baseUsername += 'user';
         

@@ -26,20 +26,20 @@ export const initDB = async () => {
     try {
       await pool.query('ALTER TABLE users ADD COLUMN profile_image_url VARCHAR(500);');
     } catch (e) {
-      if (e.code !== '42701') console.error('Erreur ajout profile_image_url:', e);
+      if (e.code !== '42701') console.error('Error adding profile_image_url:', e);
     }
     
     try {
       await pool.query('ALTER TABLE users ADD COLUMN google_id VARCHAR(255) UNIQUE;');
       await pool.query('ALTER TABLE users ALTER COLUMN password DROP NOT NULL;');
     } catch (e) {
-      if (e.code !== '42701') console.error('Erreur modif google_id/password:', e);
+      if (e.code !== '42701') console.error('Error modifying google_id/password:', e);
     }
 
     try {
       await pool.query('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;');
     } catch (e) {
-      if (e.code !== '42701') console.error('Erreur ajout is_admin:', e);
+      if (e.code !== '42701') console.error('Error adding is_admin:', e);
     }
 
     try {
@@ -55,7 +55,7 @@ export const initDB = async () => {
         ON CONFLICT (key) DO NOTHING;
       `);
     } catch (e) {
-      console.error('Erreur création global_settings:', e);
+      console.error('Error creating global_settings:', e);
     }
 
     await pool.query(`
@@ -72,13 +72,13 @@ export const initDB = async () => {
     try {
       await pool.query("ALTER TABLE scores ADD COLUMN difficulty VARCHAR(50) DEFAULT 'hard';");
     } catch (e) {
-      if (e.code !== '42701') console.error('Erreur ajout difficulty in scores:', e);
+      if (e.code !== '42701') console.error('Error adding difficulty column to scores:', e);
     }
 
     try {
       await pool.query("ALTER TABLE scores ADD COLUMN test_id INTEGER;");
     } catch (e) {
-      if (e.code !== '42701') console.error('Erreur ajout test_id in scores:', e);
+      if (e.code !== '42701') console.error('Error adding test_id column to scores:', e);
     }
     console.log('PostgreSQL database tables verified.');
   } catch (error) {

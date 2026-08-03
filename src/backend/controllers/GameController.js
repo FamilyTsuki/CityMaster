@@ -40,9 +40,7 @@ export class GameController {
         const customDistrictsObj = JSON.parse(content);
         const cityDistricts = customDistrictsObj[cityKey] || [];
         allCityStreets.push(...cityDistricts);
-      } catch (err) {
-        // Ignorer si le fichier n'existe pas
-      }
+      } catch (err) {}
 
       try {
         const routesFilePath = path.join(process.cwd(), 'public', 'assets', 'data', 'custom_routes.json');
@@ -50,9 +48,7 @@ export class GameController {
         const customRoutesObj = JSON.parse(routesContent);
         const cityRoutes = customRoutesObj[cityKey] || [];
         allCityStreets.push(...cityRoutes);
-      } catch (err) {
-        // Ignorer si le fichier n'existe pas
-      }
+      } catch (err) {}
 
       if (allCityStreets.length === 0) {
         return res.status(400).json({ error: 'No streets found for this city.' });
@@ -64,9 +60,7 @@ export class GameController {
         if (modeRes.rows.length > 0) {
           diffMode = modeRes.rows[0].value;
         }
-      } catch (e) {
-        // Fallback to length
-      }
+      } catch (e) {}
 
       let centroids = [];
       if (diffMode === 'center') {
@@ -76,7 +70,6 @@ export class GameController {
         });
       }
 
-      // Helper to determine street difficulty
       const getStreetDifficulty = (f, diffMode, index) => {
         if (f.properties.isCustom && f.properties.isLotissement) return 'lotissement';
         if (f.geometry.type === 'Point') return 'hard';
@@ -139,12 +132,10 @@ export class GameController {
       let selectedStreets = [];
 
       if (testNumber && typeof testNumber === 'number') {
-        // COMPETITION MODE
         const easyStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'easy');
         const mediumStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'medium');
         const hardStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'hard');
         
-        // Mulberry32 PRNG seeded with testNumber
         const mulberry32 = (a) => {
           return function() {
             var t = a += 0x6D2B79F5;
@@ -169,14 +160,12 @@ export class GameController {
         shuffleSeeded(mediumStreets);
         shuffleSeeded(hardStreets);
 
-        // We want 3 easy, 3 medium, 4 hard. If not enough, fallback to others.
         let pickedEasy = easyStreets.splice(0, 3);
         let pickedMedium = mediumStreets.splice(0, 3);
         let pickedHard = hardStreets.splice(0, 4);
 
         selectedStreets = [...pickedEasy, ...pickedMedium, ...pickedHard];
         
-        // Fill gaps if missing
         let needed = 10 - selectedStreets.length;
         const remaining = [...hardStreets, ...mediumStreets, ...easyStreets];
         shuffleSeeded(remaining);
@@ -184,14 +173,12 @@ export class GameController {
           selectedStreets.push(...remaining.splice(0, needed));
         }
         
-        // Shuffle the final 10
         shuffleSeeded(selectedStreets);
 
         if (selectedStreets.length < 10) {
           return res.status(400).json({ error: 'not_enough_streets_difficulty' });
         }
       } else {
-        // NORMAL MODE
         const filteredStreets = uniqueStreetsList.filter(s => {
           if (difficulty === 'lotissement') return s.properties.isCustom && s.properties.isLotissement;
           return s.computedDifficulty === difficulty;

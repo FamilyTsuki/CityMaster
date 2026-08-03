@@ -136,7 +136,7 @@ export class ProfileController {
         this.logout();
       }
     } catch (e) {
-      console.error('Erreur prefetch avatar', e);
+      console.error('Error prefetching avatar', e);
     }
   }
 

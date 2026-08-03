@@ -385,7 +385,7 @@ export class GameController {
       let maxDist = 120;
       if (this.#session.difficulty === 'lotissement') {
         streetsToSearch = this.#allCityStreets.filter(f => f.properties && f.properties.isLotissement);
-        maxDist = 0; // Ne sélectionne le quartier que si on clique exactement dedans
+        maxDist = 0;
       }
       const closest = this.#spatialService.findClosestStreet(lat, lng, streetsToSearch);
       if (closest && closest.point && closest.distance <= maxDist) {

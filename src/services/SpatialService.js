@@ -38,7 +38,6 @@ export class SpatialService {
     }
     const point = this.#turf.point([longitude, latitude]);
 
-    // Ensure we have a feature
     const feature = lineGeoJSON.type === 'Feature' ? lineGeoJSON : this.#turf.feature(lineGeoJSON);
     const type = feature.geometry ? feature.geometry.type : null;
 
@@ -63,15 +62,13 @@ export class SpatialService {
         const center = this.getCenter(feature);
         return [center[1], center[0]];
       } catch (err) {
-        // Fallback ultime si rien ne marche (ex: coordonnées invalides)
         if (feature.geometry && feature.geometry.coordinates && feature.geometry.coordinates.length > 0) {
-           // Retourner le premier point
            const firstCoords = feature.geometry.coordinates[0];
            if (Array.isArray(firstCoords) && typeof firstCoords[0] === 'number') {
              return [firstCoords[1], firstCoords[0]];
            }
         }
-        return [latitude, longitude]; // Fallback silently
+        return [latitude, longitude];
       }
     }
   }
