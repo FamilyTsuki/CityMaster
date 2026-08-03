@@ -9,8 +9,9 @@ export class GameSession {
   #gameToken;
   #currentPrompt;
   #isFinished;
+  #difficulty;
 
-  constructor(playerName, city, initialMode = 'target', gameToken = null, initialPrompt = null) {
+  constructor(playerName, city, initialMode = 'target', gameToken = null, initialPrompt = null, difficulty = 'hard') {
     this.#playerName = playerName;
     this.#city = city;
     this.#currentMode = initialMode;
@@ -21,6 +22,15 @@ export class GameSession {
     this.#gameToken = gameToken;
     this.#currentPrompt = initialPrompt;
     this.#isFinished = false;
+    this.#difficulty = difficulty;
+  }
+
+  get difficulty() {
+    return this.#difficulty;
+  }
+
+  set difficulty(diff) {
+    this.#difficulty = diff;
   }
 
   get playerName() {
@@ -113,7 +123,8 @@ export class GameSession {
       roundIndex: this.#roundIndex,
       gameToken: this.#gameToken,
       currentPrompt: this.#currentPrompt,
-      isFinished: this.#isFinished
+      isFinished: this.#isFinished,
+      difficulty: this.#difficulty
     });
   }
 
@@ -126,7 +137,8 @@ export class GameSession {
         data.city,
         data.currentMode,
         data.gameToken,
-        data.currentPrompt
+        data.currentPrompt,
+        data.difficulty
       );
       session.score = data.score;
       session.sprintHistory = data.sprintHistory || [];

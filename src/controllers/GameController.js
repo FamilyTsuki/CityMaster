@@ -63,6 +63,7 @@ export class GameController {
   async #startGame(playerName, cityData, selectedMode, difficulty = 'hard') {
     try {
       localStorage.setItem('citymaster_last_difficulty', difficulty);
+      localStorage.setItem('citymaster_last_mode', selectedMode);
       const cityKey = cityData.key;
       const bbox = cityData.bbox;
       const center = cityData.center;
@@ -157,7 +158,8 @@ export class GameController {
         cityData,
         selectedMode,
         startData.gameToken,
-        startData.nextPrompt
+        startData.nextPrompt,
+        difficulty
       );
       this.#saveState();
       

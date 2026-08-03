@@ -309,17 +309,29 @@ export class GameView {
     this.checkCityDifficulties(window.citymaster_selected_city_data?.key);
 
     if (modeInput && modeDropdown) {
-      const firstMode = modeDropdown.querySelector('li');
-      if (firstMode && (!modeInput.value || !modeInput.dataset.value)) {
-        modeInput.value = firstMode.textContent.trim();
-        modeInput.dataset.value = firstMode.getAttribute('data-value') || 'target';
+      const lastMode = localStorage.getItem('citymaster_last_mode');
+      let targetItem = null;
+      if (lastMode) {
+        targetItem = modeDropdown.querySelector(`li[data-value="${lastMode}"]`);
+      }
+      if (!targetItem) {
+        targetItem = modeDropdown.querySelector('li');
+      }
+      if (targetItem && (!modeInput.value || !modeInput.dataset.value)) {
+        modeInput.value = targetItem.textContent.trim();
+        modeInput.dataset.value = targetItem.getAttribute('data-value') || 'target';
       }
     }
 
     if (difficultyInput && difficultyDropdown) {
       const lastDiff = localStorage.getItem('citymaster_last_difficulty');
-      if (lastDiff && (!difficultyInput.value || !difficultyInput.dataset.value)) {
-        difficultyInput.dataset.value = lastDiff;
+      let targetItem = null;
+      if (lastDiff) {
+        targetItem = difficultyDropdown.querySelector(`li[data-value="${lastDiff}"]`);
+      }
+      if (targetItem && (!difficultyInput.value || !difficultyInput.dataset.value)) {
+        difficultyInput.value = targetItem.textContent.trim();
+        difficultyInput.dataset.value = targetItem.getAttribute('data-value');
       }
     }
   }
