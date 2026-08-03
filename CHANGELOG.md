@@ -2,13 +2,11 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
-## [1.1.0] - 2026-08-03
+## [1.2.0] - 2026-08-03
+
 ### Ajouté
+- Classements (Leaderboards) séparés par niveau de difficulté (Facile, Moyen, Difficile). Les onglets sont accessibles depuis l'accueil.
 - La difficulté est désormais conservée entre les parties.
+- La page d'accueil (Setup) pré-remplit correctement la difficulté et le mode de jeu choisis lors de la précédente partie.
 
-### Corrigé
-
-- Bug: Le bouton "Rejouer" (en fin de partie) ne conservait pas la difficulté choisie lors de la partie précédente. Il repassait par défaut en "Difficile".
-
-### Ajouté
 

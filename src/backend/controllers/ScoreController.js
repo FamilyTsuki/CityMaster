@@ -4,7 +4,8 @@ export class ScoreController {
   static async getLeaderboard(req, res) {
     try {
       const type = req.query.type === 'all_time' ? 'all_time' : 'monthly';
-      const scores = await Score.getTopScores(100, type);
+      const difficulty = req.query.difficulty || 'hard';
+      const scores = await Score.getTopScores(100, type, difficulty);
       res.json(scores);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -13,7 +14,7 @@ export class ScoreController {
 
   static async postScore(req, res) {
     try {
-      const { score } = req.body;
+      const { score, difficulty } = req.body;
       if (score === undefined) {
         return res.status(400).json({ error: 'Score is required' });
       }
@@ -24,7 +25,7 @@ export class ScoreController {
       }
 
       const username = req.user.username;
-      const newScore = await Score.create(username, parsedScore);
+      const newScore = await Score.create(username, parsedScore, difficulty || 'hard');
       res.status(201).json(newScore);
     } catch (error) {
       res.status(500).json({ error: error.message });

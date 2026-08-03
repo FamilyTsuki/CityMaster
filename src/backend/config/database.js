@@ -63,9 +63,16 @@ export const initDB = async () => {
         id SERIAL PRIMARY KEY,
         player VARCHAR(255) NOT NULL,
         score INTEGER NOT NULL,
+        difficulty VARCHAR(50) DEFAULT 'hard',
         date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    
+    try {
+      await pool.query("ALTER TABLE scores ADD COLUMN difficulty VARCHAR(50) DEFAULT 'hard';");
+    } catch (e) {
+      if (e.code !== '42701') console.error('Erreur ajout difficulty in scores:', e);
+    }
     console.log('PostgreSQL database tables verified.');
   } catch (error) {
     console.error('Failed to initialize PostgreSQL database:', error);

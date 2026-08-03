@@ -5,12 +5,12 @@ export class ScoreController {
     this.#gameView = gameView;
   }
 
-  async loadLeaderboard(type = 'monthly') {
+  async loadLeaderboard(type = 'monthly', difficulty = 'hard') {
     try {
-      const response = await fetch(`/api/scores?type=${type}`);
+      const response = await fetch(`/api/scores?type=${type}&difficulty=${difficulty}`);
       if (response.ok) {
         const scores = await response.json();
-        this.#gameView.renderLeaderboard(scores, type);
+        this.#gameView.renderLeaderboard(scores, type, difficulty);
       } else {
         console.error('Failed to load leaderboard', response.status);
       }

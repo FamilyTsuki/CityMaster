@@ -98,8 +98,8 @@ class App {
       this.#router.navigate('/');
     });
 
-    this.#gameView.onLeaderboardTabClick((type) => {
-      this.#scoreController.loadLeaderboard(type);
+    this.#gameView.onLeaderboardTabClick((type, difficulty) => {
+      this.#scoreController.loadLeaderboard(type, difficulty);
     });
 
     this.#router.init();
@@ -109,7 +109,8 @@ class App {
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));
       this.#gameView.showScreen('welcome');
-      this.#scoreController.loadLeaderboard();
+      const lastDiff = localStorage.getItem('citymaster_last_difficulty') || 'hard';
+      this.#scoreController.loadLeaderboard('monthly', lastDiff);
     } else {
       this.#router.navigate('/login');
     }

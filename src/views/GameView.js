@@ -410,19 +410,39 @@ export class GameView {
     const tabMonthly = document.getElementById('tab-monthly');
     const tabAllTime = document.getElementById('tab-alltime');
     
+    const getActiveType = () => {
+      if (tabAllTime && tabAllTime.classList.contains('active')) return 'all_time';
+      return 'monthly';
+    };
+    
+    const getActiveDiff = () => {
+      const activeDiff = document.querySelector('.welcome-leaderboard-diff-btn.active');
+      return activeDiff ? activeDiff.getAttribute('data-diff') : 'hard';
+    };
+
     if (tabMonthly) {
       tabMonthly.addEventListener('click', (e) => {
         e.preventDefault();
-        callback('monthly');
+        callback('monthly', getActiveDiff());
       });
     }
     
     if (tabAllTime) {
       tabAllTime.addEventListener('click', (e) => {
         e.preventDefault();
-        callback('all_time');
+        callback('all_time', getActiveDiff());
       });
     }
+    
+    const diffTabs = document.querySelectorAll('.welcome-leaderboard-diff-btn');
+    diffTabs.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        diffTabs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        callback(getActiveType(), btn.getAttribute('data-diff'));
+      });
+    });
   }
 
   onHeroPlay(callback) {
@@ -652,7 +672,7 @@ export class GameView {
     });
   }
 
-  renderLeaderboard(leaderboardData, type = 'monthly') {
+  renderLeaderboard(leaderboardData, type = 'monthly', difficulty = 'hard') {
     const tbody = document.getElementById('leaderboard-body');
     const tabMonthly = document.getElementById('tab-monthly');
     const tabAllTime = document.getElementById('tab-alltime');
@@ -666,6 +686,15 @@ export class GameView {
         tabMonthly.classList.remove('active');
       }
     }
+    
+    const diffTabs = document.querySelectorAll('.welcome-leaderboard-diff-btn');
+    diffTabs.forEach(btn => {
+      if (btn.getAttribute('data-diff') === difficulty) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
 
     if (!tbody) return;
 

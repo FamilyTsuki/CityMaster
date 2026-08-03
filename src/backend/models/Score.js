@@ -3,12 +3,12 @@ import pool from '../config/database.js';
 const memoryScores = [];
 
 export class Score {
-  static async create(player, score, date) {
+  static async create(player, score, difficulty = 'hard', date) {
     const insertDate = date || new Date().toISOString();
     try {
       const result = await pool.query(
-        'INSERT INTO scores (player, score, date) VALUES ($1, $2, $3) RETURNING *',
-        [player, score, insertDate]
+        'INSERT INTO scores (player, score, difficulty, date) VALUES ($1, $2, $3, $4) RETURNING *',
+        [player, score, difficulty, insertDate]
       );
       return result.rows[0];
     } catch (err) {
@@ -16,6 +16,7 @@ export class Score {
         id: memoryScores.length + 1,
         player,
         score: Number(score),
+        difficulty,
         date: insertDate,
         username: player,
         created_at: insertDate
@@ -25,14 +26,14 @@ export class Score {
     }
   }
 
-  static async getTopScores(limit = 100, type = 'monthly') {
+  static async getTopScores(limit = 100, type = 'monthly', difficulty = 'hard') {
     try {
-      let query = 'SELECT id, player as username, score, date as created_at FROM scores ORDER BY score DESC LIMIT $1';
+      let query = 'SELECT id, player as username, score, difficulty, date as created_at FROM scores WHERE difficulty = $2 ORDER BY score DESC LIMIT $1';
       if (type === 'monthly') {
-        query = 'SELECT id, player as username, score, date as created_at FROM scores WHERE date >= date_trunc(\'month\', CURRENT_DATE) ORDER BY score DESC LIMIT $1';
+        query = 'SELECT id, player as username, score, difficulty, date as created_at FROM scores WHERE date >= date_trunc(\'month\', CURRENT_DATE) AND difficulty = $2 ORDER BY score DESC LIMIT $1';
       }
       
-      const result = await pool.query(query, [limit]);
+      const result = await pool.query(query, [limit, difficulty]);
       return result.rows;
     } catch (err) {
       if (type === 'monthly') {
@@ -43,13 +44,14 @@ export class Score {
         return [...memoryScores]
           .filter(s => {
             const scoreDate = new Date(s.date);
-            return scoreDate.getMonth() === currentMonth && scoreDate.getFullYear() === currentYear;
+            return scoreDate.getMonth() === currentMonth && scoreDate.getFullYear() === currentYear && (s.difficulty === difficulty || (!s.difficulty && difficulty === 'hard'));
           })
           .sort((a, b) => b.score - a.score)
           .slice(0, limit);
       }
       
       return [...memoryScores]
+        .filter(s => s.difficulty === difficulty || (!s.difficulty && difficulty === 'hard'))
         .sort((a, b) => b.score - a.score)
         .slice(0, limit);
     }
