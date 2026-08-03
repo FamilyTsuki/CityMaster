@@ -60,7 +60,7 @@ export class GameController {
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
   }
 
-  async #startGame(playerName, cityData, selectedMode, difficulty = 'hard') {
+  async #startGame(playerName, cityData, selectedMode, difficulty = 'hard', testNumber = null) {
     try {
       localStorage.setItem('citymaster_last_difficulty', difficulty);
       localStorage.setItem('citymaster_last_mode', selectedMode);
@@ -110,7 +110,8 @@ export class GameController {
         body: JSON.stringify({
           cityKey,
           mode: selectedMode,
-          difficulty
+          difficulty,
+          testNumber
         })
       });
 

@@ -479,8 +479,14 @@ export class GameView {
           return;
         }
 
+        const testNumberInput = document.getElementById('test-number-search');
+        let testNumber = null;
+        if (testNumberInput && testNumberInput.value.trim() !== '') {
+          testNumber = parseInt(testNumberInput.value.trim(), 10);
+        }
+
         const playerName = localStorage.getItem('username') || 'Joueur';
-        callback(playerName, selectedCityData, mode, difficulty);
+        callback(playerName, selectedCityData, mode, difficulty, testNumber);
       });
     }
   }

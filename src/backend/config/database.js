@@ -64,6 +64,7 @@ export const initDB = async () => {
         player VARCHAR(255) NOT NULL,
         score INTEGER NOT NULL,
         difficulty VARCHAR(50) DEFAULT 'hard',
+        test_id INTEGER,
         date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -72,6 +73,12 @@ export const initDB = async () => {
       await pool.query("ALTER TABLE scores ADD COLUMN difficulty VARCHAR(50) DEFAULT 'hard';");
     } catch (e) {
       if (e.code !== '42701') console.error('Erreur ajout difficulty in scores:', e);
+    }
+
+    try {
+      await pool.query("ALTER TABLE scores ADD COLUMN test_id INTEGER;");
+    } catch (e) {
+      if (e.code !== '42701') console.error('Erreur ajout test_id in scores:', e);
     }
     console.log('PostgreSQL database tables verified.');
   } catch (error) {

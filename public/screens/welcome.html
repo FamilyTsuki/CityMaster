@@ -61,6 +61,21 @@
       </ul>
     </div>
 
+    <div class="form-group">
+      <label for="test-number-search">Compétition en Équipe (Numéro de Test) :</label>
+      <input 
+        type="number" 
+        id="test-number-search" 
+        class="input" 
+        placeholder="Laissez vide pour mode Entraînement"
+        min="1"
+        max="99999"
+      />
+      <small style="color: var(--text-muted); font-size: 0.8em; display: block; margin-top: 5px;">
+        Entrez un numéro pour affronter votre équipe sur le même parcours de 10 rues.
+      </small>
+    </div>
+
     <div id="game-error" class="error-msg hidden" role="alert" aria-live="polite"></div>
     
     <button id="start-btn" class="btn">
