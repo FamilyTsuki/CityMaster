@@ -12,6 +12,19 @@ export class ScoreController {
     }
   }
 
+  static async getTestLeaderboard(req, res) {
+    try {
+      const testNumber = parseInt(req.params.testNumber, 10);
+      if (isNaN(testNumber)) {
+        return res.status(400).json({ error: 'Invalid test number' });
+      }
+      const scores = await Score.getTopTestScores(testNumber, 100);
+      res.json(scores);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async postScore(req, res) {
     try {
       const { score, difficulty } = req.body;

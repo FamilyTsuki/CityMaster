@@ -32,6 +32,12 @@
   font-size: 1.1rem;
 }
 
+.welcome-leaderboard-diff-tabs {
+  margin-top: 10px;
+  margin-bottom: 15px;
+  font-size: 0.9em;
+}
+
 .leaderboard-container {
   max-height: 220px;
   overflow-y: auto;

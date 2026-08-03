@@ -145,11 +145,11 @@ class App {
       fetch('/api/version').then(res => res.json()).then(data => {
         if (data.version && data.version !== 'unknown') {
           const logoBrand = document.getElementById('logo-brand');
-          if (logoBrand) {
+          if (logoBrand && logoBrand.parentElement) {
             const vSpan = document.createElement('small');
-            vSpan.style.cssText = 'font-size: 0.4em; color: var(--text-muted); vertical-align: middle; margin-left: 5px;';
+            vSpan.className = 'version-tag';
             vSpan.textContent = `v${data.version}`;
-            logoBrand.appendChild(vSpan);
+            logoBrand.parentElement.appendChild(vSpan);
           }
         }
       }).catch(() => {});

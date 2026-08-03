@@ -105,6 +105,24 @@ select:focus {
   background: var(--text-muted);
 }
 
+.dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color var(--transition-fast);
+}
+
+.dropdown-item:hover {
+  background-color: var(--primary-light);
+}
+
+.form-help-text {
+  color: var(--text-muted);
+  font-size: 0.8em;
+  display: block;
+  margin-top: 5px;
+}
+
 /* Toggle Switch Styles */
 .switch {
   position: relative;

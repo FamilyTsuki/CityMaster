@@ -139,7 +139,8 @@ export class AdminView {
       style: () => ({
         color: '#3b82f6',
         weight: 4,
-        opacity: 0.8
+        opacity: 0.8,
+        fill: false
       }),
       onEachFeature: (feature, layer) => {
         if (feature.properties && feature.properties.name) {
@@ -427,7 +428,8 @@ export class AdminView {
     } else {
       this.#activeLineLayer = L.polyline(this.#activeRoutePoints, {
         color: '#f43f5e', // Highlight color when editing
-        weight: 5
+        weight: 5,
+        fill: false
       }).addTo(this.#map);
     }
   }

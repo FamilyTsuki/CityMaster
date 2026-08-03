@@ -124,6 +124,14 @@ export class CityController {
       const geojson = JSON.parse(fileContent);
 
       const allCityStreets = geojson.features.filter(f => f.properties && f.properties.name && !f.properties.isLotissement);
+      
+      try {
+        const routesFilePath = path.join(process.cwd(), 'public', 'assets', 'data', 'custom_routes.json');
+        const routesContent = fs.readFileSync(routesFilePath, 'utf8');
+        const customRoutesObj = JSON.parse(routesContent);
+        const cityRoutes = customRoutesObj[key] || [];
+        allCityStreets.push(...cityRoutes);
+      } catch (err) {}
 
       const diffCount = { easy: new Set(), medium: new Set(), hard: new Set() };
 
@@ -148,8 +156,8 @@ export class CityController {
 
         if (diffMode === 'nomenclature') {
           const firstWord = nameKey.split(/[\s'-]+/)[0];
-          const MAJOR_TYPES = ['boulevard', 'avenue', 'place', 'cours', 'quai', 'pont'];
-          const MINOR_TYPES = ['impasse', 'allée', 'chemin', 'passage', 'ruelle', 'square', 'cour', 'villa', 'cité', 'sentier', 'traverse'];
+          const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
+          const MINOR_TYPES = ['impasse', 'impasses', 'allée', 'allées', 'chemin', 'chemins', 'chemain', 'passage', 'passages', 'ruelle', 'ruelles', 'square', 'squares', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'sentier', 'sentiers', 'traverse', 'traverses'];
           
           if (MAJOR_TYPES.includes(firstWord)) {
             diffCount.easy.add(nameKey);
@@ -163,7 +171,7 @@ export class CityController {
           const easyWords = [...mediumWords, 'impasse'];
           let isEasyType = easyWords.some(w => nameKey.includes(w));
           let isMediumType = mediumWords.some(w => nameKey.includes(w));
-          let isHardType = nameKey.includes('chemin') || nameKey.includes('allée') || nameKey.includes('ruelle');
+          let isHardType = nameKey.includes('chemin') || nameKey.includes('allée') || nameKey.includes('ruelle') || nameKey.includes('chemain');
           
           let nearCount = 0;
           if (centroids[i]) {

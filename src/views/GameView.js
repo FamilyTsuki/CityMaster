@@ -21,7 +21,6 @@ export class GameView {
   #bottomActions;
   #comboBadge;
   #comboText;
-  #autocompleteList;
 
   constructor() {
     this.#screens = {
@@ -118,8 +117,6 @@ export class GameView {
           const li = document.createElement('li');
           li.setAttribute('role', 'option');
           li.className = 'dropdown-item';
-          li.style.padding = '8px 12px';
-          li.style.cursor = 'pointer';
           li.innerHTML = `<strong>${city.name}</strong>`;
           li.addEventListener('click', () => {
             cityInput.value = city.name;

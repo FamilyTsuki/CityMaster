@@ -14,7 +14,7 @@ import * as turf from '@turf/turf';
 export class GameController {
   static async startGame(req, res) {
     try {
-      const { cityKey, mode, difficulty } = req.body;
+      const { cityKey, mode, difficulty, testNumber } = req.body;
       if (!cityKey || !mode || !difficulty) {
         return res.status(400).json({ error: 'cityKey, mode, and difficulty are required' });
       }
@@ -44,6 +44,16 @@ export class GameController {
         // Ignorer si le fichier n'existe pas
       }
 
+      try {
+        const routesFilePath = path.join(process.cwd(), 'public', 'assets', 'data', 'custom_routes.json');
+        const routesContent = await fs.readFile(routesFilePath, 'utf8');
+        const customRoutesObj = JSON.parse(routesContent);
+        const cityRoutes = customRoutesObj[cityKey] || [];
+        allCityStreets.push(...cityRoutes);
+      } catch (err) {
+        // Ignorer si le fichier n'existe pas
+      }
+
       if (allCityStreets.length === 0) {
         return res.status(400).json({ error: 'No streets found for this city.' });
       }
@@ -58,82 +68,157 @@ export class GameController {
         // Fallback to length
       }
 
-      const filteredStreets = allCityStreets.filter(f => {
-        if (difficulty === 'lotissement') {
-          return f.properties.isCustom && f.properties.isLotissement;
-        }
+      let centroids = [];
+      if (diffMode === 'center') {
+        centroids = allCityStreets.map(f => {
+          if (f.geometry.type === 'Point') return f;
+          try { return turf.centroid(f); } catch(e) { return null; }
+        });
+      }
 
-        if (f.geometry.type === 'Point') {
-          return difficulty === 'hard';
-        }
+      // Helper to determine street difficulty
+      const getStreetDifficulty = (f, diffMode, index) => {
+        if (f.properties.isCustom && f.properties.isLotissement) return 'lotissement';
+        if (f.geometry.type === 'Point') return 'hard';
 
         if (diffMode === 'nomenclature') {
           const name = f.properties.name || '';
           const nameLower = name.toLowerCase().trim();
           const firstWord = nameLower.split(/[\s'-]+/)[0];
-          const MAJOR_TYPES = ['boulevard', 'avenue', 'place', 'cours', 'quai', 'pont'];
-          const MINOR_TYPES = ['impasse', 'allée', 'chemin', 'passage', 'ruelle', 'square', 'cour', 'villa', 'cité', 'sentier', 'traverse'];
+          const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
+          const MINOR_TYPES = ['impasse', 'impasses', 'allée', 'allées', 'chemin', 'chemins', 'chemain', 'passage', 'passages', 'ruelle', 'ruelles', 'square', 'squares', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'sentier', 'sentiers', 'traverse', 'traverses'];
           
-          if (difficulty === 'easy') {
-            return MAJOR_TYPES.includes(firstWord);
-          } else if (difficulty === 'medium') {
-            const isMinor = MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin');
-            return !isMinor;
-          } else {
-            return true;
+          if (MAJOR_TYPES.includes(firstWord)) return 'easy';
+          const isMinor = MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin');
+          if (!isMinor) return 'medium';
+          return 'hard';
+        } else if (diffMode === 'center') {
+          const name = f.properties.name || '';
+          const nameLower = name.toLowerCase().trim();
+          const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
+          const easyWords = [...mediumWords, 'impasse'];
+          let isEasyType = easyWords.some(w => nameLower.includes(w));
+          let isMediumType = mediumWords.some(w => nameLower.includes(w));
+          let isHardType = nameLower.includes('chemin') || nameLower.includes('allée') || nameLower.includes('ruelle') || nameLower.includes('chemain');
+          
+          let nearCount = 0;
+          if (centroids[index]) {
+            for (let j = 0; j < centroids.length; j++) {
+              if (index === j || !centroids[j]) continue;
+              try {
+                const dist = turf.distance(centroids[index], centroids[j], { units: 'meters' });
+                if (dist <= 200) nearCount++;
+              } catch(e) {}
+            }
           }
+          
+          const inCenter = nearCount >= 4;
+          if (isHardType) return 'hard';
+          if (inCenter && isEasyType) return 'easy';
+          if (isMediumType) return 'medium';
+          return 'hard';
         } else {
-          // Default: length
           let streetLength = 0;
-          try {
-            streetLength = turf.length(f, { units: 'meters' });
-          } catch (e) {
-            return difficulty === 'hard';
-          }
-
-          if (difficulty === 'easy') {
-            return streetLength > 800;
-          }
-          if (difficulty === 'medium') {
-            return streetLength >= 250 && streetLength <= 800;
-          }
-          if (difficulty === 'hard') {
-            return streetLength < 250;
-          }
-          return true;
+          try { streetLength = turf.length(f, { units: 'meters' }); } catch (e) { return 'hard'; }
+          if (streetLength > 800) return 'easy';
+          if (streetLength >= 250 && streetLength <= 800) return 'medium';
+          return 'hard';
         }
-      });
+      };
 
       const uniqueStreetsMap = new Map();
-      
-      filteredStreets.forEach(street => {
+      allCityStreets.forEach((street, index) => {
         const nameKey = street.properties.name.toLowerCase().trim();
         if (!uniqueStreetsMap.has(nameKey)) {
+          street.computedDifficulty = getStreetDifficulty(street, diffMode, index);
           uniqueStreetsMap.set(nameKey, street);
         }
       });
       const uniqueStreetsList = Array.from(uniqueStreetsMap.values());
 
-      if (uniqueStreetsList.length < 5) {
-        return res.status(400).json({ error: 'not_enough_streets_difficulty' });
-      }
+      let selectedStreets = [];
 
-      for (let i = uniqueStreetsList.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [uniqueStreetsList[i], uniqueStreetsList[j]] = [uniqueStreetsList[j], uniqueStreetsList[i]];
-      }
+      if (testNumber && typeof testNumber === 'number') {
+        // COMPETITION MODE
+        const easyStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'easy');
+        const mediumStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'medium');
+        const hardStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'hard');
+        
+        // Mulberry32 PRNG seeded with testNumber
+        const mulberry32 = (a) => {
+          return function() {
+            var t = a += 0x6D2B79F5;
+            t = Math.imul(t ^ t >>> 15, t | 1);
+            t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+            return ((t ^ t >>> 14) >>> 0) / 4294967296;
+          }
+        };
+        const random = mulberry32(testNumber);
 
-      const selectedStreets = uniqueStreetsList.slice(0, 5);
+        const shuffleSeeded = (array) => {
+          let currentIndex = array.length, randomIndex;
+          while (currentIndex > 0) {
+            randomIndex = Math.floor(random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+          }
+          return array;
+        };
+
+        shuffleSeeded(easyStreets);
+        shuffleSeeded(mediumStreets);
+        shuffleSeeded(hardStreets);
+
+        // We want 3 easy, 3 medium, 4 hard. If not enough, fallback to others.
+        let pickedEasy = easyStreets.splice(0, 3);
+        let pickedMedium = mediumStreets.splice(0, 3);
+        let pickedHard = hardStreets.splice(0, 4);
+
+        selectedStreets = [...pickedEasy, ...pickedMedium, ...pickedHard];
+        
+        // Fill gaps if missing
+        let needed = 10 - selectedStreets.length;
+        const remaining = [...hardStreets, ...mediumStreets, ...easyStreets];
+        shuffleSeeded(remaining);
+        if (needed > 0) {
+          selectedStreets.push(...remaining.splice(0, needed));
+        }
+        
+        // Shuffle the final 10
+        shuffleSeeded(selectedStreets);
+
+        if (selectedStreets.length < 10) {
+          return res.status(400).json({ error: 'not_enough_streets_difficulty' });
+        }
+      } else {
+        // NORMAL MODE
+        const filteredStreets = uniqueStreetsList.filter(s => {
+          if (difficulty === 'lotissement') return s.properties.isCustom && s.properties.isLotissement;
+          return s.computedDifficulty === difficulty;
+        });
+
+        if (filteredStreets.length < 5) {
+          return res.status(400).json({ error: 'not_enough_streets_difficulty' });
+        }
+
+        for (let i = filteredStreets.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [filteredStreets[i], filteredStreets[j]] = [filteredStreets[j], filteredStreets[i]];
+        }
+        selectedStreets = filteredStreets.slice(0, 5);
+      }
 
       const session = {
         gameId: crypto.randomUUID(),
         username: req.user.username,
         mode,
-        difficulty,
+        difficulty: testNumber ? 'competition' : difficulty,
+        testNumber: testNumber || null,
         streets: selectedStreets.map((s, idx) => ({
           id: idx,
           name: s.properties.name,
-          geometry: s.geometry
+          geometry: s.geometry,
+          difficulty: s.computedDifficulty
         })),
         currentRound: 0,
         streakCount: 0,
@@ -192,7 +277,7 @@ export class GameController {
         return res.status(403).json({ error: 'Game session does not belong to you' });
       }
 
-      if (session.currentRound >= 5) {
+      if (session.currentRound >= session.streets.length) {
         return res.status(400).json({ error: 'Game is already finished' });
       }
 
@@ -202,7 +287,8 @@ export class GameController {
 
       const currentStreet = session.streets[session.currentRound];
       const mode = session.mode;
-      const totalTime = session.difficulty === 'easy' ? 45 : (session.difficulty === 'medium' || session.difficulty === 'lotissement' ? 60 : 90);
+      const effectiveDifficulty = session.difficulty === 'competition' ? currentStreet.difficulty : session.difficulty;
+      const totalTime = effectiveDifficulty === 'easy' ? 45 : (effectiveDifficulty === 'medium' || effectiveDifficulty === 'lotissement' ? 60 : 90);
       const remainingTime = Math.max(0, totalTime - (elapsedSeconds || 0));
 
       let pointsEarned = 0;
@@ -323,7 +409,7 @@ export class GameController {
       session.scores.push(pointsEarned);
       session.currentRound++;
 
-      const isFinished = session.currentRound >= 5;
+      const isFinished = session.currentRound >= session.streets.length;
       let nextPrompt = null;
       let finalScore = 0;
       let newGameToken = null;

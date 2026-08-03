@@ -160,7 +160,8 @@ export class GameController {
         selectedMode,
         startData.gameToken,
         startData.nextPrompt,
-        difficulty
+        difficulty,
+        testNumber
       );
       this.#saveState();
       
@@ -599,10 +600,11 @@ export class GameController {
       playerName: name,
       cityData: this.#session.city,
       selectedMode: mode,
-      difficulty: this.#session.difficulty
+      difficulty: this.#session.difficulty,
+      testNumber: this.#session.testNumber
     };
 
-    this.#certificateView.render(name, score, mode, sprintHistory);
+    this.#certificateView.render(name, score, mode, sprintHistory, this.#session.testNumber);
     this.#gameView.showScreen('certificate');
     this.#router.navigate('/certificate');
     this.#clearState();
@@ -628,7 +630,8 @@ export class GameController {
         this.#lastGameSettings.playerName,
         this.#lastGameSettings.cityData,
         this.#lastGameSettings.selectedMode,
-        this.#lastGameSettings.difficulty
+        this.#lastGameSettings.difficulty,
+        this.#lastGameSettings.testNumber
       );
     } else {
       this.#router.navigate('/');

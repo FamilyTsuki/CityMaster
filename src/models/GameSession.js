@@ -10,8 +10,9 @@ export class GameSession {
   #currentPrompt;
   #isFinished;
   #difficulty;
+  #testNumber;
 
-  constructor(playerName, city, initialMode = 'target', gameToken = null, initialPrompt = null, difficulty = 'hard') {
+  constructor(playerName, city, initialMode = 'target', gameToken = null, initialPrompt = null, difficulty = 'hard', testNumber = null) {
     this.#playerName = playerName;
     this.#city = city;
     this.#currentMode = initialMode;
@@ -23,6 +24,11 @@ export class GameSession {
     this.#currentPrompt = initialPrompt;
     this.#isFinished = false;
     this.#difficulty = difficulty;
+    this.#testNumber = testNumber;
+  }
+
+  get testNumber() {
+    return this.#testNumber;
   }
 
   get difficulty() {

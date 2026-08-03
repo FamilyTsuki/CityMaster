@@ -38,7 +38,7 @@
             <span class="admin-setting-title">Méthode de difficulté</span>
             <span class="admin-setting-desc">Critère pour classer les rues (Facile/Moyen/Difficile).</span>
           </div>
-          <select id="admin-difficulty-mode-select" class="input admin-input-small" style="width: auto;">
+          <select id="admin-difficulty-mode-select" class="input admin-input-small admin-difficulty-select">
             <option value="length">Par longueur</option>
             <option value="nomenclature">Par nomenclature</option>
             <option value="center">Par centre-ville (densité)</option>
@@ -60,7 +60,7 @@
         </div>
 
       <div class="form-group custom-select-container">
-        <label for="admin-city-search" class="admin-form-label" style="font-weight: 600;" data-i18n="admin.select_city">Commune à modifier :</label>
+        <label for="admin-city-search" class="admin-form-label" data-i18n="admin.select_city">Commune à modifier :</label>
         <input type="text" id="admin-city-search" placeholder="Rechercher une commune..." class="input admin-input-full" />
         <ul id="admin-city-dropdown" class="dropdown-list hidden" role="listbox"></ul>
       </div>
@@ -76,11 +76,11 @@
         <div class="form-group">
           <label class="admin-form-label">Couleur de la zone :</label>
           <div class="admin-color-picker-row">
-            <button type="button" class="color-picker-btn active" data-color="#f59e0b" style="background: #f59e0b;"></button>
-            <button type="button" class="color-picker-btn" data-color="#10b981" style="background: #10b981;"></button>
-            <button type="button" class="color-picker-btn" data-color="#6366f1" style="background: #6366f1;"></button>
-            <button type="button" class="color-picker-btn" data-color="#f43f5e" style="background: #f43f5e;"></button>
-            <button type="button" class="color-picker-btn" data-color="#06b6d4" style="background: #06b6d4;"></button>
+            <button type="button" class="color-picker-btn active" data-color="#f59e0b"></button>
+            <button type="button" class="color-picker-btn" data-color="#10b981"></button>
+            <button type="button" class="color-picker-btn" data-color="#6366f1"></button>
+            <button type="button" class="color-picker-btn" data-color="#f43f5e"></button>
+            <button type="button" class="color-picker-btn" data-color="#06b6d4"></button>
           </div>
         </div>
 
@@ -130,7 +130,7 @@
         </div>
 
         <div class="form-group custom-select-container">
-          <label for="admin-city-search-routes" class="admin-form-label" style="font-weight: 600;" data-i18n="admin.select_city">Commune à modifier :</label>
+          <label for="admin-city-search-routes" class="admin-form-label" data-i18n="admin.select_city">Commune à modifier :</label>
           <input type="text" id="admin-city-search-routes" placeholder="Rechercher une commune..." class="input admin-input-full" />
           <ul id="admin-city-dropdown-routes" class="dropdown-list hidden" role="listbox"></ul>
         </div>
@@ -165,7 +165,7 @@
               <span>Ajouter</span>
             </button>
           </div>
-          <div class="form-group" style="margin-bottom: 10px;">
+          <div class="form-group admin-form-group-compact">
             <input type="text" id="admin-route-filter" placeholder="Rechercher une route..." class="input admin-input-small" />
           </div>
           <div id="admin-route-list-container" class="admin-list-container">

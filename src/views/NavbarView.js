@@ -87,17 +87,13 @@ export class NavbarView {
     if (this.#navAuthLoggedOut) this.#navAuthLoggedOut.classList.add('hidden');
     if (this.#navAuthLoggedIn) {
       this.#navAuthLoggedIn.classList.remove('hidden');
-      // Forcer le layout flex pour que le lien admin s'affiche correctement
-      this.#navAuthLoggedIn.style.display = 'flex';
-      this.#navAuthLoggedIn.style.alignItems = 'center';
-      this.#navAuthLoggedIn.style.gap = '15px';
     }
     
     if (this.#navAdminLink) {
       if (isAdmin) {
-        this.#navAdminLink.style.display = 'flex';
+        this.#navAdminLink.classList.remove('hidden');
       } else {
-        this.#navAdminLink.style.display = 'none';
+        this.#navAdminLink.classList.add('hidden');
       }
     }
 

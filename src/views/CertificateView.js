@@ -13,7 +13,7 @@ export class CertificateView {
     this.#recapBody = document.getElementById('sprint-recap-body');
   }
 
-  render(playerName, score, mode = 'target', sprintHistory = []) {
+  render(playerName, score, mode = 'target', sprintHistory = [], testNumber = null) {
     if (this.#certPlayerName) {
       this.#certPlayerName.textContent = playerName;
     }
@@ -39,6 +39,45 @@ export class CertificateView {
         this.#recapContainer.classList.remove('hidden');
       } else {
         this.#recapContainer.classList.add('hidden');
+      }
+    }
+
+    const testContainer = document.getElementById('test-leaderboard-container');
+    const testTitle = document.getElementById('test-leaderboard-title');
+    const testBody = document.getElementById('test-leaderboard-body');
+    
+    if (testContainer && testBody && testTitle) {
+      if (testNumber) {
+        testTitle.textContent = `Classement du Test n°${testNumber}`;
+        testContainer.classList.remove('hidden');
+        testBody.innerHTML = `<tr><td colspan="3" class="text-center">Chargement...</td></tr>`;
+        
+        fetch(`/api/scores/test/${testNumber}`)
+          .then(res => res.json())
+          .then(data => {
+            testBody.innerHTML = '';
+            if (data.length === 0) {
+              testBody.innerHTML = `<tr><td colspan="3" class="text-center">Aucun score pour ce test.</td></tr>`;
+              return;
+            }
+            data.forEach((entry, index) => {
+              const tr = document.createElement('tr');
+              if (entry.username === playerName && entry.score === score) {
+                tr.classList.add('current-user-row');
+              }
+              tr.innerHTML = `
+                <td>#${index + 1}</td>
+                <td>${entry.username}</td>
+                <td>${entry.score} pts</td>
+              `;
+              testBody.appendChild(tr);
+            });
+          })
+          .catch(err => {
+            testBody.innerHTML = `<tr><td colspan="3" class="text-center">Erreur de chargement.</td></tr>`;
+          });
+      } else {
+        testContainer.classList.add('hidden');
       }
     }
   }

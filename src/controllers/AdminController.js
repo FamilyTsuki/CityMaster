@@ -78,7 +78,6 @@ export class AdminController {
         cities.forEach((city) => {
           const li = document.createElement('li');
           li.className = 'dropdown-item';
-          li.style.cssText = 'padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border-color);';
           li.innerHTML = `<strong>${city.name}</strong>`;
           li.addEventListener('click', () => {
             if (cityInput) cityInput.value = city.name;
@@ -273,7 +272,7 @@ export class AdminController {
       await fetch('/api/admin/settings', {
         method: 'POST',
         headers,
-        body: JSON.stringify({ [key]: value })
+        body: JSON.stringify({ key, value })
       });
     } catch (e) {
       console.error('Failed to save settings', e);
@@ -391,8 +390,8 @@ export class AdminController {
       const name = route.properties.name || '';
       const nameLower = name.toLowerCase().trim();
       const firstWord = nameLower.split(/[\s'-]+/)[0];
-      const MAJOR_TYPES = ['boulevard', 'avenue', 'place', 'cours', 'quai', 'pont'];
-      const MINOR_TYPES = ['impasse', 'allée', 'chemin', 'passage', 'ruelle', 'square', 'cour', 'villa', 'cité', 'sentier', 'traverse'];
+      const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
+      const MINOR_TYPES = ['impasse', 'impasses', 'allée', 'allées', 'chemin', 'chemins', 'chemain', 'passage', 'passages', 'ruelle', 'ruelles', 'square', 'squares', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'sentier', 'sentiers', 'traverse', 'traverses'];
       
       if (MAJOR_TYPES.includes(firstWord)) return 'easy';
       if (MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin')) return 'hard';
@@ -450,7 +449,7 @@ export class AdminController {
         const easyWords = [...mediumWords, 'impasse'];
         let isEasyType = easyWords.some(w => nameLower.includes(w));
         let isMediumType = mediumWords.some(w => nameLower.includes(w));
-        let isHardType = nameLower.includes('chemin') || nameLower.includes('allée') || nameLower.includes('ruelle');
+        let isHardType = nameLower.includes('chemin') || nameLower.includes('allée') || nameLower.includes('ruelle') || nameLower.includes('chemain');
         
         let nearCount = 0;
         if (centroids[i] && window.turf) {

@@ -51,6 +51,16 @@
   margin: 0;
 }
 
+.legal-section a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.legal-section a:hover {
+  text-decoration: underline;
+}
+
 .legal-actions {
   display: flex;
   justify-content: center;
