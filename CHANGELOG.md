@@ -2,9 +2,9 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
-## [1.2.1] - 2026-08-03
+## [1.2.2] - 2026-08-03
 
-### Corrigé
-- Bug: Le menu déroulant (Select) affichait plusieurs flèches superposées sur la page d'administration à cause d'un conflit CSS. Le problème graphique est désormais résolu.
+### Modifié
+- Le champ de saisie du "Mode Identification" a été repensé. Il fonctionne désormais exactement comme une liste déroulante stricte (autocomplétion) interdisant les fautes de frappe.
 
 

@@ -13,6 +13,8 @@ export class GameView {
   #gameError;
   #restartBtn;
   #homeBtn;
+  #autocompleteList;
+  #currentStreetsList;
   #validateBtn;
   #nextBtn;
   #topBanner;
@@ -772,6 +774,7 @@ export class GameView {
 
   setupAutocomplete(streetsList) {
     if (!this.#streetInput || !this.#autocompleteList || !Array.isArray(streetsList)) return;
+    this.#currentStreetsList = streetsList;
 
     let selectedIndex = -1;
     let debounceTimer = null;
@@ -866,20 +869,41 @@ export class GameView {
   }
 
   onSubmitAnswer(callback) {
-    this.#submitBtn.addEventListener('click', () => {
-      const answer = this.#streetInput.value.trim();
-      if (answer) {
-        callback(answer);
-        this.#streetInput.value = '';
+    const submit = () => {
+      let answer = this.#streetInput.value.trim();
+      if (!answer) return;
+
+      if (this.#currentStreetsList && this.#currentStreetsList.length > 0) {
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        const query = normalize(answer);
+        
+        const exactMatch = this.#currentStreetsList.find(s => normalize(s) === query);
+        if (exactMatch) {
+          answer = exactMatch;
+        } else {
+          const firstMatch = this.#currentStreetsList.find(s => normalize(s).includes(query));
+          if (firstMatch) {
+            answer = firstMatch;
+          } else {
+            // No valid match found, prevent submission
+            return;
+          }
+        }
       }
-    });
+
+      callback(answer);
+      this.#streetInput.value = '';
+      if (this.#autocompleteList) {
+        this.#autocompleteList.classList.add('hidden');
+        this.#streetInput.setAttribute('aria-expanded', 'false');
+      }
+    };
+
+    this.#submitBtn.addEventListener('click', submit);
     this.#streetInput.addEventListener('keypress', (event) => {
       if (event.key === 'Enter') {
-        const answer = this.#streetInput.value.trim();
-        if (answer) {
-          callback(answer);
-          this.#streetInput.value = '';
-        }
+        event.preventDefault();
+        submit();
       }
     });
   }
