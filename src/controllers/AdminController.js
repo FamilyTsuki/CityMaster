@@ -415,6 +415,16 @@ export class AdminController {
   #renderRouteList() {
     const listEl = document.getElementById('admin-route-list');
     const countEl = document.getElementById('admin-route-count');
+    const modeTextEl = document.getElementById('admin-route-mode-text');
+
+    if (modeTextEl) {
+      const modeLabels = {
+        length: 'Par longueur (Longueur >800m / 250m-800m / <250m)',
+        nomenclature: 'Par nomenclature (Grands axes vs Voies secondaires)',
+        center: 'Par centre-ville (Densité de croisements)'
+      };
+      modeTextEl.textContent = modeLabels[this.#difficultyMode] || this.#difficultyMode;
+    }
 
     let displayRoutes = this.#currentRoutes;
     if (this.#routeFilterQuery) {

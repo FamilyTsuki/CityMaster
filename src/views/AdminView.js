@@ -271,6 +271,12 @@ export class AdminView {
           this.#addVertex([coord[1], coord[0]]);
         });
       }
+      if (this.#activePoints.length > 0 && this.#map) {
+        const bounds = L.latLngBounds(this.#activePoints);
+        if (bounds.isValid()) {
+          this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
+        }
+      }
     } else {
       this.#editingDistrictId = null;
       if (titleEl) titleEl.textContent = 'Nouveau Quartier';
@@ -392,7 +398,7 @@ export class AdminView {
     if (editor) editor.classList.remove('hidden');
 
     if (routeFeature) {
-      this.#editingRouteId = routeFeature.properties.id;
+      this.#editingRouteId = routeFeature.properties.id || routeFeature.properties.name;
       if (titleEl) titleEl.textContent = 'Éditer la Route';
       if (nameInput) nameInput.value = routeFeature.properties.name || '';
 
@@ -401,11 +407,23 @@ export class AdminView {
         if (routeFeature.geometry.type === 'LineString') {
           line = routeFeature.geometry.coordinates || [];
         } else if (routeFeature.geometry.type === 'MultiLineString') {
-          line = (routeFeature.geometry.coordinates || []).flat(1);
+          const coordsArr = routeFeature.geometry.coordinates || [];
+          line = coordsArr.length > 0 ? coordsArr[0] : [];
+        } else if (routeFeature.geometry.type === 'Point') {
+          line = [routeFeature.geometry.coordinates];
         }
         line.forEach(coord => {
-          this.#addRouteVertex([coord[1], coord[0]]);
+          if (Array.isArray(coord) && coord.length >= 2) {
+            this.#addRouteVertex([coord[1], coord[0]]);
+          }
         });
+      }
+
+      if (this.#activeRoutePoints.length > 0 && this.#map) {
+        const bounds = L.latLngBounds(this.#activeRoutePoints);
+        if (bounds.isValid()) {
+          this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
+        }
       }
     } else {
       this.#editingRouteId = null;

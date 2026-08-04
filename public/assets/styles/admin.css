@@ -225,6 +225,28 @@
   margin-bottom: 10px;
 }
 
+.admin-mode-info-badge {
+  background: var(--primary-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-main);
+}
+
+.admin-mode-label {
+  color: var(--text-muted);
+}
+
+.admin-mode-value {
+  font-weight: 700;
+  color: var(--primary);
+}
+
 .admin-color-picker-row {
   display: flex;
   gap: 8px;

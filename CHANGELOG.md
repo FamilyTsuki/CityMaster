@@ -2,6 +2,17 @@
 
 Toutes les modifications notables de ce projet seront documentées dans ce fichier.
 
+## [1.3.1] - 2026-08-04
+
+### Ajouté
+- **Visualisation de la difficulté en admin** : Affichage d'un badge indiquant la méthode de tri active (par longueur, par nomenclature ou par centre-ville) dans la liste des routes administratives.
+- **Centrage automatique de la carte** : Zoom et centrage automatique (`fitBounds`) sur le tracé du quartier ou de la route sélectionné lors de l'ouverture de l'éditeur d'administration.
+
+### Corrigé
+- **Importation et tracé des routes** : Correction du bug d'aplatissement des points de coordonnées pour les tracés de type `MultiLineString` dans l'éditeur d'administration (seule la première ligne est désormais lue au lieu d'un `flat` complet destructeur).
+- **Gestion des types de géométrie** : Support plus robuste des géométries de type `LineString`, `MultiLineString` et `Point` dans la vue administrative des routes, prévenant d'éventuelles erreurs JS.
+- **Nettoyage du projet** : Suppression du fichier mémo obsolète `a_fair.md` et mise à jour de la configuration de `.gitignore`.
+
 ## [1.3.0] - 2026-08-03
 
 ### Ajouté
