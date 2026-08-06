@@ -14,8 +14,15 @@
   margin: auto;
 }
 
-.profile-header {
+.profile-card-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
   margin-bottom: 24px;
+}
+
+.profile-card-header .profile-avatar-container {
+  margin: 0;
 }
 
 .profile-avatar-container {

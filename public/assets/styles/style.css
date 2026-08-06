@@ -4,17 +4,18 @@
 @import 'components.css';
 @import 'landing.css';
 @import 'auth.css';
-@import 'welcome.css';
+@import 'setup.css';
 @import 'game.css';
 @import 'certificate.css';
 @import 'profile.css';
 @import 'legal.css';
 @import 'admin.css';
+@import 'room.css';
 
 /* Main App Container */
 #app {
   width: 100vw;
-  height: 100vh;
+  flex: 1;
   position: relative;
   overflow: hidden;
   background-color: var(--bg-main);

@@ -52,12 +52,31 @@ export class Router {
 
   #handleRoute(path) {
     let matchedRoute = this.#routes[path];
-
-    if (!matchedRoute) {
-      matchedRoute = this.#routes['/'];
-      if (!matchedRoute) return;
+    if (matchedRoute) {
+      matchedRoute({});
+      return;
     }
 
-    matchedRoute();
+    for (const routePattern of Object.keys(this.#routes)) {
+      if (routePattern.includes('/:')) {
+        const regexPattern = '^' + routePattern.replace(/\/:[^/]+/g, '/([^/]+)') + '/?$';
+        const match = path.match(new RegExp(regexPattern));
+        if (match) {
+          const paramNames = [...routePattern.matchAll(/:([^/]+)/g)].map(m => m[1]);
+          const params = {};
+          paramNames.forEach((name, idx) => {
+            params[name] = match[idx + 1];
+          });
+          
+          this.#routes[routePattern](params);
+          return;
+        }
+      }
+    }
+
+    matchedRoute = this.#routes['/'];
+    if (matchedRoute) {
+      matchedRoute({});
+    }
   }
 }

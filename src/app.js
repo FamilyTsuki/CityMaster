@@ -13,6 +13,8 @@ import { ConfettiService } from './services/ConfettiService.js';
 import { I18nService } from './services/I18nService.js';
 import { AdminView } from './views/AdminView.js';
 import { AdminController } from './controllers/AdminController.js';
+import { RoomView } from './views/RoomView.js';
+import { RoomController } from './controllers/RoomController.js';
 import { Router } from './Router.js';
 
 class App {
@@ -23,11 +25,13 @@ class App {
   #authView;
   #profileView;
   #adminView;
+  #roomView;
   #scoreController;
   #controller;
   #authController;
   #profileController;
   #adminController;
+  #roomController;
   #audioService;
   #router;
 
@@ -40,6 +44,7 @@ class App {
     this.#authView = new AuthView();
     this.#profileView = new ProfileView();
     this.#adminView = new AdminView();
+    this.#roomView = new RoomView();
     this.#scoreController = new ScoreController(this.#gameView);
 
     document.addEventListener('click', (e) => {
@@ -50,7 +55,7 @@ class App {
 
     this.#router = new Router({
       '/': () => this.#gameView.showScreen('landing'),
-      '/setup': () => this.#showWelcome(),
+      '/setup': () => this.#showSetup(),
       '/login': () => {
         this.#authController.setMode(true);
         this.#gameView.showScreen('auth');
@@ -60,6 +65,8 @@ class App {
         this.#gameView.showScreen('auth');
       },
       '/play': () => this.#showPlay(),
+      '/room': () => this.#roomController.showSetup(),
+      '/room/:code': (params) => this.#roomController.initRoom(params),
       '/certificate': () => {
         this.#gameView.showScreen('certificate');
         ConfettiService.launch();
@@ -80,6 +87,7 @@ class App {
     this.#profileController = new ProfileController(this.#router, this.#profileView, this.#navbarView, this.#gameView, this.#audioService);
     this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, this.#router, this.#audioService);
     this.#adminController = new AdminController(this.#adminView, this.#gameView);
+    this.#roomController = new RoomController(this.#router, this.#roomView, this.#gameView, this.#controller);
 
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));
@@ -105,10 +113,10 @@ class App {
     this.#router.init();
   }
 
-  #showWelcome() {
+  #showSetup() {
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));
-      this.#gameView.showScreen('welcome');
+      this.#gameView.showScreen('setup');
       const lastDiff = localStorage.getItem('citymaster_last_difficulty') || 'hard';
       this.#scoreController.loadLeaderboard('monthly', lastDiff);
     } else {
@@ -158,7 +166,7 @@ class App {
           await document.fonts.ready;
         }
 
-        const screens = ['landing', 'auth', 'welcome', 'game', 'certificate', 'profile', 'legal', 'admin'];
+        const screens = ['landing', 'auth', 'setup', 'game', 'certificate', 'profile', 'legal', 'admin', 'room'];
         const appContainer = document.getElementById('app');
         const loadingHtml = appContainer.innerHTML;
 

@@ -80,6 +80,39 @@ export const initDB = async () => {
     } catch (e) {
       if (e.code !== '42701') console.error('Error adding test_id column to scores:', e);
     }
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS rooms (
+        id SERIAL PRIMARY KEY,
+        code VARCHAR(10) UNIQUE NOT NULL,
+        city_key VARCHAR(255),
+        difficulty VARCHAR(50),
+        test_id INTEGER NOT NULL,
+        created_by VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'waiting',
+        series_count INTEGER DEFAULT 10,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    try {
+      await pool.query('ALTER TABLE rooms ADD COLUMN IF NOT EXISTS series_count INTEGER DEFAULT 10;');
+    } catch (e) {
+      if (e.code !== '42701') console.error('Error adding series_count to rooms:', e);
+    }
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS room_participants (
+        id SERIAL PRIMARY KEY,
+        room_code VARCHAR(10) REFERENCES rooms(code) ON DELETE CASCADE,
+        username VARCHAR(255) NOT NULL,
+        joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        score INTEGER DEFAULT NULL,
+        finished BOOLEAN DEFAULT FALSE,
+        UNIQUE(room_code, username)
+      );
+    `);
+
     console.log('PostgreSQL database tables verified.');
   } catch (error) {
     console.error('Failed to initialize PostgreSQL database:', error);

@@ -128,4 +128,42 @@ export class AuthController {
       return res.status(401).json({ error: 'Invalid Google token' });
     }
   }
+
+  static async guestLogin(req, res) {
+    try {
+      const { username } = req.body;
+      if (!username || typeof username !== 'string') {
+        return res.status(400).json({ error: 'Username is required' });
+      }
+      const trimmedUsername = username.trim();
+      if (trimmedUsername.length < 3 || trimmedUsername.length > 20) {
+        return res.status(400).json({ error: 'Username must be between 3 and 20 characters' });
+      }
+      const validUsernameRegex = /^[a-zA-Z0-9_-]+$/;
+      if (!validUsernameRegex.test(trimmedUsername)) {
+        return res.status(400).json({ error: 'Username can only contain alphanumeric characters, underscores, and hyphens' });
+      }
+
+      const existingUser = await User.findByUsername(trimmedUsername);
+      if (existingUser) {
+        return res.status(409).json({ error: 'This username is already taken by a registered player' });
+      }
+
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        return res.status(500).json({ error: 'Server security configuration error' });
+      }
+
+      const token = jwt.sign(
+        { id: null, username: trimmedUsername, is_admin: false, is_guest: true },
+        secret,
+        { expiresIn: '3h' }
+      );
+
+      return res.json({ token, username: trimmedUsername, isGuest: true });
+    } catch (error) {
+      console.error('Guest Auth Error:', error);
+      return res.status(500).json({ error: 'Internal server error during guest login' });
+    }
+  }
 }

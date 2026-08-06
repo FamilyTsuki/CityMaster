@@ -132,6 +132,16 @@ export class GameController {
       let selectedStreets = [];
 
       if (testNumber && typeof testNumber === 'number') {
+        let seriesCount = 10;
+        try {
+          const roomRes = await pool.query('SELECT series_count FROM rooms WHERE test_id = $1', [testNumber]);
+          if (roomRes.rows.length > 0) {
+            seriesCount = roomRes.rows[0].series_count || 10;
+          }
+        } catch (e) {
+          console.error('Error fetching series_count for room:', e);
+        }
+
         const easyStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'easy');
         const mediumStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'medium');
         const hardStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'hard');
@@ -160,13 +170,17 @@ export class GameController {
         shuffleSeeded(mediumStreets);
         shuffleSeeded(hardStreets);
 
-        let pickedEasy = easyStreets.splice(0, 3);
-        let pickedMedium = mediumStreets.splice(0, 3);
-        let pickedHard = hardStreets.splice(0, 4);
+        const easyCount = Math.floor(seriesCount / 3);
+        const mediumCount = Math.floor(seriesCount / 3);
+        const hardCount = seriesCount - (easyCount + mediumCount);
+
+        let pickedEasy = easyStreets.splice(0, easyCount);
+        let pickedMedium = mediumStreets.splice(0, mediumCount);
+        let pickedHard = hardStreets.splice(0, hardCount);
 
         selectedStreets = [...pickedEasy, ...pickedMedium, ...pickedHard];
         
-        let needed = 10 - selectedStreets.length;
+        let needed = seriesCount - selectedStreets.length;
         const remaining = [...hardStreets, ...mediumStreets, ...easyStreets];
         shuffleSeeded(remaining);
         if (needed > 0) {
@@ -175,7 +189,7 @@ export class GameController {
         
         shuffleSeeded(selectedStreets);
 
-        if (selectedStreets.length < 10) {
+        if (selectedStreets.length < seriesCount) {
           return res.status(400).json({ error: 'not_enough_streets_difficulty' });
         }
       } else {

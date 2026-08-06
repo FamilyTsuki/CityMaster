@@ -1,35 +1,22 @@
 # Changelog
 
-Toutes les modifications notables de ce projet seront documentées dans ce fichier.
+Toutes les modifications notables de cette session seront documentées dans ce fichier.
 
-## [1.3.1] - 2026-08-04
-
-### Ajouté
-- **Visualisation de la difficulté en admin** : Affichage d'un badge indiquant la méthode de tri active (par longueur, par nomenclature ou par centre-ville) dans la liste des routes administratives.
-- **Centrage automatique de la carte** : Zoom et centrage automatique (`fitBounds`) sur le tracé du quartier ou de la route sélectionné lors de l'ouverture de l'éditeur d'administration.
-
-### Corrigé
-- **Importation et tracé des routes** : Correction du bug d'aplatissement des points de coordonnées pour les tracés de type `MultiLineString` dans l'éditeur d'administration (seule la première ligne est désormais lue au lieu d'un `flat` complet destructeur).
-- **Gestion des types de géométrie** : Support plus robuste des géométries de type `LineString`, `MultiLineString` et `Point` dans la vue administrative des routes, prévenant d'éventuelles erreurs JS.
-- **Nettoyage du projet** : Suppression du fichier mémo obsolète `a_fair.md` et mise à jour de la configuration de `.gitignore`.
-
-## [1.3.0] - 2026-08-03
+## [1.4.0] - 2026-08-06
 
 ### Ajouté
-- Mode "Compétition en Équipe" : Algorithme de génération par graine aléatoire (PRNG Mulberry32) via le paramètre `test_id` garantissant un tirage équitable de 10 rues (3 faciles, 3 moyennes, 4 difficiles) pour les équipes.
-- Injection dynamique des routes personnalisées (`custom_routes.json`) dessinées en admin dans le moteur de jeu et les statistiques.
+- **Système de Salons Multijoueurs (Lobby)** : Possibilité de créer ou de rejoindre des salons de jeu multijoueurs (polling dynamique toutes les 2 secondes pour synchroniser les participants connectés et invités).
+- **Connexion Rapide Invité** : Endpoint `/api/auth/guest` permettant de rejoindre un salon sans compte utilisateur sous un pseudonyme temporaire (session de 3 heures).
+- **Stepper Numérique (Séries)** : Stepper premium et dynamique pour ajuster le nombre de séries de 5 en 5 (de 5 à 50) avec boutons "+" et "-" personnalisés et validation de saisie backend.
+- **Bouton Retour Circulaire** : Composant global `.btn-back-round` avec design en verre trempé, unifié sur les en-têtes de Setup, Profil et Administration.
 
 ### Modifié
-- **Synchronisation des difficultés** : Harmonisation stricte des calculs de difficulté (`length`, `nomenclature`, `center`) entre l'espace administrateur, l'API de statistiques et le contrôleur de jeu.
-- **Nomenclature des voies** : Prise en compte des pluriels et des formes alternatives ("chemins", "allées", "chemain", etc.) pour la classification des axes mineurs.
-- **Refactorisation CSS** : Centralisation de tous les styles bruts et en ligne (`style="..."`, `.style.cssText`) dans les feuilles de style modularisées (`navbar.css`, `welcome.css`, `legal.css`, `certificate.css`, `admin.css`, `components/forms.css`).
-- **Clean Code & Architecture** : Élimination de tous les commentaires de code inutiles et traduction de l'ensemble des logs de console et erreurs serveur en anglais.
+- **Restructuration de l'écran Setup (Solo)** : Renommage propre de l'écran `welcome` en `setup` (fichiers `setup.html` et `setup.css`, imports dans `style.css`, routeur SPA et variables JS associées dans `GameView.js` et `app.js`).
+- **Suppression d'éléments Setup** : Retrait du message d'accueil redondant *"Bienvenue, [joueur] !"* et du sous-titre de la carte solo pour maximiser l'espace vertical disponible.
+- **Responsivité de la Navbar** : Comportement adaptatif et ordonné pour masquer les éléments superflus si l'écran rétrécit (le nom d'utilisateur sous `750px`, le bouton de déconnexion sous `600px` et le bouton de thème sous `450px`).
+- **Centrage et dimensionnement des cartes** : Recentrage géométrique parfait des cartes Solo, Multi et Profil sous la navbar (hauteur fluide calculée sur `#app` via `flex: 1` et suppression des calculs statiques) et élargissement à `1000px` sur PC pour une meilleure occupation de l'espace.
+- **Stabilité visuelle du classement** : Implémentation de `scrollbar-gutter: stable` et `table-layout: fixed` sur le classement solo pour éliminer les décalages de mise en page horizontaux lors du changement d'onglet.
 
 ### Corrigé
-- **Éditeur de routes (AdminView)** : Correction du problème d'affichage reliant le dernier point tracé au premier point (passage en mode ligne ouverte `fill: false`).
-- **Sauvegarde des paramètres** : Correction de la requête API de mise à jour du mode de difficulté global (`difficulty_mode`).
-- **Mise à jour des références** : Correction du fichier `.gitignore` pour cibler `TODO.md` suite au renommage de `a_fair.md`.
-
-
-
-
+- **Navigation SPA (Boutons Retour)** : Modification des cibles de retour de `href="#"` à `href="#/"` afin d'être interceptées correctement par le routeur de l'application et de rediriger instantanément vers l'accueil.
+- **Défilement résiduel (Scroll)** : Suppression des barres de défilement superflues sur PC pour les écrans Setup et Salons de jeu en optimisant les marges et les dimensions intérieures des cartes.

@@ -22,7 +22,7 @@ export class ProfileView {
     this.#uploadInput = document.getElementById('profile-upload');
     this.#errorMsg = document.getElementById('profile-error');
     this.#successMsg = document.getElementById('profile-success');
-    this.#backBtn = document.getElementById('profile-back-btn');
+    this.#backBtn = document.getElementById('profile-back-arrow-btn');
     this.#themeSwitch = document.getElementById('profile-theme-switch');
     this.#soundSwitch = document.getElementById('profile-sound-switch');
     this.#logoutBtn = document.getElementById('profile-logout-btn');

@@ -21,18 +21,20 @@ export class GameView {
   #bottomActions;
   #comboBadge;
   #comboText;
+  #leaderboardCallback;
 
   constructor() {
     this.#screens = {
       landing: document.getElementById('landing-screen'),
       auth: document.getElementById('auth-screen'),
-      welcome: document.getElementById('welcome-screen'),
+      setup: document.getElementById('setup-screen'),
       game: document.getElementById('game-screen'),
       certificate: document.getElementById('certificate-screen'),
       loading: document.getElementById('loading-screen'),
       profile: document.getElementById('profile-screen'),
       legal: document.getElementById('legal-screen'),
-      admin: document.getElementById('admin-screen')
+      admin: document.getElementById('admin-screen'),
+      room: document.getElementById('room-screen')
     };
 
     this.#citySelect = document.getElementById('city-select');
@@ -58,10 +60,10 @@ export class GameView {
     this.#comboText = document.getElementById('combo-text');
 
     this.#setupKeyboardShortcuts();
-    this.#setupWelcomeForm();
+    this.#setupSetupForm();
   }
 
-  #setupWelcomeForm() {
+  #setupSetupForm() {
     const cityInput = document.getElementById('city-search');
     const cityDropdown = document.getElementById('city-dropdown-list');
     const modeInput = document.getElementById('mode-search');
@@ -183,6 +185,11 @@ export class GameView {
           difficultyDropdown.classList.add('hidden');
           difficultyInput.setAttribute('aria-expanded', 'false');
           localStorage.setItem('citymaster_last_difficulty', item.getAttribute('data-value'));
+          if (this.#leaderboardCallback) {
+            const tabAllTime = document.getElementById('tab-alltime');
+            const type = (tabAllTime && tabAllTime.classList.contains('active')) ? 'all_time' : 'monthly';
+            this.#leaderboardCallback(type, item.getAttribute('data-value'));
+          }
         });
       });
     }
@@ -275,6 +282,12 @@ export class GameView {
         const { I18nService } = await import('../services/I18nService.js');
         const i18n = I18nService.getInstance();
         difficultySearch.value = i18n.t(`welcome.diff_${currentVal}`);
+
+        if (this.#leaderboardCallback) {
+          const tabAllTime = document.getElementById('tab-alltime');
+          const type = (tabAllTime && tabAllTime.classList.contains('active')) ? 'all_time' : 'monthly';
+          this.#leaderboardCallback(type, currentVal);
+        }
       }
     } catch (e) {
       if (lotissementOption) lotissementOption.classList.add('hidden');
@@ -284,7 +297,7 @@ export class GameView {
     }
   }
 
-  refreshWelcomeDefaults() {
+  refreshSetupDefaults() {
     const modeInput = document.getElementById('mode-search');
     const modeDropdown = document.getElementById('mode-dropdown-list');
     const difficultyInput = document.getElementById('difficulty-search');
@@ -379,8 +392,8 @@ export class GameView {
     if (this.#screens[screenName]) {
       this.#screens[screenName].classList.add('active');
     }
-    if (screenName === 'welcome') {
-      this.refreshWelcomeDefaults();
+    if (screenName === 'setup') {
+      this.refreshSetupDefaults();
     }
   }
 
@@ -406,6 +419,7 @@ export class GameView {
   }
 
   onLeaderboardTabClick(callback) {
+    this.#leaderboardCallback = callback;
     const tabMonthly = document.getElementById('tab-monthly');
     const tabAllTime = document.getElementById('tab-alltime');
     
@@ -415,8 +429,8 @@ export class GameView {
     };
     
     const getActiveDiff = () => {
-      const activeDiff = document.querySelector('.welcome-leaderboard-diff-btn.active');
-      return activeDiff ? activeDiff.getAttribute('data-diff') : 'hard';
+      const difficultyInput = document.getElementById('difficulty-search');
+      return difficultyInput ? (difficultyInput.dataset.value || 'easy') : 'easy';
     };
 
     if (tabMonthly) {
@@ -432,16 +446,6 @@ export class GameView {
         callback('all_time', getActiveDiff());
       });
     }
-    
-    const diffTabs = document.querySelectorAll('.welcome-leaderboard-diff-btn');
-    diffTabs.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        diffTabs.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        callback(getActiveType(), btn.getAttribute('data-diff'));
-      });
-    });
   }
 
   onHeroPlay(callback) {
@@ -691,15 +695,6 @@ export class GameView {
         tabMonthly.classList.remove('active');
       }
     }
-    
-    const diffTabs = document.querySelectorAll('.welcome-leaderboard-diff-btn');
-    diffTabs.forEach(btn => {
-      if (btn.getAttribute('data-diff') === difficulty) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
 
     if (!tbody) return;
 

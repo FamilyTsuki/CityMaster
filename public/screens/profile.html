@@ -1,6 +1,9 @@
 <div id="profile-screen" class="screen">
   <div class="card profile-card" role="region" aria-label="Page de profil utilisateur">
-    <div class="profile-header">
+    <div class="profile-card-header">
+      <a href="#/" id="profile-back-arrow-btn" class="btn-back-round" title="Retour à l'accueil">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </a>
       <div class="profile-avatar-container">
         <img id="profile-page-img" src="assets/images/default-avatar.png" alt="Mon Avatar" class="profile-avatar" />
         <label for="profile-upload" class="upload-btn" title="Changer d'avatar" data-i18n-title="profile.avatar_title" aria-label="Changer ma photo de profil">
@@ -56,7 +59,6 @@
         </label>
       </div>
 
-      <button id="profile-back-btn" class="btn secondary" data-i18n="profile.back_home">Retour à l'accueil</button>
       <a href="#" id="profile-logout-btn" class="profile-logout-link" data-i18n="profile.logout">Se déconnecter</a>
       <a href="#/legal" class="legal-footer-link profile-legal-link" data-i18n="nav.legal">Mentions Légales & RGPD</a>
     </div>

@@ -163,34 +163,38 @@
   display: inline;
 }
 
+@media (max-width: 900px) {
+  .navbar {
+    padding: 10px 16px;
+  }
+  
+  .navbar-brand .logo-text {
+    font-size: 1.25rem;
+  }
+  
+  .navbar-actions {
+    gap: 8px;
+  }
+  
+  #nav-auth-logged-in,
+  #nav-auth-logged-out {
+    gap: 8px;
+  }
+}
+
 @media (max-width: 768px) {
   #pwa-install-btn:not(.hidden) {
     display: inline-flex !important;
   }
 }
 
-@media (max-width: 640px) {
-  .navbar {
-    padding: 8px 12px;
-  }
-
-  .navbar-brand .logo-text {
-    font-size: 1.15rem;
-  }
-
-  .navbar-actions {
-    gap: 6px;
-  }
-
-  #nav-auth-logged-in,
-  #nav-auth-logged-out {
-    gap: 6px;
-  }
-
+@media (max-width: 750px) {
   .profile-name {
     display: none;
   }
+}
 
+@media (max-width: 640px) {
   .icon-btn {
     width: 32px;
     height: 32px;
@@ -203,11 +207,6 @@
     height: 30px;
   }
 
-  .logout-link {
-    padding: 4px 8px;
-    font-size: 0.75rem;
-  }
-
   .pwa-btn-text {
     display: none;
   }
@@ -217,20 +216,32 @@
   }
 }
 
+@media (max-width: 600px) {
+  .logout-link {
+    display: none;
+  }
+}
+
+@media (max-width: 450px) {
+  #theme-toggle {
+    display: none;
+  }
+  
+  .navbar {
+    padding: 8px 10px;
+  }
+  
+  .navbar-brand .logo-text {
+    font-size: 1.1rem;
+  }
+}
+
 @media (max-width: 400px) {
   .navbar {
     padding: 6px 8px;
   }
 
-  .navbar-brand .logo-text {
-    font-size: 1.05rem;
-  }
-
   .navbar-actions {
     gap: 4px;
-  }
-
-  .logout-link {
-    display: none;
   }
 }

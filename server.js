@@ -14,6 +14,7 @@ import profileRoutes from './src/backend/routes/profile.routes.js';
 import citiesRoutes from './src/backend/routes/cities.routes.js';
 import gameRoutes from './src/backend/routes/game.routes.js';
 import adminRoutes from './src/backend/routes/admin.routes.js';
+import roomRoutes from './src/backend/routes/room.routes.js';
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/cities', citiesRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/rooms', roomRoutes);
 
 import fs from 'fs';
 app.get('/api/version', (req, res) => {

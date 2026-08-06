@@ -604,6 +604,30 @@ export class GameController {
       testNumber: this.#session.testNumber
     };
 
+    if (this.roomCode) {
+      const roomCode = this.roomCode;
+      this.roomCode = null;
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      
+      try {
+        await fetch(`/api/rooms/${roomCode}/submit-score`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...headers
+          },
+          body: JSON.stringify({ score })
+        });
+      } catch (err) {
+        console.error('Error submitting room score:', err);
+      }
+      
+      this.#clearState();
+      this.#router.navigate(`/room/${roomCode}`);
+      return;
+    }
+
     this.#certificateView.render(name, score, mode, sprintHistory, this.#session.testNumber);
     this.#gameView.showScreen('certificate');
     this.#router.navigate('/certificate');
@@ -636,5 +660,11 @@ export class GameController {
     } else {
       this.#router.navigate('/');
     }
+  }
+
+  startRoomGame(playerName, cityData, selectedMode, difficulty, testNumber, roomCode) {
+    this.#clearState();
+    this.roomCode = roomCode;
+    this.#startGame(playerName, cityData, selectedMode, difficulty, testNumber);
   }
 }

@@ -11,5 +11,6 @@ router.get('/config', (req, res) => {
 router.post('/register', loginRateLimiter, AuthController.register);
 router.post('/login', loginRateLimiter, AuthController.login);
 router.post('/google', loginRateLimiter, AuthController.googleLogin);
+router.post('/guest', loginRateLimiter, AuthController.guestLogin);
 
 export default router;

@@ -38,6 +38,20 @@ export class AdminController {
       });
     }
 
+    const districtsBackBtn = document.getElementById('admin-districts-back-btn');
+    const routesBackBtn = document.getElementById('admin-routes-back-btn');
+
+    if (districtsBackBtn) {
+      districtsBackBtn.addEventListener('click', () => {
+        this.showDashboard();
+      });
+    }
+    if (routesBackBtn) {
+      routesBackBtn.addEventListener('click', () => {
+        this.showDashboard();
+      });
+    }
+
     const cityInput = document.getElementById('admin-city-search');
     const cityDropdown = document.getElementById('admin-city-dropdown');
     const cityInputRoutes = document.getElementById('admin-city-search-routes');
