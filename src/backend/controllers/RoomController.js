@@ -10,7 +10,7 @@ const dirname = path.dirname(filename);
 export class RoomController {
   static async createRoom(req, res) {
     try {
-      const { cityKey, difficulty, seriesCount } = req.body;
+      const { cityKey, difficulty, seriesCount, mode } = req.body;
       const username = req.user.username;
 
       if (!cityKey || !difficulty) {
@@ -19,6 +19,7 @@ export class RoomController {
 
       const parsed = parseInt(seriesCount, 10);
       const cleanSeriesCount = (!isNaN(parsed) && parsed >= 1 && parsed <= 50) ? parsed : 10;
+      const cleanMode = (mode === 'identify' || mode === 'target') ? mode : 'target';
 
       let code;
       let codeUnique = false;
@@ -40,10 +41,10 @@ export class RoomController {
       const testId = Math.floor(Math.random() * 1000000) + 1;
 
       const roomRes = await pool.query(
-        `INSERT INTO rooms (code, city_key, difficulty, test_id, created_by, status, series_count)
-         VALUES ($1, $2, $3, $4, $5, 'waiting', $6)
+        `INSERT INTO rooms (code, city_key, difficulty, test_id, created_by, status, series_count, mode)
+         VALUES ($1, $2, $3, $4, $5, 'waiting', $6, $7)
          RETURNING *`,
-        [code, cityKey, difficulty, testId, username, cleanSeriesCount]
+        [code, cityKey, difficulty, testId, username, cleanSeriesCount, cleanMode]
       );
 
       const room = roomRes.rows[0];
@@ -59,6 +60,7 @@ export class RoomController {
         roomCode: room.code,
         cityKey: room.city_key,
         difficulty: room.difficulty,
+        mode: room.mode,
         testId: room.test_id,
         createdBy: room.created_by,
         status: room.status,
@@ -93,9 +95,7 @@ export class RoomController {
         [upperCode, username]
       );
 
-      if (room.status !== 'waiting' && participantCheck.rows.length === 0) {
-        return res.status(400).json({ error: 'Game has already started in this room' });
-      }
+      // Allow participant registration regardless of room status to enable viewing results/joining session
 
       await pool.query(
         `INSERT INTO room_participants (room_code, username)
@@ -108,6 +108,7 @@ export class RoomController {
         roomCode: room.code,
         cityKey: room.city_key,
         difficulty: room.difficulty,
+        mode: room.mode,
         testId: room.test_id,
         createdBy: room.created_by,
         status: room.status,
@@ -148,7 +149,25 @@ export class RoomController {
           osmId: cityJson.osmId
         };
       } catch (err) {
-        console.error('Error reading city JSON file:', err);
+        try {
+          const configCitiesPath = path.join(dirname, '..', '..', '..', 'config', 'cities.json');
+          const configContent = await fs.readFile(configCitiesPath, 'utf8');
+          const configCities = JSON.parse(configContent);
+          const found = configCities.find(c => c.key === room.city_key);
+          if (found) {
+            cityData = found;
+          }
+        } catch (e) {}
+      }
+
+      if (!cityData) {
+        cityData = {
+          key: room.city_key,
+          name: room.city_key,
+          bbox: null,
+          center: null,
+          osmId: null
+        };
       }
 
       const participantsRes = await pool.query(
@@ -163,6 +182,7 @@ export class RoomController {
         roomCode: room.code,
         cityKey: room.city_key,
         difficulty: room.difficulty,
+        mode: room.mode,
         testId: room.test_id,
         createdBy: room.created_by,
         status: room.status,

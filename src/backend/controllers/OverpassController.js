@@ -21,7 +21,7 @@ export class OverpassController {
           console.log(`Querying Overpass on: ${server}`);
           
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 6000);
+          const timeoutId = setTimeout(() => controller.abort(), 20000);
 
           const response = await fetch(server, {
             method: 'POST',

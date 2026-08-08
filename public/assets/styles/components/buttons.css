@@ -93,6 +93,8 @@
   text-decoration: none;
   box-shadow: var(--shadow-sm);
   flex-shrink: 0;
+  padding: 0;
+  outline: none;
 }
 
 .btn-back-round:hover {

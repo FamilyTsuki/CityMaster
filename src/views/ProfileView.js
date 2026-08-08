@@ -34,7 +34,7 @@ export class ProfileView {
 
     if (this.#profileImg) {
       this.#profileImg.onerror = () => {
-        this.#profileImg.src = 'assets/images/default-avatar.png';
+        this.#profileImg.src = '/assets/images/default-avatar.png';
       };
     }
 
@@ -197,7 +197,7 @@ export class ProfileView {
       if (profileImageUrl) {
         this.#profileImg.src = profileImageUrl;
       } else {
-        this.#profileImg.src = 'assets/images/default-avatar.png';
+        this.#profileImg.src = '/assets/images/default-avatar.png';
       }
     }
     if (this.#themeSwitch) {

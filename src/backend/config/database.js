@@ -87,6 +87,7 @@ export const initDB = async () => {
         code VARCHAR(10) UNIQUE NOT NULL,
         city_key VARCHAR(255),
         difficulty VARCHAR(50),
+        mode VARCHAR(50) DEFAULT 'target',
         test_id INTEGER NOT NULL,
         created_by VARCHAR(255) NOT NULL,
         status VARCHAR(50) DEFAULT 'waiting',
@@ -99,6 +100,12 @@ export const initDB = async () => {
       await pool.query('ALTER TABLE rooms ADD COLUMN IF NOT EXISTS series_count INTEGER DEFAULT 10;');
     } catch (e) {
       if (e.code !== '42701') console.error('Error adding series_count to rooms:', e);
+    }
+
+    try {
+      await pool.query("ALTER TABLE rooms ADD COLUMN IF NOT EXISTS mode VARCHAR(50) DEFAULT 'target';");
+    } catch (e) {
+      if (e.code !== '42701') console.error('Error adding mode to rooms:', e);
     }
 
     await pool.query(`

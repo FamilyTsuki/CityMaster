@@ -26,7 +26,7 @@ export class NavbarView {
 
     if (this.#navProfileImg) {
       this.#navProfileImg.onerror = () => {
-        this.#navProfileImg.src = 'assets/images/default-avatar.png';
+        this.#navProfileImg.src = '/assets/images/default-avatar.png';
       };
     }
   }
@@ -102,7 +102,7 @@ export class NavbarView {
       if (profileImageUrl) {
         this.#navProfileImg.src = profileImageUrl;
       } else {
-        this.#navProfileImg.src = 'assets/images/default-avatar.png';
+        this.#navProfileImg.src = '/assets/images/default-avatar.png';
       }
       this.#navProfileImg.classList.remove('hidden');
     }

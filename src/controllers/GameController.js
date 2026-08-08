@@ -60,13 +60,38 @@ export class GameController {
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
   }
 
-  async #startGame(playerName, cityData, selectedMode, difficulty = 'hard', testNumber = null) {
+  async #startGame(playerName, cityData, selectedMode = 'target', difficulty = 'hard', testNumber = null, seriesCount = null) {
     try {
-      localStorage.setItem('citymaster_last_difficulty', difficulty);
-      localStorage.setItem('citymaster_last_mode', selectedMode);
-      const cityKey = cityData.key;
-      const bbox = cityData.bbox;
-      const center = cityData.center;
+      const mode = selectedMode || 'target';
+      const diff = difficulty || 'hard';
+      localStorage.setItem('citymaster_last_difficulty', diff);
+      localStorage.setItem('citymaster_last_mode', mode);
+
+      if (!cityData || typeof cityData !== 'object') {
+        cityData = { key: 'paris', name: 'Paris' };
+      }
+
+      let cityKey = cityData.key || 'paris';
+      let bbox = cityData.bbox;
+      let center = cityData.center;
+
+      if (!bbox || !center || !cityData.osmId) {
+        try {
+          const token = localStorage.getItem('token');
+          const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+          const res = await fetch(`/api/cities?q=${encodeURIComponent(cityData.name || cityKey)}`, { headers });
+          if (res.ok) {
+            const cities = await res.json();
+            const matched = cities.find(c => c.key === cityKey || c.name.toLowerCase() === (cityData.name || '').toLowerCase().trim());
+            if (matched) {
+              cityData = matched;
+              cityKey = matched.key;
+              bbox = matched.bbox;
+              center = matched.center;
+            }
+          }
+        } catch (e) {}
+      }
 
       const i18n = I18nService.getInstance();
 
@@ -85,7 +110,8 @@ export class GameController {
         body: JSON.stringify({
           cityKey: cityKey,
           name: cityData.name,
-          osmId: cityData.osmId,
+          osmId: cityData.osmId || cityData.osm_id,
+          osm_id: cityData.osm_id || cityData.osmId,
           bbox: bbox
         })
       });
@@ -109,9 +135,10 @@ export class GameController {
         },
         body: JSON.stringify({
           cityKey,
-          mode: selectedMode,
-          difficulty,
-          testNumber
+          mode,
+          difficulty: diff,
+          testNumber,
+          seriesCount
         })
       });
 
@@ -168,11 +195,19 @@ export class GameController {
       this.#loadNextQuestion();
       this.#gameView.showScreen('game');
       this.#mapView.invalidateSize();
-      this.#router.navigate('/play', true);
+      if (this.roomCode) {
+        this.#router.navigate(`/room/${this.roomCode}/play`, true);
+      } else {
+        this.#router.navigate('/play', true);
+      }
     } catch (error) {
       const i18n = I18nService.getInstance();
       this.#gameView.showError(i18n.formatError(error.message));
-      this.#router.navigate('/setup');
+      this.#clearState();
+      if (!this.roomCode) {
+        this.#router.navigate('/setup');
+      }
+      this.roomCode = null;
     }
   }
 
@@ -323,7 +358,7 @@ export class GameController {
       );
       this.#gameView.updateRoundProgress(
         this.#session.roundIndex || 1,
-        5,
+        this.#session.totalRounds || 5,
         this.#session.roundHistory || []
       );
     }
@@ -607,6 +642,7 @@ export class GameController {
     if (this.roomCode) {
       const roomCode = this.roomCode;
       this.roomCode = null;
+      this.#gameView.showLoading('Calcul du classement du salon...');
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
       
@@ -636,14 +672,26 @@ export class GameController {
 
   #quitGame() {
     this.#stopRoundTimer();
-    this.#clearState();
-    this.#router.navigate('/');
+    if (this.roomCode) {
+      const code = this.roomCode;
+      this.#clearState();
+      this.#router.navigate(`/room/${code}`);
+    } else {
+      this.#clearState();
+      this.#router.navigate('/');
+    }
   }
 
   #goHome() {
     this.#stopRoundTimer();
-    this.#clearState();
-    this.#router.navigate('/');
+    if (this.roomCode) {
+      const code = this.roomCode;
+      this.#clearState();
+      this.#router.navigate(`/room/${code}`);
+    } else {
+      this.#clearState();
+      this.#router.navigate('/');
+    }
   }
 
   #restartGame() {
@@ -662,9 +710,9 @@ export class GameController {
     }
   }
 
-  startRoomGame(playerName, cityData, selectedMode, difficulty, testNumber, roomCode) {
+  startRoomGame(playerName, cityData, selectedMode, difficulty, testNumber, roomCode, seriesCount = 10) {
     this.#clearState();
     this.roomCode = roomCode;
-    this.#startGame(playerName, cityData, selectedMode, difficulty, testNumber);
+    this.#startGame(playerName, cityData, selectedMode, difficulty, testNumber, seriesCount);
   }
 }

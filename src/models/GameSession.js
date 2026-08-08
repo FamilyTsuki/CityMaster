@@ -87,6 +87,13 @@ export class GameSession {
     this.#roundIndex = val;
   }
 
+  get totalRounds() {
+    if (this.#currentPrompt && typeof this.#currentPrompt.totalRounds === 'number') {
+      return this.#currentPrompt.totalRounds;
+    }
+    return this.#roundHistory && this.#roundHistory.length > 0 ? Math.max(5, this.#roundHistory.length) : 5;
+  }
+
   addRoundResult(result) {
     this.#roundHistory.push(result);
   }

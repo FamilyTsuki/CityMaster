@@ -227,7 +227,26 @@ export class CityController {
 
   static async generateCity(req, res) {
     try {
-      const { cityKey, name, osmId, bbox } = req.body;
+      let { cityKey, name, osmId, bbox } = req.body;
+
+      if (!osmId && req.body.osm_id) {
+        osmId = req.body.osm_id;
+      }
+
+      if (cityKey && (!name || !osmId || !bbox)) {
+        try {
+          const citiesData = await fs.promises.readFile(path.join(process.cwd(), 'config', 'cities.json'), 'utf-8');
+          const cities = JSON.parse(citiesData);
+          const localCity = cities.find(c => c.key === cityKey);
+          if (localCity) {
+            if (!name) name = localCity.name;
+            if (!osmId) osmId = localCity.osmId;
+            if (!bbox) bbox = localCity.bbox;
+          }
+        } catch (e) {
+          console.error('Error loading config/cities.json in generateCity fallback:', e);
+        }
+      }
 
       if (!cityKey || !name || !osmId) {
         return res.status(400).json({ error: 'cityKey, name, and osmId are required' });
@@ -266,8 +285,18 @@ export class CityController {
       const outputPath = path.join(publicDataDir, `${cityKey}.json`);
 
       if (fs.existsSync(outputPath)) {
-        console.log(`City ${cityKey} is already generated.`);
-        return res.json({ success: true, cached: true });
+        try {
+          const stats = fs.statSync(outputPath);
+          if (stats.size > 150) {
+            console.log(`City ${cityKey} is already generated.`);
+            return res.json({ success: true, cached: true });
+          } else {
+            console.warn(`City ${cityKey} file is empty or corrupted, regenerating...`);
+            fs.unlinkSync(outputPath);
+          }
+        } catch (e) {
+          console.error(`Error checking/unlinking empty city file ${cityKey}:`, e);
+        }
       }
 
       console.log(`Generating data for ${name} (OSM ID: ${parsedOsmId}) -> ${cityKey}.json`);
@@ -327,6 +356,11 @@ export class CityController {
       if (!success) {
         console.error(`Failed to generate streets for ${cityKey}:`, lastError);
         return res.status(502).json({ error: `Failed to fetch map data from Overpass API: ${lastError.message}` });
+      }
+
+      if (!geojson || !geojson.features || geojson.features.length === 0) {
+        console.warn(`No streets or lotissements found for ${name} (${cityKey}). Generation aborted without saving file.`);
+        return res.status(422).json({ error: 'Aucune rue n\'a pu être trouvée pour cette commune. Veuillez vérifier ses limites géographiques ou essayer une autre commune.' });
       }
 
       fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2), 'utf8');

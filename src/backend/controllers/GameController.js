@@ -14,9 +14,15 @@ import * as turf from '@turf/turf';
 export class GameController {
   static async startGame(req, res) {
     try {
-      const { cityKey, mode, difficulty, testNumber } = req.body;
-      if (!cityKey || !mode || !difficulty) {
-        return res.status(400).json({ error: 'cityKey, mode, and difficulty are required' });
+      let { cityKey, mode, difficulty, testNumber, seriesCount } = req.body;
+      if (!mode) mode = 'target';
+      if (!difficulty) difficulty = 'hard';
+
+      const parsedCount = parseInt(seriesCount, 10);
+      const targetSeries = (!isNaN(parsedCount) && parsedCount >= 1 && parsedCount <= 50) ? parsedCount : 5;
+
+      if (!cityKey) {
+        return res.status(400).json({ error: 'cityKey is required' });
       }
 
       if (!/^[a-z0-9_]+$/.test(cityKey)) {
@@ -198,7 +204,16 @@ export class GameController {
           return s.computedDifficulty === difficulty;
         });
 
-        if (filteredStreets.length < 5) {
+        if (filteredStreets.length < targetSeries) {
+          const remainingStreets = uniqueStreetsList.filter(s => !filteredStreets.includes(s));
+          for (let i = remainingStreets.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [remainingStreets[i], remainingStreets[j]] = [remainingStreets[j], remainingStreets[i]];
+          }
+          filteredStreets.push(...remainingStreets);
+        }
+
+        if (filteredStreets.length < targetSeries) {
           return res.status(400).json({ error: 'not_enough_streets_difficulty' });
         }
 
@@ -206,7 +221,7 @@ export class GameController {
           const j = Math.floor(Math.random() * (i + 1));
           [filteredStreets[i], filteredStreets[j]] = [filteredStreets[j], filteredStreets[i]];
         }
-        selectedStreets = filteredStreets.slice(0, 5);
+        selectedStreets = filteredStreets.slice(0, targetSeries);
       }
 
       const session = {
@@ -236,6 +251,7 @@ export class GameController {
       const currentStreet = session.streets[0];
       const nextPrompt = {
         roundIndex: 0,
+        totalRounds: session.streets.length,
         mode: session.mode
       };
 
@@ -419,6 +435,7 @@ export class GameController {
         const nextStreet = session.streets[session.currentRound];
         nextPrompt = {
           roundIndex: session.currentRound,
+          totalRounds: session.streets.length,
           mode: session.mode
         };
         if (mode === 'target' || mode === 'sprint') {

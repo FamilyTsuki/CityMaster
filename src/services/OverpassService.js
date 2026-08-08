@@ -40,9 +40,9 @@ export class OverpassService {
     let query;
     if (osmId) {
       const relId = osmId > 3600000000 ? osmId - 3600000000 : osmId;
-      query = `[out:json][timeout:10];relation(${relId});map_to_area->.a;(way(around:${radiusMeters},${lat},${lng})(area.a)["highway"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];);out geom;`;
+      query = `[out:json][timeout:25];relation(${relId});map_to_area->.a;(way(around:${radiusMeters},${lat},${lng})(area.a)["highway"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];);out geom;`;
     } else {
-      query = `[out:json][timeout:10];(way(around:${radiusMeters},${lat},${lng})["highway"]["name"];way(around:${radiusMeters},${lat},${lng})["place"]["name"];way(around:${radiusMeters},${lat},${lng})["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})["place"]["name"];);out geom;`;
+      query = `[out:json][timeout:25];(way(around:${radiusMeters},${lat},${lng})["highway"]["name"];way(around:${radiusMeters},${lat},${lng})["place"]["name"];way(around:${radiusMeters},${lat},${lng})["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})["place"]["name"];);out geom;`;
     }
 
     const token = localStorage.getItem('token');

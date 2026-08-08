@@ -45,6 +45,16 @@ select {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 }
 
+option {
+  background-color: var(--bg-card-solid);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] option {
+  background-color: #151e31;
+  color: #f8fafc;
+}
+
 input[type="text"]:focus,
 input[type="password"]:focus,
 input[type="number"]:focus,
@@ -64,7 +74,9 @@ select:focus {
   left: 0;
   right: 0;
   background: var(--bg-card-solid);
-  border: 1px solid var(--border-color);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-lg);
   margin-top: 6px;
@@ -75,6 +87,11 @@ select:focus {
   padding: 6px;
   transform: translate3d(0, 0, 0);
   will-change: opacity, transform;
+}
+
+[data-theme="dark"] .dropdown-list {
+  background: rgba(21, 30, 49, 0.95);
+  border-color: var(--glass-border);
 }
 
 .dropdown-list li {
@@ -112,11 +129,19 @@ select:focus {
   padding: 8px 12px;
   cursor: pointer;
   border-bottom: 1px solid var(--border-color);
+  color: var(--text-main);
   transition: background-color var(--transition-fast);
 }
 
 .dropdown-item:hover {
   background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+[data-theme="dark"] .dropdown-list li:hover,
+[data-theme="dark"] .dropdown-item:hover {
+  background-color: rgba(99, 102, 241, 0.25);
+  color: #a5b4fc;
 }
 
 .form-help-text {
@@ -195,4 +220,14 @@ input:checked + .slider:before {
   .form-group {
     margin-bottom: 16px;
   }
+}
+
+/* Enforce premium theme colors during browser autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-glass) inset !important;
+  -webkit-text-fill-color: var(--text-main) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }

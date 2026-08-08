@@ -1,3 +1,5 @@
+import { escapeHTML } from '../utils/security.js';
+
 export class RoomView {
   #screens;
   #steps;
@@ -8,11 +10,10 @@ export class RoomView {
   #joinBtn;
   #codeInput;
   #joinError;
-  #lobbyRoomInfo;
   #lobbyCodeBadge;
   #lobbyShareUrl;
-  #lobbyCopyBtn;
-  #lobbyCopyFeedback;
+  #lobbyCodeFeedback;
+  #lobbyLinkFeedback;
   #lobbyPlayersCount;
   #lobbyPlayersList;
   #lobbyStatusText;
@@ -30,9 +31,12 @@ export class RoomView {
   #cityDropdown;
   #diffInput;
   #diffDropdown;
+  #modeInput;
+  #modeDropdown;
   #lobbySeriesCount;
   #seriesInput;
   #setupBackBtn;
+  #lastParticipantsSignature = '';
 
   constructor() {
     this.#screens = {
@@ -55,11 +59,10 @@ export class RoomView {
     this.#codeInput = document.getElementById('room-code-input');
     this.#joinError = document.getElementById('room-join-error');
 
-    this.#lobbyRoomInfo = document.getElementById('lobby-room-info');
     this.#lobbyCodeBadge = document.getElementById('lobby-code-badge');
     this.#lobbyShareUrl = document.getElementById('lobby-share-url');
-    this.#lobbyCopyBtn = document.getElementById('lobby-copy-btn');
-    this.#lobbyCopyFeedback = document.getElementById('lobby-copy-feedback');
+    this.#lobbyCodeFeedback = document.getElementById('lobby-code-feedback');
+    this.#lobbyLinkFeedback = document.getElementById('lobby-link-feedback');
     this.#lobbyPlayersCount = document.getElementById('lobby-players-count');
     this.#lobbyPlayersList = document.getElementById('lobby-players-list');
     this.#lobbyStatusText = document.getElementById('lobby-status-text');
@@ -79,6 +82,8 @@ export class RoomView {
     this.#cityDropdown = document.getElementById('room-city-dropdown');
     this.#diffInput = document.getElementById('room-diff-search');
     this.#diffDropdown = document.getElementById('room-diff-dropdown');
+    this.#modeInput = document.getElementById('room-mode-search');
+    this.#modeDropdown = document.getElementById('room-mode-dropdown');
     this.#seriesInput = document.getElementById('room-series-input');
     this.#setupBackBtn = document.getElementById('room-back-btn');
 
@@ -87,20 +92,38 @@ export class RoomView {
   }
 
   #setupCopyLink() {
-    if (this.#lobbyCopyBtn && this.#lobbyShareUrl) {
-      this.#lobbyCopyBtn.addEventListener('click', () => {
+    if (this.#lobbyShareUrl) {
+      this.#lobbyShareUrl.addEventListener('click', () => {
         this.#lobbyShareUrl.select();
         this.#lobbyShareUrl.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(this.#lobbyShareUrl.value)
           .then(() => {
-            if (this.#lobbyCopyFeedback) {
-              this.#lobbyCopyFeedback.classList.remove('hidden');
+            if (this.#lobbyLinkFeedback) {
+              this.#lobbyLinkFeedback.classList.remove('hidden');
               setTimeout(() => {
-                this.#lobbyCopyFeedback.classList.add('hidden');
+                this.#lobbyLinkFeedback.classList.add('hidden');
               }, 2000);
             }
           })
           .catch(() => {});
+      });
+    }
+
+    if (this.#lobbyCodeBadge) {
+      this.#lobbyCodeBadge.addEventListener('click', () => {
+        const code = this.#lobbyCodeBadge.textContent;
+        if (code && code !== '------') {
+          navigator.clipboard.writeText(code)
+            .then(() => {
+              if (this.#lobbyCodeFeedback) {
+                this.#lobbyCodeFeedback.classList.remove('hidden');
+                setTimeout(() => {
+                  this.#lobbyCodeFeedback.classList.add('hidden');
+                }, 2000);
+              }
+            })
+            .catch(() => {});
+        }
       });
     }
   }
@@ -110,6 +133,8 @@ export class RoomView {
     const cityDropdown = this.#cityDropdown;
     const diffInput = this.#diffInput;
     const diffDropdown = this.#diffDropdown;
+    const modeInput = this.#modeInput;
+    const modeDropdown = this.#modeDropdown;
 
     if (diffInput && diffDropdown) {
       diffInput.addEventListener('click', (e) => {
@@ -124,6 +149,27 @@ export class RoomView {
           diffDropdown.classList.add('hidden');
         });
       });
+    }
+
+    if (modeInput && modeDropdown) {
+      modeInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        modeDropdown.classList.toggle('hidden');
+      });
+
+      modeDropdown.querySelectorAll('li').forEach((item) => {
+        item.addEventListener('click', () => {
+          modeInput.value = item.textContent.trim();
+          modeInput.dataset.value = item.getAttribute('data-value');
+          modeDropdown.classList.add('hidden');
+        });
+      });
+
+      const firstMode = modeDropdown.querySelector('li');
+      if (firstMode && (!modeInput.value || !modeInput.dataset.value)) {
+        modeInput.value = firstMode.textContent.trim();
+        modeInput.dataset.value = firstMode.getAttribute('data-value') || 'target';
+      }
     }
 
     if (cityInput && cityDropdown) {
@@ -239,6 +285,10 @@ export class RoomView {
     if (this.#steps[stepName]) {
       this.#steps[stepName].classList.remove('hidden');
     }
+    if (stepName === 'setup' && this.#cityInput && (!this.#cityInput.value || !this.#cityInput.dataset.value)) {
+      this.#cityInput.value = 'La Ferté-Saint-Aubin';
+      this.#cityInput.dataset.value = 'la_ferte_saint_aubin';
+    }
   }
 
   bindGuestFormSubmit(callback) {
@@ -305,11 +355,19 @@ export class RoomView {
   }
 
   getSetupConfig() {
+    let cityKey = this.#cityInput ? this.#cityInput.dataset.value : null;
+    const cityName = this.#cityInput ? this.#cityInput.value.trim() : null;
+
+    if (!cityKey && cityName) {
+      cityKey = cityName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+    }
+
     return {
-      cityKey: this.#cityInput ? this.#cityInput.dataset.value : null,
-      cityName: this.#cityInput ? this.#cityInput.value : null,
-      difficulty: this.#diffInput ? this.#diffInput.dataset.value : 'easy',
-      seriesCount: this.#seriesInput ? parseInt(this.#seriesInput.value, 10) : 10
+      cityKey: cityKey || 'la_ferte_saint_aubin',
+      cityName: cityName || 'La Ferté-Saint-Aubin',
+      difficulty: (this.#diffInput && this.#diffInput.dataset.value) ? this.#diffInput.dataset.value : 'easy',
+      mode: (this.#modeInput && this.#modeInput.dataset.value) ? this.#modeInput.dataset.value : 'target',
+      seriesCount: this.#seriesInput ? (parseInt(this.#seriesInput.value, 10) || 10) : 10
     };
   }
 
@@ -346,8 +404,10 @@ export class RoomView {
   updateLobby(roomData, currentUsername) {
     if (this.#lobbyCodeBadge) this.#lobbyCodeBadge.textContent = roomData.roomCode;
     
-    const shareUrl = `${window.location.origin}/#/room/${roomData.roomCode}`;
-    if (this.#lobbyShareUrl) this.#lobbyShareUrl.value = shareUrl;
+    const shareUrl = `${window.location.origin}/room/${roomData.roomCode}`;
+    if (this.#lobbyShareUrl && this.#lobbyShareUrl.value !== shareUrl) {
+      this.#lobbyShareUrl.value = shareUrl;
+    }
 
     if (this.#lobbyCreatorName) this.#lobbyCreatorName.textContent = roomData.createdBy;
     if (this.#lobbyDiffLevel) {
@@ -364,33 +424,42 @@ export class RoomView {
       this.#lobbyCityName.textContent = niceName;
     }
 
-    if (this.#lobbyRoomInfo) {
-      this.#lobbyRoomInfo.textContent = `Salon créé par ${roomData.createdBy}. Attente du lancement.`;
-    }
+
 
     if (this.#lobbyPlayersList && Array.isArray(roomData.participants)) {
       this.#lobbyPlayersCount.textContent = roomData.participants.length;
       
-      this.#lobbyPlayersList.innerHTML = roomData.participants.map(p => {
-        const isHost = p.username === roomData.createdBy;
-        const initial = p.username.charAt(0).toUpperCase();
-        
-        let statusBadge = '';
-        if (p.finished) {
-          statusBadge = `<span class="player-badge-ready">Score: ${p.score} pts</span>`;
-        } else if (roomData.status === 'playing') {
-          statusBadge = `<span class="player-badge-host" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.25);">Joue...</span>`;
-        }
-        
-        return `
-          <li class="player-item">
-            <div class="player-avatar">${initial}</div>
-            <span class="player-name">${p.username} ${p.username === currentUsername ? '<strong>(Vous)</strong>' : ''}</span>
-            ${isHost ? '<span class="player-badge-host">Hôte</span>' : ''}
-            ${statusBadge}
-          </li>
-        `;
-      }).join('');
+      const participantsSig = JSON.stringify(roomData.participants.map(p => ({
+        username: p.username,
+        finished: p.finished,
+        score: p.score
+      })));
+
+      if (this.#lastParticipantsSignature !== participantsSig) {
+        this.#lastParticipantsSignature = participantsSig;
+
+        this.#lobbyPlayersList.innerHTML = roomData.participants.map(p => {
+          const isHost = p.username === roomData.createdBy;
+          const safeName = escapeHTML(p.username);
+          const initial = escapeHTML(p.username.charAt(0).toUpperCase());
+          
+          let statusBadge = '';
+          if (p.finished) {
+            statusBadge = `<span class="player-badge-ready">Score: ${p.score} pts</span>`;
+          } else if (roomData.status === 'playing') {
+            statusBadge = `<span class="player-badge-host player-badge-playing">Joue...</span>`;
+          }
+          
+          return `
+            <li class="player-item">
+              <div class="player-avatar">${initial}</div>
+              <span class="player-name">${safeName} ${p.username === currentUsername ? '<strong>(Vous)</strong>' : ''}</span>
+              ${isHost ? '<span class="player-badge-host">Hôte</span>' : ''}
+              ${statusBadge}
+            </li>
+          `;
+        }).join('');
+      }
     }
 
     const isCreator = roomData.createdBy === currentUsername;
@@ -422,10 +491,11 @@ export class RoomView {
     const sorted = [...participants].sort((a, b) => (b.score || 0) - (a.score || 0));
     
     this.#resultsTableBody.innerHTML = sorted.map((p, idx) => {
-      const scoreText = p.finished ? `<strong>${p.score}</strong> pts` : '<span style="color:var(--text-muted);">En cours...</span>';
+      const safeName = escapeHTML(p.username);
+      const scoreText = p.finished ? `<strong>${p.score}</strong> pts` : '<span class="text-muted">En cours...</span>';
       const statusText = p.finished 
         ? '<span class="player-badge-ready">Terminé</span>' 
-        : '<span class="player-badge-host" style="background:rgba(99,102,241,0.15);color:#818cf8;border-color:rgba(99,102,241,0.25);">En cours...</span>';
+        : '<span class="player-badge-host player-badge-playing">En cours...</span>';
         
       let rankDisplay = `${idx + 1}`;
       if (idx === 0) rankDisplay = '🥇';
@@ -434,10 +504,10 @@ export class RoomView {
 
       return `
         <tr>
-          <td style="font-weight: 700; text-align: center; font-size: 1.1rem;">${rankDisplay}</td>
-          <td>${p.username}</td>
-          <td style="text-align: right;">${scoreText}</td>
-          <td style="text-align: center;">${statusText}</td>
+          <td class="rank-cell">${rankDisplay}</td>
+          <td>${safeName}</td>
+          <td class="text-right">${scoreText}</td>
+          <td class="text-center">${statusText}</td>
         </tr>
       `;
     }).join('');

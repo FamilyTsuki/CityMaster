@@ -4,12 +4,10 @@
     <!-- STEP 1: GUEST PSEUDONYM ENTRY (if not authenticated) -->
     <div id="room-guest-step" class="room-card hidden">
       <h2 class="room-title">Rejoindre la Compétition</h2>
-      <p class="room-subtitle">Veuillez choisir un nom de joueur pour participer à la session.</p>
       
       <form id="room-guest-form" class="form-group">
         <label for="room-guest-username" class="label">Votre Nom / Pseudo</label>
-        <input type="text" id="room-guest-username" class="input" placeholder="Ex: Jean-Eudes" required minlength="3" maxlength="20" pattern="^[a-zA-Z0-9_-]+$" />
-        <p class="input-help">3 à 20 caractères, lettres et chiffres uniquement.</p>
+        <input type="text" id="room-guest-username" class="input" placeholder="Ex: Jean-Eudes" required minlength="2" maxlength="25" />
         
         <div id="room-guest-error" class="error-message hidden"></div>
         
@@ -50,11 +48,20 @@
           
           <div class="form-group custom-select-container">
             <label for="room-diff-search" class="label">Difficulté</label>
-            <input type="text" id="room-diff-search" placeholder="Choisir la difficulté..." class="input" readonly style="cursor: pointer;" />
+            <input type="text" id="room-diff-search" placeholder="Choisir la difficulté..." class="input cursor-pointer" readonly />
             <ul id="room-diff-dropdown" class="dropdown-list hidden">
               <li data-value="easy" class="dropdown-item">Facile</li>
               <li data-value="medium" class="dropdown-item">Moyen</li>
               <li data-value="hard" class="dropdown-item">Difficile</li>
+            </ul>
+          </div>
+
+          <div class="form-group custom-select-container">
+            <label for="room-mode-search" class="label">Mode de jeu</label>
+            <input type="text" id="room-mode-search" placeholder="Choisir le mode de jeu..." class="input cursor-pointer" readonly />
+            <ul id="room-mode-dropdown" class="dropdown-list hidden">
+              <li data-value="target" class="dropdown-item">Trouver sur la carte</li>
+              <li data-value="identify" class="dropdown-item">Deviner le nom</li>
             </ul>
           </div>
 
@@ -82,7 +89,7 @@
           
           <div class="form-group">
             <label for="room-code-input" class="label">Code de la Room</label>
-            <input type="text" id="room-code-input" class="input code-input" placeholder="CODE12" maxlength="6" style="text-transform: uppercase;" />
+            <input type="text" id="room-code-input" class="input code-input" placeholder="CODE12" maxlength="6" />
           </div>
           
           <div id="room-join-error" class="error-message hidden"></div>
@@ -98,22 +105,32 @@
     <!-- STEP 3: LOBBY (Waiting for players) -->
     <div id="room-lobby-step" class="room-card hidden">
       <div class="lobby-header">
-        <div>
+        <div class="lobby-title-block">
+          <button id="lobby-leave-btn" class="btn-back-round" title="Quitter le salon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
           <h2 class="room-title">Lobby de Compétition</h2>
-          <p id="lobby-room-info" class="room-subtitle">Chargement des informations...</p>
         </div>
-        <div class="lobby-badge" id="lobby-code-badge">------</div>
+        <div class="lobby-host-info">
+          <span class="host-label">Hôte :</span>
+          <strong id="lobby-creator-name" class="host-name">---</strong>
+        </div>
       </div>
 
-      <div class="share-box">
-        <span class="share-label">Lien d'invitation :</span>
-        <div class="share-input-wrapper">
-          <input type="text" id="lobby-share-url" class="input share-input" readonly value="" />
-          <button id="lobby-copy-btn" class="btn btn-icon-only" title="Copier le lien">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-          </button>
+      <div class="lobby-share-row">
+        <div class="share-box">
+          <span class="share-label">Lien d'invitation (cliquer pour copier) :</span>
+          <input type="text" id="lobby-share-url" class="input share-input cursor-pointer" readonly value="" title="Cliquer pour copier le lien d'invitation" />
+          <span id="lobby-link-feedback" class="copy-feedback copy-feedback-left hidden">Lien d'invitation copié !</span>
         </div>
-        <span id="lobby-copy-feedback" class="copy-feedback hidden">Lien copié !</span>
+
+        <div class="code-box">
+          <span class="share-label share-label-right">Code du Salon (cliquer pour copier) :</span>
+          <div class="code-box-wrapper">
+            <div class="lobby-badge" id="lobby-code-badge" title="Cliquer pour copier le code">------</div>
+            <span id="lobby-code-feedback" class="copy-feedback copy-feedback-right hidden">Code copié !</span>
+          </div>
+        </div>
       </div>
 
       <div class="lobby-content-grid">
@@ -137,10 +154,6 @@
           </div>
           
           <div class="lobby-game-details">
-            <div class="detail-row">
-              <span class="detail-label">Organisateur :</span>
-              <strong id="lobby-creator-name">---</strong>
-            </div>
             <div class="detail-row">
               <span class="detail-label">Ville :</span>
               <strong id="lobby-city-name">---</strong>
@@ -168,26 +181,20 @@
         </div>
       </div>
       
-      <div class="room-card-footer">
-        <button id="lobby-leave-btn" class="btn btn-outline-danger">
-          <span>Quitter le Salon</span>
-        </button>
-      </div>
     </div>
 
     <!-- STEP 4: SESSION SCOREBOARD (Final Results) -->
     <div id="room-results-step" class="room-card hidden">
       <h2 class="room-title">Classement Final du Salon</h2>
-      <p class="room-subtitle">Voici les résultats de tous les participants pour ce tirage.</p>
 
       <div class="results-table-wrapper">
         <table class="results-table">
           <thead>
             <tr>
-              <th style="width: 80px;">Rang</th>
+              <th class="col-rank">Rang</th>
               <th>Joueur</th>
-              <th style="width: 150px; text-align: right;">Score</th>
-              <th style="width: 150px; text-align: center;">Statut</th>
+              <th class="col-score">Score</th>
+              <th class="col-status">Statut</th>
             </tr>
           </thead>
           <tbody id="results-table-body">

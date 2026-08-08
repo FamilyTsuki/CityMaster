@@ -108,7 +108,7 @@ export class GameView {
       };
 
       const renderCityMatches = (cities) => {
-        cityDropdown.innerHTML = '';
+        cityDropdown.replaceChildren();
         if (!cities || cities.length === 0) {
           cityDropdown.classList.add('hidden');
           cityInput.setAttribute('aria-expanded', 'false');
@@ -119,7 +119,10 @@ export class GameView {
           const li = document.createElement('li');
           li.setAttribute('role', 'option');
           li.className = 'dropdown-item';
-          li.innerHTML = `<strong>${city.name}</strong>`;
+          const strong = document.createElement('strong');
+          strong.textContent = city.name || '';
+          li.appendChild(strong);
+
           li.addEventListener('click', () => {
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;
@@ -304,15 +307,19 @@ export class GameView {
     const difficultyDropdown = document.getElementById('difficulty-dropdown-list');
     const cityInput = document.getElementById('city-search');
 
-    if (cityInput && !cityInput.value) {
+    if (cityInput) {
       const lastCityStr = localStorage.getItem('citymaster_last_city');
       if (lastCityStr) {
         try {
           const lastCity = JSON.parse(lastCityStr);
           if (lastCity && lastCity.name && lastCity.key) {
-            cityInput.value = lastCity.name;
-            cityInput.dataset.value = lastCity.key;
-            window.citymaster_selected_city_data = lastCity;
+            if (!cityInput.value) {
+              cityInput.value = lastCity.name;
+              cityInput.dataset.value = lastCity.key;
+            }
+            if (cityInput.dataset.value === lastCity.key) {
+              window.citymaster_selected_city_data = lastCity;
+            }
           }
         } catch(e) {}
       }
@@ -474,7 +481,36 @@ export class GameView {
           return;
         }
 
-        const selectedCityData = window.citymaster_selected_city_data;
+        let selectedCityData = window.citymaster_selected_city_data;
+        if (!selectedCityData && cityKey) {
+          const lastCityStr = localStorage.getItem('citymaster_last_city');
+          if (lastCityStr) {
+            try {
+              const lastCity = JSON.parse(lastCityStr);
+              if (lastCity && lastCity.key === cityKey) {
+                selectedCityData = lastCity;
+                window.citymaster_selected_city_data = lastCity;
+              }
+            } catch(e) {}
+          }
+        }
+
+        if (!selectedCityData && cityKey && cityKeyInput) {
+          try {
+            const token = localStorage.getItem('token');
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+            const res = await fetch(`/api/cities?q=${encodeURIComponent(cityKeyInput.value)}`, { headers });
+            if (res.ok) {
+              const cities = await res.json();
+              const matched = cities.find(c => c.key === cityKey || c.name.toLowerCase() === cityKeyInput.value.toLowerCase().trim());
+              if (matched) {
+                selectedCityData = matched;
+                window.citymaster_selected_city_data = matched;
+              }
+            }
+          } catch (e) {}
+        }
+
         if (!selectedCityData) {
           this.showError(i18n.t('errors.select_city_valid'));
           return;
@@ -664,19 +700,37 @@ export class GameView {
 
   renderSprintResults(history) {
     const tbody = document.getElementById('sprint-history-body');
+  renderGameSummaryTable(history) {
+    const tbody = document.getElementById('summary-table-body');
     if (!tbody) return;
 
-    tbody.innerHTML = '';
+    tbody.replaceChildren();
+
     history.forEach((item, index) => {
       const tr = document.createElement('tr');
+
+      const tdIndex = document.createElement('td');
+      tdIndex.textContent = String(index + 1);
+
+      const tdStreet = document.createElement('td');
+      const strongStreet = document.createElement('strong');
+      strongStreet.textContent = item.streetName || '';
+      tdStreet.appendChild(strongStreet);
+
+      const tdTime = document.createElement('td');
+      const timeBadge = document.createElement('span');
       const timeSec = (item.time / 1000).toFixed(1);
       const isSuccess = item.score > 0;
-      tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td><strong>${this.#escapeHtml(item.streetName)}</strong></td>
-        <td><span class="badge ${isSuccess ? 'badge-success' : 'badge-danger'}">${timeSec}s</span></td>
-        <td><strong>${item.score} pts</strong></td>
-      `;
+      timeBadge.className = `badge ${isSuccess ? 'badge-success' : 'badge-danger'}`;
+      timeBadge.textContent = `${timeSec}s`;
+      tdTime.appendChild(timeBadge);
+
+      const tdScore = document.createElement('td');
+      const strongScore = document.createElement('strong');
+      strongScore.textContent = `${item.score} pts`;
+      tdScore.appendChild(strongScore);
+
+      tr.append(tdIndex, tdStreet, tdTime, tdScore);
       tbody.appendChild(tr);
     });
   }
@@ -698,12 +752,18 @@ export class GameView {
 
     if (!tbody) return;
 
-    tbody.innerHTML = '';
+    tbody.replaceChildren();
 
     if (!leaderboardData || leaderboardData.length === 0) {
       import('../services/I18nService.js').then(({ I18nService }) => {
         const noScoresText = I18nService.getInstance().t('leaderboard.no_scores');
-        tbody.innerHTML = `<tr><td colspan="4" class="text-center">${noScoresText}</td></tr>`;
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 4;
+        td.className = 'text-center';
+        td.textContent = noScoresText;
+        tr.appendChild(td);
+        tbody.replaceChildren(tr);
       });
       return;
     }
@@ -711,12 +771,23 @@ export class GameView {
     leaderboardData.forEach((scoreData, index) => {
       const tr = document.createElement('tr');
       const date = new Date(scoreData.created_at).toLocaleDateString('fr-FR');
-      tr.innerHTML = `
-        <td>#${index + 1}</td>
-        <td><strong>${this.#escapeHtml(scoreData.username)}</strong></td>
-        <td>${scoreData.score} pts</td>
-        <td class="text-muted">${date}</td>
-      `;
+
+      const tdRank = document.createElement('td');
+      tdRank.textContent = `#${index + 1}`;
+
+      const tdUser = document.createElement('td');
+      const strongUser = document.createElement('strong');
+      strongUser.textContent = scoreData.username || '';
+      tdUser.appendChild(strongUser);
+
+      const tdScore = document.createElement('td');
+      tdScore.textContent = `${scoreData.score} pts`;
+
+      const tdDate = document.createElement('td');
+      tdDate.className = 'text-muted';
+      tdDate.textContent = date;
+
+      tr.append(tdRank, tdUser, tdScore, tdDate);
       tbody.appendChild(tr);
     });
   }
@@ -783,7 +854,7 @@ export class GameView {
     const hideDropdown = () => {
       if (!this.#autocompleteList) return;
       this.#autocompleteList.classList.add('hidden');
-      this.#autocompleteList.innerHTML = '';
+      this.#autocompleteList.replaceChildren();
       this.#streetInput.setAttribute('aria-expanded', 'false');
       selectedIndex = -1;
     };
@@ -804,22 +875,27 @@ export class GameView {
         return;
       }
 
-      this.#autocompleteList.innerHTML = matches.map((match, i) => `
-        <li data-index="${i}" data-value="${this.#escapeHtml(match)}" role="option" class="dropdown-item">
-          ${this.#escapeHtml(match)}
-        </li>
-      `).join('');
+      this.#autocompleteList.replaceChildren();
+      matches.forEach((match, i) => {
+        const li = document.createElement('li');
+        li.setAttribute('data-index', i);
+        li.setAttribute('data-value', match);
+        li.setAttribute('role', 'option');
+        li.className = 'dropdown-item';
+        li.textContent = match;
+
+        li.addEventListener('click', () => {
+          this.#streetInput.value = match;
+          hideDropdown();
+          this.#streetInput.focus();
+        });
+
+        this.#autocompleteList.appendChild(li);
+      });
 
       this.#autocompleteList.classList.remove('hidden');
       this.#streetInput.setAttribute('aria-expanded', 'true');
       selectedIndex = -1;
-
-      this.#autocompleteList.querySelectorAll('li').forEach(item => {
-        item.addEventListener('click', () => {
-          this.#streetInput.value = item.getAttribute('data-value');
-          hideDropdown();
-          this.#streetInput.focus();
-        });
       });
     };
 

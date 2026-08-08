@@ -66,6 +66,7 @@ class App {
       },
       '/play': () => this.#showPlay(),
       '/room': () => this.#roomController.showSetup(),
+      '/room/:code/play': () => this.#showPlay(),
       '/room/:code': (params) => this.#roomController.initRoom(params),
       '/certificate': () => {
         this.#gameView.showScreen('certificate');
@@ -172,7 +173,7 @@ class App {
 
         const htmlTemplates = await Promise.all(
           screens.map(async (screen) => {
-            const response = await fetch(`screens/${screen}.html`);
+            const response = await fetch(`/screens/${screen}.html`);
             if (!response.ok) {
               throw new Error(`Failed to load screen template: ${screen}`);
             }

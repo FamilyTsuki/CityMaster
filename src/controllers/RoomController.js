@@ -8,6 +8,7 @@ export class RoomController {
     this.pollingInterval = null;
     this.currentRoomCode = null;
     this.pendingRoomCode = null;
+    this.isTransitioning = false;
 
     this.#initEvents();
   }
@@ -46,6 +47,7 @@ export class RoomController {
 
   async initRoom(params) {
     this.#stopPolling();
+    this.isTransitioning = false;
     const code = params.code ? params.code.trim().toUpperCase() : null;
     
     if (!code) {
@@ -63,7 +65,6 @@ export class RoomController {
     }
 
     try {
-      this.roomView.showStep('lobby');
       const token = localStorage.getItem('token');
       const headers = {
         'Content-Type': 'application/json',
@@ -96,7 +97,7 @@ export class RoomController {
   async #handleGuestLogin(username) {
     try {
       this.roomView.hideGuestError();
-      const res = await fetch('/api/auth/guest', {
+      const res = await fetch('/api/guest', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -117,8 +118,8 @@ export class RoomController {
 
       this.gameView.setPlayerName(data.username);
 
-      if (this.pendingRoomCode) {
-        const targetCode = this.pendingRoomCode;
+      const targetCode = this.pendingRoomCode || this.currentRoomCode;
+      if (targetCode) {
         this.pendingRoomCode = null;
         this.initRoom({ code: targetCode });
       } else {
@@ -149,7 +150,8 @@ export class RoomController {
         body: JSON.stringify({
           cityKey: config.cityKey,
           difficulty: config.difficulty,
-          seriesCount: config.seriesCount
+          seriesCount: config.seriesCount,
+          mode: config.mode
         })
       });
 
@@ -179,6 +181,7 @@ export class RoomController {
   async #handleStartGame() {
     if (!this.currentRoomCode) return;
     try {
+      this.gameView.showLoading('Lancement du test multijoueurs...');
       const token = localStorage.getItem('token');
       const res = await fetch(`/api/rooms/${this.currentRoomCode}/start`, {
         method: 'POST',
@@ -189,9 +192,11 @@ export class RoomController {
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         alert(data.error || 'Erreur lors du lancement de la partie.');
+        this.roomView.showScreen();
       }
     } catch (error) {
       console.error('Start Game UI Error:', error);
+      this.roomView.showScreen();
     }
   }
 
@@ -240,13 +245,16 @@ export class RoomController {
 
       if (roomData.status === 'playing') {
         this.#stopPolling();
+        if (this.isTransitioning) return;
+        this.isTransitioning = true;
         
         const me = roomData.participants.find(p => p.username === currentUsername);
         if (me && me.finished) {
           this.roomView.showStep('results');
           this.roomView.updateResults(roomData.participants);
         } else {
-          const mode = 'identify';
+          const mode = roomData.mode || 'target';
+          this.gameView.showLoading('Chargement de la partie...');
           
           this.gameController.startRoomGame(
             currentUsername,
@@ -254,12 +262,15 @@ export class RoomController {
             mode,
             roomData.difficulty,
             roomData.testId,
-            roomData.roomCode
+            roomData.roomCode,
+            roomData.seriesCount
           );
         }
       } else if (roomData.status === 'finished') {
         this.roomView.showStep('results');
         this.roomView.updateResults(roomData.participants);
+      } else {
+        this.roomView.showStep('lobby');
       }
 
     } catch (error) {

@@ -99,11 +99,20 @@ export class I18nService {
     if (lower.includes('large') || lower.includes('volumineuse')) {
       return this.t('errors.file_too_large');
     }
-    if (lower.includes('city') || lower.includes('commune')) {
-      return this.t('errors.select_city_valid');
-    }
     if (lower.includes('not_enough_streets_difficulty') || lower.includes('not enough streets')) {
       return this.t('errors.not_enough_streets_difficulty');
+    }
+    if (lower.includes('overpass')) {
+      return "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.";
+    }
+
+    // Preserve friendly custom French errors from backend
+    if (rawError.includes(' ') && !lower.includes('failed to fetch') && !lower.includes('networkerror') && !lower.includes('error')) {
+      return rawError;
+    }
+
+    if (lower.includes('city') || lower.includes('commune')) {
+      return this.t('errors.select_city_valid');
     }
 
     return this.t('errors.network_error');
