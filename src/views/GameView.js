@@ -699,7 +699,8 @@ export class GameView {
   }
 
   renderSprintResults(history) {
-    const tbody = document.getElementById('sprint-history-body');
+    this.renderGameSummaryTable(history);
+  }
   renderGameSummaryTable(history) {
     const tbody = document.getElementById('summary-table-body');
     if (!tbody) return;
@@ -896,7 +897,6 @@ export class GameView {
       this.#autocompleteList.classList.remove('hidden');
       this.#streetInput.setAttribute('aria-expanded', 'true');
       selectedIndex = -1;
-      });
     };
 
     this.#streetInput.addEventListener('input', () => {
