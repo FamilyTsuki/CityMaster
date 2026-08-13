@@ -64,7 +64,6 @@ export class AdminController {
         try {
           const lastCity = JSON.parse(lastCityRaw);
           input.value = lastCity.name;
-          this.selectCity(lastCity);
         } catch(e) {}
       }
 
@@ -240,7 +239,6 @@ export class AdminController {
 
     const difficultySelect = document.getElementById('admin-difficulty-mode-select');
     if (difficultySelect) {
-      this.#loadSettings();
       difficultySelect.addEventListener('change', async (e) => {
         const mode = e.target.value;
         this.#difficultyMode = mode;
@@ -259,6 +257,7 @@ export class AdminController {
   }
 
   async #loadSettings() {
+    if (localStorage.getItem('is_admin') !== 'true') return;
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -307,7 +306,7 @@ export class AdminController {
   }
 
   async loadDistricts() {
-    if (!this.#selectedCity) return;
+    if (!this.#selectedCity || localStorage.getItem('is_admin') !== 'true') return;
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -367,7 +366,7 @@ export class AdminController {
   }
 
   async loadRoutes() {
-    if (!this.#selectedCity) return;
+    if (!this.#selectedCity || localStorage.getItem('is_admin') !== 'true') return;
     try {
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
@@ -615,13 +614,27 @@ export class AdminController {
     }
   }
 
-  showDashboard() {
+  async showDashboard() {
+    if (localStorage.getItem('is_admin') !== 'true') return;
+
     const dashboard = document.getElementById('admin-dashboard-view');
     const districts = document.getElementById('admin-districts-view');
     const routes = document.getElementById('admin-routes-view');
     if (dashboard) dashboard.classList.remove('hidden');
     if (districts) districts.classList.add('hidden');
     if (routes) routes.classList.add('hidden');
+
+    this.#loadSettings();
+
+    if (!this.#selectedCity) {
+      const lastCityRaw = localStorage.getItem('citymaster_last_city');
+      if (lastCityRaw) {
+        try {
+          const lastCity = JSON.parse(lastCityRaw);
+          await this.selectCity(lastCity);
+        } catch (e) {}
+      }
+    }
   }
 
   showDistricts() {
