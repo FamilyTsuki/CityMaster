@@ -1,15 +1,17 @@
+import 'dotenv/config';
 import pg from 'pg';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 const { Pool } = pg;
 const pool = new Pool({
   user: process.env.PGUSER,
   password: process.env.PGPASSWORD,
   host: process.env.PGHOST,
-  port: process.env.PGPORT,
+  port: process.env.PGPORT ? parseInt(process.env.PGPORT, 10) : 5432,
   database: process.env.PGDATABASE,
+});
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle PostgreSQL client:', err);
 });
 
 export const initDB = async () => {
@@ -18,28 +20,33 @@ export const initDB = async () => {
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
         username VARCHAR(255) UNIQUE NOT NULL,
-        password VARCHAR(255) NOT NULL,
+        password VARCHAR(255),
         profile_image_url VARCHAR(500)
       );
     `);
-    
+
     try {
-      await pool.query('ALTER TABLE users ADD COLUMN profile_image_url VARCHAR(500);');
+      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image_url VARCHAR(500);');
     } catch (e) {
-      if (e.code !== '42701') console.error('Error adding profile_image_url:', e);
-    }
-    
-    try {
-      await pool.query('ALTER TABLE users ADD COLUMN google_id VARCHAR(255) UNIQUE;');
-      await pool.query('ALTER TABLE users ALTER COLUMN password DROP NOT NULL;');
-    } catch (e) {
-      if (e.code !== '42701') console.error('Error modifying google_id/password:', e);
+      console.error('Error adding profile_image_url:', e);
     }
 
     try {
-      await pool.query('ALTER TABLE users ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;');
+      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE;');
     } catch (e) {
-      if (e.code !== '42701') console.error('Error adding is_admin:', e);
+      console.error('Error adding google_id:', e);
+    }
+
+    try {
+      await pool.query('ALTER TABLE users ALTER COLUMN password DROP NOT NULL;');
+    } catch (e) {
+      console.error('Error dropping password not null constraint:', e);
+    }
+
+    try {
+      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;');
+    } catch (e) {
+      console.error('Error adding is_admin:', e);
     }
 
     try {
@@ -68,17 +75,17 @@ export const initDB = async () => {
         date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    
+
     try {
-      await pool.query("ALTER TABLE scores ADD COLUMN difficulty VARCHAR(50) DEFAULT 'hard';");
+      await pool.query("ALTER TABLE scores ADD COLUMN IF NOT EXISTS difficulty VARCHAR(50) DEFAULT 'hard';");
     } catch (e) {
-      if (e.code !== '42701') console.error('Error adding difficulty column to scores:', e);
+      console.error('Error adding difficulty column to scores:', e);
     }
 
     try {
-      await pool.query("ALTER TABLE scores ADD COLUMN test_id INTEGER;");
+      await pool.query("ALTER TABLE scores ADD COLUMN IF NOT EXISTS test_id INTEGER;");
     } catch (e) {
-      if (e.code !== '42701') console.error('Error adding test_id column to scores:', e);
+      console.error('Error adding test_id column to scores:', e);
     }
 
     await pool.query(`
@@ -99,13 +106,13 @@ export const initDB = async () => {
     try {
       await pool.query('ALTER TABLE rooms ADD COLUMN IF NOT EXISTS series_count INTEGER DEFAULT 10;');
     } catch (e) {
-      if (e.code !== '42701') console.error('Error adding series_count to rooms:', e);
+      console.error('Error adding series_count to rooms:', e);
     }
 
     try {
       await pool.query("ALTER TABLE rooms ADD COLUMN IF NOT EXISTS mode VARCHAR(50) DEFAULT 'target';");
     } catch (e) {
-      if (e.code !== '42701') console.error('Error adding mode to rooms:', e);
+      console.error('Error adding mode to rooms:', e);
     }
 
     await pool.query(`
