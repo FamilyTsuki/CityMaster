@@ -25,23 +25,50 @@ export class AuthView {
     try {
       const response = await fetch('/api/config');
       const config = await response.json();
-      
-      if (config.googleClientId && window.google) {
-        window.google.accounts.id.initialize({
-          client_id: config.googleClientId,
-          callback: (response) => {
-            callback(response.credential);
-          }
-        });
-        window.google.accounts.id.renderButton(
-          document.getElementById('google-login-btn'),
-          { theme: 'outline', size: 'large', width: 250 }
-        );
-      } else {
-        const btnContainer = document.getElementById('google-login-btn');
+      const btnContainer = document.getElementById('google-login-btn');
+
+      if (!config || !config.googleClientId) {
         if (btnContainer) {
           btnContainer.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">(Google Auth non configuré)</span>`;
         }
+        return;
+      }
+
+      const renderButton = () => {
+        const targetBtn = document.getElementById('google-login-btn');
+        if (!targetBtn) return false;
+
+        if (window.google?.accounts?.id) {
+          window.google.accounts.id.initialize({
+            client_id: config.googleClientId,
+            callback: (res) => {
+              callback(res.credential);
+            }
+          });
+          targetBtn.innerHTML = '';
+          window.google.accounts.id.renderButton(
+            targetBtn,
+            { theme: 'outline', size: 'large', width: 250 }
+          );
+          return true;
+        }
+        return false;
+      };
+
+      if (!renderButton()) {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          attempts++;
+          if (renderButton() || attempts >= 50) {
+            clearInterval(interval);
+            if (attempts >= 50 && !window.google) {
+              const targetBtn = document.getElementById('google-login-btn');
+              if (targetBtn && !targetBtn.children.length) {
+                targetBtn.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">(Google Auth indisponible)</span>`;
+              }
+            }
+          }
+        }, 100);
       }
     } catch (error) {
       console.warn('Failed to load Google Auth config', error);

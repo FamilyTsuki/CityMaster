@@ -3,7 +3,14 @@ import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { User } from '../models/User.js';
 
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+let googleClientInstance = null;
+
+function getGoogleClient() {
+  if (!googleClientInstance && process.env.GOOGLE_CLIENT_ID) {
+    googleClientInstance = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+  }
+  return googleClientInstance;
+}
 
 export class AuthController {
   static async register(req, res) {
@@ -84,11 +91,12 @@ export class AuthController {
       }
 
       const clientId = process.env.GOOGLE_CLIENT_ID;
-      if (!clientId) {
+      const client = getGoogleClient();
+      if (!client) {
         return res.status(500).json({ error: 'Google Client ID not configured on server' });
       }
 
-      const ticket = await googleClient.verifyIdToken({
+      const ticket = await client.verifyIdToken({
         idToken: credential,
         audience: clientId,
       });

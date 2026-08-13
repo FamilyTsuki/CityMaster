@@ -1,8 +1,8 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
 import compression from 'compression';
 import { initDB } from './src/backend/config/database.js';
 import { configureHelmet, globalRateLimiter } from './src/backend/middleware/security.js';
@@ -15,8 +15,6 @@ import citiesRoutes from './src/backend/routes/cities.routes.js';
 import gameRoutes from './src/backend/routes/game.routes.js';
 import adminRoutes from './src/backend/routes/admin.routes.js';
 import roomRoutes from './src/backend/routes/room.routes.js';
-
-dotenv.config();
 
 if (!process.env.JWT_SECRET) {
   console.error('FATAL ERROR: JWT_SECRET environment variable is missing.');
