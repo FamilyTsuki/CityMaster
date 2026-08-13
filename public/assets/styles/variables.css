@@ -1,5 +1,6 @@
 :root,
 [data-theme="light"] {
+  color-scheme: light;
   --bg-main: #f8fafc;
   --bg-card: rgba(255, 255, 255, 0.85);
   --bg-card-solid: #ffffff;
@@ -50,6 +51,7 @@
 }
 
 [data-theme="dark"] {
+  color-scheme: dark;
   --bg-main: #0b0f19;
   --bg-card: rgba(21, 30, 49, 0.85);
   --bg-card-solid: #151e31;
