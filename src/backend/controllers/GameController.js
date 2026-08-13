@@ -80,25 +80,21 @@ export class GameController {
         if (f.properties.isCustom && f.properties.isLotissement) return 'lotissement';
         if (f.geometry.type === 'Point') return 'hard';
 
+        const name = f.properties.name || '';
+        const nameLower = name.toLowerCase().trim();
+        const MINOR_KEYWORDS = ['chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'square', 'squares'];
+        const isMinorWay = MINOR_KEYWORDS.some(k => nameLower.includes(k));
+
         if (diffMode === 'nomenclature') {
-          const name = f.properties.name || '';
-          const nameLower = name.toLowerCase().trim();
           const firstWord = nameLower.split(/[\s'-]+/)[0];
           const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
-          const MINOR_TYPES = ['impasse', 'impasses', 'allée', 'allées', 'chemin', 'chemins', 'chemain', 'passage', 'passages', 'ruelle', 'ruelles', 'square', 'squares', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'sentier', 'sentiers', 'traverse', 'traverses'];
           
-          if (MAJOR_TYPES.includes(firstWord)) return 'easy';
-          const isMinor = MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin');
-          if (!isMinor) return 'medium';
+          if (MAJOR_TYPES.includes(firstWord) && !isMinorWay) return 'easy';
+          if (!isMinorWay) return 'medium';
           return 'hard';
         } else if (diffMode === 'center') {
-          const name = f.properties.name || '';
-          const nameLower = name.toLowerCase().trim();
           const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
-          const easyWords = [...mediumWords, 'impasse'];
-          let isEasyType = easyWords.some(w => nameLower.includes(w));
           let isMediumType = mediumWords.some(w => nameLower.includes(w));
-          let isHardType = nameLower.includes('chemin') || nameLower.includes('allée') || nameLower.includes('ruelle') || nameLower.includes('chemain');
           
           let nearCount = 0;
           if (centroids[index]) {
@@ -112,13 +108,15 @@ export class GameController {
           }
           
           const inCenter = nearCount >= 4;
-          if (isHardType) return 'hard';
-          if (inCenter && isEasyType) return 'easy';
+          if (isMinorWay) return 'hard';
+          if (inCenter && isMediumType) return 'easy';
           if (isMediumType) return 'medium';
           return 'hard';
         } else {
           let streetLength = 0;
           try { streetLength = turf.length(f, { units: 'meters' }); } catch (e) { return 'hard'; }
+
+          if (isMinorWay) return 'hard';
           if (streetLength > 800) return 'easy';
           if (streetLength >= 250 && streetLength <= 800) return 'medium';
           return 'hard';

@@ -399,15 +399,17 @@ export class AdminController {
   }
 
   #getRouteDifficulty(route) {
+    const name = route.properties.name || '';
+    const nameLower = name.toLowerCase().trim();
+    const MINOR_KEYWORDS = ['chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'square', 'squares'];
+    const isMinorWay = MINOR_KEYWORDS.some(k => nameLower.includes(k));
+
     if (this.#difficultyMode === 'nomenclature') {
-      const name = route.properties.name || '';
-      const nameLower = name.toLowerCase().trim();
       const firstWord = nameLower.split(/[\s'-]+/)[0];
       const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
-      const MINOR_TYPES = ['impasse', 'impasses', 'allée', 'allées', 'chemin', 'chemins', 'chemain', 'passage', 'passages', 'ruelle', 'ruelles', 'square', 'squares', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'sentier', 'sentiers', 'traverse', 'traverses'];
       
-      if (MAJOR_TYPES.includes(firstWord)) return 'easy';
-      if (MINOR_TYPES.includes(firstWord) || nameLower.startsWith('grand chemin')) return 'hard';
+      if (MAJOR_TYPES.includes(firstWord) && !isMinorWay) return 'easy';
+      if (isMinorWay) return 'hard';
       return 'medium';
     } else {
       let len = 0;
@@ -419,6 +421,7 @@ export class AdminController {
       } catch (e) {
         return 'hard';
       }
+      if (isMinorWay) return 'hard';
       if (len > 800) return 'easy';
       if (len >= 250) return 'medium';
       return 'hard';
@@ -468,11 +471,10 @@ export class AdminController {
       let diff = 'hard';
       if (this.#difficultyMode === 'center') {
         const nameLower = (r.properties.name || '').toLowerCase().trim();
+        const MINOR_KEYWORDS = ['chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'square', 'squares'];
+        const isMinorWay = MINOR_KEYWORDS.some(k => nameLower.includes(k));
         const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
-        const easyWords = [...mediumWords, 'impasse'];
-        let isEasyType = easyWords.some(w => nameLower.includes(w));
         let isMediumType = mediumWords.some(w => nameLower.includes(w));
-        let isHardType = nameLower.includes('chemin') || nameLower.includes('allée') || nameLower.includes('ruelle') || nameLower.includes('chemain');
         
         let nearCount = 0;
         if (centroids[i] && window.turf) {
@@ -486,8 +488,8 @@ export class AdminController {
         }
         
         const inCenter = nearCount >= 4;
-        if (isHardType) diff = 'hard';
-        else if (inCenter && isEasyType) diff = 'easy';
+        if (isMinorWay) diff = 'hard';
+        else if (inCenter && isMediumType) diff = 'easy';
         else if (isMediumType) diff = 'medium';
       } else {
         diff = this.#getRouteDifficulty(r);

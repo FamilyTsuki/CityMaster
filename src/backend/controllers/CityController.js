@@ -153,25 +153,23 @@ export class CityController {
 
       allCityStreets.forEach((f, i) => {
         const nameKey = f.properties.name.toLowerCase().trim();
+        const MINOR_KEYWORDS = ['chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'square', 'squares'];
+        const isMinorWay = MINOR_KEYWORDS.some(k => nameKey.includes(k));
 
         if (diffMode === 'nomenclature') {
           const firstWord = nameKey.split(/[\s'-]+/)[0];
           const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
-          const MINOR_TYPES = ['impasse', 'impasses', 'allée', 'allées', 'chemin', 'chemins', 'chemain', 'passage', 'passages', 'ruelle', 'ruelles', 'square', 'squares', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'sentier', 'sentiers', 'traverse', 'traverses'];
           
-          if (MAJOR_TYPES.includes(firstWord)) {
+          if (MAJOR_TYPES.includes(firstWord) && !isMinorWay) {
             diffCount.easy.add(nameKey);
-          } else if (MINOR_TYPES.includes(firstWord) || nameKey.startsWith('grand chemin')) {
+          } else if (isMinorWay) {
             diffCount.hard.add(nameKey);
           } else {
             diffCount.medium.add(nameKey);
           }
         } else if (diffMode === 'center') {
           const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
-          const easyWords = [...mediumWords, 'impasse'];
-          let isEasyType = easyWords.some(w => nameKey.includes(w));
           let isMediumType = mediumWords.some(w => nameKey.includes(w));
-          let isHardType = nameKey.includes('chemin') || nameKey.includes('allée') || nameKey.includes('ruelle') || nameKey.includes('chemain');
           
           let nearCount = 0;
           if (centroids[i]) {
@@ -185,9 +183,9 @@ export class CityController {
           }
           
           const inCenter = nearCount >= 4;
-          if (isHardType) {
+          if (isMinorWay) {
             diffCount.hard.add(nameKey);
-          } else if (inCenter && isEasyType) {
+          } else if (inCenter && isMediumType) {
             diffCount.easy.add(nameKey);
           } else if (isMediumType) {
             diffCount.medium.add(nameKey);
@@ -207,9 +205,15 @@ export class CityController {
             return;
           }
 
-          if (streetLength > 800) diffCount.easy.add(nameKey);
-          else if (streetLength >= 250) diffCount.medium.add(nameKey);
-          else diffCount.hard.add(nameKey);
+          if (isMinorWay) {
+            diffCount.hard.add(nameKey);
+          } else if (streetLength > 800) {
+            diffCount.easy.add(nameKey);
+          } else if (streetLength >= 250) {
+            diffCount.medium.add(nameKey);
+          } else {
+            diffCount.hard.add(nameKey);
+          }
         }
       });
 
