@@ -20,12 +20,12 @@ export class RoomController {
     this.roomView.bindStartGame(() => this.#handleStartGame());
     this.roomView.bindLeaveRoom(() => this.#handleLeaveRoom());
     this.roomView.bindBackClick(() => {
-      this.#stopPolling();
+      this.stopPolling();
       this.router.navigate('/');
     });
 
     this.roomView.bindHomeClick(() => {
-      this.#stopPolling();
+      this.stopPolling();
       this.router.navigate('/');
     });
     this.roomView.bindRefreshScores(() => this.#fetchRoomDetails());

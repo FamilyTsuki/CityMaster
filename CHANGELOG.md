@@ -2,6 +2,11 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [1.5.4] - 2026-08-14
+
+### Corrigé
+- **Correction d'une Erreur de Syntaxe JS (`SyntaxError`)** : Remplacement des appels résiduels `#stopPolling()` par la méthode publique `stopPolling()` dans les gestionnaires de retour arrière et d'accueil du contrôleur de salon, éliminant l'erreur console `Uncaught SyntaxError: Private field '#stopPolling' must be declared in an enclosing class`.
+
 ## [1.5.3] - 2026-08-14
 
 ### Ajouté
