@@ -204,7 +204,11 @@ export class RoomController {
 
   async #handleResetRoom() {
     if (!this.currentRoomCode) return;
-    if (!confirm('Voulez-vous réinitialiser le salon et recommencer avec les mêmes rues ?')) return;
+    const confirmed = await this.roomView.showConfirmModal(
+      'Réinitialiser le salon',
+      'Voulez-vous réinitialiser le salon et recommencer avec les mêmes rues ?'
+    );
+    if (!confirmed) return;
 
     try {
       this.gameView.showLoading('Réinitialisation du salon...');

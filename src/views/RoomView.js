@@ -43,6 +43,12 @@ export class RoomView {
   #setupBackBtn;
   #lastParticipantsSignature = '';
 
+  #confirmModal;
+  #confirmTitle;
+  #confirmMessage;
+  #confirmOkBtn;
+  #confirmCancelBtn;
+
   constructor() {
     this.#screens = {
       room: document.getElementById('room-screen')
@@ -96,6 +102,12 @@ export class RoomView {
     this.#seriesInput = document.getElementById('room-series-input');
     this.#setupBackBtn = document.getElementById('room-back-btn');
     this.#lobbyExpiresAt = document.getElementById('lobby-expires-at');
+
+    this.#confirmModal = document.getElementById('room-confirm-modal');
+    this.#confirmTitle = document.getElementById('room-confirm-title');
+    this.#confirmMessage = document.getElementById('room-confirm-message');
+    this.#confirmOkBtn = document.getElementById('room-confirm-ok-btn');
+    this.#confirmCancelBtn = document.getElementById('room-confirm-cancel-btn');
 
     this.#setupCopyLink();
     this.#setupWelcomeForm();
@@ -576,5 +588,37 @@ export class RoomView {
         </tr>
       `;
     }).join('');
+  }
+
+  showConfirmModal(title, message) {
+    return new Promise((resolve) => {
+      if (!this.#confirmModal) {
+        resolve(false);
+        return;
+      }
+
+      if (this.#confirmTitle) this.#confirmTitle.textContent = title;
+      if (this.#confirmMessage) this.#confirmMessage.textContent = message;
+
+      this.#confirmModal.classList.remove('hidden');
+
+      const cleanup = (result) => {
+        this.#confirmModal.classList.add('hidden');
+        if (this.#confirmOkBtn) this.#confirmOkBtn.removeEventListener('click', onOk);
+        if (this.#confirmCancelBtn) this.#confirmCancelBtn.removeEventListener('click', onCancel);
+        this.#confirmModal.removeEventListener('click', onOverlay);
+        resolve(result);
+      };
+
+      const onOk = () => cleanup(true);
+      const onCancel = () => cleanup(false);
+      const onOverlay = (e) => {
+        if (e.target === this.#confirmModal) cleanup(false);
+      };
+
+      if (this.#confirmOkBtn) this.#confirmOkBtn.addEventListener('click', onOk);
+      if (this.#confirmCancelBtn) this.#confirmCancelBtn.addEventListener('click', onCancel);
+      this.#confirmModal.addEventListener('click', onOverlay);
+    });
   }
 }

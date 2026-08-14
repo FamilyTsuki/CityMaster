@@ -2,6 +2,22 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [1.5.6] - 2026-08-14
+
+### Amélioré
+- **Modal de Confirmation Personnalisée (Remplacement de la Pop-up Navigateur)** :
+  - **Suppression du `confirm()` Natif** : Remplacement de l'alerte navigateur `confirm()` par une fenêtre modale sur-mesure (`#room-confirm-modal`) intégrée au thème de l'application.
+  - **Design Glassmorphe & Animation Fluid** : Fenêtre contextuelle avec arrière-plan flouté, titre « Réinitialiser le salon », message « Voulez-vous réinitialiser le salon et recommencer avec les mêmes rues ? » et deux boutons explicites « Annuler » et « Recommencer ».
+
+## [1.5.5] - 2026-08-14
+
+### Amélioré
+- **Optimisation Mobile Responsive Complète** :
+  - **Boutons d'Action des Salons (Room Results)** : Empilement vertical (`flex-direction: column; width: 100%`) des 4 boutons d'action sur mobile (`@media max-width: 640px`) pour empêcher tout débordement ou dépassement d'écran.
+  - **Interface d'Édition Administrateur (Admin Panel)** : Layout hybride sur smartphone (`@media max-width: 768px`) avec la carte interactive Leaflet en haut (55vh) et le volet de configuration sous forme de panneau inférieur scrollable (45vh).
+  - **Prise en Charge des Petits Écrans (< 400px)** : Marges et tailles de police adaptées sur très petits smartphones pour tous les formulaires, lobbies et tableaux de résultats.
+  - **Alignement du Compteur de Joueurs** : Application du style Flexbox (`.players-header`) garantissant l'alignement sur la même ligne du titre « Joueurs Présents » et de la pastille du nombre de participants.
+
 ## [1.5.4] - 2026-08-14
 
 ### Corrigé
