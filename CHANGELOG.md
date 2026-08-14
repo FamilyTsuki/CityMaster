@@ -2,6 +2,13 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [1.5.7] - 2026-08-14
+
+### Corrigé
+- **Correction d'Affichage du Bandeau de Question sur Firefox Android / Mobile** :
+  - **Ordre de Transition des Écrans** : Inversion de l'ordre d'appel lors du lancement de la partie (`showScreen('game')` appelé *avant* `loadNextQuestion()`), garantissant que la bannière de consigne (`#top-banner`) est affichée sur un écran déjà actif dans le DOM.
+  - **Gestion de l'Opacité et Réinitialisation CSS** : Ajout du mode `animation-fill-mode: forwards` et d'une réinitialisation explicite de l'opacité et de la visibilité (`opacity: 1`, `visibility: visible`) sur le composant `#top-banner` et `#bottom-actions` pour éviter tout gel de l'animation CSS sur Firefox Android.
+
 ## [1.5.6] - 2026-08-14
 
 ### Amélioré

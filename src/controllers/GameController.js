@@ -192,9 +192,9 @@ export class GameController {
       );
       this.#saveState();
       
-      this.#loadNextQuestion();
       this.#gameView.showScreen('game');
       this.#mapView.invalidateSize();
+      this.#loadNextQuestion();
       if (this.roomCode) {
         this.#router.navigate(`/room/${this.roomCode}/play`, true);
       } else {
@@ -313,9 +313,9 @@ export class GameController {
       this.#allCityStreets = [...geojson.features.filter(f => f.properties && f.properties.name), ...customFeatures];
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);
-      this.#loadNextQuestion();
       this.#gameView.showScreen('game');
       this.#mapView.invalidateSize();
+      this.#loadNextQuestion();
       this.#router.navigate('/play', true);
     }).catch(err => {
       console.error('Failed to load city streets for snapping on resume', err);

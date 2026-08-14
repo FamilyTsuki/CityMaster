@@ -402,6 +402,18 @@ export class GameView {
     if (screenName === 'setup') {
       this.refreshSetupDefaults();
     }
+    if (screenName === 'game') {
+      if (this.#topBanner) {
+        this.#topBanner.classList.remove('hidden');
+        this.#topBanner.style.opacity = '1';
+        this.#topBanner.style.visibility = 'visible';
+      }
+      if (this.#bottomActions) {
+        this.#bottomActions.classList.remove('hidden');
+        this.#bottomActions.style.opacity = '1';
+        this.#bottomActions.style.visibility = 'visible';
+      }
+    }
   }
 
   setPlayerName(name) {
@@ -634,12 +646,22 @@ export class GameView {
 
   setOverlaysVisible(visible) {
     if (this.#topBanner) {
-      if (visible) this.#topBanner.classList.remove('hidden');
-      else this.#topBanner.classList.add('hidden');
+      if (visible) {
+        this.#topBanner.classList.remove('hidden');
+        this.#topBanner.style.opacity = '1';
+        this.#topBanner.style.visibility = 'visible';
+      } else {
+        this.#topBanner.classList.add('hidden');
+      }
     }
     if (this.#bottomActions) {
-      if (visible) this.#bottomActions.classList.remove('hidden');
-      else this.#bottomActions.classList.add('hidden');
+      if (visible) {
+        this.#bottomActions.classList.remove('hidden');
+        this.#bottomActions.style.opacity = '1';
+        this.#bottomActions.style.visibility = 'visible';
+      } else {
+        this.#bottomActions.classList.add('hidden');
+      }
     }
   }
 
