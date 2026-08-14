@@ -445,7 +445,7 @@ export class GameController {
       } else {
         finalScore = session.scores.reduce((a, b) => a + b, 0);
         if (finalScore > 0) {
-          await Score.create(session.username, finalScore, session.difficulty);
+          await Score.create(session.username, finalScore, session.difficulty, null, session.testNumber);
         }
       }
 

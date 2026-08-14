@@ -2,6 +2,19 @@
 
 Toutes les modifications notables de cette session seront documentées dans ce fichier.
 
+## [1.5.1] - 2026-08-14
+
+### Corrigé
+- **Gestion des Salons Multijoueurs (Room Controller & Game Controller)** :
+  - **Rafraîchissement Continu du Classement** : Maintien du rafraîchissement automatique en arrière-plan (`polling`) sur l'écran des résultats pour les joueurs ayant terminé leur partie tant que le salon est actif.
+  - **Déblocage de la Ré-actualisation** : Réinitialisation propre du drapeau de transition (`isTransitioning`) autorisant l'actualisation manuelle ou automatique des scores.
+  - **Validation de la Fin de Partie en cas d'Abandon** : Soumission automatique du score intermédiaire et du statut `finished: true` lorsqu'un joueur clique sur « Quitter » ou « Accueil » pendant une partie multijoueur. Résolution du problème des participants bloqués indéfiniment au statut « En cours... » et fermeture automatique du salon lorsque tous les joueurs ont fini.
+  - **Navigation depuis les Résultats** : Ajout du bouton « Quitter le Salon » sur la vue des résultats finalisés pour permettre aux joueurs de revenir à la gestion des salons.
+- **Sauvegarde des Scores de Compétition** :
+  - Transmission explicite du paramètre `testNumber` à `Score.create()` dans le backend afin d'enregistrer les scores avec leur `test_id` correspondant.
+- **Validation du Formulaire Invité** :
+  - Alignement des règles d'attributs `minlength="3"` et `maxlength="20"` pour le champ pseudonyme invité (`room-guest-username`) sur l'écran du salon avec la validation backend.
+
 ## [1.5.0] - 2026-08-13
 
 ### Ajouté

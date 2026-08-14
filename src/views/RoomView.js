@@ -25,6 +25,7 @@ export class RoomView {
   #lobbyLeaveBtn;
   #resultsTableBody;
   #resultsHomeBtn;
+  #resultsLeaveBtn;
   #resultsRefreshBtn;
 
   #cityInput;
@@ -76,6 +77,7 @@ export class RoomView {
 
     this.#resultsTableBody = document.getElementById('results-table-body');
     this.#resultsHomeBtn = document.getElementById('results-home-btn');
+    this.#resultsLeaveBtn = document.getElementById('results-leave-btn');
     this.#resultsRefreshBtn = document.getElementById('results-refresh-btn');
 
     this.#cityInput = document.getElementById('room-city-search');
@@ -339,6 +341,9 @@ export class RoomView {
   bindLeaveRoom(callback) {
     if (this.#lobbyLeaveBtn) {
       this.#lobbyLeaveBtn.addEventListener('click', callback);
+    }
+    if (this.#resultsLeaveBtn) {
+      this.#resultsLeaveBtn.addEventListener('click', callback);
     }
   }
 

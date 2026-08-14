@@ -244,15 +244,15 @@ export class RoomController {
       this.roomView.updateLobby(roomData, currentUsername);
 
       if (roomData.status === 'playing') {
-        this.#stopPolling();
-        if (this.isTransitioning) return;
-        this.isTransitioning = true;
-        
         const me = roomData.participants.find(p => p.username === currentUsername);
         if (me && me.finished) {
           this.roomView.showStep('results');
           this.roomView.updateResults(roomData.participants);
         } else {
+          this.#stopPolling();
+          if (this.isTransitioning) return;
+          this.isTransitioning = true;
+          
           const mode = roomData.mode || 'target';
           this.gameView.showLoading('Chargement de la partie...');
           
@@ -267,6 +267,7 @@ export class RoomController {
           );
         }
       } else if (roomData.status === 'finished') {
+        this.#stopPolling();
         this.roomView.showStep('results');
         this.roomView.updateResults(roomData.participants);
       } else {

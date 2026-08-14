@@ -670,10 +670,26 @@ export class GameController {
     this.#clearState();
   }
 
-  #quitGame() {
+  async #quitGame() {
     this.#stopRoundTimer();
     if (this.roomCode) {
       const code = this.roomCode;
+      const score = (this.#session && typeof this.#session.score === 'number') ? this.#session.score : 0;
+      this.roomCode = null;
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      try {
+        await fetch(`/api/rooms/${code}/submit-score`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...headers
+          },
+          body: JSON.stringify({ score })
+        });
+      } catch (err) {
+        console.error('Error submitting room score on quit:', err);
+      }
       this.#clearState();
       this.#router.navigate(`/room/${code}`);
     } else {
@@ -682,10 +698,26 @@ export class GameController {
     }
   }
 
-  #goHome() {
+  async #goHome() {
     this.#stopRoundTimer();
     if (this.roomCode) {
       const code = this.roomCode;
+      const score = (this.#session && typeof this.#session.score === 'number') ? this.#session.score : 0;
+      this.roomCode = null;
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      try {
+        await fetch(`/api/rooms/${code}/submit-score`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...headers
+          },
+          body: JSON.stringify({ score })
+        });
+      } catch (err) {
+        console.error('Error submitting room score on goHome:', err);
+      }
       this.#clearState();
       this.#router.navigate(`/room/${code}`);
     } else {
