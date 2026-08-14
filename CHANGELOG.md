@@ -6,10 +6,16 @@ Toutes les modifications notables de cette session seront documentées dans ce f
 
 ### Corrigé
 - **Gestion des Salons Multijoueurs (Room Controller & Game Controller)** :
+  - **Autorisation de Jouer pour les Nouveaux Participants** : Lorsqu'un nouveau joueur (ex. Ben) rejoint un salon dont le statut est `playing` ou `finished`, l'application vérifie son statut individuel (`me.finished`). S'il n'a pas encore joué la partie, il est automatiquement lancé dans l'épreuve du salon au lieu d'être redirigé directement vers le tableau des scores.
   - **Rafraîchissement Continu du Classement** : Maintien du rafraîchissement automatique en arrière-plan (`polling`) sur l'écran des résultats pour les joueurs ayant terminé leur partie tant que le salon est actif.
   - **Déblocage de la Ré-actualisation** : Réinitialisation propre du drapeau de transition (`isTransitioning`) autorisant l'actualisation manuelle ou automatique des scores.
   - **Validation de la Fin de Partie en cas d'Abandon** : Soumission automatique du score intermédiaire et du statut `finished: true` lorsqu'un joueur clique sur « Quitter » ou « Accueil » pendant une partie multijoueur. Résolution du problème des participants bloqués indéfiniment au statut « En cours... » et fermeture automatique du salon lorsque tous les joueurs ont fini.
   - **Navigation depuis les Résultats** : Ajout du bouton « Quitter le Salon » sur la vue des résultats finalisés pour permettre aux joueurs de revenir à la gestion des salons.
+- **Accès et Vérification du Rôle Administrateur (Auth & Router)** :
+  - **Vérification Dynamique en Base** : Prise en compte immédiate de la promotion d'un utilisateur en administrateur via une requête PostgreSQL dans `requireAdmin`, débloquant l'accès aux APIs administrateurs même si le jeton JWT a été créé antérieurement.
+  - **Contrôle en Direct du Routeur** : Le routeur `/admin` effectue une vérification en direct auprès du serveur si la clé locale n'est pas encore enregistrée, et l'API `/api/profile` transmet `isAdmin` pour mettre à jour la barre de navigation sans déconnexion.
+- **Persistance des Sessions de Test / Compétition (GameSession)** :
+  - **Sérialisation du `testNumber`** : Ajout de la sérialisation et désérialisation du paramètre `testNumber` dans `GameSession.js` pour conserver l'identifiant du test lors du rechargement de page ou de la reprise de session.
 - **Sauvegarde des Scores de Compétition** :
   - Transmission explicite du paramètre `testNumber` à `Score.create()` dans le backend afin d'enregistrer les scores avec leur `test_id` correspondant.
 - **Validation du Formulaire Invité** :

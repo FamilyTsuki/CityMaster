@@ -137,7 +137,8 @@ export class GameSession {
       gameToken: this.#gameToken,
       currentPrompt: this.#currentPrompt,
       isFinished: this.#isFinished,
-      difficulty: this.#difficulty
+      difficulty: this.#difficulty,
+      testNumber: this.#testNumber
     });
   }
 
@@ -151,7 +152,8 @@ export class GameSession {
         data.currentMode,
         data.gameToken,
         data.currentPrompt,
-        data.difficulty
+        data.difficulty,
+        data.testNumber
       );
       session.score = data.score;
       session.sprintHistory = data.sprintHistory || [];

@@ -243,8 +243,8 @@ export class RoomController {
 
       this.roomView.updateLobby(roomData, currentUsername);
 
-      if (roomData.status === 'playing') {
-        const me = roomData.participants.find(p => p.username === currentUsername);
+      if (roomData.status === 'playing' || roomData.status === 'finished') {
+        const me = roomData.participants.find(p => p.username.toLowerCase() === (currentUsername || '').toLowerCase());
         if (me && me.finished) {
           this.roomView.showStep('results');
           this.roomView.updateResults(roomData.participants);
@@ -266,10 +266,6 @@ export class RoomController {
             roomData.seriesCount
           );
         }
-      } else if (roomData.status === 'finished') {
-        this.#stopPolling();
-        this.roomView.showStep('results');
-        this.roomView.updateResults(roomData.participants);
       } else {
         this.roomView.showStep('lobby');
       }
