@@ -74,6 +74,16 @@
             </div>
           </div>
           
+          <div class="form-group custom-select-container">
+            <label for="room-validity-search" class="label">Durée de validité du Salon</label>
+            <input type="text" id="room-validity-search" placeholder="Choisir la durée..." class="input cursor-pointer" readonly data-value="24" value="24 heures (recommandé)" />
+            <ul id="room-validity-dropdown" class="dropdown-list hidden">
+              <li data-value="1" class="dropdown-item">1 heure (Session courte)</li>
+              <li data-value="24" class="dropdown-item">24 heures (Compétition d'un jour)</li>
+              <li data-value="168" class="dropdown-item">7 jours (Défi sur la semaine)</li>
+            </ul>
+          </div>
+          
           <button id="room-create-btn" class="btn btn-primary room-btn-wide">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
             <span>Créer la Room</span>
@@ -103,13 +113,14 @@
     </div>
 
     <!-- STEP 3: LOBBY (Waiting for players) -->
-    <div id="room-lobby-step" class="room-card hidden">
+    <div id="room-lobby-step" class="room-step hidden">
       <div class="lobby-header">
         <div class="lobby-title-block">
           <button id="lobby-leave-btn" class="btn-back-round" title="Quitter le salon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
           </button>
           <h2 class="room-title">Lobby de Compétition</h2>
+          <span class="room-status-badge status-waiting" id="lobby-status-badge">En attente</span>
         </div>
         <div class="lobby-host-info">
           <span class="host-label">Hôte :</span>
@@ -136,7 +147,7 @@
       <div class="lobby-content-grid">
         <!-- Players List Column -->
         <div class="lobby-players-section">
-          <div class="section-header">
+          <div class="players-header">
             <h3>Joueurs Présents</h3>
             <span class="players-count" id="lobby-players-count">0</span>
           </div>
@@ -165,6 +176,10 @@
             <div class="detail-row">
               <span class="detail-label">Nombre de séries :</span>
               <strong id="lobby-series-count">---</strong>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Expiration :</span>
+              <strong id="lobby-expires-at">---</strong>
             </div>
           </div>
           
@@ -204,6 +219,10 @@
       </div>
 
       <div class="room-results-actions">
+        <button id="results-reset-btn" class="btn btn-warning hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          <span>Recommencer (Mêmes rues)</span>
+        </button>
         <button id="results-home-btn" class="btn btn-primary">
           <span>Retour à l'Accueil</span>
         </button>

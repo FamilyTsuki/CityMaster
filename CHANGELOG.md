@@ -1,43 +1,30 @@
 # Changelog
 
-Toutes les modifications notables de cette session seront documentées dans ce fichier.
+Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
-## [1.5.1] - 2026-08-14
-
-### Corrigé
-- **Gestion des Salons Multijoueurs (Room Controller & Game Controller)** :
-  - **Autorisation de Jouer pour les Nouveaux Participants** : Lorsqu'un nouveau joueur (ex. Ben) rejoint un salon dont le statut est `playing` ou `finished`, l'application vérifie son statut individuel (`me.finished`). S'il n'a pas encore joué la partie, il est automatiquement lancé dans l'épreuve du salon au lieu d'être redirigé directement vers le tableau des scores.
-  - **Rafraîchissement Continu du Classement** : Maintien du rafraîchissement automatique en arrière-plan (`polling`) sur l'écran des résultats pour les joueurs ayant terminé leur partie tant que le salon est actif.
-  - **Déblocage de la Ré-actualisation** : Réinitialisation propre du drapeau de transition (`isTransitioning`) autorisant l'actualisation manuelle ou automatique des scores.
-  - **Validation de la Fin de Partie en cas d'Abandon** : Soumission automatique du score intermédiaire et du statut `finished: true` lorsqu'un joueur clique sur « Quitter » ou « Accueil » pendant une partie multijoueur. Résolution du problème des participants bloqués indéfiniment au statut « En cours... » et fermeture automatique du salon lorsque tous les joueurs ont fini.
-  - **Navigation depuis les Résultats** : Ajout du bouton « Quitter le Salon » sur la vue des résultats finalisés pour permettre aux joueurs de revenir à la gestion des salons.
-- **Accès et Vérification du Rôle Administrateur (Auth & Router)** :
-  - **Vérification Dynamique en Base** : Prise en compte immédiate de la promotion d'un utilisateur en administrateur via une requête PostgreSQL dans `requireAdmin`, débloquant l'accès aux APIs administrateurs même si le jeton JWT a été créé antérieurement.
-  - **Contrôle en Direct du Routeur** : Le routeur `/admin` effectue une vérification en direct auprès du serveur si la clé locale n'est pas encore enregistrée, et l'API `/api/profile` transmet `isAdmin` pour mettre à jour la barre de navigation sans déconnexion.
-- **Persistance des Sessions de Test / Compétition (GameSession)** :
-  - **Sérialisation du `testNumber`** : Ajout de la sérialisation et désérialisation du paramètre `testNumber` dans `GameSession.js` pour conserver l'identifiant du test lors du rechargement de page ou de la reprise de session.
-- **Sauvegarde des Scores de Compétition** :
-  - Transmission explicite du paramètre `testNumber` à `Score.create()` dans le backend afin d'enregistrer les scores avec leur `test_id` correspondant.
-- **Robustesse des Questions de Jeu (Prompts & Cartographie)** :
-  - **Filtrage Stricte des Noms de Voies** : Filtrage préalable systématique des lotissements et tracés personnalisés ajoutés au jeu pour garantir que seuls les éléments dotés d'un nom de rue non vide sont proposés dans le tirage.
-  - **Sécurisation de l'Affichage de la Consigne** : Ajout d'une valeur de secours sécurisée (`safeStreetName`) évitant tout affichage de consigne vide ou indéfinie (`Où se trouve :  ?`).
-- **Validation du Formulaire Invité & Style CSS Responsive** :
-  - **Suppression du Décalage de Mise en Page (Zero Layout Shift)** : Réservation fixe de la hauteur d'affichage des messages de confirmation (« Lien d'invitation copié ! » / « Code copié ! ») avec transition par opacité (`opacity: 0` vers `1`), empêchant tout saut ou décalage visuel des éléments de la page lors de l'apparition et de la disparition du texte.
-  - **Correction Mobile & Desktop des Messages de Copie** : Alignement centré avec espacement suffisant (`padding: 14px 16px`, `margin-top: 8px`) sur mobile (`@media max-width: 640px`) pour garantir que les textes ne chevauchent jamais les bordures.
-  - Alignement des règles d'attributs `minlength="3"` et `maxlength="20"` pour le champ pseudonyme invité (`room-guest-username`) sur l'écran du salon avec la validation backend.
-
-## [1.5.0] - 2026-08-13
+## [1.5.3] - 2026-08-14
 
 ### Ajouté
-- **Exclusion Stricte des Voies Secondaires du Mode Facile** : Implémentation d'un filtre d'exclusion sémantique systématique sur les mots-clés de voies secondaires (`chemin`, `sentier`, `ruelle`, `passage`, `allée`, `impasse`, `traverse`, `square`, `villa`, `cité`). Aucune voie contenant ces termes ne peut désormais être classée en "Facile", quelle que soit sa longueur (résolvant le problème des longs chemins vicinaux > 800m proposés par erreur aux joueurs en mode Facile).
+- **Option de Durée de Validité des Salons (24h par défaut)** :
+  - **Choix de la Durée à la Création** : Sélection personnalisée de la durée de validité (1h, 24h ou 7 jours) sur le formulaire de création du salon.
+  - **Gestion de l'Expiration en Base** : Ajout de la colonne `expires_at` dans PostgreSQL et blocage automatique des accès aux salons expirés (code HTTP 410).
+  - **Affichage de l'Expiration dans le Lobby** : Information claire sur l'heure et la date limite de validité de la session.
+- **Réinitialisation et Relance du Salon (Mêmes Rues)** :
+  - **Bouton « Recommencer (Mêmes rues) »** : Option réservée au créateur du salon (ou administrateur) sur l'écran des résultats.
+  - **Endpoint API `/api/rooms/:code/reset`** : Remise à zéro des scores et relance de la session avec le même ensemble de rues (`test_id`).
 
-### Modifié
-- **Correction et Robustesse de la Connexion Google Auth** :
-  * Chargement prioritaire des variables d'environnement (`import 'dotenv/config'`) avant l'évaluation des modules backend ES.
-  * Instanciation à la demande (`lazy-loading`) du client `OAuth2Client`.
-  * Gestion de l'attente du chargement asynchrone du SDK Google (`window.google.accounts.id`) sur le client avant le rendu du bouton de connexion.
-- **Support CSS et Métadonnées Theme Color / Color Scheme** : Déclaration de `<meta name="color-scheme" content="light dark" />` et des propriétés CSS `color-scheme: light;` / `color-scheme: dark;` pour éviter le conflit d'inversion automatique des couleurs causé par la fonctionnalité "Force Dark Pages" d'Opera et des navigateurs Chromium.
-- **Refonte de la Page Profil** :
-  * Correction du problème d'avatar ovale : application des règles `aspect-ratio: 1 / 1;`, `flex-shrink: 0;` et `object-fit: cover;` pour garantir une photo de profil strictement circulaire en toutes circonstances.
-  * Réorganisation du header de profil en colonne avec centrage parfait du nom d'utilisateur sous l'avatar et positionnement absolu du bouton de retour circulaire `.btn-back-round`.
-- **Sécurisation des Requêtes Administrateur** : Blocage du déclenchement automatique des requêtes `/api/admin/*` au démarrage de l'application. Seuls les utilisateurs authentifiés administrateurs (`is_admin === 'true'`) naviguant sur l'espace d'administration déclenchent les appels réseau, éliminant les erreurs `401 Unauthorized` dans la console des visiteurs.
+### Corrigé
+- **Gestion des Salons & Flux de Jeu Multijoueur** :
+  - **Déblocage des Nouveaux Participants** : Redirection automatique des joueurs n'ayant pas encore joué vers l'épreuve du salon, même si la session a été démarrée par d'autres.
+  - **Consultation Directe des Résultats** : Les joueurs ayant déjà soumis leur score sont automatiquement orientés vers le tableau des résultats.
+  - **Validation Automatique lors de l'Abandon** : Soumission automatique du score intermédiaire (`finished = true`) lors d'un clic sur « Quitter » ou « Accueil » pour éviter de bloquer le salon indéfiniment.
+  - **Nettoyage du Polling en Arrière-Plan** : Interruption automatique du rafraîchissement lors de la navigation vers d'autres pages (Profil, Connexion, Accueil).
+- **Accès Administrateur & Authentification** :
+  - **Vérification Dynamique du Rôle Admin** : Contrôle direct en base de données dans `requireAdmin` et mise à jour dynamique du profil (`isAdmin`) sans obliger à se déconnecter.
+- **Cartographie & Stabilité des Consignes (Prompts)** :
+  - **Filtrage des Noms de Rues** : Exclusion stricte des éléments sans nom valide du tirage des questions.
+  - **Valeur de Secours (`safeStreetName`)** : Garantie d'affichage d'une consigne complète sans variable vide.
+- **Améliorations UI & Responsive** :
+  - **Suppression du Décalage de Mise en Page (Zero Layout Shift)** : Réservation fixe de la hauteur des messages de confirmation de copie avec transition par opacité.
+  - **Ajustement Mobile des Feedbacks de Copie** : Centrage et espacement adaptés sur mobile pour éviter le chevauchement avec les bordures.
+

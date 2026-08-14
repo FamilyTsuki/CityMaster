@@ -27,6 +27,7 @@ export class RoomView {
   #resultsHomeBtn;
   #resultsLeaveBtn;
   #resultsRefreshBtn;
+  #resultsResetBtn;
 
   #cityInput;
   #cityDropdown;
@@ -34,7 +35,10 @@ export class RoomView {
   #diffDropdown;
   #modeInput;
   #modeDropdown;
+  #validityInput;
+  #validityDropdown;
   #lobbySeriesCount;
+  #lobbyExpiresAt;
   #seriesInput;
   #setupBackBtn;
   #lastParticipantsSignature = '';
@@ -79,6 +83,7 @@ export class RoomView {
     this.#resultsHomeBtn = document.getElementById('results-home-btn');
     this.#resultsLeaveBtn = document.getElementById('results-leave-btn');
     this.#resultsRefreshBtn = document.getElementById('results-refresh-btn');
+    this.#resultsResetBtn = document.getElementById('results-reset-btn');
 
     this.#cityInput = document.getElementById('room-city-search');
     this.#cityDropdown = document.getElementById('room-city-dropdown');
@@ -86,8 +91,11 @@ export class RoomView {
     this.#diffDropdown = document.getElementById('room-diff-dropdown');
     this.#modeInput = document.getElementById('room-mode-search');
     this.#modeDropdown = document.getElementById('room-mode-dropdown');
+    this.#validityInput = document.getElementById('room-validity-search');
+    this.#validityDropdown = document.getElementById('room-validity-dropdown');
     this.#seriesInput = document.getElementById('room-series-input');
     this.#setupBackBtn = document.getElementById('room-back-btn');
+    this.#lobbyExpiresAt = document.getElementById('lobby-expires-at');
 
     this.#setupCopyLink();
     this.#setupWelcomeForm();
@@ -226,12 +234,36 @@ export class RoomView {
       });
     }
 
+    const validityInput = this.#validityInput;
+    const validityDropdown = this.#validityDropdown;
+
+    if (validityInput && validityDropdown) {
+      validityInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        validityDropdown.classList.toggle('hidden');
+      });
+
+      validityDropdown.querySelectorAll('li').forEach((item) => {
+        item.addEventListener('click', () => {
+          validityInput.value = item.textContent.trim();
+          validityInput.dataset.value = item.getAttribute('data-value');
+          validityDropdown.classList.add('hidden');
+        });
+      });
+    }
+
     document.addEventListener('click', (e) => {
       if (cityDropdown && cityInput && !cityInput.contains(e.target) && !cityDropdown.contains(e.target)) {
         cityDropdown.classList.add('hidden');
       }
       if (diffDropdown && diffInput && !diffInput.contains(e.target) && !diffDropdown.contains(e.target)) {
         diffDropdown.classList.add('hidden');
+      }
+      if (modeDropdown && modeInput && !modeInput.contains(e.target) && !modeDropdown.contains(e.target)) {
+        modeDropdown.classList.add('hidden');
+      }
+      if (validityDropdown && validityInput && !validityInput.contains(e.target) && !validityDropdown.contains(e.target)) {
+        validityDropdown.classList.add('hidden');
       }
     });
 
@@ -359,6 +391,12 @@ export class RoomView {
     }
   }
 
+  bindResetRoom(callback) {
+    if (this.#resultsResetBtn) {
+      this.#resultsResetBtn.addEventListener('click', callback);
+    }
+  }
+
   getSetupConfig() {
     let cityKey = this.#cityInput ? this.#cityInput.dataset.value : null;
     const cityName = this.#cityInput ? this.#cityInput.value.trim() : null;
@@ -372,7 +410,8 @@ export class RoomView {
       cityName: cityName || 'La Ferté-Saint-Aubin',
       difficulty: (this.#diffInput && this.#diffInput.dataset.value) ? this.#diffInput.dataset.value : 'easy',
       mode: (this.#modeInput && this.#modeInput.dataset.value) ? this.#modeInput.dataset.value : 'target',
-      seriesCount: this.#seriesInput ? (parseInt(this.#seriesInput.value, 10) || 10) : 10
+      seriesCount: this.#seriesInput ? (parseInt(this.#seriesInput.value, 10) || 10) : 10,
+      validityHours: (this.#validityInput && this.#validityInput.dataset.value) ? (parseInt(this.#validityInput.dataset.value, 10) || 24) : 24
     };
   }
 
@@ -427,6 +466,20 @@ export class RoomView {
     if (this.#lobbyCityName) {
       const niceName = roomData.cityKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
       this.#lobbyCityName.textContent = niceName;
+    }
+
+    if (this.#lobbyExpiresAt) {
+      if (roomData.expiresAt) {
+        const exp = new Date(roomData.expiresAt);
+        this.#lobbyExpiresAt.textContent = exp.toLocaleString('fr-FR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      } else {
+        this.#lobbyExpiresAt.textContent = '24h';
+      }
     }
 
 
@@ -490,7 +543,14 @@ export class RoomView {
     }
   }
 
-  updateResults(participants) {
+  updateResults(participants, isCreatorOrAdmin = false) {
+    if (this.#resultsResetBtn) {
+      if (isCreatorOrAdmin) {
+        this.#resultsResetBtn.classList.remove('hidden');
+      } else {
+        this.#resultsResetBtn.classList.add('hidden');
+      }
+    }
     if (!this.#resultsTableBody || !Array.isArray(participants)) return;
     
     const sorted = [...participants].sort((a, b) => (b.score || 0) - (a.score || 0));

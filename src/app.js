@@ -54,13 +54,21 @@ class App {
     });
 
     this.#router = new Router({
-      '/': () => this.#gameView.showScreen('landing'),
-      '/setup': () => this.#showSetup(),
+      '/': () => {
+        this.#roomController.stopPolling();
+        this.#gameView.showScreen('landing');
+      },
+      '/setup': () => {
+        this.#roomController.stopPolling();
+        this.#showSetup();
+      },
       '/login': () => {
+        this.#roomController.stopPolling();
         this.#authController.setMode(true);
         this.#gameView.showScreen('auth');
       },
       '/register': () => {
+        this.#roomController.stopPolling();
         this.#authController.setMode(false);
         this.#gameView.showScreen('auth');
       },
@@ -69,12 +77,17 @@ class App {
       '/room/:code/play': () => this.#showPlay(),
       '/room/:code': (params) => this.#roomController.initRoom(params),
       '/certificate': () => {
+        this.#roomController.stopPolling();
         this.#gameView.showScreen('certificate');
         ConfettiService.launch();
         this.#audioService.playFanfare();
       },
-      '/profile': () => this.#profileController.loadProfile(),
+      '/profile': () => {
+        this.#roomController.stopPolling();
+        this.#profileController.loadProfile();
+      },
       '/admin': async () => {
+        this.#roomController.stopPolling();
         if (localStorage.getItem('is_admin') === 'true') {
           this.#showAdmin();
         } else {
@@ -97,7 +110,10 @@ class App {
           this.#router.navigate('/');
         }
       },
-      '/legal': () => this.#gameView.showScreen('legal')
+      '/legal': () => {
+        this.#roomController.stopPolling();
+        this.#gameView.showScreen('legal');
+      }
     });
 
     this.#authController = new AuthController(this.#router, this.#authView, this.#navbarView);

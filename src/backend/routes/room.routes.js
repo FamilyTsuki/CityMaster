@@ -11,5 +11,6 @@ router.post('/:code/join', RoomController.joinRoom);
 router.get('/:code', RoomController.getRoom);
 router.post('/:code/start', RoomController.startRoomGame);
 router.post('/:code/submit-score', RoomController.submitRoomScore);
+router.post('/:code/reset', RoomController.resetRoom);
 
 export default router;

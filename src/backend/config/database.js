@@ -99,6 +99,7 @@ export const initDB = async () => {
         created_by VARCHAR(255) NOT NULL,
         status VARCHAR(50) DEFAULT 'waiting',
         series_count INTEGER DEFAULT 10,
+        expires_at TIMESTAMP,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -113,6 +114,12 @@ export const initDB = async () => {
       await pool.query("ALTER TABLE rooms ADD COLUMN IF NOT EXISTS mode VARCHAR(50) DEFAULT 'target';");
     } catch (e) {
       console.error('Error adding mode to rooms:', e);
+    }
+
+    try {
+      await pool.query('ALTER TABLE rooms ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;');
+    } catch (e) {
+      console.error('Error adding expires_at to rooms:', e);
     }
 
     await pool.query(`

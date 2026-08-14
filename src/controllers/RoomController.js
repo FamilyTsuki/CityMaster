@@ -29,10 +29,11 @@ export class RoomController {
       this.router.navigate('/');
     });
     this.roomView.bindRefreshScores(() => this.#fetchRoomDetails());
+    this.roomView.bindResetRoom(() => this.#handleResetRoom());
   }
 
   showSetup() {
-    this.#stopPolling();
+    this.stopPolling();
     this.currentRoomCode = null;
     this.pendingRoomCode = null;
 
@@ -46,7 +47,7 @@ export class RoomController {
   }
 
   async initRoom(params) {
-    this.#stopPolling();
+    this.stopPolling();
     this.isTransitioning = false;
     const code = params.code ? params.code.trim().toUpperCase() : null;
     
@@ -151,7 +152,8 @@ export class RoomController {
           cityKey: config.cityKey,
           difficulty: config.difficulty,
           seriesCount: config.seriesCount,
-          mode: config.mode
+          mode: config.mode,
+          validityHours: config.validityHours
         })
       });
 
@@ -200,21 +202,53 @@ export class RoomController {
     }
   }
 
+  async #handleResetRoom() {
+    if (!this.currentRoomCode) return;
+    if (!confirm('Voulez-vous réinitialiser le salon et recommencer avec les mêmes rues ?')) return;
+
+    try {
+      this.gameView.showLoading('Réinitialisation du salon...');
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/rooms/${this.currentRoomCode}/reset`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Erreur lors de la réinitialisation du salon.');
+        this.roomView.showScreen();
+        return;
+      }
+
+      this.isTransitioning = false;
+      this.roomView.showScreen();
+      this.stopPolling();
+      this.#startPolling(this.currentRoomCode);
+
+    } catch (error) {
+      console.error('Reset Room UI Error:', error);
+      this.roomView.showScreen();
+    }
+  }
+
   #handleLeaveRoom() {
-    this.#stopPolling();
+    this.stopPolling();
     this.currentRoomCode = null;
     this.router.navigate('/room');
   }
 
   #startPolling(code) {
-    this.#stopPolling();
+    this.stopPolling();
     this.#fetchRoomDetails();
     this.pollingInterval = setInterval(() => {
       this.#fetchRoomDetails();
     }, 2000);
   }
 
-  #stopPolling() {
+  stopPolling() {
     if (this.pollingInterval) {
       clearInterval(this.pollingInterval);
       this.pollingInterval = null;
@@ -230,9 +264,10 @@ export class RoomController {
 
       const res = await fetch(`/api/rooms/${code}`, { headers });
       if (!res.ok) {
-        if (res.status === 404) {
-          this.#stopPolling();
-          alert('Le salon a été fermé ou n\'existe pas.');
+        if (res.status === 404 || res.status === 410) {
+          this.stopPolling();
+          const errData = await res.json().catch(() => ({}));
+          alert(errData.error || 'Le salon n\'est plus disponible.');
           this.router.navigate('/room');
         }
         return;
@@ -240,6 +275,7 @@ export class RoomController {
 
       const roomData = await res.json();
       const currentUsername = localStorage.getItem('username');
+      const isCreatorOrAdmin = roomData.createdBy === currentUsername || localStorage.getItem('is_admin') === 'true';
 
       this.roomView.updateLobby(roomData, currentUsername);
 
@@ -247,9 +283,9 @@ export class RoomController {
         const me = roomData.participants.find(p => p.username.toLowerCase() === (currentUsername || '').toLowerCase());
         if (me && me.finished) {
           this.roomView.showStep('results');
-          this.roomView.updateResults(roomData.participants);
+          this.roomView.updateResults(roomData.participants, isCreatorOrAdmin);
         } else {
-          this.#stopPolling();
+          this.stopPolling();
           if (this.isTransitioning) return;
           this.isTransitioning = true;
           

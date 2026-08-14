@@ -10,7 +10,7 @@ const dirname = path.dirname(filename);
 export class RoomController {
   static async createRoom(req, res) {
     try {
-      const { cityKey, difficulty, seriesCount, mode } = req.body;
+      const { cityKey, difficulty, seriesCount, mode, validityHours } = req.body;
       const username = req.user.username;
 
       if (!cityKey || !difficulty) {
@@ -20,6 +20,10 @@ export class RoomController {
       const parsed = parseInt(seriesCount, 10);
       const cleanSeriesCount = (!isNaN(parsed) && parsed >= 1 && parsed <= 50) ? parsed : 10;
       const cleanMode = (mode === 'identify' || mode === 'target') ? mode : 'target';
+
+      const parsedValidity = parseInt(validityHours, 10);
+      const cleanValidityHours = (!isNaN(parsedValidity) && [1, 24, 168].includes(parsedValidity)) ? parsedValidity : 24;
+      const expiresAt = new Date(Date.now() + cleanValidityHours * 3600 * 1000);
 
       let code;
       let codeUnique = false;
@@ -41,10 +45,10 @@ export class RoomController {
       const testId = Math.floor(Math.random() * 1000000) + 1;
 
       const roomRes = await pool.query(
-        `INSERT INTO rooms (code, city_key, difficulty, test_id, created_by, status, series_count, mode)
-         VALUES ($1, $2, $3, $4, $5, 'waiting', $6, $7)
+        `INSERT INTO rooms (code, city_key, difficulty, test_id, created_by, status, series_count, mode, expires_at)
+         VALUES ($1, $2, $3, $4, $5, 'waiting', $6, $7, $8)
          RETURNING *`,
-        [code, cityKey, difficulty, testId, username, cleanSeriesCount, cleanMode]
+        [code, cityKey, difficulty, testId, username, cleanSeriesCount, cleanMode, expiresAt]
       );
 
       const room = roomRes.rows[0];
@@ -64,7 +68,8 @@ export class RoomController {
         testId: room.test_id,
         createdBy: room.created_by,
         status: room.status,
-        seriesCount: room.series_count
+        seriesCount: room.series_count,
+        expiresAt: room.expires_at
       });
     } catch (error) {
       console.error('Create Room Error:', error);
@@ -90,12 +95,9 @@ export class RoomController {
 
       const room = roomRes.rows[0];
 
-      const participantCheck = await pool.query(
-        'SELECT 1 FROM room_participants WHERE room_code = $1 AND username = $2',
-        [upperCode, username]
-      );
-
-      // Allow participant registration regardless of room status to enable viewing results/joining session
+      if (room.expires_at && new Date() > new Date(room.expires_at)) {
+        return res.status(410).json({ error: 'Ce salon a expiré (durée de validité dépassée).' });
+      }
 
       await pool.query(
         `INSERT INTO room_participants (room_code, username)
@@ -112,7 +114,8 @@ export class RoomController {
         testId: room.test_id,
         createdBy: room.created_by,
         status: room.status,
-        seriesCount: room.series_count
+        seriesCount: room.series_count,
+        expiresAt: room.expires_at
       });
     } catch (error) {
       console.error('Join Room Error:', error);
@@ -135,6 +138,10 @@ export class RoomController {
       }
 
       const room = roomRes.rows[0];
+
+      if (room.expires_at && new Date() > new Date(room.expires_at)) {
+        return res.status(410).json({ error: 'Ce salon a expiré (durée de validité dépassée).' });
+      }
 
       let cityData = null;
       try {
@@ -188,7 +195,8 @@ export class RoomController {
         status: room.status,
         participants: participantsRes.rows,
         cityData,
-        seriesCount: room.series_count
+        seriesCount: room.series_count,
+        expiresAt: room.expires_at
       });
     } catch (error) {
       console.error('Get Room Error:', error);
@@ -271,6 +279,46 @@ export class RoomController {
     } catch (error) {
       console.error('Submit Room Score Error:', error);
       return res.status(500).json({ error: 'Internal server error submitting room score' });
+    }
+  }
+
+  static async resetRoom(req, res) {
+    try {
+      const { code } = req.params;
+      const username = req.user.username;
+      const isAdmin = req.user.is_admin === true;
+
+      if (!code) {
+        return res.status(400).json({ error: 'Room code is required' });
+      }
+
+      const upperCode = code.trim().toUpperCase();
+
+      const roomRes = await pool.query('SELECT * FROM rooms WHERE code = $1', [upperCode]);
+      if (roomRes.rows.length === 0) {
+        return res.status(404).json({ error: 'Room not found' });
+      }
+
+      const room = roomRes.rows[0];
+
+      if (room.created_by !== username && !isAdmin) {
+        return res.status(403).json({ error: 'Only the room creator or an admin can reset the room' });
+      }
+
+      await pool.query(
+        "UPDATE rooms SET status = 'waiting' WHERE code = $1",
+        [upperCode]
+      );
+
+      await pool.query(
+        'UPDATE room_participants SET finished = false, score = 0 WHERE room_code = $1',
+        [upperCode]
+      );
+
+      return res.json({ message: 'Room reset successfully with same test streets' });
+    } catch (error) {
+      console.error('Reset Room Error:', error);
+      return res.status(500).json({ error: 'Internal server error resetting room' });
     }
   }
 }
