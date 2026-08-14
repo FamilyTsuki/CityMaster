@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import pool from '../config/database.js';
 
 export const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
@@ -23,11 +24,24 @@ export const authenticateToken = (req, res, next) => {
 };
 
 export const requireAdmin = (req, res, next) => {
-  authenticateToken(req, res, () => {
-    if (req.user && req.user.is_admin) {
-      next();
-    } else {
-      res.status(403).json({ error: 'Admin access required' });
+  authenticateToken(req, res, async () => {
+    if (!req.user) {
+      return res.status(403).json({ error: 'Admin access required' });
     }
+    if (req.user.is_admin) {
+      return next();
+    }
+    if (req.user.id) {
+      try {
+        const userRes = await pool.query('SELECT is_admin FROM users WHERE id = $1', [req.user.id]);
+        if (userRes.rows.length > 0 && userRes.rows[0].is_admin) {
+          req.user.is_admin = true;
+          return next();
+        }
+      } catch (err) {
+        console.error('Error checking admin status in DB:', err);
+      }
+    }
+    return res.status(403).json({ error: 'Admin access required' });
   });
 };

@@ -18,7 +18,8 @@ export class ProfileController {
       res.json({
         username: user.username,
         profileImageUrl: user.profile_image_url,
-        totalScore: totalScore || 0
+        totalScore: totalScore || 0,
+        isAdmin: user.is_admin || false
       });
     } catch (error) {
       res.status(500).json({ error: error.message });

@@ -74,10 +74,26 @@ class App {
         this.#audioService.playFanfare();
       },
       '/profile': () => this.#profileController.loadProfile(),
-      '/admin': () => {
+      '/admin': async () => {
         if (localStorage.getItem('is_admin') === 'true') {
           this.#showAdmin();
         } else {
+          const token = localStorage.getItem('token');
+          if (token) {
+            try {
+              const res = await fetch('/api/profile', {
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.isAdmin) {
+                  localStorage.setItem('is_admin', 'true');
+                  this.#showAdmin();
+                  return;
+                }
+              }
+            } catch (e) {}
+          }
           this.#router.navigate('/');
         }
       },

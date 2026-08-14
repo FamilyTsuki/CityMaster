@@ -96,7 +96,13 @@ export class ProfileController {
         currentLang
       );
 
-      const isAdmin = localStorage.getItem('is_admin') === 'true';
+      const isAdmin = data.isAdmin === true || localStorage.getItem('is_admin') === 'true';
+      if (isAdmin) {
+        localStorage.setItem('is_admin', 'true');
+      } else {
+        localStorage.removeItem('is_admin');
+      }
+
       if (data.profileImageUrl) {
         localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
         this.#navbarView.setLoggedIn(data.username, data.profileImageUrl, isAdmin);
@@ -124,7 +130,13 @@ export class ProfileController {
       if (response.ok) {
         const data = await response.json();
         const username = localStorage.getItem('username');
-        const isAdmin = localStorage.getItem('is_admin') === 'true';
+        const isAdmin = data.isAdmin === true || localStorage.getItem('is_admin') === 'true';
+        if (isAdmin) {
+          localStorage.setItem('is_admin', 'true');
+        } else {
+          localStorage.removeItem('is_admin');
+        }
+
         if (data.profileImageUrl) {
           localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
           this.#navbarView.setLoggedIn(username, data.profileImageUrl, isAdmin);
