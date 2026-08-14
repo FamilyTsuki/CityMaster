@@ -90,7 +90,8 @@ img {
   transform: translate3d(0, 0, 0) scale(1);
 }
 
-#game-screen {
+#game-screen,
+#admin-screen {
   overflow: hidden !important;
   padding-left: 0;
   padding-right: 0;

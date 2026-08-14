@@ -17,6 +17,10 @@
   overflow: hidden;
   margin: auto;
   flex-shrink: 0;
+  max-width: 560px;
+  width: 100%;
+  padding: 32px 24px;
+  box-sizing: border-box;
 }
 
 .certificate-card:hover {
@@ -189,6 +193,15 @@
 @media (max-width: 640px) {
   #certificate-screen {
     padding: 20px 12px;
+  }
+
+  .certificate-card {
+    padding: 20px 16px;
+  }
+
+  .certificate-actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 

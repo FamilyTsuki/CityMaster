@@ -2,6 +2,14 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [1.5.8] - 2026-08-14
+
+### Amélioré
+- **Audit et Finalisation Responsivité Intégrale de l'Application** :
+  - **Ajustement du Layout Administrateur (`#admin-screen`)** : Déclaration explicite de l'absence de marges latérales (`padding: 0`) et masquage du débordement pour un affichage plein écran fluide de la carte d'édition Leaflet.
+  - **Positionnement du Bouton Satellite (`.ui-overlay-bottom-left`)** : Ajout de la classe de positionnement `.ui-overlay-bottom-left` et adaptation des dimensions sur mobile (36px x 36px).
+  - **Cartes Diplôme et Mentions Légales** : Ajout de la contrainte `max-width: 560px` et `width: 100%` avec espacement tactile adapté sur mobile.
+
 ## [1.5.7] - 2026-08-14
 
 ### Corrigé

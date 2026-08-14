@@ -87,4 +87,15 @@
   #legal-screen {
     padding: 20px 12px;
   }
+
+  .legal-card {
+    padding: 20px 16px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .legal-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
