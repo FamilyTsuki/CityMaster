@@ -18,7 +18,12 @@ Toutes les modifications notables de cette session seront documentées dans ce f
   - **Sérialisation du `testNumber`** : Ajout de la sérialisation et désérialisation du paramètre `testNumber` dans `GameSession.js` pour conserver l'identifiant du test lors du rechargement de page ou de la reprise de session.
 - **Sauvegarde des Scores de Compétition** :
   - Transmission explicite du paramètre `testNumber` à `Score.create()` dans le backend afin d'enregistrer les scores avec leur `test_id` correspondant.
-- **Validation du Formulaire Invité** :
+- **Robustesse des Questions de Jeu (Prompts & Cartographie)** :
+  - **Filtrage Stricte des Noms de Voies** : Filtrage préalable systématique des lotissements et tracés personnalisés ajoutés au jeu pour garantir que seuls les éléments dotés d'un nom de rue non vide sont proposés dans le tirage.
+  - **Sécurisation de l'Affichage de la Consigne** : Ajout d'une valeur de secours sécurisée (`safeStreetName`) évitant tout affichage de consigne vide ou indéfinie (`Où se trouve :  ?`).
+- **Validation du Formulaire Invité & Style CSS Responsive** :
+  - **Suppression du Décalage de Mise en Page (Zero Layout Shift)** : Réservation fixe de la hauteur d'affichage des messages de confirmation (« Lien d'invitation copié ! » / « Code copié ! ») avec transition par opacité (`opacity: 0` vers `1`), empêchant tout saut ou décalage visuel des éléments de la page lors de l'apparition et de la disparition du texte.
+  - **Correction Mobile & Desktop des Messages de Copie** : Alignement centré avec espacement suffisant (`padding: 14px 16px`, `margin-top: 8px`) sur mobile (`@media max-width: 640px`) pour garantir que les textes ne chevauchent jamais les bordures.
   - Alignement des règles d'attributs `minlength="3"` et `maxlength="20"` pour le champ pseudonyme invité (`room-guest-username`) sur l'écran du salon avec la validation backend.
 
 ## [1.5.0] - 2026-08-13

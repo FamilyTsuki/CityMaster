@@ -38,13 +38,13 @@ export class GameController {
         return res.status(404).json({ error: 'City data not found.' });
       }
 
-      const allCityStreets = geojson.features.filter(f => f.properties && f.properties.name);
+      const allCityStreets = geojson.features.filter(f => f.properties && f.properties.name && typeof f.properties.name === 'string' && f.properties.name.trim().length > 0);
 
       try {
         const districtsFilePath = path.join(process.cwd(), 'public', 'assets', 'data', 'custom_districts.json');
         const content = await fs.readFile(districtsFilePath, 'utf8');
         const customDistrictsObj = JSON.parse(content);
-        const cityDistricts = customDistrictsObj[cityKey] || [];
+        const cityDistricts = (customDistrictsObj[cityKey] || []).filter(f => f.properties && f.properties.name && typeof f.properties.name === 'string' && f.properties.name.trim().length > 0);
         allCityStreets.push(...cityDistricts);
       } catch (err) {}
 
@@ -52,7 +52,7 @@ export class GameController {
         const routesFilePath = path.join(process.cwd(), 'public', 'assets', 'data', 'custom_routes.json');
         const routesContent = await fs.readFile(routesFilePath, 'utf8');
         const customRoutesObj = JSON.parse(routesContent);
-        const cityRoutes = customRoutesObj[cityKey] || [];
+        const cityRoutes = (customRoutesObj[cityKey] || []).filter(f => f.properties && f.properties.name && typeof f.properties.name === 'string' && f.properties.name.trim().length > 0);
         allCityStreets.push(...cityRoutes);
       } catch (err) {}
 

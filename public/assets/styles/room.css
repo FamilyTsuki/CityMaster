@@ -260,24 +260,16 @@
   text-align: right;
 }
 
-.lobby-share-row .share-box,
-.lobby-share-row .code-box {
-  position: relative;
-  padding-bottom: 22px;
-}
-
 .copy-feedback-left {
-  position: absolute;
-  bottom: 4px;
-  left: 16px;
-  margin-top: 0;
+  text-align: left;
+  align-self: flex-start;
+  margin-top: 6px;
 }
 
 .copy-feedback-right {
-  position: absolute;
-  bottom: 4px;
-  right: 16px;
-  margin-top: 0;
+  text-align: right;
+  align-self: flex-end;
+  margin-top: 6px;
 }
 
 .col-rank {
@@ -299,7 +291,7 @@
   background: var(--primary-light);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  padding: 10px 16px;
+  padding: 12px 16px 14px 16px;
   margin-bottom: 0;
   display: flex;
   flex-direction: column;
@@ -315,7 +307,7 @@
   background: var(--primary-light);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
-  padding: 10px 16px;
+  padding: 12px 16px 14px 16px;
   box-sizing: border-box;
 }
 
@@ -347,11 +339,21 @@
 
 .copy-feedback {
   font-size: 0.8rem;
-  color: var(--success);
+  color: var(--success, #10b981);
   font-weight: 600;
-  display: block;
   margin-top: 6px;
-  animation: fadeIn var(--transition-fast);
+  min-height: 1.2em;
+  line-height: 1.2em;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.copy-feedback.hidden {
+  display: block !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
 }
 
 .lobby-content-grid {
@@ -786,7 +788,9 @@
   .lobby-share-row .code-box {
     width: 100%;
     flex: none;
-    align-items: stretch;
+    align-items: center;
+    text-align: center;
+    padding: 14px 16px;
   }
 
   .lobby-share-row .code-box {
@@ -799,6 +803,13 @@
 
   .lobby-share-row .code-box div {
     align-items: center !important;
+  }
+
+  .copy-feedback-left,
+  .copy-feedback-right {
+    align-self: center !important;
+    text-align: center !important;
+    margin-top: 8px !important;
   }
 
   .lobby-badge {

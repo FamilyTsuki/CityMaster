@@ -387,13 +387,16 @@ export class GameController {
       this.#mapView.setView(cityCenter, 14);
       
       this.#gameView.showBanner(true);
-      const promptText = I18nService.getInstance().t('feedback.prompt_target', { name: prompt.streetName });
+      const safeStreetName = (prompt && prompt.streetName && typeof prompt.streetName === 'string') ? prompt.streetName.trim() : 'Rue sans nom';
+      const promptText = I18nService.getInstance().t('feedback.prompt_target', { name: safeStreetName });
       this.#gameView.setInstruction(mode === 'sprint' ? `⚡ ${promptText}` : `📍 ${promptText}`);
     } else if (mode === 'identify') {
-      this.#mapView.renderStreet(prompt.geometry, true);
-      const bounds = L.geoJSON(prompt.geometry).getBounds();
-      if (bounds.isValid()) {
-        this.#mapView.setView(bounds.getCenter(), 15);
+      if (prompt && prompt.geometry) {
+        this.#mapView.renderStreet(prompt.geometry, true);
+        const bounds = L.geoJSON(prompt.geometry).getBounds();
+        if (bounds.isValid()) {
+          this.#mapView.setView(bounds.getCenter(), 15);
+        }
       }
       this.#gameView.showBanner(true);
       this.#gameView.setInstruction(`🔎 ${I18nService.getInstance().t('feedback.prompt_identify')}`);
