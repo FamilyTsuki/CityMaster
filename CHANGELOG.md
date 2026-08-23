@@ -2,6 +2,13 @@
 
 Toutes les modifications notables de ce projet sont documentées dans ce fichier.
 
+## [1.5.9] - 2026-08-15
+
+### Amélioré
+- **Suppression Intégrale des Pop-ups `alert()` Natives** :
+  - **Gestion des Salons Expirés et Erreurs Multijoueur** : Remplacement des `alert()` navigateur par la modale sur-mesure (`showAlertModal`), affichant les messages d'expiration de salon (« Ce salon a expiré ») et d'erreurs de relance avec un bouton « OK » intégré à l'UI.
+  - **Notifications Toast Espace Administration** : Remplacement de l'ensemble des `alert()` d'administration par des notifications flottantes (*Toast*) non intrusives et élégantes (`#admin-toast`).
+
 ## [1.5.8] - 2026-08-14
 
 ### Amélioré

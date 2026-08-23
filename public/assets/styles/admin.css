@@ -473,3 +473,33 @@
     height: 55vh;
   }
 }
+
+.admin-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 12px 20px;
+  border-radius: var(--border-radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 3000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.admin-toast.toast-error {
+  border-color: var(--danger);
+  color: #f87171;
+}
+
+.admin-toast.toast-success {
+  border-color: var(--success);
+  color: #34d399;
+}

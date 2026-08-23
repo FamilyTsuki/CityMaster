@@ -193,7 +193,7 @@ export class RoomController {
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Erreur lors du lancement de la partie.');
+        await this.roomView.showAlertModal('Erreur', data.error || 'Erreur lors du lancement de la partie.');
         this.roomView.showScreen();
       }
     } catch (error) {
@@ -222,7 +222,7 @@ export class RoomController {
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        alert(data.error || 'Erreur lors de la réinitialisation du salon.');
+        await this.roomView.showAlertModal('Erreur', data.error || 'Erreur lors de la réinitialisation du salon.');
         this.roomView.showScreen();
         return;
       }
@@ -271,7 +271,7 @@ export class RoomController {
         if (res.status === 404 || res.status === 410) {
           this.stopPolling();
           const errData = await res.json().catch(() => ({}));
-          alert(errData.error || 'Le salon n\'est plus disponible.');
+          await this.roomView.showAlertModal('Salon indisponible', errData.error || 'Ce salon a expiré ou n\'existe plus.');
           this.router.navigate('/room');
         }
         return;

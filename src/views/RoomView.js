@@ -621,4 +621,40 @@ export class RoomView {
       this.#confirmModal.addEventListener('click', onOverlay);
     });
   }
+
+  showAlertModal(title, message) {
+    return new Promise((resolve) => {
+      if (!this.#confirmModal) {
+        resolve();
+        return;
+      }
+
+      if (this.#confirmTitle) this.#confirmTitle.textContent = title;
+      if (this.#confirmMessage) this.#confirmMessage.textContent = message;
+
+      if (this.#confirmCancelBtn) this.#confirmCancelBtn.classList.add('hidden');
+      if (this.#confirmOkBtn) this.#confirmOkBtn.textContent = 'OK';
+
+      this.#confirmModal.classList.remove('hidden');
+
+      const cleanup = () => {
+        this.#confirmModal.classList.add('hidden');
+        if (this.#confirmCancelBtn) this.#confirmCancelBtn.classList.remove('hidden');
+        if (this.#confirmOkBtn) {
+          this.#confirmOkBtn.textContent = 'Recommencer';
+          this.#confirmOkBtn.removeEventListener('click', onOk);
+        }
+        this.#confirmModal.removeEventListener('click', onOverlay);
+        resolve();
+      };
+
+      const onOk = () => cleanup();
+      const onOverlay = (e) => {
+        if (e.target === this.#confirmModal) cleanup();
+      };
+
+      if (this.#confirmOkBtn) this.#confirmOkBtn.addEventListener('click', onOk);
+      this.#confirmModal.addEventListener('click', onOverlay);
+    });
+  }
 }

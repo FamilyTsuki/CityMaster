@@ -127,7 +127,7 @@ export class AdminController {
     if (addBtn) {
       addBtn.addEventListener('click', () => {
         if (!this.#selectedCity) {
-          alert("Veuillez d'abord sélectionner une commune.");
+          this.#adminView.showToast("Veuillez d'abord sélectionner une commune.");
           return;
         }
         this.#adminView.startEditingDistrict(null);
@@ -145,7 +145,7 @@ export class AdminController {
         if (!this.#selectedCity) return;
         const payload = this.#adminView.getActiveDistrictPayload();
         if (!payload) {
-          alert('Veuillez saisir un nom et placer au moins 3 points sur la carte.');
+          this.#adminView.showToast('Veuillez saisir un nom et placer au moins 3 points sur la carte.');
           return;
         }
         await this.#saveDistrict(payload);
@@ -180,7 +180,7 @@ export class AdminController {
     if (addRouteBtn) {
       addRouteBtn.addEventListener('click', () => {
         if (!this.#selectedCity) {
-          alert("Veuillez d'abord sélectionner une commune.");
+          this.#adminView.showToast("Veuillez d'abord sélectionner une commune.");
           return;
         }
         this.#adminView.startEditingRoute(null);
@@ -198,7 +198,7 @@ export class AdminController {
         if (!this.#selectedCity) return;
         const payload = this.#adminView.getActiveRoutePayload();
         if (!payload) {
-          alert('Veuillez tracer la route avec au moins 2 points et lui donner un nom.');
+          this.#adminView.showToast('Veuillez tracer la route avec au moins 2 points et lui donner un nom.');
           return;
         }
         await this.#saveRoute(payload);
@@ -550,7 +550,7 @@ export class AdminController {
       this.#adminView.clearActiveDrawing();
       await this.loadDistricts();
     } catch (err) {
-      alert(err.message);
+      this.#adminView.showToast(err.message);
     }
   }
 
@@ -569,7 +569,7 @@ export class AdminController {
 
       await this.loadDistricts();
     } catch (err) {
-      alert(err.message);
+      this.#adminView.showToast(err.message);
     }
   }
 
@@ -593,7 +593,7 @@ export class AdminController {
       this.#adminView.clearActiveRouteDrawing();
       await this.loadRoutes();
     } catch (err) {
-      alert(err.message);
+      this.#adminView.showToast(err.message);
     }
   }
 
@@ -612,7 +612,7 @@ export class AdminController {
 
       await this.loadRoutes();
     } catch (err) {
-      alert(err.message);
+      this.#adminView.showToast(err.message);
     }
   }
 

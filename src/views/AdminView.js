@@ -532,4 +532,18 @@ export class AdminView {
       coordinates: line
     };
   }
+
+  showToast(message, type = 'error') {
+    const toastEl = document.getElementById('admin-toast');
+    if (!toastEl) return;
+
+    toastEl.textContent = message;
+    toastEl.className = `admin-toast toast-${type}`;
+    toastEl.classList.remove('hidden');
+
+    if (this.toastTimer) clearTimeout(this.toastTimer);
+    this.toastTimer = setTimeout(() => {
+      toastEl.classList.add('hidden');
+    }, 4000);
+  }
 }
