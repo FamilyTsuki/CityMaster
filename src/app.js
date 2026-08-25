@@ -53,22 +53,28 @@ class App {
       }
     });
 
+    this.#authController = new AuthController(null, this.#authView, this.#navbarView);
+    this.#profileController = new ProfileController(null, this.#profileView, this.#navbarView, this.#gameView, this.#audioService);
+    this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, null, this.#audioService);
+    this.#adminController = new AdminController(this.#adminView, this.#gameView);
+    this.#roomController = new RoomController(null, this.#roomView, this.#gameView, this.#controller);
+
     this.#router = new Router({
       '/': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#gameView.showScreen('landing');
       },
       '/setup': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#showSetup();
       },
       '/login': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#authController.setMode(true);
         this.#gameView.showScreen('auth');
       },
       '/register': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#authController.setMode(false);
         this.#gameView.showScreen('auth');
       },
@@ -77,17 +83,17 @@ class App {
       '/room/:code/play': () => this.#showPlay(),
       '/room/:code': (params) => this.#roomController.initRoom(params),
       '/certificate': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#gameView.showScreen('certificate');
         ConfettiService.launch();
         this.#audioService.playFanfare();
       },
       '/profile': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#profileController.loadProfile();
       },
       '/admin': async () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         if (localStorage.getItem('is_admin') === 'true') {
           this.#showAdmin();
         } else {
@@ -111,16 +117,15 @@ class App {
         }
       },
       '/legal': () => {
-        this.#roomController.stopPolling();
+        this.#roomController?.stopPolling();
         this.#gameView.showScreen('legal');
       }
     });
 
-    this.#authController = new AuthController(this.#router, this.#authView, this.#navbarView);
-    this.#profileController = new ProfileController(this.#router, this.#profileView, this.#navbarView, this.#gameView, this.#audioService);
-    this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, this.#router, this.#audioService);
-    this.#adminController = new AdminController(this.#adminView, this.#gameView);
-    this.#roomController = new RoomController(this.#router, this.#roomView, this.#gameView, this.#controller);
+    this.#authController.router = this.#router;
+    this.#profileController.router = this.#router;
+    this.#controller.setRouter(this.#router);
+    this.#roomController.router = this.#router;
 
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));

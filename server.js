@@ -15,6 +15,7 @@ import citiesRoutes from './src/backend/routes/cities.routes.js';
 import gameRoutes from './src/backend/routes/game.routes.js';
 import adminRoutes from './src/backend/routes/admin.routes.js';
 import roomRoutes from './src/backend/routes/room.routes.js';
+import reportsRoutes from './src/backend/routes/reports.routes.js';
 
 if (!process.env.JWT_SECRET) {
   console.error('FATAL ERROR: JWT_SECRET environment variable is missing.');
@@ -59,6 +60,7 @@ app.use('/api/cities', citiesRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/reports', reportsRoutes);
 
 import fs from 'fs';
 app.get('/api/version', (req, res) => {

@@ -61,7 +61,10 @@ export class GameView {
 
     this.#setupKeyboardShortcuts();
     this.#setupSetupForm();
+    this.#setupReportModal();
   }
+
+  #reportContext = null;
 
   #setupSetupForm() {
     const cityInput = document.getElementById('city-search');
@@ -1001,5 +1004,163 @@ export class GameView {
         submit();
       }
     });
+  }
+
+  #setupReportModal() {
+    const closeBtn = document.getElementById('report-modal-close-btn');
+    const form = document.getElementById('report-form');
+    const modal = document.getElementById('report-modal');
+
+    if (closeBtn) {
+      closeBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        this.closeReportModal();
+      };
+    }
+
+    if (modal) {
+      modal.onclick = (e) => {
+        if (e.target === modal) {
+          e.preventDefault();
+          e.stopPropagation();
+          this.closeReportModal();
+        }
+      };
+    }
+
+    if (form) {
+      form.onsubmit = (e) => {
+        e.preventDefault();
+        this.#submitReportForm();
+      };
+    }
+  }
+
+  onReportRequest(callback) {
+    const reportBtn = document.getElementById('report-btn');
+    if (reportBtn) {
+      reportBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        callback(e);
+      };
+    }
+  }
+
+  openReportModal(contextData = {}) {
+    this.#reportContext = contextData;
+    this.#setupReportModal();
+
+    const modal = document.getElementById('report-modal');
+    const userDisplay = document.getElementById('report-user-display');
+    const targetDisplay = document.getElementById('report-target-street-display');
+    const clickedContainer = document.getElementById('report-clicked-street-container');
+    const clickedDisplay = document.getElementById('report-clicked-street-display');
+    const errorDiv = document.getElementById('report-modal-error');
+    const descInput = document.getElementById('report-description');
+
+    if (userDisplay) userDisplay.textContent = contextData.username || 'Anonyme';
+    if (targetDisplay) targetDisplay.textContent = contextData.targetStreet || 'Inconnue';
+
+    if (contextData.clickedStreet) {
+      if (clickedDisplay) clickedDisplay.textContent = contextData.clickedStreet;
+      if (clickedContainer) clickedContainer.classList.remove('hidden');
+    } else if (clickedContainer) {
+      clickedContainer.classList.add('hidden');
+    }
+
+    if (errorDiv) {
+      errorDiv.textContent = '';
+      errorDiv.classList.add('hidden');
+    }
+    if (descInput) descInput.value = '';
+
+    if (modal) {
+      modal.style.display = '';
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        if (descInput) descInput.focus();
+      }, 100);
+    }
+  }
+
+  closeReportModal() {
+    const modal = document.getElementById('report-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.setProperty('display', 'none', 'important');
+    }
+    this.#reportContext = null;
+  }
+
+  async #submitReportForm() {
+    const categorySelect = document.getElementById('report-category-select');
+    const descInput = document.getElementById('report-description');
+    const errorDiv = document.getElementById('report-modal-error');
+    const submitBtn = document.getElementById('report-submit-btn');
+
+    const category = categorySelect ? categorySelect.value : 'other';
+    const description = descInput ? descInput.value.trim() : '';
+
+    if (!description) {
+      if (errorDiv) {
+        errorDiv.textContent = 'Veuillez décrire le problème rencontré.';
+        errorDiv.classList.remove('hidden');
+      }
+      return;
+    }
+
+    const payload = {
+      ...(this.#reportContext || {}),
+      category,
+      description
+    };
+
+    try {
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Envoi en cours...';
+      }
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch('/api/reports', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(payload)
+      });
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Envoyer le signalement';
+      }
+
+      if (!res.ok) {
+        const errData = await res.json();
+        throw new Error(errData.error || 'Erreur lors de l’envoi du signalement.');
+      }
+
+      this.closeReportModal();
+      this.#showToastNotification('Signalement envoyé avec succès ! Merci pour votre aide.');
+    } catch (err) {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Envoyer le signalement';
+      }
+      if (errorDiv) {
+        errorDiv.textContent = err.message;
+        errorDiv.classList.remove('hidden');
+      }
+    }
+  }
+
+  #showToastNotification(message) {
+    const toast = document.createElement('div');
+    toast.className = 'admin-toast toast-success';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
   }
 }

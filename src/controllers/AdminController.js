@@ -8,6 +8,7 @@ export class AdminController {
   #currentRoutes;
   #difficultyMode;
   #routeFilterQuery;
+  #reportsSearchQuery;
 
   constructor(adminView, gameView) {
     this.#adminView = adminView;
@@ -17,6 +18,7 @@ export class AdminController {
     this.#currentRoutes = [];
     this.#difficultyMode = 'length';
     this.#routeFilterQuery = '';
+    this.#reportsSearchQuery = '';
 
     this.#initEvents();
   }
@@ -24,6 +26,7 @@ export class AdminController {
   #initEvents() {
     const goDistrictsBtn = document.getElementById('admin-go-districts-btn');
     const goRoutesBtn = document.getElementById('admin-go-routes-btn');
+    const goReportsBtn = document.getElementById('admin-go-reports-btn');
 
     if (goDistrictsBtn) {
       goDistrictsBtn.addEventListener('click', () => {
@@ -37,9 +40,23 @@ export class AdminController {
         this.showRoutes();
       });
     }
+    if (goReportsBtn) {
+      goReportsBtn.addEventListener('click', () => {
+        this.showReports();
+      });
+    }
+
+    const adminBackBtn = document.getElementById('admin-back-btn');
+    if (adminBackBtn) {
+      adminBackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.location.href = '/#/setup';
+      });
+    }
 
     const districtsBackBtn = document.getElementById('admin-districts-back-btn');
     const routesBackBtn = document.getElementById('admin-routes-back-btn');
+    const reportsBackBtn = document.getElementById('admin-reports-back-btn');
 
     if (districtsBackBtn) {
       districtsBackBtn.addEventListener('click', () => {
@@ -49,6 +66,33 @@ export class AdminController {
     if (routesBackBtn) {
       routesBackBtn.addEventListener('click', () => {
         this.showDashboard();
+      });
+    }
+    if (reportsBackBtn) {
+      reportsBackBtn.addEventListener('click', () => {
+        this.showDashboard();
+      });
+    }
+
+    const statusFilterSelect = document.getElementById('admin-reports-status-filter');
+    if (statusFilterSelect) {
+      statusFilterSelect.addEventListener('change', () => {
+        this.loadReports();
+      });
+    }
+
+    const reportsSearch = document.getElementById('admin-reports-search');
+    if (reportsSearch) {
+      reportsSearch.addEventListener('input', (e) => {
+        this.#reportsSearchQuery = e.target.value.toLowerCase().trim();
+        this.loadReports();
+      });
+    }
+
+    const refreshReportsBtn = document.getElementById('admin-refresh-reports-btn');
+    if (refreshReportsBtn) {
+      refreshReportsBtn.addEventListener('click', () => {
+        this.loadReports();
       });
     }
 
@@ -64,7 +108,7 @@ export class AdminController {
         try {
           const lastCity = JSON.parse(lastCityRaw);
           input.value = lastCity.name;
-        } catch(e) {}
+        } catch (e) {}
       }
 
       let debounceTimer = null;
@@ -82,29 +126,33 @@ export class AdminController {
       };
 
       const renderCityMatches = (cities) => {
-        dropdown.innerHTML = '';
+        dropdown.replaceChildren();
         if (!cities || cities.length === 0) {
           dropdown.classList.add('hidden');
           return;
         }
 
-        cities.forEach((city) => {
+        cities.forEach(city => {
           const li = document.createElement('li');
           li.className = 'dropdown-item';
-          li.innerHTML = `<strong>${city.name}</strong>`;
-          li.addEventListener('click', () => {
-            if (cityInput) cityInput.value = city.name;
-            if (cityInputRoutes) cityInputRoutes.value = city.name;
+          const strong = document.createElement('strong');
+          strong.textContent = city.name || '';
+          li.appendChild(strong);
+
+          li.addEventListener('click', async () => {
+            input.value = city.name;
             dropdown.classList.add('hidden');
-            this.selectCity(city);
+            await this.selectCity(city);
           });
           dropdown.appendChild(li);
         });
+
         dropdown.classList.remove('hidden');
       };
 
-      input.addEventListener('focus', () => {
-        searchCities(input.value.trim()).then(renderCityMatches);
+      input.addEventListener('focus', async () => {
+        const cities = await searchCities(input.value.trim());
+        renderCityMatches(cities);
       });
 
       input.addEventListener('input', () => {
@@ -198,16 +246,12 @@ export class AdminController {
         if (!this.#selectedCity) return;
         const payload = this.#adminView.getActiveRoutePayload();
         if (!payload) {
-          this.#adminView.showToast('Veuillez tracer la route avec au moins 2 points et lui donner un nom.');
+          this.#adminView.showToast('Veuillez saisir un nom et placer au moins 2 points sur la carte.');
           return;
         }
         await this.#saveRoute(payload);
       });
     }
-
-    this.#adminView.onRouteMapClick = (routeFeature) => {
-      this.#adminView.startEditingRoute(routeFeature);
-    };
 
     if (routeList) {
       routeList.addEventListener('click', (e) => {
@@ -264,12 +308,21 @@ export class AdminController {
       const res = await fetch('/api/admin/settings', { headers });
       if (res.ok) {
         const settings = await res.json();
-        const select = document.getElementById('admin-difficulty-mode-select');
         if (settings.difficulty_mode) {
           this.#difficultyMode = settings.difficulty_mode;
         }
+        const select = document.getElementById('admin-difficulty-mode-select');
         if (select) {
           select.value = this.#difficultyMode;
+        }
+        const modeTextEl = document.getElementById('admin-route-mode-text');
+        if (modeTextEl) {
+          const modeLabels = {
+            length: 'Par longueur (Longueur >800m / 250m-800m / <250m)',
+            nomenclature: 'Par nomenclature (Grands axes vs Voies secondaires)',
+            center: 'Par centre-ville (Densité de croisements)'
+          };
+          modeTextEl.textContent = modeLabels[this.#difficultyMode] || this.#difficultyMode;
         }
       }
     } catch (e) {
@@ -622,11 +675,14 @@ export class AdminController {
     const dashboard = document.getElementById('admin-dashboard-view');
     const districts = document.getElementById('admin-districts-view');
     const routes = document.getElementById('admin-routes-view');
+    const reports = document.getElementById('admin-reports-view');
     if (dashboard) dashboard.classList.remove('hidden');
     if (districts) districts.classList.add('hidden');
     if (routes) routes.classList.add('hidden');
+    if (reports) reports.classList.add('hidden');
 
     this.#loadSettings();
+    this.#loadPendingReportsCount();
 
     if (!this.#selectedCity) {
       const lastCityRaw = localStorage.getItem('citymaster_last_city');
@@ -639,17 +695,44 @@ export class AdminController {
     }
   }
 
+  async #loadPendingReportsCount() {
+    if (localStorage.getItem('is_admin') !== 'true') return;
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const res = await fetch('/api/reports?status=pending', { headers });
+      if (res.ok) {
+        const reports = await res.json();
+        const badge = document.getElementById('admin-pending-reports-badge');
+        if (badge) {
+          const count = reports.length;
+          badge.textContent = `${count}`;
+          badge.classList.remove('hidden');
+          if (count > 0) {
+            badge.classList.add('badge-has-pending');
+            badge.classList.remove('badge-zero');
+          } else {
+            badge.classList.add('badge-zero');
+            badge.classList.remove('badge-has-pending');
+          }
+        }
+      }
+    } catch (e) {}
+  }
+
   showDistricts() {
     const dashboard = document.getElementById('admin-dashboard-view');
     const districts = document.getElementById('admin-districts-view');
     const routes = document.getElementById('admin-routes-view');
+    const reports = document.getElementById('admin-reports-view');
     if (dashboard) dashboard.classList.add('hidden');
     if (routes) routes.classList.add('hidden');
+    if (reports) reports.classList.add('hidden');
     if (districts) districts.classList.remove('hidden');
     this.#adminView.setEditMode('district');
     
     const mapEl = document.getElementById('admin-map');
-    const targetContainer = districts.querySelector('.admin-map-area');
+    const targetContainer = districts ? districts.querySelector('.admin-map-area') : null;
     if (mapEl && targetContainer && mapEl.parentElement !== targetContainer) {
       targetContainer.appendChild(mapEl);
     }
@@ -657,12 +740,14 @@ export class AdminController {
     this.#adminView.initMap();
   }
 
-  showRoutes() {
+  async showRoutes() {
     const dashboard = document.getElementById('admin-dashboard-view');
     const districts = document.getElementById('admin-districts-view');
     const routes = document.getElementById('admin-routes-view');
+    const reports = document.getElementById('admin-reports-view');
     if (dashboard) dashboard.classList.add('hidden');
     if (districts) districts.classList.add('hidden');
+    if (reports) reports.classList.add('hidden');
     if (routes) routes.classList.remove('hidden');
     this.#adminView.setEditMode('route');
     
@@ -673,5 +758,199 @@ export class AdminController {
     }
     
     this.#adminView.initMap();
+    await this.#loadSettings();
+    this.#renderRouteList();
+  }
+
+  showReports() {
+    const dashboard = document.getElementById('admin-dashboard-view');
+    const districts = document.getElementById('admin-districts-view');
+    const routes = document.getElementById('admin-routes-view');
+    const reports = document.getElementById('admin-reports-view');
+    if (dashboard) dashboard.classList.add('hidden');
+    if (districts) districts.classList.add('hidden');
+    if (routes) routes.classList.add('hidden');
+    if (reports) reports.classList.remove('hidden');
+
+    this.loadReports();
+  }
+
+  async loadReports() {
+    if (localStorage.getItem('is_admin') !== 'true') return;
+
+    this.#loadPendingReportsCount();
+
+    const filterSelect = document.getElementById('admin-reports-status-filter');
+    const status = filterSelect ? filterSelect.value : 'all';
+
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const res = await fetch(`/api/reports?status=${encodeURIComponent(status)}`, { headers });
+      if (!res.ok) {
+        throw new Error('Failed to load reports');
+      }
+
+      const reports = await res.json();
+      this.#renderReportsList(reports);
+    } catch (err) {
+      this.#adminView.showToast('Erreur lors du chargement des signalements.');
+    }
+  }
+
+  #renderReportsList(reports) {
+    const grid = document.getElementById('admin-reports-grid');
+    const emptyMsg = document.getElementById('admin-reports-empty');
+    if (!grid) return;
+
+    grid.innerHTML = '';
+
+    if (this.#reportsSearchQuery) {
+      const q = this.#reportsSearchQuery;
+      reports = reports.filter(r => {
+        const target = (r.target_street || '').toLowerCase();
+        const clicked = (r.clicked_street || '').toLowerCase();
+        const city = (r.city_key || '').toLowerCase();
+        const user = (r.username || '').toLowerCase();
+        const desc = (r.description || '').toLowerCase();
+        return target.includes(q) || clicked.includes(q) || city.includes(q) || user.includes(q) || desc.includes(q);
+      });
+    }
+
+    if (!reports || reports.length === 0) {
+      if (emptyMsg) emptyMsg.classList.remove('hidden');
+      return;
+    }
+
+    if (emptyMsg) emptyMsg.classList.add('hidden');
+
+    const categoryLabels = {
+      street_name: 'Rue mal nommée',
+      difficulty: 'Mauvaise difficulté',
+      map_error: 'Erreur de tracé',
+      other: 'Autre problème'
+    };
+
+    reports.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'report-card';
+
+      const dateStr = new Date(r.created_at).toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const categoryName = categoryLabels[r.category] || r.category;
+      const statusClass = `status-${r.status || 'pending'}`;
+      const statusLabels = { pending: 'En attente', resolved: 'Résolu', dismissed: 'Ignoré' };
+      const statusText = statusLabels[r.status] || r.status;
+
+      const safeTarget = (r.target_street && r.target_street !== 'Inconnue' && r.target_street !== 'N/A') ? r.target_street : null;
+      const safeClicked = (r.clicked_street && r.clicked_street !== 'N/A') ? r.clicked_street : null;
+
+      card.innerHTML = `
+        <div class="report-card-header">
+          <span class="report-category-tag">${categoryName}</span>
+          <span class="report-status-badge ${statusClass}">${statusText}</span>
+        </div>
+        <div class="report-meta-list">
+          <span><strong>Date :</strong> ${dateStr}</span>
+          <span><strong>Joueur :</strong> ${r.username || 'Anonyme'}</span>
+          <span><strong>Commune :</strong> ${r.city_key || 'N/A'} (Mode: ${r.game_mode || 'N/A'}, Diff: ${r.difficulty || 'N/A'})</span>
+          <span>
+            <strong>Rue cible :</strong> ${r.target_street || 'N/A'}
+            ${safeTarget ? `<button type="button" class="btn-copy-street" data-copy="${safeTarget}" title="Copier le nom">📋 Copier</button>` : ''}
+          </span>
+          ${r.clicked_street ? `
+            <span>
+              <strong>Rue cliquée :</strong> ${r.clicked_street}
+              ${safeClicked ? `<button type="button" class="btn-copy-street" data-copy="${safeClicked}" title="Copier le nom">📋 Copier</button>` : ''}
+            </span>` : ''}
+        </div>
+        <div class="report-description-text">${r.description}</div>
+        <div class="report-card-actions">
+          ${r.status !== 'resolved' ? `<button type="button" class="btn btn-small btn-resolve-report" data-id="${r.id}">Marquer résolu</button>` : ''}
+          ${r.status !== 'dismissed' ? `<button type="button" class="btn btn-small btn-secondary btn-dismiss-report" data-id="${r.id}">Ignorer</button>` : ''}
+          <button type="button" class="btn btn-small btn-delete-item btn-delete-report" data-id="${r.id}">Supprimer</button>
+        </div>
+      `;
+
+      const resolveBtn = card.querySelector('.btn-resolve-report');
+      const dismissBtn = card.querySelector('.btn-dismiss-report');
+      const deleteBtn = card.querySelector('.btn-delete-report');
+      const copyBtns = card.querySelectorAll('.btn-copy-street');
+
+      if (resolveBtn) {
+        resolveBtn.addEventListener('click', () => this.#updateReportStatus(r.id, 'resolved'));
+      }
+      if (dismissBtn) {
+        dismissBtn.addEventListener('click', () => this.#updateReportStatus(r.id, 'dismissed'));
+      }
+      if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+          if (confirm('Voulez-vous vraiment supprimer ce signalement ?')) {
+            this.#deleteReport(r.id);
+          }
+        });
+      }
+
+      copyBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const textToCopy = btn.dataset.copy;
+          if (textToCopy && navigator.clipboard) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+              this.#adminView.showToast(`Nom "${textToCopy}" copié !`);
+            });
+          }
+        });
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  async #updateReportStatus(id, status) {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const res = await fetch(`/api/reports/${id}/status`, {
+        method: 'PATCH',
+        headers,
+        body: JSON.stringify({ status })
+      });
+
+      if (!res.ok) {
+        throw new Error('Mise à jour échouée');
+      }
+
+      this.loadReports();
+    } catch (err) {
+      this.#adminView.showToast(err.message);
+    }
+  }
+
+  async #deleteReport(id) {
+    try {
+      const token = localStorage.getItem('token');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+      const res = await fetch(`/api/reports/${id}`, {
+        method: 'DELETE',
+        headers
+      });
+
+      if (!res.ok) {
+        throw new Error('Suppression échouée');
+      }
+
+      this.loadReports();
+    } catch (err) {
+      this.#adminView.showToast(err.message);
+    }
   }
 }

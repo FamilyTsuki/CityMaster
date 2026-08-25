@@ -42,6 +42,12 @@
       <button id="quit-btn" class="quit-btn" title="Quitter la partie (Échap)" data-i18n-title="game.quit_title">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon game-action-icon-left"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
       </button>
+      <button id="report-btn" class="quit-btn report-btn-icon" title="Signaler un problème sur cette rue" aria-label="Signaler un problème">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+          <line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+      </button>
     </div>
 
     <div id="bottom-actions" class="ui-overlay-bottom glass-panel hidden">
@@ -62,5 +68,42 @@
         </button>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="report-modal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3 class="modal-title">Signaler un problème</h3>
+      <button id="report-modal-close-btn" type="button" class="btn-close" onclick="const m=document.getElementById('report-modal'); if(m){ m.classList.add('hidden'); m.style.setProperty('display','none','important'); }" aria-label="Fermer">&times;</button>
+    </div>
+    <form id="report-form" class="modal-body">
+      <div class="report-context-info">
+        <p><strong>Joueur :</strong> <span id="report-user-display">Anonyme</span></p>
+        <p><strong>Rue cible :</strong> <span id="report-target-street-display">Aucune</span></p>
+        <p id="report-clicked-street-container" class="hidden"><strong>Rue cliquée :</strong> <span id="report-clicked-street-display">Aucune</span></p>
+      </div>
+
+      <div class="form-group">
+        <label for="report-category-select" class="form-label">Type de problème :</label>
+        <select id="report-category-select" class="input" required>
+          <option value="street_name">Rue mal nommée</option>
+          <option value="difficulty">Mauvais niveau de difficulté</option>
+          <option value="map_error">Erreur de tracé / carte</option>
+          <option value="other">Autre problème</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="report-description" class="form-label">Description du problème :</label>
+        <textarea id="report-description" class="input textarea" rows="4" placeholder="Expliquez précisément le problème rencontré..." required></textarea>
+      </div>
+
+      <div id="report-modal-error" class="form-error hidden"></div>
+
+      <div class="modal-actions">
+        <button type="submit" id="report-submit-btn" class="btn">Envoyer le signalement</button>
+      </div>
+    </form>
   </div>
 </div>

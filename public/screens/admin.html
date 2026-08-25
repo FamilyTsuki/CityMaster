@@ -3,42 +3,50 @@
   <!-- DASHBOARD VIEW -->
   <div id="admin-dashboard-view" class="admin-dashboard-view">
     <div class="admin-dashboard-header">
-      <a href="#/setup" id="admin-back-btn" class="btn-back-round" title="Retour à l'accueil">
+      <a href="/#/setup" id="admin-back-btn" class="btn-back-round" title="Retour à l'accueil">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       </a>
-      <h1 class="admin-dashboard-title">Paramètres Globaux</h1>
+      <h1 class="admin-dashboard-title">Administration</h1>
     </div>
 
     <div class="admin-cards-grid">
       <div class="glass-card admin-card">
         <div class="admin-card-header">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          <h2 class="admin-card-title">Gestion des Quartiers</h2>
+          <h2 class="admin-card-title">Quartiers</h2>
         </div>
-        <p class="admin-card-desc">Dessinez et modifiez les limites des quartiers et lotissements pour chaque commune.</p>
-        <button id="admin-go-districts-btn" class="btn admin-btn-full">Accéder à la carte</button>
+        <p class="admin-card-desc">Limites des quartiers et lotissements.</p>
+        <button id="admin-go-districts-btn" class="btn admin-btn-full">Ouvrir la carte</button>
       </div>
 
       <div class="glass-card admin-card">
         <div class="admin-card-header">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
-          <h2 class="admin-card-title">Gestion des Routes</h2>
+          <h2 class="admin-card-title">Routes</h2>
         </div>
-        <p class="admin-card-desc">Dessinez et modifiez les routes pour corriger les erreurs de la carte.</p>
-        <button id="admin-go-routes-btn" class="btn admin-btn-full">Accéder à la carte</button>
+        <p class="admin-card-desc">Tracé et édition des rues.</p>
+        <button id="admin-go-routes-btn" class="btn admin-btn-full">Ouvrir la carte</button>
+      </div>
+
+      <div class="glass-card admin-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+          <h2 class="admin-card-title">Signalements</h2>
+          <span id="admin-pending-reports-badge" class="admin-pending-badge badge-zero">0</span>
+        </div>
+        <p class="admin-card-desc">Problèmes signalés par les joueurs.</p>
+        <button id="admin-go-reports-btn" class="btn admin-btn-full">Voir les signalements</button>
       </div>
 
       <div class="glass-card admin-card">
         <div class="admin-card-header">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          <h2 class="admin-card-title">Paramètres Globaux</h2>
+          <h2 class="admin-card-title">Paramètres</h2>
         </div>
-        <p class="admin-card-desc">Ajustez les paramètres généraux du jeu applicables à toutes les communes.</p>
         
         <div class="admin-settings-row">
           <div>
-            <span class="admin-setting-title">Méthode de difficulté</span>
-            <span class="admin-setting-desc">Critère pour classer les rues (Facile/Moyen/Difficile).</span>
+            <span class="admin-setting-title">Méthode de tri :</span>
           </div>
           <select id="admin-difficulty-mode-select" class="input admin-input-small admin-difficulty-select">
             <option value="length">Par longueur</option>
@@ -192,6 +200,42 @@
         <!-- AdminView.js initializes L.map('admin-map'). It's better if we only have one #admin-map element in the document -->
         <div id="admin-map-container-routes" class="admin-map-element"></div>
       </main>
+    </div>
+  </div>
+
+  <!-- REPORTS VIEW -->
+  <div id="admin-reports-view" class="hidden">
+    <div class="admin-reports-container glass-card">
+      <div class="admin-sidebar-header">
+        <button id="admin-reports-back-btn" class="btn-back-round" title="Retour aux paramètres">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        </button>
+        <h1 class="admin-sidebar-title">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-sidebar-icon"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+          <span>Signalements Utilisateurs</span>
+        </h1>
+      </div>
+
+      <div class="admin-reports-filter-bar">
+        <div class="reports-filter-group">
+          <label for="admin-reports-status-filter">Statut :</label>
+          <select id="admin-reports-status-filter" class="input admin-input-small">
+            <option value="all">Tous</option>
+            <option value="pending" selected>En attente</option>
+            <option value="resolved">Résolus</option>
+            <option value="dismissed">Ignorés</option>
+          </select>
+        </div>
+        <div class="reports-search-group">
+          <input type="text" id="admin-reports-search" placeholder="Rechercher par rue, commune, joueur..." class="input admin-input-small" />
+        </div>
+        <button id="admin-refresh-reports-btn" class="btn btn-secondary btn-small">Actualiser</button>
+      </div>
+
+      <div id="admin-reports-list-container" class="admin-reports-list-container">
+        <div id="admin-reports-empty" class="reports-empty-message hidden">Aucun signalement trouvé.</div>
+        <div id="admin-reports-grid" class="reports-grid"></div>
+      </div>
     </div>
   </div>
 

@@ -23,6 +23,7 @@ export class GameController {
   #totalTime;
   #remainingTime;
   #lastGameSettings;
+  #lastClickedStreetName;
 
   constructor(gameView, mapView, certificateView, scoreController, router, audioService) {
     this.#gameView = gameView;
@@ -41,6 +42,8 @@ export class GameController {
     this.#timerInterval = null;
     this.#totalTime = 90;
     this.#remainingTime = 0;
+    this.#lastGameSettings = null;
+    this.#lastClickedStreetName = null;
 
     this.#initEvents();
   }
@@ -56,6 +59,7 @@ export class GameController {
       this.#gameView.onHome(() => this.#goHome());
     }
     this.#gameView.onMapStyleChange((style) => this.#mapView.setMapStyle(style));
+    this.#gameView.onReportRequest(() => this.#handleReportRequest());
 
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
   }
@@ -281,6 +285,10 @@ export class GameController {
     this.#gameView.hideTimer();
   }
 
+  setRouter(router) {
+    this.#router = router;
+  }
+
   hasActiveSession() {
     return this.#session !== null;
   }
@@ -374,6 +382,7 @@ export class GameController {
     const mode = this.#session.currentMode;
 
     this.#hasPlacedMarker = false;
+    this.#lastClickedStreetName = null;
     this.#currentStepState = 'guessing';
     this.#gameView.setActionsState('none');
     this.#gameView.setModeLayout(mode);
@@ -432,6 +441,8 @@ export class GameController {
         selectedStreet = closest.street;
       }
     }
+
+    this.#lastClickedStreetName = selectedStreet && selectedStreet.properties ? selectedStreet.properties.name : null;
 
     if (mode === 'sprint') {
       this.#stopRoundTimer();
@@ -749,5 +760,24 @@ export class GameController {
     this.#clearState();
     this.roomCode = roomCode;
     this.#startGame(playerName, cityData, selectedMode, difficulty, testNumber, seriesCount);
+  }
+
+  #handleReportRequest() {
+    const prompt = this.#session?.currentPrompt;
+    let targetStreet = 'Inconnue';
+    if (prompt) {
+      targetStreet = prompt.streetName || prompt.name || (typeof prompt === 'string' ? prompt : 'Inconnue');
+    }
+
+    const context = {
+      username: localStorage.getItem('username') || this.#session?.playerName || 'Anonyme',
+      cityKey: this.#session?.city?.key || this.#session?.cityKey || 'Inconnu',
+      targetStreet,
+      clickedStreet: this.#lastClickedStreetName || null,
+      gameMode: this.#session?.currentMode || 'target',
+      difficulty: localStorage.getItem('citymaster_last_difficulty') || this.#session?.difficulty || 'hard'
+    };
+
+    this.#gameView.openReportModal(context);
   }
 }

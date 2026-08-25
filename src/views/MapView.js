@@ -140,9 +140,10 @@ export class MapView {
       if (bboxString) {
         const parts = bboxString.split(',').map(Number);
         if (parts.length === 4) {
-          const bounds = L.latLngBounds([parts[0], parts[1]], [parts[2], parts[3]]);
+          const rawBounds = L.latLngBounds([parts[0], parts[1]], [parts[2], parts[3]]);
+          const bounds = rawBounds.pad(0.30);
           this.#map.setMaxBounds(bounds);
-          const calculatedMinZoom = Math.max(12, this.#map.getBoundsZoom(bounds, true));
+          const calculatedMinZoom = Math.max(10, this.#map.getBoundsZoom(bounds, true));
           this.#map.setMinZoom(calculatedMinZoom);
           
           if (this.#boundaryRect) this.#boundaryRect.remove();
@@ -155,7 +156,7 @@ export class MapView {
         }
       } else {
         this.#map.setMaxBounds(null);
-        this.#map.setMinZoom(12);
+        this.#map.setMinZoom(10);
         if (this.#boundaryRect) {
           this.#boundaryRect.remove();
           this.#boundaryRect = null;
@@ -167,7 +168,7 @@ export class MapView {
 
     const options = {
       zoomControl: false,
-      minZoom: 12,
+      minZoom: 10,
       maxBoundsViscosity: 1.0,
       preferCanvas: true
     };
@@ -175,14 +176,15 @@ export class MapView {
     if (bboxString) {
       const parts = bboxString.split(',').map(Number);
       if (parts.length === 4) {
-        options.maxBounds = L.latLngBounds([parts[0], parts[1]], [parts[2], parts[3]]);
+        const rawBounds = L.latLngBounds([parts[0], parts[1]], [parts[2], parts[3]]);
+        options.maxBounds = rawBounds.pad(0.30);
       }
     }
 
     this.#map = L.map('map', options).setView(centerCoordinates, zoom);
 
     if (bboxString && options.maxBounds) {
-      const calculatedMinZoom = Math.max(12, this.#map.getBoundsZoom(options.maxBounds, true));
+      const calculatedMinZoom = Math.max(10, this.#map.getBoundsZoom(options.maxBounds, true));
       this.#map.setMinZoom(calculatedMinZoom);
 
       this.#boundaryRect = L.rectangle(options.maxBounds, {

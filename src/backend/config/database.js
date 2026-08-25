@@ -134,6 +134,22 @@ export const initDB = async () => {
       );
     `);
 
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS reports (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(255),
+        city_key VARCHAR(255),
+        target_street VARCHAR(255),
+        clicked_street VARCHAR(255),
+        game_mode VARCHAR(50),
+        difficulty VARCHAR(50),
+        category VARCHAR(100) NOT NULL,
+        description TEXT NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     console.log('PostgreSQL database tables verified.');
   } catch (error) {
     console.error('Failed to initialize PostgreSQL database:', error);

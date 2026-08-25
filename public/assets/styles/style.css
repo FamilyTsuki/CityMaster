@@ -14,7 +14,8 @@
 
 /* Main App Container */
 #app {
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   flex: 1;
   position: relative;
   overflow: hidden;
@@ -28,16 +29,23 @@
 
 .pwa-install-btn-style {
   width: auto;
-  padding: 8px 12px;
-  font-size: 0.85rem;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  box-sizing: border-box;
 }
 
 .icon-small {
-  width: 15px;
-  height: 15px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 /* Leaflet Dark Mode Overrides */
