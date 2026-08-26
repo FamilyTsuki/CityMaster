@@ -1,7 +1,6 @@
 <div id="room-screen" class="screen">
   <div class="room-container">
     
-    <!-- STEP 1: GUEST PSEUDONYM ENTRY (if not authenticated) -->
     <div id="room-guest-step" class="room-card hidden">
       <h2 class="room-title">Rejoindre la Compétition</h2>
       
@@ -21,7 +20,6 @@
       </div>
     </div>
 
-    <!-- STEP 2: ROOM SELECTION (Create / Join Setup) -->
     <div id="room-setup-step" class="room-card hidden">
       <div class="room-card-header">
         <a href="#" id="room-back-btn" class="btn-back-round" title="Retour à l'accueil">
@@ -35,7 +33,6 @@
       
       <div class="room-grid">
         
-        <!-- Create Room Column -->
         <div class="room-col">
           <h3>Créer un Salon</h3>
           <p class="room-col-desc">Générez un code unique et invitez vos collaborateurs à jouer sur le même set de rues.</p>
@@ -92,7 +89,6 @@
         
         <div class="room-divider-v"></div>
 
-        <!-- Join Room Column -->
         <div class="room-col">
           <h3>Rejoindre un Salon</h3>
           <p class="room-col-desc">Entrez le code de salon partagé par votre responsable pour commencer la partie.</p>
@@ -112,7 +108,6 @@
       </div>
     </div>
 
-    <!-- STEP 3: LOBBY (Waiting for players) -->
     <div id="room-lobby-step" class="room-step hidden">
       <div class="lobby-header">
         <div class="lobby-title-block">
@@ -145,18 +140,15 @@
       </div>
 
       <div class="lobby-content-grid">
-        <!-- Players List Column -->
         <div class="lobby-players-section">
           <div class="players-header">
             <h3>Joueurs Présents</h3>
             <span class="players-count" id="lobby-players-count">0</span>
           </div>
           <ul class="players-list" id="lobby-players-list">
-            <!-- Dynamically populated -->
           </ul>
         </div>
         
-        <!-- Admin & Control Column -->
         <div class="lobby-controls-section">
           <h3>Statut de la Session</h3>
           <div class="status-indicator">
@@ -184,7 +176,6 @@
           </div>
           
           <div id="lobby-actions-container">
-            <!-- Button will change dynamically depending on whether user is creator or participant -->
             <button id="lobby-start-btn" class="btn btn-primary room-btn-wide hidden">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
               <span>Démarrer le Test</span>
@@ -198,7 +189,6 @@
       
     </div>
 
-    <!-- STEP 4: SESSION SCOREBOARD (Final Results) -->
     <div id="room-results-step" class="room-card hidden">
       <h2 class="room-title">Classement Final du Salon</h2>
 
@@ -213,7 +203,6 @@
             </tr>
           </thead>
           <tbody id="results-table-body">
-            <!-- Dynamically populated -->
           </tbody>
         </table>
       </div>
@@ -234,19 +223,5 @@
           <span>Actualiser les scores</span>
         </button>
       </div>
-      </div>
-    </div>
-
-    <div id="room-confirm-modal" class="modal-overlay hidden">
-      <div class="modal-card">
-        <h3 id="room-confirm-title" class="modal-title">Réinitialiser le salon</h3>
-        <p id="room-confirm-message" class="modal-message">Voulez-vous réinitialiser le salon et recommencer avec les mêmes rues ?</p>
-        <div class="modal-actions">
-          <button id="room-confirm-cancel-btn" class="btn btn-secondary">Annuler</button>
-          <button id="room-confirm-ok-btn" class="btn btn-warning">Recommencer</button>
-        </div>
-      </div>
-    </div>
-
   </div>
 </div>

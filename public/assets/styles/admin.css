@@ -1,4 +1,4 @@
-/* Admin Panel Styles */
+
 #admin-screen {
   overflow-y: auto !important;
   overflow-x: hidden !important;
@@ -118,7 +118,7 @@
   border-radius: 24px;
 }
 
-/* Checkbox specific switch styling handled via typical .switch class if global, otherwise we can add: */
+
 .admin-switch-input:checked + .admin-switch-slider {
   background-color: var(--primary-color);
 }
@@ -138,7 +138,7 @@
 }
 
 
-/* Editor Layout */
+
 .admin-layout-container {
   display: flex;
   height: calc(100vh - 64px);
@@ -462,13 +462,11 @@
   cursor: move;
 }
 
-/* Toggle for route names */
 .hide-route-names .route-tooltip,
 .hide-district-names .district-tooltip {
   display: none !important;
 }
 
-/* Responsive Admin Layout */
 @media (max-width: 900px) {
   .admin-dashboard-view {
     padding: 20px 0 60px 0;
@@ -689,7 +687,7 @@
   color: #ffffff !important;
 }
 
-/* Reports View Styling */
+
 .admin-reports-container {
   padding: 24px 16px 60px 16px;
   max-width: 1200px;

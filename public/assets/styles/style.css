@@ -12,7 +12,8 @@
 @import 'admin.css';
 @import 'room.css';
 
-/* Main App Container */
+
+
 #app {
   width: 100%;
   max-width: 100%;
@@ -22,7 +23,7 @@
   background-color: var(--bg-main);
 }
 
-/* Global Utilities */
+
 .cursor-pointer {
   cursor: pointer;
 }
@@ -48,7 +49,7 @@
   flex-shrink: 0;
 }
 
-/* Leaflet Dark Mode Overrides */
+
 [data-theme="dark"] .leaflet-bar a {
   background-color: var(--bg-card) !important;
   color: var(--text-main) !important;

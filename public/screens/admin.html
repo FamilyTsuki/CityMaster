@@ -1,6 +1,4 @@
 <div id="admin-screen" class="screen" role="main" aria-label="Espace Administration des Quartiers">
-  
-  <!-- DASHBOARD VIEW -->
   <div id="admin-dashboard-view" class="admin-dashboard-view">
     <div class="admin-dashboard-header">
       <a href="/#/setup" id="admin-back-btn" class="btn-back-round" title="Retour à l'accueil">
@@ -58,7 +56,6 @@
     </div>
   </div>
 
-  <!-- DISTRICTS VIEW -->
   <div id="admin-districts-view" class="hidden">
     <div class="admin-layout-container">
       <aside class="admin-sidebar glass-card">
@@ -131,7 +128,6 @@
   </div>
   </div>
 
-  <!-- ROUTES VIEW -->
   <div id="admin-routes-view" class="hidden">
     <div class="admin-layout-container">
       <aside class="admin-sidebar glass-card">
@@ -195,15 +191,11 @@
       </aside>
 
       <main class="admin-map-area admin-map-main">
-        <!-- Reusing admin-map by detaching/attaching, or we just move the map container visually -->
-        <!-- Actually we should probably have a distinct map div or just share the view logic -->
-        <!-- AdminView.js initializes L.map('admin-map'). It's better if we only have one #admin-map element in the document -->
         <div id="admin-map-container-routes" class="admin-map-element"></div>
       </main>
     </div>
   </div>
 
-  <!-- REPORTS VIEW -->
   <div id="admin-reports-view" class="hidden">
     <div class="admin-reports-container glass-card">
       <div class="admin-sidebar-header">
