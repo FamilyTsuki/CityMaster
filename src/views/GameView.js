@@ -473,6 +473,13 @@ export class GameView {
     }
   }
 
+  onHeroRoom(callback) {
+    const roomBtns = document.querySelectorAll('#hero-room-btn, #setup-room-btn');
+    roomBtns.forEach(btn => {
+      btn.addEventListener('click', callback);
+    });
+  }
+
   onStart(callback) {
     if (this.#startBtn) {
       this.#startBtn.addEventListener('click', async () => {

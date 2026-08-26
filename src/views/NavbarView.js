@@ -74,6 +74,15 @@ export class NavbarView {
     }
   }
 
+  onAdminClick(callback) {
+    if (this.#navAdminLink) {
+      this.#navAdminLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        callback();
+      });
+    }
+  }
+
   onLogoClick(callback) {
     if (this.#logoBrand) {
       this.#logoBrand.addEventListener('click', (e) => {

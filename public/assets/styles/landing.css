@@ -78,6 +78,27 @@
   flex-shrink: 0;
 }
 
+.btn-landing-room {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: 9999px;
+  padding: 0 24px;
+  font-weight: 700;
+  border: 1px solid var(--primary);
+  background: var(--primary-light);
+  color: var(--primary) !important;
+  transition: all var(--transition-fast);
+}
+
+.btn-landing-room:hover {
+  background: var(--primary);
+  color: #ffffff !important;
+  box-shadow: var(--shadow-md);
+}
+
 .stats-banner {
   display: flex;
   align-items: center;

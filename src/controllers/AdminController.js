@@ -1,4 +1,14 @@
-import { I18nService } from '../services/I18nService.js';
+const MINOR_WAY_KEYWORDS = [
+  'chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 
+  'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 
+  'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 
+  'cité', 'cités', 'square', 'squares'
+];
+
+const MAJOR_WAY_TYPES = [
+  'boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 
+  'cours', 'quai', 'quais', 'pont', 'ponts'
+];
 
 export class AdminController {
   #adminView;
@@ -27,14 +37,6 @@ export class AdminController {
 
   setRouter(router) {
     this.#router = router;
-  }
-
-  set router(router) {
-    this.#router = router;
-  }
-
-  get router() {
-    return this.#router;
   }
 
   #initEvents() {
@@ -231,7 +233,7 @@ export class AdminController {
           }
         } else if (deleteBtn) {
           const id = deleteBtn.dataset.id;
-          if (id && confirm('Voulez-vous vraiment supprimer ce quartier ?')) {
+          if (id) {
             this.#deleteDistrict(id);
           }
         }
@@ -286,7 +288,7 @@ export class AdminController {
           }
         } else if (deleteBtn) {
           const id = deleteBtn.dataset.id;
-          if (id && confirm('Voulez-vous vraiment supprimer cette route ?')) {
+          if (id) {
             this.#deleteRoute(id);
           }
         } else if (routeItem) {
@@ -449,14 +451,12 @@ export class AdminController {
   #getRouteDifficulty(route) {
     const name = route.properties.name || '';
     const nameLower = name.toLowerCase().trim();
-    const MINOR_KEYWORDS = ['chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'square', 'squares'];
-    const isMinorWay = MINOR_KEYWORDS.some(k => nameLower.includes(k));
+    const isMinorWay = MINOR_WAY_KEYWORDS.some(k => nameLower.includes(k));
 
     if (this.#difficultyMode === 'nomenclature') {
       const firstWord = nameLower.split(/[\s'-]+/)[0];
-      const MAJOR_TYPES = ['boulevard', 'boulevards', 'avenue', 'avenues', 'place', 'places', 'cours', 'quai', 'quais', 'pont', 'ponts'];
       
-      if (MAJOR_TYPES.includes(firstWord) && !isMinorWay) return 'easy';
+      if (MAJOR_WAY_TYPES.includes(firstWord) && !isMinorWay) return 'easy';
       if (isMinorWay) return 'hard';
       return 'medium';
     } else {
@@ -495,10 +495,8 @@ export class AdminController {
       let diff = 'hard';
       if (this.#difficultyMode === 'center') {
         const nameLower = (r.properties.name || '').toLowerCase().trim();
-        const MINOR_KEYWORDS = ['chemin', 'chemins', 'sentier', 'sentiers', 'ruelle', 'ruelles', 'passage', 'passages', 'allée', 'allées', 'impasse', 'impasses', 'traverse', 'traverses', 'chemain', 'cour', 'cours', 'villa', 'villas', 'cité', 'cités', 'square', 'squares'];
-        const isMinorWay = MINOR_KEYWORDS.some(k => nameLower.includes(k));
-        const mediumWords = ['rue', 'route', 'avenue', 'boulevard', 'place', 'cours', 'quai'];
-        let isMediumType = mediumWords.some(w => nameLower.includes(w));
+        const isMinorWay = MINOR_WAY_KEYWORDS.some(k => nameLower.includes(k));
+        const isMediumType = MAJOR_WAY_TYPES.some(w => nameLower.includes(w)) || nameLower.includes('rue') || nameLower.includes('route');
         
         let nearCount = 0;
         if (centroids[i] && window.turf) {
@@ -757,7 +755,7 @@ export class AdminController {
       (id) => this.#updateReportStatus(id, 'resolved'),
       (id) => this.#updateReportStatus(id, 'dismissed'),
       (id) => {
-        if (confirm('Voulez-vous vraiment supprimer ce signalement ?')) {
+        if (id) {
           this.#deleteReport(id);
         }
       },

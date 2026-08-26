@@ -703,12 +703,13 @@
   font-weight: 600;
   line-height: 1;
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-glass);
   border: 1px solid var(--border-color);
   text-decoration: none;
   transition: all 0.2s ease;
   margin-right: 8px;
   box-sizing: border-box;
+  cursor: pointer;
 }
 
 .nav-admin-link .icon-small {
@@ -718,9 +719,9 @@
 }
 
 .nav-admin-link:hover {
-  background: var(--primary-color);
-  color: #ffffff;
-  border-color: var(--primary-color);
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--primary);
   transform: translateY(-1px);
 }
 

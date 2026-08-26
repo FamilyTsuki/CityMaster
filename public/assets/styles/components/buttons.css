@@ -55,6 +55,17 @@
   box-shadow: var(--shadow-md), var(--primary-glow) 0 2px 8px;
 }
 
+.btn.btn-outline {
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--primary);
+}
+
+.btn.btn-outline:hover {
+  background: var(--primary);
+  color: #ffffff;
+}
+
 .btn.danger {
   background: linear-gradient(135deg, var(--danger) 0%, #b91c1c 100%);
 }

@@ -147,6 +147,18 @@ p {
   display: none !important;
 }
 
+.legal-footer-link,
+.auth-link,
+.profile-logout-link,
+.link-secondary {
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
 .text-center {
   text-align: center !important;
 }

@@ -1,3 +1,5 @@
+import { I18nService } from '../services/I18nService.js';
+
 export class ProfileController {
   #router;
   #profileView;
@@ -17,14 +19,6 @@ export class ProfileController {
 
   setRouter(router) {
     this.#router = router;
-  }
-
-  set router(router) {
-    this.#router = router;
-  }
-
-  get router() {
-    return this.#router;
   }
 
   #initEvents() {

@@ -1,29 +1,37 @@
 export class OverpassService {
   #apiUrl;
 
-  constructor(apiUrl = 'https://overpass-api.de/api/interpreter') {
+  constructor(apiUrl = '/api/overpass') {
     this.#apiUrl = apiUrl;
   }
 
   async fetchStreets(bbox, cityKey = null) {
-    if (!cityKey) {
-      if (bbox.includes('48.835')) cityKey = 'paris';
-      else if (bbox.includes('44.815')) cityKey = 'bordeaux';
-      else if (bbox.includes('45.73')) cityKey = 'lyon';
-      else if (bbox.includes('47.80')) cityKey = 'saint_cyr';
-    }
-
     if (cityKey) {
       try {
-        console.log(`Attempting to load static streets for ${cityKey}...`);
         const response = await fetch(`/assets/data/${cityKey}.json?t=${Date.now()}`);
         if (response.ok) {
           const geojson = await response.json();
-          console.log(`Loaded static streets for ${cityKey} successfully!`);
           return geojson;
         }
       } catch (err) {
-        console.warn(`Could not load static streets for ${cityKey}`, err);
+        console.warn(`Static data unavailable for city ${cityKey}, falling back to dynamic query.`);
+      }
+    }
+
+    if (bbox) {
+      try {
+        const query = `[out:json][timeout:25];(way(${bbox})["highway"]["name"];way(${bbox})["place"]["name"];way(${bbox})["landuse"="residential"]["name"];node(${bbox})["place"]["name"];);out geom;`;
+        const response = await fetch(this.#apiUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          return this.#convertToGeoJSON(data);
+        }
+      } catch (err) {
+        console.warn('Dynamic Overpass query failed:', err);
       }
     }
 

@@ -54,15 +54,15 @@
         <button id="nav-login-btn" class="btn secondary" data-i18n="nav.login">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
-        <a href="#/admin" id="nav-admin-link" class="nav-admin-link">
+        <button id="nav-admin-link" class="nav-admin-link">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           <span data-i18n="nav.admin">Admin Quartiers</span>
-        </a>
-        <a href="#" id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</a>
-        <a href="#" id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="nav.profile" aria-label="Voir mon profil">
+        </button>
+        <button id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</button>
+        <button id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="nav.profile" aria-label="Voir mon profil">
           <img id="nav-profile-img" src="/assets/images/default-avatar.png" alt="Avatar utilisateur" class="nav-avatar hidden" />
           <span id="nav-profile-name" class="profile-name"></span>
-        </a>
+        </button>
       </div>
     </div>
   </nav>
@@ -83,7 +83,9 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').catch(err => {
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+          reg.update();
+        }).catch(err => {
           console.error('ServiceWorker registration failed:', err);
         });
       });

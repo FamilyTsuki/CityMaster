@@ -141,8 +141,16 @@ class App {
       }
     });
 
+    this.#gameView.onHeroRoom(() => {
+      this.#router.navigate('/room');
+    });
+
     this.#navbarView.onLogoClick(() => {
       this.#router.navigate('/');
+    });
+
+    this.#navbarView.onAdminClick(() => {
+      this.#router.navigate('/admin');
     });
 
     this.#gameView.onLeaderboardTabClick((type, difficulty) => {
@@ -206,8 +214,8 @@ class App {
         }
 
         const screens = ['landing', 'auth', 'setup', 'game', 'certificate', 'profile', 'legal', 'admin', 'room'];
+        const parser = new DOMParser();
         const appContainer = document.getElementById('app');
-        const loadingHtml = appContainer.innerHTML;
 
         const htmlTemplates = await Promise.all(
           screens.map(async (screen) => {
@@ -219,7 +227,13 @@ class App {
           })
         );
 
-        appContainer.innerHTML = htmlTemplates.join('\n') + '\n' + loadingHtml;
+        htmlTemplates.reverse().forEach((htmlString) => {
+          const doc = parser.parseFromString(htmlString, 'text/html');
+          const element = doc.body.firstElementChild;
+          if (element) {
+            appContainer.prepend(element);
+          }
+        });
         await I18nService.getInstance().init();
         new App();
       } catch (error) {

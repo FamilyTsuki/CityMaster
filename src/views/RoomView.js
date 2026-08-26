@@ -625,9 +625,13 @@ export class RoomView {
   }
 
   showAlertModal(title, message) {
-    if (message) {
-      alert(`${title}\n${message}`);
-    }
+    const toast = document.createElement('div');
+    toast.className = 'room-toast-msg';
+    toast.textContent = message ? `${title}: ${message}` : title;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+      toast.remove();
+    }, 3000);
     return Promise.resolve();
   }
 }

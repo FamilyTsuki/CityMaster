@@ -9,7 +9,7 @@
   max-width: 480px;
   box-shadow: var(--shadow-lg);
   margin: auto;
-  animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);

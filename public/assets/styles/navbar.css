@@ -37,11 +37,13 @@
   letter-spacing: -0.03em;
   transition: opacity var(--transition-fast), transform var(--transition-fast);
   white-space: nowrap;
+  display: inline-block;
+  will-change: transform;
 }
 
 .navbar-brand .logo-text:hover {
-  opacity: 0.9;
-  transform: scale(1.02);
+  opacity: 0.95;
+  transform: scale(1.04);
 }
 
 .version-tag {
@@ -94,6 +96,11 @@
   padding: 6px 10px;
   border-radius: 9999px;
   background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  font-family: inherit;
   transition: color var(--transition-fast);
   white-space: nowrap;
   flex-shrink: 0;
@@ -112,6 +119,11 @@
   padding: 2px 4px;
   border-radius: 9999px;
   background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  cursor: pointer;
+  font-family: inherit;
   transition: color var(--transition-fast);
   flex-shrink: 0;
 }

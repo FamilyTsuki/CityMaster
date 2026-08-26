@@ -26,14 +26,6 @@ export class RoomController {
     this.#router = router;
   }
 
-  set router(router) {
-    this.#router = router;
-  }
-
-  get router() {
-    return this.#router;
-  }
-
   #initEvents() {
     this.#roomView.bindGuestFormSubmit((username) => this.#handleGuestLogin(username));
     this.#roomView.bindCreateRoom(() => this.#handleCreateRoom());

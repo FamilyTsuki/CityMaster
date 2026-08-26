@@ -2,9 +2,9 @@
   <div class="card setup-card" role="region" aria-labelledby="setup-title">
     
     <div class="setup-card-header">
-      <a href="#/" id="welcome-back-btn" class="btn-back-round" title="Retour à l'accueil">
+      <button id="welcome-back-btn" class="btn-back-round" title="Retour à l'accueil">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-      </a>
+      </button>
       <div>
         <h1 id="setup-title" data-i18n="welcome.title">CityMaster</h1>
       </div>
@@ -75,10 +75,10 @@
           <span data-i18n="welcome.start_game">Démarrer l'aventure</span>
         </button>
         
-        <a href="#/room" class="btn btn-outline btn-room-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon icon-primary"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <button id="setup-room-btn" class="btn secondary">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
           <span>Salons de Compétition en Équipe</span>
-        </a>
+        </button>
       </div>
 
       <div class="setup-divider-v"></div>
@@ -114,7 +114,7 @@
     </div>
 
     <div class="setup-footer-container">
-      <a href="#/legal" class="legal-footer-link" data-i18n="nav.legal">Mentions Légales & RGPD</a>
+      <button id="setup-legal-btn" class="legal-footer-link" data-i18n="nav.legal">Mentions Légales & RGPD</button>
     </div>
   </div>
 </div>

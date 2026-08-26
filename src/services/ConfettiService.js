@@ -4,13 +4,7 @@ export class ConfettiService {
     if (!canvas) {
       canvas = document.createElement('canvas');
       canvas.id = 'confetti-canvas';
-      canvas.style.position = 'fixed';
-      canvas.style.top = '0';
-      canvas.style.left = '0';
-      canvas.style.width = '100vw';
-      canvas.style.height = '100vh';
-      canvas.style.pointerEvents = 'none';
-      canvas.style.zIndex = '99999';
+      canvas.className = 'confetti-canvas';
       document.body.appendChild(canvas);
     }
 

@@ -26,6 +26,18 @@ export class Router {
           this.navigate(cleanPath);
         }
       }
+
+      const routeBtn = e.target.closest('.btn-back-round, .legal-footer-link, #room-login-link, #legal-back-btn');
+      if (routeBtn) {
+        e.preventDefault();
+        if (routeBtn.id === 'legal-back-btn' || routeBtn.classList.contains('btn-back-round')) {
+          this.navigate('/');
+        } else if (routeBtn.classList.contains('legal-footer-link')) {
+          this.navigate('/legal');
+        } else if (routeBtn.id === 'room-login-link') {
+          this.navigate('/login');
+        }
+      }
     });
   }
 

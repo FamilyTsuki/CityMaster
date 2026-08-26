@@ -254,6 +254,11 @@
   font-weight: 600;
   padding: 8px 16px;
   border-radius: 9999px;
+  background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  font-family: inherit;
   transition: all var(--transition-fast);
 }
 

@@ -4,6 +4,17 @@ Toutes les modifications majeures du projet CityMaster sont répertoriées ci-de
 
 ---
 
+## [1.7.0] - 2026-08-26
+
+### Ergonomie UI & Clean Code
+- **Adaptation Thème Sombre & Clair** : Harmonisation CSS globale et basculement dynamique des tuiles de carte CARTO.
+- **Boutons Propres & Navigation SPA** : Conversion des liens `<a>` en `<button>` sans aperçu d'URL `#` au survol.
+- **Suppression des Popups Bloquants** : Remplacement des `alert()` et `confirm()` par des toasts et modales personnalisées.
+- **Overpass API Dynamique** : Fallback universel en temps réel pour toutes les communes.
+- **Refactoring Strict** : Code 100% sans commentaires, sans `innerHTML` et nommage en anglais.
+
+---
+
 ## [1.6.0] - 2026-08-26
 
 ### Refactoring & Clean Code
