@@ -63,16 +63,13 @@ export class AdminView {
     L.control.zoom({ position: 'bottomright' }).addTo(this.#map);
 
     const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    const cartoUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
-    const labelsUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png';
+    const cartoUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
     const satelliteLayer = L.tileLayer(satelliteUrl, { maxZoom: 20, maxNativeZoom: 18 });
     const cartoLayer = L.tileLayer(cartoUrl, { maxZoom: 19 });
-    const labelsLayer = L.tileLayer(labelsUrl, { maxZoom: 19 });
 
     this.#tileLayer = satelliteLayer;
     satelliteLayer.addTo(this.#map);
-    labelsLayer.addTo(this.#map);
 
     const routeNamesLayer = L.layerGroup().addTo(this.#map);
     const districtNamesLayer = L.layerGroup().addTo(this.#map);

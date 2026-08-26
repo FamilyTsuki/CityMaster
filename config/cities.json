@@ -30,6 +30,16 @@
     ]
   },
   {
+    "key": "orleans",
+    "name": "Orléans",
+    "osmId": 139243,
+    "bbox": "47.8546,1.8385,47.9472,1.9567",
+    "center": [
+      47.9029,
+      1.909
+    ]
+  },
+  {
     "key": "saint_cyr",
     "name": "Saint-Cyr-en-Val",
     "osmId": 150427,
@@ -50,56 +60,6 @@
     ]
   },
   {
-    "key": "col_de_la_croix_de_fer",
-    "name": "Col de la Croix-de-Fer",
-    "osmId": 82606041,
-    "bbox": "45.2274402,6.2032809,45.2275402,6.2033809",
-    "center": [
-      45.2274902,
-      6.2033309
-    ]
-  },
-  {
-    "key": "agence_de_l_union_europeenne_pour_les_chemins_de_fer",
-    "name": "Agence de l’Union européenne pour les chemins de fer",
-    "osmId": 110125255,
-    "bbox": "50.364915,3.527144,50.365491,3.527967",
-    "center": [
-      50.365203,
-      3.5275555
-    ]
-  },
-  {
-    "key": "ancien_voie_du_chemin_de_fer_de_la_banlieue_de_reims_c_b_r",
-    "name": "Ancien voie du Chemin de fer de la Banlieue de Reims (C.B.R.)",
-    "osmId": 127194816,
-    "bbox": "49.0087591,3.8534331,49.0206231,3.8627431",
-    "center": [
-      49.0146911,
-      3.8580881
-    ]
-  },
-  {
-    "key": "ancienne_voie_du_chemin_de_fer_de_la_banlieue_de_reims_c_b_r",
-    "name": "Ancienne voie du Chemin de Fer de  la Banlieue de Reims (C.B.R.)",
-    "osmId": 1009331823,
-    "bbox": "49.0039625,3.8495998,49.0058406,3.8499141",
-    "center": [
-      49.00490155,
-      3.8497569499999997
-    ]
-  },
-  {
-    "key": "ancienne_gare_du_baizil_du_chemin_de_fer_de_la_banlieue_de_reims_cbr",
-    "name": "Ancienne Gare du Baizil du Chemin de Fer de la Banlieue de Reims (CBR)",
-    "osmId": 670697913,
-    "bbox": "48.967502,3.7946805,48.967623,3.7948135",
-    "center": [
-      48.9675625,
-      3.794747
-    ]
-  },
-  {
     "key": "la_ferte",
     "name": "La Ferté",
     "osmId": 158794,
@@ -107,176 +67,6 @@
     "center": [
       46.945204649999994,
       5.64699585
-    ]
-  },
-  {
-    "key": "chateau_de_saint_sauveur",
-    "name": "Château de Saint-Sauveur",
-    "osmId": 1395058470,
-    "bbox": "48.8324908,-0.4603873,48.8325908,-0.4602873",
-    "center": [
-      48.832540800000004,
-      -0.4603373
-    ]
-  },
-  {
-    "key": "eglise_saint_jean_baptiste",
-    "name": "Église Saint-Jean-Baptiste",
-    "osmId": 335802874,
-    "bbox": "48.6873598,2.0178232,48.6875522,2.0183032",
-    "center": [
-      48.687456,
-      2.0180632000000003
-    ]
-  },
-  {
-    "key": "chemin_rural_numero_15_de_saint_arnoult_en_yvelines_a_chevreuse",
-    "name": "Chemin Rural numéro 15 de Saint-Arnoult-en-Yvelines à Chevreuse",
-    "osmId": 185634965,
-    "bbox": "48.6679537,2.0009678,48.6778596,2.0056472",
-    "center": [
-      48.67290665,
-      2.0033075
-    ]
-  },
-  {
-    "key": "route_de_la_ferte_fresnel",
-    "name": "Route de la Ferté-Fresnel",
-    "osmId": 488542492,
-    "bbox": "48.7958989,0.4702786,48.8060806,0.4774859",
-    "center": [
-      48.80098975,
-      0.47388225
-    ]
-  },
-  {
-    "key": "le_bois_au_gue",
-    "name": "Le Bois au Gué",
-    "osmId": 11342073822,
-    "bbox": "47.7009598,1.7059299,47.7010598,1.7060299",
-    "center": [
-      47.7010098,
-      1.7059799
-    ]
-  },
-  {
-    "key": "etang_du_grand_bois_au_gue",
-    "name": "Étang du Grand Bois au Gué",
-    "osmId": 672547675,
-    "bbox": "47.7036483,1.7001182,47.7074044,1.7053914",
-    "center": [
-      47.70552635,
-      1.7027548
-    ]
-  },
-  {
-    "key": "rue_de_la_foret",
-    "name": "Rue de la Forêt",
-    "osmId": 114526079,
-    "bbox": "48.1428103,4.7896397,48.1453021,4.7898163",
-    "center": [
-      48.1440562,
-      4.789728
-    ]
-  },
-  {
-    "key": "rue_de_la_gare",
-    "name": "Rue de la Gare",
-    "osmId": 37988975,
-    "bbox": "48.1580129,4.795584,48.1589938,4.7966972",
-    "center": [
-      48.158503350000004,
-      4.796140599999999
-    ]
-  },
-  {
-    "key": "rue_momont_la_vigne_forges",
-    "name": "Rue Momont la Vigne Forges",
-    "osmId": 1124015085,
-    "bbox": "48.1580863,4.793495,48.1587931,4.7937687",
-    "center": [
-      48.1584397,
-      4.793631850000001
-    ]
-  },
-  {
-    "key": "chapelle_de_la_prison_des_enfants",
-    "name": "Chapelle de la prison des enfants",
-    "osmId": 436075972,
-    "bbox": "48.1458125,4.7868526,48.146226,4.7872681",
-    "center": [
-      48.146019249999995,
-      4.78706035
-    ]
-  },
-  {
-    "key": "superette_sz",
-    "name": "Superette SZ",
-    "osmId": 9986009734,
-    "bbox": "43.2680972,5.406302,43.2681972,5.406402",
-    "center": [
-      43.2681472,
-      5.406352
-    ]
-  },
-  {
-    "key": "sz_orient",
-    "name": "SZ Orient",
-    "osmId": 2466226894,
-    "bbox": "45.1928427,5.7292649,45.1929427,5.7293649",
-    "center": [
-      45.1928927,
-      5.7293149
-    ]
-  },
-  {
-    "key": "leo_sz",
-    "name": "Léo Sz",
-    "osmId": 6098832097,
-    "bbox": "50.1746532,3.2334282,50.1747532,3.2335282",
-    "center": [
-      50.174703199999996,
-      3.2334782
-    ]
-  },
-  {
-    "key": "sz_c036",
-    "name": "SZ.C036",
-    "osmId": 10056291397,
-    "bbox": "46.7756471,-56.1851387,46.7757471,-56.1850387",
-    "center": [
-      46.7756971,
-      -56.1850887
-    ]
-  },
-  {
-    "key": "sz_z004",
-    "name": "SZ.Z004",
-    "osmId": 10056291355,
-    "bbox": "46.7747011,-56.1869541,46.7748011,-56.1868541",
-    "center": [
-      46.7747511,
-      -56.1869041
-    ]
-  },
-  {
-    "key": "stories",
-    "name": "Stories",
-    "osmId": 4790009777,
-    "bbox": "48.1108648,-1.6784976,48.1109648,-1.6783976",
-    "center": [
-      48.1109148,
-      -1.6784476000000002
-    ]
-  },
-  {
-    "key": "ac",
-    "name": "Ac",
-    "osmId": 8552777841,
-    "bbox": "49.1311057,3.8159628,49.1511057,3.8359628",
-    "center": [
-      49.1411057,
-      3.8259628
     ]
   },
   {
@@ -300,66 +90,6 @@
     ]
   },
   {
-    "key": "orl_10",
-    "name": "ORL (10)",
-    "osmId": 1219728318,
-    "bbox": "48.0753258,7.3365534,48.0757873,7.3370716",
-    "center": [
-      48.07555655,
-      7.3368125
-    ]
-  },
-  {
-    "key": "orl",
-    "name": "ORL",
-    "osmId": 13645435726,
-    "bbox": "47.037205,-0.8996777,47.037305,-0.8995777",
-    "center": [
-      47.037255,
-      -0.8996277
-    ]
-  },
-  {
-    "key": "centre_de_secours_principal_d_orleans_centre",
-    "name": "Centre de secours principal d'Orléans-Centre",
-    "osmId": 118762846,
-    "bbox": "47.907035,1.909107,47.907627,1.91028",
-    "center": [
-      47.907331,
-      1.9096935
-    ]
-  },
-  {
-    "key": "la_source_heliport",
-    "name": "La Source Heliport",
-    "osmId": 579982590,
-    "bbox": "47.8352274,1.919434,47.8354622,1.9197889",
-    "center": [
-      47.8353448,
-      1.91961145
-    ]
-  },
-  {
-    "key": "centre_ophtalmologique_et_orl_paris_barbes_stalingrad",
-    "name": "Centre Ophtalmologique et ORL Paris - BARBES / STALINGRAD",
-    "osmId": 4988198443,
-    "bbox": "48.8841007,2.3517473,48.8842007,2.3518473",
-    "center": [
-      48.8841507,
-      2.3517973000000003
-    ]
-  },
-  {
-    "key": "ligny",
-    "name": "Ligny",
-    "osmId": 384368874,
-    "bbox": "50.5772433,2.9029857,50.6172433,2.9429857",
-    "center": [
-      50.5972433,
-      2.9229857
-    ]
-  },
-  {
     "key": "ligny_le_ribault",
     "name": "Ligny-le-Ribault",
     "osmId": 150409,
@@ -367,6 +97,126 @@
     "center": [
       47.68029055,
       1.7865746
+    ]
+  },
+  {
+    "key": "toulouse",
+    "name": "Toulouse",
+    "osmId": 35738,
+    "bbox": "43.5326969,1.3503311,43.6687119,1.5153356",
+    "center": [
+      43.6007044,
+      1.4328333500000001
+    ]
+  },
+  {
+    "key": "cauchy_a_la_tour",
+    "name": "Cauchy-à-la-Tour",
+    "osmId": 1151557,
+    "bbox": "50.4942474,2.43352,50.5174707,2.4674727",
+    "center": [
+      50.50585905,
+      2.45049635
+    ]
+  },
+  {
+    "key": "tour_en_bessin",
+    "name": "Tour-en-Bessin",
+    "osmId": 280538,
+    "bbox": "49.2749734,-0.8070215,49.3125719,-0.7572281",
+    "center": [
+      49.29377265,
+      -0.7821248
+    ]
+  },
+  {
+    "key": "ribecourt_la_tour",
+    "name": "Ribécourt-la-Tour",
+    "osmId": 55875,
+    "bbox": "50.0846783,3.1035831,50.1226795,3.1568428",
+    "center": [
+      50.1036789,
+      3.1302129499999998
+    ]
+  },
+  {
+    "key": "mars_la_tour",
+    "name": "Mars-la-Tour",
+    "osmId": 1412896,
+    "bbox": "49.0756942,5.8508407,49.113425,5.9312371",
+    "center": [
+      49.0945596,
+      5.8910389
+    ]
+  },
+  {
+    "key": "la_tour_du_pin",
+    "name": "La Tour-du-Pin",
+    "osmId": 91235,
+    "bbox": "45.5562241,5.4340082,45.5927145,5.4577117",
+    "center": [
+      45.574469300000004,
+      5.44585995
+    ]
+  },
+  {
+    "key": "menil_la_tour",
+    "name": "Ménil-la-Tour",
+    "osmId": 2242101,
+    "bbox": "48.750304,5.820067,48.7990429,5.874706",
+    "center": [
+      48.77467345,
+      5.8473865
+    ]
+  },
+  {
+    "key": "saint_clair_de_la_tour",
+    "name": "Saint-Clair-de-la-Tour",
+    "osmId": 91246,
+    "bbox": "45.5597512,5.450035,45.5836887,5.5226315",
+    "center": [
+      45.57171995,
+      5.4863332499999995
+    ]
+  },
+  {
+    "key": "tours",
+    "name": "Tours",
+    "osmId": 76306,
+    "bbox": "47.3489171,0.6528317,47.4395937,0.7373427",
+    "center": [
+      47.394255400000006,
+      0.6950872
+    ]
+  },
+  {
+    "key": "sai",
+    "name": "Sai",
+    "osmId": 1111888,
+    "bbox": "48.7270444,-0.0050239,48.7558741,0.0544767",
+    "center": [
+      48.74145925,
+      0.024726400000000003
+    ]
+  },
+  {
+    "key": "marseille",
+    "name": "Marseille",
+    "osmId": 76469,
+    "bbox": "43.1696228,5.2287864,43.3910329,5.5324758",
+    "center": [
+      43.28032785,
+      5.3806311
+    ]
+  },
+  {
+    "key": "seine_maritime",
+    "name": "Seine-Maritime",
+    "osmId": 7426,
+    "bbox": "49.2506708,0.0657702,50.0722125,1.7907711",
+    "center": [
+      49.66144165,
+      0.92827065
     ]
   }
 ]
