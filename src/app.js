@@ -122,10 +122,11 @@ class App {
       }
     });
 
-    this.#authController.router = this.#router;
-    this.#profileController.router = this.#router;
+    this.#authController.setRouter(this.#router);
+    this.#profileController.setRouter(this.#router);
     this.#controller.setRouter(this.#router);
-    this.#roomController.router = this.#router;
+    this.#roomController.setRouter(this.#router);
+    this.#adminController.setRouter(this.#router);
 
     if (this.#authController.isAuthenticated()) {
       this.#gameView.setPlayerName(localStorage.getItem('username'));

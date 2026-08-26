@@ -210,7 +210,7 @@ export class RoomView {
       };
 
       const renderCityMatches = (cities) => {
-        cityDropdown.innerHTML = '';
+        cityDropdown.replaceChildren();
         if (!cities || cities.length === 0) {
           cityDropdown.classList.add('hidden');
           return;
@@ -219,7 +219,9 @@ export class RoomView {
         cities.forEach((city) => {
           const li = document.createElement('li');
           li.className = 'dropdown-item';
-          li.innerHTML = `<strong>${city.name}</strong>`;
+          const strong = document.createElement('strong');
+          strong.textContent = city.name;
+          li.appendChild(strong);
           li.addEventListener('click', () => {
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;
@@ -505,31 +507,50 @@ export class RoomView {
         score: p.score
       })));
 
-      if (this.#lastParticipantsSignature !== participantsSig) {
-        this.#lastParticipantsSignature = participantsSig;
-
-        this.#lobbyPlayersList.innerHTML = roomData.participants.map(p => {
+        this.#lobbyPlayersList.replaceChildren();
+        roomData.participants.forEach(p => {
           const isHost = p.username === roomData.createdBy;
-          const safeName = escapeHTML(p.username);
-          const initial = escapeHTML(p.username.charAt(0).toUpperCase());
-          
-          let statusBadge = '';
-          if (p.finished) {
-            statusBadge = `<span class="player-badge-ready">Score: ${p.score} pts</span>`;
-          } else if (roomData.status === 'playing') {
-            statusBadge = `<span class="player-badge-host player-badge-playing">Joue...</span>`;
+          const initial = p.username.charAt(0).toUpperCase();
+
+          const li = document.createElement('li');
+          li.className = 'player-item';
+
+          const avatar = document.createElement('div');
+          avatar.className = 'player-avatar';
+          avatar.textContent = initial;
+
+          const nameSpan = document.createElement('span');
+          nameSpan.className = 'player-name';
+          nameSpan.textContent = p.username + ' ';
+          if (p.username === currentUsername) {
+            const youStrong = document.createElement('strong');
+            youStrong.textContent = '(Vous)';
+            nameSpan.appendChild(youStrong);
           }
-          
-          return `
-            <li class="player-item">
-              <div class="player-avatar">${initial}</div>
-              <span class="player-name">${safeName} ${p.username === currentUsername ? '<strong>(Vous)</strong>' : ''}</span>
-              ${isHost ? '<span class="player-badge-host">Hôte</span>' : ''}
-              ${statusBadge}
-            </li>
-          `;
-        }).join('');
-      }
+
+          li.append(avatar, nameSpan);
+
+          if (isHost) {
+            const hostBadge = document.createElement('span');
+            hostBadge.className = 'player-badge-host';
+            hostBadge.textContent = 'Hôte';
+            li.appendChild(hostBadge);
+          }
+
+          if (p.finished) {
+            const readyBadge = document.createElement('span');
+            readyBadge.className = 'player-badge-ready';
+            readyBadge.textContent = `Score: ${p.score} pts`;
+            li.appendChild(readyBadge);
+          } else if (roomData.status === 'playing') {
+            const playingBadge = document.createElement('span');
+            playingBadge.className = 'player-badge-host player-badge-playing';
+            playingBadge.textContent = 'Joue...';
+            li.appendChild(playingBadge);
+          }
+
+          this.#lobbyPlayersList.appendChild(li);
+        });
     }
 
     const isCreator = roomData.createdBy === currentUsername;
@@ -567,27 +588,50 @@ export class RoomView {
     
     const sorted = [...participants].sort((a, b) => (b.score || 0) - (a.score || 0));
     
-    this.#resultsTableBody.innerHTML = sorted.map((p, idx) => {
-      const safeName = escapeHTML(p.username);
-      const scoreText = p.finished ? `<strong>${p.score}</strong> pts` : '<span class="text-muted">En cours...</span>';
-      const statusText = p.finished 
-        ? '<span class="player-badge-ready">Terminé</span>' 
-        : '<span class="player-badge-host player-badge-playing">En cours...</span>';
-        
+    this.#resultsTableBody.replaceChildren();
+    sorted.forEach((p, idx) => {
       let rankDisplay = `${idx + 1}`;
       if (idx === 0) rankDisplay = '🥇';
       else if (idx === 1) rankDisplay = '🥈';
       else if (idx === 2) rankDisplay = '🥉';
 
-      return `
-        <tr>
-          <td class="rank-cell">${rankDisplay}</td>
-          <td>${safeName}</td>
-          <td class="text-right">${scoreText}</td>
-          <td class="text-center">${statusText}</td>
-        </tr>
-      `;
-    }).join('');
+      const tr = document.createElement('tr');
+
+      const rankTd = document.createElement('td');
+      rankTd.className = 'rank-cell';
+      rankTd.textContent = rankDisplay;
+
+      const nameTd = document.createElement('td');
+      nameTd.textContent = p.username;
+
+      const scoreTd = document.createElement('td');
+      scoreTd.className = 'text-right';
+      if (p.finished) {
+        const strong = document.createElement('strong');
+        strong.textContent = p.score;
+        scoreTd.append(strong, ' pts');
+      } else {
+        const span = document.createElement('span');
+        span.className = 'text-muted';
+        span.textContent = 'En cours...';
+        scoreTd.appendChild(span);
+      }
+
+      const statusTd = document.createElement('td');
+      statusTd.className = 'text-center';
+      const statusSpan = document.createElement('span');
+      if (p.finished) {
+        statusSpan.className = 'player-badge-ready';
+        statusSpan.textContent = 'Terminé';
+      } else {
+        statusSpan.className = 'player-badge-host player-badge-playing';
+        statusSpan.textContent = 'En cours...';
+      }
+      statusTd.appendChild(statusSpan);
+
+      tr.append(rankTd, nameTd, scoreTd, statusTd);
+      this.#resultsTableBody.appendChild(tr);
+    });
   }
 
   showConfirmModal(title, message) {

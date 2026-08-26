@@ -408,13 +408,9 @@ export class GameView {
     if (screenName === 'game') {
       if (this.#topBanner) {
         this.#topBanner.classList.remove('hidden');
-        this.#topBanner.style.opacity = '1';
-        this.#topBanner.style.visibility = 'visible';
       }
       if (this.#bottomActions) {
         this.#bottomActions.classList.remove('hidden');
-        this.#bottomActions.style.opacity = '1';
-        this.#bottomActions.style.visibility = 'visible';
       }
     }
   }
@@ -426,7 +422,7 @@ export class GameView {
 
   populateCities(cities) {
     if (!this.#citySelect) return;
-    this.#citySelect.innerHTML = '';
+    this.#citySelect.replaceChildren();
     cities.forEach((city) => {
       const option = document.createElement('option');
       option.value = city.id;
@@ -627,12 +623,13 @@ export class GameView {
     if (!timerBar) return;
     const percentage = Math.max(0, Math.min(100, (remainingTime / totalTime) * 100));
     timerBar.style.width = `${percentage}%`;
+    timerBar.classList.remove('timer-danger', 'timer-warning', 'timer-primary');
     if (percentage < 25) {
-      timerBar.style.backgroundColor = 'var(--danger)';
+      timerBar.classList.add('timer-danger');
     } else if (percentage < 50) {
-      timerBar.style.backgroundColor = '#f59e0b';
+      timerBar.classList.add('timer-warning');
     } else {
-      timerBar.style.backgroundColor = 'var(--primary)';
+      timerBar.classList.add('timer-primary');
     }
   }
 
@@ -651,8 +648,6 @@ export class GameView {
     if (this.#topBanner) {
       if (visible) {
         this.#topBanner.classList.remove('hidden');
-        this.#topBanner.style.opacity = '1';
-        this.#topBanner.style.visibility = 'visible';
       } else {
         this.#topBanner.classList.add('hidden');
       }
@@ -660,8 +655,6 @@ export class GameView {
     if (this.#bottomActions) {
       if (visible) {
         this.#bottomActions.classList.remove('hidden');
-        this.#bottomActions.style.opacity = '1';
-        this.#bottomActions.style.visibility = 'visible';
       } else {
         this.#bottomActions.classList.add('hidden');
       }
@@ -672,7 +665,7 @@ export class GameView {
     const indicatorsContainer = document.getElementById('round-indicators');
     if (!indicatorsContainer) return;
 
-    indicatorsContainer.innerHTML = '';
+    indicatorsContainer.replaceChildren();
     for (let i = 1; i <= totalRounds; i++) {
       const dot = document.createElement('span');
       dot.className = 'round-dot';
@@ -1077,7 +1070,6 @@ export class GameView {
     if (descInput) descInput.value = '';
 
     if (modal) {
-      modal.style.display = '';
       modal.classList.remove('hidden');
       setTimeout(() => {
         if (descInput) descInput.focus();
@@ -1089,7 +1081,6 @@ export class GameView {
     const modal = document.getElementById('report-modal');
     if (modal) {
       modal.classList.add('hidden');
-      modal.style.setProperty('display', 'none', 'important');
     }
     this.#reportContext = null;
   }

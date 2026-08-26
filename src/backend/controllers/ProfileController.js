@@ -6,8 +6,13 @@ import { Score } from '../models/Score.js';
 export class ProfileController {
   static async getProfile(req, res) {
     try {
-      const userId = req.user.id;
-      const user = await User.findById(userId);
+      let user = null;
+      if (req.user.id) {
+        user = await User.findById(req.user.id);
+      }
+      if (!user && req.user.username) {
+        user = await User.findByUsername(req.user.username);
+      }
       
       if (!user) {
         return res.status(404).json({ error: 'User not found' });

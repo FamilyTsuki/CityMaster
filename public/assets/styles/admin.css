@@ -653,12 +653,12 @@
 
 .admin-toast.toast-error {
   border-color: var(--danger);
-  color: #f87171;
+  color: var(--danger);
 }
 
 .admin-toast.toast-success {
   border-color: var(--success);
-  color: #34d399;
+  color: var(--success);
 }
 
 .admin-pending-badge {
@@ -680,12 +680,12 @@
 
 .admin-pending-badge.badge-has-pending,
 .admin-pending-badge:not(.badge-zero) {
-  background-color: #ef4444 !important;
+  background-color: var(--danger) !important;
   color: #ffffff !important;
 }
 
 .admin-pending-badge.badge-zero {
-  background-color: #64748b !important;
+  background-color: var(--text-muted) !important;
   color: #ffffff !important;
 }
 
@@ -708,10 +708,10 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-glass);
   padding: 14px 20px;
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-color);
   flex-wrap: wrap;
 }
 
@@ -736,9 +736,9 @@
 }
 
 .btn-copy-street {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #e2e8f0;
+  background: var(--primary-light);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
   padding: 3px 8px;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -764,8 +764,8 @@
 }
 
 .report-card {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-card-solid);
+  border: 1px solid var(--border-color);
   border-radius: 12px;
   padding: 18px;
   display: flex;
@@ -777,7 +777,7 @@
 
 .report-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--primary);
 }
 
 .report-card-header {
@@ -794,9 +794,9 @@
   letter-spacing: 0.5px;
   padding: 4px 8px;
   border-radius: 6px;
-  background: rgba(99, 102, 241, 0.2);
-  color: #818cf8;
-  border: 1px solid rgba(99, 102, 241, 0.4);
+  background: var(--primary-light);
+  color: var(--primary);
+  border: 1px solid var(--border-color);
 }
 
 .report-status-badge {
@@ -808,46 +808,47 @@
 }
 
 .status-pending {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--warning);
+  border: 1px solid var(--warning);
 }
 
 .status-resolved {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.15);
+  color: var(--success);
+  border: 1px solid var(--success);
 }
 
 .status-dismissed {
-  background: rgba(148, 163, 184, 0.2);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: var(--secondary);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
 }
 
 .report-meta-list {
   font-size: 0.85rem;
-  color: #cbd5e1;
+  color: var(--text-muted);
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-glass);
   padding: 10px 12px;
   border-radius: 8px;
+  border: 1px solid var(--border-color);
 }
 
 .report-meta-list span strong {
-  color: #f8fafc;
+  color: var(--text-main);
 }
 
 .report-description-text {
   font-size: 0.9rem;
-  color: #f1f5f9;
+  color: var(--text-main);
   line-height: 1.5;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--primary-light);
   padding: 12px;
   border-radius: 8px;
-  border-left: 3px solid #6366f1;
+  border-left: 3px solid var(--primary);
   white-space: pre-wrap;
 }
 

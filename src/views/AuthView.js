@@ -29,7 +29,11 @@ export class AuthView {
 
       if (!config || !config.googleClientId) {
         if (btnContainer) {
-          btnContainer.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">(Google Auth non configuré)</span>`;
+          btnContainer.replaceChildren();
+          const infoSpan = document.createElement('span');
+          infoSpan.className = 'text-muted text-small';
+          infoSpan.textContent = '(Google Auth non configuré)';
+          btnContainer.appendChild(infoSpan);
         }
         return;
       }
@@ -45,7 +49,7 @@ export class AuthView {
               callback(res.credential);
             }
           });
-          targetBtn.innerHTML = '';
+          targetBtn.replaceChildren();
           window.google.accounts.id.renderButton(
             targetBtn,
             { theme: 'outline', size: 'large', width: 250 }
@@ -64,7 +68,11 @@ export class AuthView {
             if (attempts >= 50 && !window.google) {
               const targetBtn = document.getElementById('google-login-btn');
               if (targetBtn && !targetBtn.children.length) {
-                targetBtn.innerHTML = `<span style="font-size: 12px; color: var(--text-muted);">(Google Auth indisponible)</span>`;
+                targetBtn.replaceChildren();
+                const infoSpan = document.createElement('span');
+                infoSpan.className = 'text-muted text-small';
+                infoSpan.textContent = '(Google Auth indisponible)';
+                targetBtn.appendChild(infoSpan);
               }
             }
           }
@@ -79,8 +87,8 @@ export class AuthView {
     const form = document.getElementById('auth-form');
     const handler = (e) => {
       if (e) e.preventDefault();
-      const username = this.#usernameInput.value.trim();
-      const password = this.#passwordInput.value.trim();
+      const username = this.#usernameInput ? this.#usernameInput.value.trim() : '';
+      const password = this.#passwordInput ? this.#passwordInput.value.trim() : '';
       callback(username, password);
     };
 

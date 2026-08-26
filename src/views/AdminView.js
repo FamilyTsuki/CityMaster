@@ -207,10 +207,8 @@ export class AdminView {
       btn.addEventListener('click', () => {
         btns.forEach(b => {
           b.classList.remove('active');
-          b.style.borderColor = 'transparent';
         });
         btn.classList.add('active');
-        btn.style.borderColor = '#fff';
         this.#activeColor = btn.dataset.color || '#f59e0b';
         if (this.#activePolygonLayer) {
           this.#activePolygonLayer.setStyle({
@@ -545,5 +543,277 @@ export class AdminView {
     this.toastTimer = setTimeout(() => {
       toastEl.classList.add('hidden');
     }, 4000);
+  }
+
+  renderDistrictList(districts) {
+    const listEl = document.getElementById('admin-district-list');
+    const countEl = document.getElementById('admin-district-count');
+    if (countEl) countEl.textContent = districts.length;
+    if (!listEl) return;
+    listEl.replaceChildren();
+    if (districts.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'district-list-empty';
+      li.textContent = 'Aucun quartier défini.';
+      listEl.appendChild(li);
+      return;
+    }
+    districts.forEach(d => {
+      const li = document.createElement('li');
+      li.className = 'route-list-item';
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'route-list-info';
+      const colorDot = document.createElement('div');
+      colorDot.className = 'district-color-dot';
+      colorDot.style.setProperty('--dot-color', d.properties.color || '#3b82f6');
+      const strongName = document.createElement('strong');
+      strongName.className = 'route-list-name';
+      strongName.textContent = d.properties.name;
+      infoDiv.append(colorDot, strongName);
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'route-list-actions';
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'btn-edit-item btn-edit-district';
+      editBtn.dataset.id = d.properties.id || d.properties.name;
+      editBtn.dataset.name = d.properties.name;
+      editBtn.textContent = 'Éditer';
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'btn-delete-item btn-delete-district';
+      deleteBtn.dataset.id = d.properties.id || d.properties.name;
+      deleteBtn.textContent = 'Supprimer';
+
+      actionsDiv.append(editBtn, deleteBtn);
+      li.append(infoDiv, actionsDiv);
+      listEl.appendChild(li);
+    });
+  }
+
+  renderRouteList(displayRoutes, difficultyMode, groupedRoutes) {
+    const listEl = document.getElementById('admin-route-list');
+    const countEl = document.getElementById('admin-route-count');
+    const modeTextEl = document.getElementById('admin-route-mode-text');
+
+    if (modeTextEl) {
+      const modeLabels = {
+        length: 'Par longueur (Longueur >800m / 250m-800m / <250m)',
+        nomenclature: 'Par nomenclature (Grands axes vs Voies secondaires)',
+        center: 'Par centre-ville (Densité de croisements)'
+      };
+      modeTextEl.textContent = modeLabels[difficultyMode] || difficultyMode;
+    }
+
+    if (countEl) countEl.textContent = displayRoutes.length;
+    if (!listEl) return;
+    listEl.replaceChildren();
+
+    if (displayRoutes.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'district-list-empty';
+      li.textContent = 'Aucune route ne correspond.';
+      listEl.appendChild(li);
+      return;
+    }
+
+    const renderGroup = (routes, title, color) => {
+      if (routes.length === 0) return;
+      const header = document.createElement('div');
+      header.className = 'route-difficulty-header';
+      header.style.setProperty('--diff-color', color);
+      header.textContent = `${title} (${routes.length})`;
+      listEl.appendChild(header);
+
+      routes.forEach(r => {
+        const li = document.createElement('li');
+        li.className = 'route-list-item';
+        li.dataset.name = r.properties.name;
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'route-list-info';
+        
+        const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svgIcon.setAttribute('viewBox', '0 0 24 24');
+        svgIcon.setAttribute('fill', 'none');
+        svgIcon.setAttribute('stroke', color);
+        svgIcon.setAttribute('stroke-width', '2');
+        svgIcon.setAttribute('stroke-linecap', 'round');
+        svgIcon.setAttribute('stroke-linejoin', 'round');
+        svgIcon.setAttribute('class', 'route-list-icon');
+        const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        pathEl.setAttribute('d', 'M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z');
+        svgIcon.appendChild(pathEl);
+
+        const strongName = document.createElement('strong');
+        strongName.className = 'route-list-name';
+        strongName.textContent = r.properties.name;
+        infoDiv.append(svgIcon, strongName);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'route-list-actions';
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'btn-edit-item btn-edit-route';
+        editBtn.dataset.id = r.properties.id || r.properties.name;
+        editBtn.dataset.name = r.properties.name;
+        editBtn.textContent = 'Éditer';
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.className = 'btn-delete-item btn-delete-route';
+        deleteBtn.dataset.id = r.properties.id || r.properties.name;
+        deleteBtn.textContent = 'Supprimer';
+
+        actionsDiv.append(editBtn, deleteBtn);
+        li.append(infoDiv, actionsDiv);
+        listEl.appendChild(li);
+      });
+    };
+
+    renderGroup(groupedRoutes.easy, 'Facile', '#10b981');
+    renderGroup(groupedRoutes.medium, 'Moyen', '#f59e0b');
+    renderGroup(groupedRoutes.hard, 'Difficile', '#ef4444');
+  }
+
+  renderReportsList(reports, onResolve, onDismiss, onDelete, onCopy) {
+    const grid = document.getElementById('admin-reports-grid');
+    const emptyMsg = document.getElementById('admin-reports-empty');
+    if (!grid) return;
+    grid.replaceChildren();
+
+    if (!reports || reports.length === 0) {
+      if (emptyMsg) emptyMsg.classList.remove('hidden');
+      return;
+    }
+
+    if (emptyMsg) emptyMsg.classList.add('hidden');
+
+    const categoryLabels = {
+      street_name: 'Rue mal nommée',
+      difficulty: 'Mauvaise difficulté',
+      map_error: 'Erreur de tracé',
+      other: 'Autre problème'
+    };
+
+    reports.forEach(r => {
+      const card = document.createElement('div');
+      card.className = 'report-card';
+
+      const dateStr = new Date(r.created_at).toLocaleString('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const categoryName = categoryLabels[r.category] || r.category;
+      const statusClass = `status-${r.status || 'pending'}`;
+      const statusLabels = { pending: 'En attente', resolved: 'Résolu', dismissed: 'Ignoré' };
+      const statusText = statusLabels[r.status] || r.status;
+
+      const safeTarget = (r.target_street && r.target_street !== 'Inconnue' && r.target_street !== 'N/A') ? r.target_street : null;
+      const safeClicked = (r.clicked_street && r.clicked_street !== 'N/A') ? r.clicked_street : null;
+
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'report-card-header';
+      
+      const catTag = document.createElement('span');
+      catTag.className = 'report-category-tag';
+      catTag.textContent = categoryName;
+      
+      const statusBadge = document.createElement('span');
+      statusBadge.className = `report-status-badge ${statusClass}`;
+      statusBadge.textContent = statusText;
+      headerDiv.append(catTag, statusBadge);
+
+      const metaDiv = document.createElement('div');
+      metaDiv.className = 'report-meta-list';
+
+      const dateSpan = document.createElement('span');
+      const dateLabel = document.createElement('strong');
+      dateLabel.textContent = 'Date : ';
+      dateSpan.append(dateLabel, dateStr);
+
+      const userSpan = document.createElement('span');
+      const userLabel = document.createElement('strong');
+      userLabel.textContent = 'Joueur : ';
+      userSpan.append(userLabel, r.username || 'Anonyme');
+
+      const citySpan = document.createElement('span');
+      const cityLabel = document.createElement('strong');
+      cityLabel.textContent = 'Commune : ';
+      citySpan.append(cityLabel, `${r.city_key || 'N/A'} (Mode: ${r.game_mode || 'N/A'}, Diff: ${r.difficulty || 'N/A'})`);
+
+      metaDiv.append(dateSpan, userSpan, citySpan);
+
+      const targetSpan = document.createElement('span');
+      const targetLabel = document.createElement('strong');
+      targetLabel.textContent = 'Rue cible : ';
+      targetSpan.append(targetLabel, `${r.target_street || 'N/A'} `);
+
+      if (safeTarget) {
+        const copyBtn = document.createElement('button');
+        copyBtn.type = 'button';
+        copyBtn.className = 'btn-copy-street';
+        copyBtn.textContent = '📋 Copier';
+        copyBtn.addEventListener('click', () => onCopy(safeTarget));
+        targetSpan.appendChild(copyBtn);
+      }
+      metaDiv.appendChild(targetSpan);
+
+      if (r.clicked_street) {
+        const clickedSpan = document.createElement('span');
+        const clickedLabel = document.createElement('strong');
+        clickedLabel.textContent = 'Rue cliquée : ';
+        clickedSpan.append(clickedLabel, `${r.clicked_street} `);
+        if (safeClicked) {
+          const copyBtn = document.createElement('button');
+          copyBtn.type = 'button';
+          copyBtn.className = 'btn-copy-street';
+          copyBtn.textContent = '📋 Copier';
+          copyBtn.addEventListener('click', () => onCopy(safeClicked));
+          clickedSpan.appendChild(copyBtn);
+        }
+        metaDiv.appendChild(clickedSpan);
+      }
+
+      const descDiv = document.createElement('div');
+      descDiv.className = 'report-description-text';
+      descDiv.textContent = r.description;
+
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'report-card-actions';
+
+      if (r.status !== 'resolved') {
+        const resolveBtn = document.createElement('button');
+        resolveBtn.type = 'button';
+        resolveBtn.className = 'btn btn-small btn-resolve-report';
+        resolveBtn.textContent = 'Marquer résolu';
+        resolveBtn.addEventListener('click', () => onResolve(r.id));
+        actionsDiv.appendChild(resolveBtn);
+      }
+
+      if (r.status !== 'dismissed') {
+        const dismissBtn = document.createElement('button');
+        dismissBtn.type = 'button';
+        dismissBtn.className = 'btn btn-small btn-secondary btn-dismiss-report';
+        dismissBtn.textContent = 'Ignorer';
+        dismissBtn.addEventListener('click', () => onDismiss(r.id));
+        actionsDiv.appendChild(dismissBtn);
+      }
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'btn btn-small btn-delete-item btn-delete-report';
+      deleteBtn.textContent = 'Supprimer';
+      deleteBtn.addEventListener('click', () => onDelete(r.id));
+      actionsDiv.appendChild(deleteBtn);
+
+      card.append(headerDiv, metaDiv, descDiv, actionsDiv);
+      grid.appendChild(card);
+    });
   }
 }

@@ -13,6 +13,18 @@ export class AuthController {
     this.#initTheme();
   }
 
+  setRouter(router) {
+    this.#router = router;
+  }
+
+  set router(router) {
+    this.#router = router;
+  }
+
+  get router() {
+    return this.#router;
+  }
+
   #initEvents() {
     this.#authView.onSubmit((username, password) => this.#handleAuthSubmit(username, password));
     this.#authView.onSwitchMode(() => this.#toggleMode());

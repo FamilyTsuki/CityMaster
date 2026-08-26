@@ -463,9 +463,9 @@
 }
 
 .player-badge-playing {
-  background: rgba(99, 102, 241, 0.15);
-  color: #818cf8;
-  border-color: rgba(99, 102, 241, 0.25);
+  background: var(--primary-light);
+  color: var(--primary);
+  border-color: var(--border-color);
 }
 
 .rank-cell {

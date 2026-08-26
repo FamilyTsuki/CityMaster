@@ -854,7 +854,7 @@
 .form-label {
   font-size: 0.88rem;
   font-weight: 600;
-  color: #e2e8f0;
+  color: var(--text-main);
 }
 
 #report-modal select.input,
@@ -863,11 +863,11 @@
 #report-description {
   width: 100%;
   box-sizing: border-box;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-color);
   border-radius: 10px;
   padding: 10px 12px;
-  color: #f8fafc;
+  color: var(--text-main);
   font-size: 0.95rem;
   font-family: inherit;
   resize: vertical;
@@ -884,8 +884,8 @@
 #report-category-select:focus,
 #report-description:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .modal-actions {

@@ -298,5 +298,75 @@
       47.71219155,
       1.91243285
     ]
+  },
+  {
+    "key": "orl_10",
+    "name": "ORL (10)",
+    "osmId": 1219728318,
+    "bbox": "48.0753258,7.3365534,48.0757873,7.3370716",
+    "center": [
+      48.07555655,
+      7.3368125
+    ]
+  },
+  {
+    "key": "orl",
+    "name": "ORL",
+    "osmId": 13645435726,
+    "bbox": "47.037205,-0.8996777,47.037305,-0.8995777",
+    "center": [
+      47.037255,
+      -0.8996277
+    ]
+  },
+  {
+    "key": "centre_de_secours_principal_d_orleans_centre",
+    "name": "Centre de secours principal d'Orléans-Centre",
+    "osmId": 118762846,
+    "bbox": "47.907035,1.909107,47.907627,1.91028",
+    "center": [
+      47.907331,
+      1.9096935
+    ]
+  },
+  {
+    "key": "la_source_heliport",
+    "name": "La Source Heliport",
+    "osmId": 579982590,
+    "bbox": "47.8352274,1.919434,47.8354622,1.9197889",
+    "center": [
+      47.8353448,
+      1.91961145
+    ]
+  },
+  {
+    "key": "centre_ophtalmologique_et_orl_paris_barbes_stalingrad",
+    "name": "Centre Ophtalmologique et ORL Paris - BARBES / STALINGRAD",
+    "osmId": 4988198443,
+    "bbox": "48.8841007,2.3517473,48.8842007,2.3518473",
+    "center": [
+      48.8841507,
+      2.3517973000000003
+    ]
+  },
+  {
+    "key": "ligny",
+    "name": "Ligny",
+    "osmId": 384368874,
+    "bbox": "50.5772433,2.9029857,50.6172433,2.9429857",
+    "center": [
+      50.5972433,
+      2.9229857
+    ]
+  },
+  {
+    "key": "ligny_le_ribault",
+    "name": "Ligny-le-Ribault",
+    "osmId": 150409,
+    "bbox": "47.6360864,1.7192184,47.7244947,1.8539308",
+    "center": [
+      47.68029055,
+      1.7865746
+    ]
   }
 ]

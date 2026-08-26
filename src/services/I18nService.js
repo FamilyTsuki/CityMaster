@@ -106,7 +106,6 @@ export class I18nService {
       return "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.";
     }
 
-    // Preserve friendly custom French errors from backend
     if (rawError.includes(' ') && !lower.includes('failed to fetch') && !lower.includes('networkerror') && !lower.includes('error')) {
       return rawError;
     }

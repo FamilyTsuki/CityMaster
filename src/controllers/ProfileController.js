@@ -15,6 +15,18 @@ export class ProfileController {
     this.#initEvents();
   }
 
+  setRouter(router) {
+    this.#router = router;
+  }
+
+  set router(router) {
+    this.#router = router;
+  }
+
+  get router() {
+    return this.#router;
+  }
+
   #initEvents() {
     this.#profileView.onBackClick(() => {
       this.#router.navigate('/');
@@ -96,7 +108,7 @@ export class ProfileController {
         currentLang
       );
 
-      const isAdmin = data.isAdmin === true || localStorage.getItem('is_admin') === 'true';
+      const isAdmin = data.isAdmin === true;
       if (isAdmin) {
         localStorage.setItem('is_admin', 'true');
       } else {
@@ -130,7 +142,7 @@ export class ProfileController {
       if (response.ok) {
         const data = await response.json();
         const username = localStorage.getItem('username');
-        const isAdmin = data.isAdmin === true || localStorage.getItem('is_admin') === 'true';
+        const isAdmin = data.isAdmin === true;
         if (isAdmin) {
           localStorage.setItem('is_admin', 'true');
         } else {
@@ -144,8 +156,6 @@ export class ProfileController {
           localStorage.removeItem('citymaster_profile_image');
           this.#navbarView.setLoggedIn(username, null, isAdmin);
         }
-      } else if (response.status === 401 || response.status === 403) {
-        this.logout();
       }
     } catch (e) {
       console.error('Error prefetching avatar', e);

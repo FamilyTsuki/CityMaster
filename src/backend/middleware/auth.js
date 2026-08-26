@@ -31,10 +31,15 @@ export const requireAdmin = (req, res, next) => {
     if (req.user.is_admin) {
       return next();
     }
-    if (req.user.id) {
+    if (req.user.id || req.user.username) {
       try {
-        const userRes = await pool.query('SELECT is_admin FROM users WHERE id = $1', [req.user.id]);
-        if (userRes.rows.length > 0 && userRes.rows[0].is_admin) {
+        let userRes;
+        if (req.user.id) {
+          userRes = await pool.query('SELECT is_admin FROM users WHERE id = $1', [req.user.id]);
+        } else {
+          userRes = await pool.query('SELECT is_admin FROM users WHERE username = $1', [req.user.username]);
+        }
+        if (userRes && userRes.rows.length > 0 && userRes.rows[0].is_admin) {
           req.user.is_admin = true;
           return next();
         }

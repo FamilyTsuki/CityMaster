@@ -3,6 +3,7 @@ import { I18nService } from '../services/I18nService.js';
 export class AdminController {
   #adminView;
   #gameView;
+  #router;
   #selectedCity;
   #currentDistricts;
   #currentRoutes;
@@ -10,9 +11,10 @@ export class AdminController {
   #routeFilterQuery;
   #reportsSearchQuery;
 
-  constructor(adminView, gameView) {
+  constructor(adminView, gameView, router = null) {
     this.#adminView = adminView;
     this.#gameView = gameView;
+    this.#router = router;
     this.#selectedCity = null;
     this.#currentDistricts = [];
     this.#currentRoutes = [];
@@ -21,6 +23,18 @@ export class AdminController {
     this.#reportsSearchQuery = '';
 
     this.#initEvents();
+  }
+
+  setRouter(router) {
+    this.#router = router;
+  }
+
+  set router(router) {
+    this.#router = router;
+  }
+
+  get router() {
+    return this.#router;
   }
 
   #initEvents() {
@@ -50,7 +64,11 @@ export class AdminController {
     if (adminBackBtn) {
       adminBackBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        window.location.href = '/#/setup';
+        if (this.#router) {
+          this.#router.navigate('/setup');
+        } else {
+          window.location.href = '/#/setup';
+        }
       });
     }
 
@@ -392,30 +410,7 @@ export class AdminController {
   }
 
   #renderDistrictList() {
-    const listEl = document.getElementById('admin-district-list');
-    const countEl = document.getElementById('admin-district-count');
-    if (countEl) countEl.textContent = this.#currentDistricts.length;
-    if (!listEl) return;
-    listEl.innerHTML = '';
-    if (this.#currentDistricts.length === 0) {
-      listEl.innerHTML = `<li class="district-list-empty">Aucun quartier défini.</li>`;
-      return;
-    }
-    this.#currentDistricts.forEach(d => {
-      const li = document.createElement('li');
-      li.className = 'route-list-item';
-      li.innerHTML = `
-        <div class="route-list-info">
-          <div class="district-color-dot" style="background: ${d.properties.color || '#3b82f6'};"></div>
-          <strong class="route-list-name">${d.properties.name}</strong>
-        </div>
-        <div class="route-list-actions">
-          <button type="button" class="btn-edit-item btn-edit-district" data-id="${d.properties.id || d.properties.name}" data-name="${d.properties.name}">Éditer</button>
-          <button type="button" class="btn-delete-item btn-delete-district" data-id="${d.properties.id || d.properties.name}">Supprimer</button>
-        </div>
-      `;
-      listEl.appendChild(li);
-    });
+    this.#adminView.renderDistrictList(this.#currentDistricts);
   }
 
   async loadRoutes() {
@@ -482,36 +477,12 @@ export class AdminController {
   }
 
   #renderRouteList() {
-    const listEl = document.getElementById('admin-route-list');
-    const countEl = document.getElementById('admin-route-count');
-    const modeTextEl = document.getElementById('admin-route-mode-text');
-
-    if (modeTextEl) {
-      const modeLabels = {
-        length: 'Par longueur (Longueur >800m / 250m-800m / <250m)',
-        nomenclature: 'Par nomenclature (Grands axes vs Voies secondaires)',
-        center: 'Par centre-ville (Densité de croisements)'
-      };
-      modeTextEl.textContent = modeLabels[this.#difficultyMode] || this.#difficultyMode;
-    }
-
     let displayRoutes = this.#currentRoutes;
     if (this.#routeFilterQuery) {
       displayRoutes = displayRoutes.filter(r => r.properties.name && r.properties.name.toLowerCase().includes(this.#routeFilterQuery));
     }
 
-    if (countEl) countEl.textContent = displayRoutes.length;
-
-    if (!listEl) return;
-    listEl.innerHTML = '';
-
-    if (displayRoutes.length === 0) {
-      listEl.innerHTML = `<li class="district-list-empty">Aucune route ne correspond.</li>`;
-      return;
-    }
-
     const grouped = { easy: [], medium: [], hard: [] };
-    
     let centroids = [];
     if (this.#difficultyMode === 'center' && window.turf) {
       centroids = displayRoutes.map(r => {
@@ -550,37 +521,7 @@ export class AdminController {
       grouped[diff].push(r);
     });
 
-    const renderGroup = (routes, title, color) => {
-      if (routes.length === 0) return;
-      
-      const header = document.createElement('div');
-      header.className = 'route-difficulty-header';
-      header.style.color = color;
-      header.textContent = `${title} (${routes.length})`;
-      listEl.appendChild(header);
-
-      routes.forEach(r => {
-        const li = document.createElement('li');
-        li.className = 'route-list-item';
-        li.dataset.name = r.properties.name;
-
-        li.innerHTML = `
-          <div class="route-list-info">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="route-list-icon"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
-            <strong class="route-list-name">${r.properties.name}</strong>
-          </div>
-          <div class="route-list-actions">
-            <button type="button" class="btn-edit-item btn-edit-route" data-id="${r.properties.id || r.properties.name}" data-name="${r.properties.name}">Éditer</button>
-            <button type="button" class="btn-delete-item btn-delete-route" data-id="${r.properties.id || r.properties.name}">Supprimer</button>
-          </div>
-        `;
-        listEl.appendChild(li);
-      });
-    };
-
-    renderGroup(grouped.easy, 'Facile', '#10b981');
-    renderGroup(grouped.medium, 'Moyen', '#f59e0b');
-    renderGroup(grouped.hard, 'Difficile', '#ef4444');
+    this.#adminView.renderRouteList(displayRoutes, this.#difficultyMode, grouped);
   }
 
   async #saveDistrict(districtPayload) {
@@ -799,12 +740,6 @@ export class AdminController {
   }
 
   #renderReportsList(reports) {
-    const grid = document.getElementById('admin-reports-grid');
-    const emptyMsg = document.getElementById('admin-reports-empty');
-    if (!grid) return;
-
-    grid.innerHTML = '';
-
     if (this.#reportsSearchQuery) {
       const q = this.#reportsSearchQuery;
       reports = reports.filter(r => {
@@ -817,99 +752,23 @@ export class AdminController {
       });
     }
 
-    if (!reports || reports.length === 0) {
-      if (emptyMsg) emptyMsg.classList.remove('hidden');
-      return;
-    }
-
-    if (emptyMsg) emptyMsg.classList.add('hidden');
-
-    const categoryLabels = {
-      street_name: 'Rue mal nommée',
-      difficulty: 'Mauvaise difficulté',
-      map_error: 'Erreur de tracé',
-      other: 'Autre problème'
-    };
-
-    reports.forEach(r => {
-      const card = document.createElement('div');
-      card.className = 'report-card';
-
-      const dateStr = new Date(r.created_at).toLocaleString('fr-FR', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      const categoryName = categoryLabels[r.category] || r.category;
-      const statusClass = `status-${r.status || 'pending'}`;
-      const statusLabels = { pending: 'En attente', resolved: 'Résolu', dismissed: 'Ignoré' };
-      const statusText = statusLabels[r.status] || r.status;
-
-      const safeTarget = (r.target_street && r.target_street !== 'Inconnue' && r.target_street !== 'N/A') ? r.target_street : null;
-      const safeClicked = (r.clicked_street && r.clicked_street !== 'N/A') ? r.clicked_street : null;
-
-      card.innerHTML = `
-        <div class="report-card-header">
-          <span class="report-category-tag">${categoryName}</span>
-          <span class="report-status-badge ${statusClass}">${statusText}</span>
-        </div>
-        <div class="report-meta-list">
-          <span><strong>Date :</strong> ${dateStr}</span>
-          <span><strong>Joueur :</strong> ${r.username || 'Anonyme'}</span>
-          <span><strong>Commune :</strong> ${r.city_key || 'N/A'} (Mode: ${r.game_mode || 'N/A'}, Diff: ${r.difficulty || 'N/A'})</span>
-          <span>
-            <strong>Rue cible :</strong> ${r.target_street || 'N/A'}
-            ${safeTarget ? `<button type="button" class="btn-copy-street" data-copy="${safeTarget}" title="Copier le nom">📋 Copier</button>` : ''}
-          </span>
-          ${r.clicked_street ? `
-            <span>
-              <strong>Rue cliquée :</strong> ${r.clicked_street}
-              ${safeClicked ? `<button type="button" class="btn-copy-street" data-copy="${safeClicked}" title="Copier le nom">📋 Copier</button>` : ''}
-            </span>` : ''}
-        </div>
-        <div class="report-description-text">${r.description}</div>
-        <div class="report-card-actions">
-          ${r.status !== 'resolved' ? `<button type="button" class="btn btn-small btn-resolve-report" data-id="${r.id}">Marquer résolu</button>` : ''}
-          ${r.status !== 'dismissed' ? `<button type="button" class="btn btn-small btn-secondary btn-dismiss-report" data-id="${r.id}">Ignorer</button>` : ''}
-          <button type="button" class="btn btn-small btn-delete-item btn-delete-report" data-id="${r.id}">Supprimer</button>
-        </div>
-      `;
-
-      const resolveBtn = card.querySelector('.btn-resolve-report');
-      const dismissBtn = card.querySelector('.btn-dismiss-report');
-      const deleteBtn = card.querySelector('.btn-delete-report');
-      const copyBtns = card.querySelectorAll('.btn-copy-street');
-
-      if (resolveBtn) {
-        resolveBtn.addEventListener('click', () => this.#updateReportStatus(r.id, 'resolved'));
+    this.#adminView.renderReportsList(
+      reports,
+      (id) => this.#updateReportStatus(id, 'resolved'),
+      (id) => this.#updateReportStatus(id, 'dismissed'),
+      (id) => {
+        if (confirm('Voulez-vous vraiment supprimer ce signalement ?')) {
+          this.#deleteReport(id);
+        }
+      },
+      (textToCopy) => {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(textToCopy).then(() => {
+            this.#adminView.showToast(`Nom "${textToCopy}" copié !`);
+          });
+        }
       }
-      if (dismissBtn) {
-        dismissBtn.addEventListener('click', () => this.#updateReportStatus(r.id, 'dismissed'));
-      }
-      if (deleteBtn) {
-        deleteBtn.addEventListener('click', () => {
-          if (confirm('Voulez-vous vraiment supprimer ce signalement ?')) {
-            this.#deleteReport(r.id);
-          }
-        });
-      }
-
-      copyBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const textToCopy = btn.dataset.copy;
-          if (textToCopy && navigator.clipboard) {
-            navigator.clipboard.writeText(textToCopy).then(() => {
-              this.#adminView.showToast(`Nom "${textToCopy}" copié !`);
-            });
-          }
-        });
-      });
-
-      grid.appendChild(card);
-    });
+    );
   }
 
   async #updateReportStatus(id, status) {

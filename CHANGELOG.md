@@ -1,73 +1,129 @@
-# Changelog
+# Changelog - CityMaster
 
-Toutes les modifications notables de ce projet sont documentées dans ce fichier.
+Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
+
+---
+
+## [1.6.0] - 2026-08-26
+
+### Refactoring & Clean Code
+- **Code Auto-Documenté** : Suppression intégrale de tous les commentaires dans le code source JavaScript.
+- **Pattern MVC Strict** : Séparation totale entre la logique de contrôle et le rendu visuel. Rendu DOM déplacé vers `AdminView.js`.
+- **Suppression du HTML et CSS Brut** : Remplacement des `innerHTML` et styles en ligne `style="..."` par la création d'éléments DOM natifs et de classes CSS.
+- **Encapsulation et POO** : Utilisation systématique de champs privés (`#field`) et accesseurs explicites.
+- **Stabilité de l'Administration** : Correctif de la persistance du rôle Administrateur lors du redémarrage du serveur et synchronisation avec PostgreSQL.
+
+---
 
 ## [1.5.9] - 2026-08-15
 
-### Amélioré
-- **Suppression Intégrale des Pop-ups `alert()` Natives** :
-  - **Gestion des Salons Expirés et Erreurs Multijoueur** : Remplacement des `alert()` navigateur par la modale sur-mesure (`showAlertModal`), affichant les messages d'expiration de salon (« Ce salon a expiré ») et d'erreurs de relance avec un bouton « OK » intégré à l'UI.
-  - **Notifications Toast Espace Administration** : Remplacement de l'ensemble des `alert()` d'administration par des notifications flottantes (*Toast*) non intrusives et élégantes (`#admin-toast`).
+### UI & Modales
+- **Suppression des Alertes Natives** : Remplacement de l'ensemble des `alert()` du navigateur par des modales sur-mesure et notifications toast (`#admin-toast`).
+- **Gestion des Salons Expirés** : Notification d'expiration fluide lors des fins de sessions multijoueur.
+
+---
 
 ## [1.5.8] - 2026-08-14
 
-### Amélioré
-- **Audit et Finalisation Responsivité Intégrale de l'Application** :
-  - **Ajustement du Layout Administrateur (`#admin-screen`)** : Déclaration explicite de l'absence de marges latérales (`padding: 0`) et masquage du débordement pour un affichage plein écran fluide de la carte d'édition Leaflet.
-  - **Positionnement du Bouton Satellite (`.ui-overlay-bottom-left`)** : Ajout de la classe de positionnement `.ui-overlay-bottom-left` et adaptation des dimensions sur mobile (36px x 36px).
-  - **Cartes Diplôme et Mentions Légales** : Ajout de la contrainte `max-width: 560px` et `width: 100%` avec espacement tactile adapté sur mobile.
+### Ergonomie Mobile
+- **Panneau Administrateur Responsive** : Ajustement plein écran du tableau de bord d'administration (`#admin-screen`).
+- **Cartes et Diplômes** : Contraintes de largeur et adaptations tactiles sur smartphones.
+
+---
 
 ## [1.5.7] - 2026-08-14
 
-### Corrigé
-- **Correction d'Affichage du Bandeau de Question sur Firefox Android / Mobile** :
-  - **Ordre de Transition des Écrans** : Inversion de l'ordre d'appel lors du lancement de la partie (`showScreen('game')` appelé *avant* `loadNextQuestion()`), garantissant que la bannière de consigne (`#top-banner`) est affichée sur un écran déjà actif dans le DOM.
-  - **Gestion de l'Opacité et Réinitialisation CSS** : Ajout du mode `animation-fill-mode: forwards` et d'une réinitialisation explicite de l'opacité et de la visibilité (`opacity: 1`, `visibility: visible`) sur le composant `#top-banner` et `#bottom-actions` pour éviter tout gel de l'animation CSS sur Firefox Android.
+### Correctifs
+- **Fix Affichage Firefox Android** : Correctif d'opacité et de visibilité sur les bannières d'action (`#top-banner`, `#bottom-actions`).
+
+---
 
 ## [1.5.6] - 2026-08-14
 
-### Amélioré
-- **Modal de Confirmation Personnalisée (Remplacement de la Pop-up Navigateur)** :
-  - **Suppression du `confirm()` Natif** : Remplacement de l'alerte navigateur `confirm()` par une fenêtre modale sur-mesure (`#room-confirm-modal`) intégrée au thème de l'application.
-  - **Design Glassmorphe & Animation Fluid** : Fenêtre contextuelle avec arrière-plan flouté, titre « Réinitialiser le salon », message « Voulez-vous réinitialiser le salon et recommencer avec les mêmes rues ? » et deux boutons explicites « Annuler » et « Recommencer ».
+### Interface Utilisateur
+- **Modale de Confirmation** : Fenêtre modale glassmorphe (`#room-confirm-modal`) remplaçant les fenêtres `confirm()` du navigateur.
+
+---
 
 ## [1.5.5] - 2026-08-14
 
-### Amélioré
-- **Optimisation Mobile Responsive Complète** :
-  - **Boutons d'Action des Salons (Room Results)** : Empilement vertical (`flex-direction: column; width: 100%`) des 4 boutons d'action sur mobile (`@media max-width: 640px`) pour empêcher tout débordement ou dépassement d'écran.
-  - **Interface d'Édition Administrateur (Admin Panel)** : Layout hybride sur smartphone (`@media max-width: 768px`) avec la carte interactive Leaflet en haut (55vh) et le volet de configuration sous forme de panneau inférieur scrollable (45vh).
-  - **Prise en Charge des Petits Écrans (< 400px)** : Marges et tailles de police adaptées sur très petits smartphones pour tous les formulaires, lobbies et tableaux de résultats.
-  - **Alignement du Compteur de Joueurs** : Application du style Flexbox (`.players-header`) garantissant l'alignement sur la même ligne du titre « Joueurs Présents » et de la pastille du nombre de participants.
+### Responsive Multijoueur
+- **Disposition Mobile des Salons** : Alignement vertical des boutons et ajustement du panneau d'administration en volet inférieur.
+
+---
 
 ## [1.5.4] - 2026-08-14
 
-### Corrigé
-- **Correction d'une Erreur de Syntaxe JS (`SyntaxError`)** : Remplacement des appels résiduels `#stopPolling()` par la méthode publique `stopPolling()` dans les gestionnaires de retour arrière et d'accueil du contrôleur de salon, éliminant l'erreur console `Uncaught SyntaxError: Private field '#stopPolling' must be declared in an enclosing class`.
+### Correctifs
+- **Correction JS** : Correction de l'appel à la méthode publique `stopPolling()` dans `RoomController.js`.
+
+---
 
 ## [1.5.3] - 2026-08-14
 
-### Ajouté
-- **Option de Durée de Validité des Salons (24h par défaut)** :
-  - **Choix de la Durée à la Création** : Sélection personnalisée de la durée de validité (1h, 24h ou 7 jours) sur le formulaire de création du salon.
-  - **Gestion de l'Expiration en Base** : Ajout de la colonne `expires_at` dans PostgreSQL et blocage automatique des accès aux salons expirés (code HTTP 410).
-  - **Affichage de l'Expiration dans le Lobby** : Information claire sur l'heure et la date limite de validité de la session.
-- **Réinitialisation et Relance du Salon (Mêmes Rues)** :
-  - **Bouton « Recommencer (Mêmes rues) »** : Option réservée au créateur du salon (ou administrateur) sur l'écran des résultats.
-  - **Endpoint API `/api/rooms/:code/reset`** : Remise à zéro des scores et relance de la session avec le même ensemble de rues (`test_id`).
+### Multijoueur & Salons
+- **Gestion de la Validité** : Option de sélection de durée d'expiration des salons (1h, 24h, 7 jours).
+- **Relance des Salons** : Réinitialisation et relance d'une session avec la même série de rues (`test_id`).
 
-### Corrigé
-- **Gestion des Salons & Flux de Jeu Multijoueur** :
-  - **Déblocage des Nouveaux Participants** : Redirection automatique des joueurs n'ayant pas encore joué vers l'épreuve du salon, même si la session a été démarrée par d'autres.
-  - **Consultation Directe des Résultats** : Les joueurs ayant déjà soumis leur score sont automatiquement orientés vers le tableau des résultats.
-  - **Validation Automatique lors de l'Abandon** : Soumission automatique du score intermédiaire (`finished = true`) lors d'un clic sur « Quitter » ou « Accueil » pour éviter de bloquer le salon indéfiniment.
-  - **Nettoyage du Polling en Arrière-Plan** : Interruption automatique du rafraîchissement lors de la navigation vers d'autres pages (Profil, Connexion, Accueil).
-- **Accès Administrateur & Authentification** :
-  - **Vérification Dynamique du Rôle Admin** : Contrôle direct en base de données dans `requireAdmin` et mise à jour dynamique du profil (`isAdmin`) sans obliger à se déconnecter.
-- **Cartographie & Stabilité des Consignes (Prompts)** :
-  - **Filtrage des Noms de Rues** : Exclusion stricte des éléments sans nom valide du tirage des questions.
-  - **Valeur de Secours (`safeStreetName`)** : Garantie d'affichage d'une consigne complète sans variable vide.
-- **Améliorations UI & Responsive** :
-  - **Suppression du Décalage de Mise en Page (Zero Layout Shift)** : Réservation fixe de la hauteur des messages de confirmation de copie avec transition par opacité.
-  - **Ajustement Mobile des Feedbacks de Copie** : Centrage et espacement adaptés sur mobile pour éviter le chevauchement avec les bordures.
+---
 
+## [1.5.2] - 2026-08-10
+
+### Administration & Signalements
+- **Module de Signalement** : Prise en charge des retours joueurs pour anomalies cartographiques.
+- **Gestion des Communes** : Outils d'administration pour la gestion des découpages géographiques.
+
+---
+
+## [1.5.1] - 2026-08-05
+
+### Correctifs & Thèmes
+- **Gestion du Timer** : Harmonisation du décompte du temps et des points.
+- **Thème Visuel** : Basculement fluide et mémorisation du mode sombre / clair.
+
+---
+
+## [1.5.0] - 2026-07-28
+
+### Fonctionnalités Majeures
+- **Mode Multijoueur** : Création de salons de jeu privés et classements en direct.
+- **Connexion Google OAuth 2.0** : Authentification rapide et synchronisation du profil joueur.
+
+---
+
+## [1.4.0] - 2026-07-15
+
+### Certificats & Classements
+- **Certificat de Réussite** : Diplôme personnalisé avec effets de confettis et sonores.
+- **Classements Généraux** : Palmarès mensuels et globaux par ville et difficulté.
+
+---
+
+## [1.3.0] - 2026-06-30
+
+### Persistance & Backend
+- **Base de Données PostgreSQL** : Gestion de la persistance des comptes, scores et salons.
+- **Proxy Overpass API** : Serveur proxy avec basculement automatique (*failover*) multi-serveurs.
+
+---
+
+## [1.2.0] - 2026-06-10
+
+### Administration & Multilingue
+- **Panneau d'Édition** : Outils d'édition des itinéraires et quartiers sur carte Leaflet.
+- **Support I18n** : Internationalisation complète en Français et Anglais.
+
+---
+
+## [1.1.0] - 2026-05-20
+
+### Gameplay
+- **Modes de Jeu Cartographiques** : Modes Trouver la rue, Nommer la rue et Quiz géométrique.
+- **Effets Sonores** : Intégration du service audio (`AudioService`).
+
+---
+
+## [1.0.0] - 2026-05-01
+
+### Lancement Initial
+- **Version Initiale de CityMaster** : Application cartographique interactive basée sur Leaflet.js et OpenStreetMap.
