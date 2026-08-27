@@ -205,9 +205,18 @@ export class RoomView {
         cities.forEach((city) => {
           const li = document.createElement('li');
           li.className = 'dropdown-item';
+          if (city.isVerified) {
+            li.classList.add('city-option-verified');
+          }
           const strong = document.createElement('strong');
           strong.textContent = city.name;
           li.appendChild(strong);
+          if (city.isVerified) {
+            const badge = document.createElement('span');
+            badge.className = 'city-verified-badge';
+            badge.textContent = '✓ Validée';
+            li.appendChild(badge);
+          }
           li.addEventListener('click', () => {
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;

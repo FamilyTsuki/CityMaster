@@ -143,7 +143,12 @@
 
         <div class="form-group custom-select-container">
           <label for="admin-city-search-routes" class="admin-form-label" data-i18n="admin.select_city">Commune à modifier :</label>
-          <input type="text" id="admin-city-search-routes" placeholder="Rechercher une commune..." class="input admin-input-full" />
+          <div class="admin-city-verify-row">
+            <input type="text" id="admin-city-search-routes" placeholder="Rechercher une commune..." class="input admin-input-full" />
+            <button id="admin-city-verify-btn" class="btn-verify-city-icon hidden" title="Cliquer pour valider la qualité des rues de cette commune" aria-label="Valider cette commune">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="verify-check-icon"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+          </div>
           <ul id="admin-city-dropdown-routes" class="dropdown-list hidden" role="listbox"></ul>
         </div>
 

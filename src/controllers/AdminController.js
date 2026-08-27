@@ -155,9 +155,19 @@ export class AdminController {
         cities.forEach(city => {
           const li = document.createElement('li');
           li.className = 'dropdown-item';
+          if (city.isVerified) {
+            li.classList.add('city-option-verified');
+          }
           const strong = document.createElement('strong');
           strong.textContent = city.name || '';
           li.appendChild(strong);
+
+          if (city.isVerified) {
+            const badge = document.createElement('span');
+            badge.className = 'city-verified-badge';
+            badge.textContent = '✓ Validée';
+            li.appendChild(badge);
+          }
 
           li.addEventListener('click', async () => {
             input.value = city.name;
@@ -186,6 +196,38 @@ export class AdminController {
 
     setupCitySearch(cityInput, cityDropdown);
     setupCitySearch(cityInputRoutes, cityDropdownRoutes);
+
+    const verifyBtn = document.getElementById('admin-city-verify-btn');
+    if (verifyBtn) {
+      verifyBtn.addEventListener('click', async () => {
+        if (!this.#selectedCity) return;
+        try {
+          const token = localStorage.getItem('token');
+          const headers = { 'Content-Type': 'application/json' };
+          if (token) headers['Authorization'] = `Bearer ${token}`;
+
+          const res = await fetch(`/api/cities/${encodeURIComponent(this.#selectedCity.key)}/verify`, {
+            method: 'PATCH',
+            headers
+          });
+
+          if (res.ok) {
+            const updatedCity = await res.json();
+            this.#selectedCity.isVerified = updatedCity.isVerified;
+            localStorage.setItem('citymaster_last_city', JSON.stringify(this.#selectedCity));
+            this.updateVerifyButtonState();
+            this.#adminView.showToast(
+              updatedCity.isVerified
+                ? '✓ Commune marquée comme validée avec succès !'
+                : 'Validation retirée pour cette commune.',
+              updatedCity.isVerified ? 'success' : 'error'
+            );
+          }
+        } catch (err) {
+          console.error('Failed to toggle city verification', err);
+        }
+      });
+    }
 
     const addBtn = document.getElementById('admin-add-district-btn');
     const saveBtn = document.getElementById('admin-save-district-btn');
@@ -365,9 +407,29 @@ export class AdminController {
     }
   }
 
+  updateVerifyButtonState() {
+    const verifyBtn = document.getElementById('admin-city-verify-btn');
+    if (!verifyBtn) return;
+
+    if (!this.#selectedCity) {
+      verifyBtn.classList.add('hidden');
+      return;
+    }
+
+    verifyBtn.classList.remove('hidden');
+    if (this.#selectedCity.isVerified) {
+      verifyBtn.classList.add('verified');
+      verifyBtn.title = 'Commune validée (clean). Cliquer pour retirer la validation';
+    } else {
+      verifyBtn.classList.remove('verified');
+      verifyBtn.title = 'Cliquer pour valider la qualité des rues de cette commune';
+    }
+  }
+
   async selectCity(city) {
     this.#selectedCity = city;
     localStorage.setItem('citymaster_last_city', JSON.stringify(city));
+    this.updateVerifyButtonState();
 
     this.#adminView.initMap();
     if (city.center) {

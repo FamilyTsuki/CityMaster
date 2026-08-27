@@ -131,4 +131,15 @@ export class City {
 
     return combinedResults;
   }
+
+  static async toggleVerification(key) {
+    const cities = await this.getAll();
+    const city = cities.find(c => c.key === key);
+    if (!city) {
+      throw new Error(`City with key "${key}" not found.`);
+    }
+    city.isVerified = !city.isVerified;
+    await fs.writeFile(filePath, JSON.stringify(cities, null, 2), 'utf-8');
+    return city;
+  }
 }

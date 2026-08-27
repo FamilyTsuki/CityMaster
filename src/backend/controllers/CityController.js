@@ -27,6 +27,17 @@ export class CityController {
     }
   }
 
+  static async toggleVerification(req, res) {
+    try {
+      const cityKey = req.params.key;
+      const updatedCity = await City.toggleVerification(cityKey);
+      res.json(updatedCity);
+    } catch (error) {
+      console.error('Error toggling city verification:', error);
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static convertToGeoJSON(data, bboxLimits = null) {
     const itemGroups = {};
     if (data && data.elements) {

@@ -37,7 +37,8 @@
     "center": [
       47.9029,
       1.909
-    ]
+    ],
+    "isVerified": true
   },
   {
     "key": "saint_cyr",
@@ -47,7 +48,8 @@
     "center": [
       47.83,
       1.97
-    ]
+    ],
+    "isVerified": true
   },
   {
     "key": "la_rochette",
