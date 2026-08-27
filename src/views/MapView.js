@@ -24,7 +24,7 @@ export class MapView {
     this.#boundaryRect = null;
     this.#tileLayer = null;
     this.#hideLabels = false;
-    this.#isSatellite = false;
+    this.#isSatellite = true;
 
     this.#initThemeObserver();
     this.#initSatelliteButton();
@@ -71,42 +71,12 @@ export class MapView {
   }
 
   toggleSatellite() {
-    this.#isSatellite = !this.#isSatellite;
-    const mapEl = document.getElementById('map');
-    const btn = document.getElementById('satellite-toggle-btn');
-    if (mapEl) {
-      if (this.#isSatellite) {
-        mapEl.classList.add('map-satellite-active');
-      } else {
-        mapEl.classList.remove('map-satellite-active');
-      }
-    }
-    if (btn) {
-      if (this.#isSatellite) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    }
+    this.#isSatellite = true;
     this.updateTileUrl();
   }
 
   #getTileUrl() {
-    if (this.#isSatellite) {
-      return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    }
-
-    const theme = document.documentElement.getAttribute('data-theme') || 'light';
-
-    if (theme === 'dark') {
-      return 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}';
-    }
-
-    if (this.#hideLabels) {
-      return 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}';
-    }
-
-    return 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
   }
 
   updateTileUrl() {

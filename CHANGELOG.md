@@ -4,6 +4,17 @@ Toutes les modifications majeures du projet CityMaster sont répertoriées ci-de
 
 ---
 
+## [1.8.0] - 2026-08-27
+
+### Cartographie & Accessibilité RGAA
+- **Vue Satellite Unique** : Passage à 100% sur l'imagerie Esri World Imagery (Vue Satellite) par défaut partout (Jeu, Salons, Administration).
+- **Conformité RGAA / WCAG 2.1 AA** : Ratios de contraste au survol (`:hover`) et focus réhaussés (> 6.8:1) en mode sombre.
+- **Recherche Villes 100% Dynamique** : Géocodage Nominatim en temps réel sans saisie manuelle dans `cities.json` et filtrage strict des communes.
+- **Suppression des Filigranes** : Élimination définitive des tuiles CARTO restreintes (`API KEY REQUIRED`).
+- **Correction Couleurs Mode Sombre** : Suppression des filtres d'inversion pour conserver les couleurs réelles HD de l'imagerie satellite.
+
+---
+
 ## [1.7.0] - 2026-08-26
 
 ### Ergonomie UI & Clean Code

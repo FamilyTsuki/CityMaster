@@ -71,11 +71,6 @@
   z-index: 1;
 }
 
-[data-theme="dark"] #map:not(.map-satellite-active) .leaflet-tile-pane,
-[data-theme="dark"] #admin-map:not(.map-satellite-active) .leaflet-tile-pane {
-  filter: invert(0.88) hue-rotate(180deg);
-}
-
 .glass-panel {
   background: transparent;
   border: none;

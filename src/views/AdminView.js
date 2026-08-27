@@ -63,10 +63,12 @@ export class AdminView {
     L.control.zoom({ position: 'bottomright' }).addTo(this.#map);
 
     const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    const cartoUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
-    const satelliteLayer = L.tileLayer(satelliteUrl, { maxZoom: 20, maxNativeZoom: 18 });
-    const cartoLayer = L.tileLayer(cartoUrl, { maxZoom: 19 });
+    const satelliteLayer = L.tileLayer(satelliteUrl, { 
+      maxZoom: 20, 
+      maxNativeZoom: 18,
+      attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
 
     this.#tileLayer = satelliteLayer;
     satelliteLayer.addTo(this.#map);
@@ -74,18 +76,12 @@ export class AdminView {
     const routeNamesLayer = L.layerGroup().addTo(this.#map);
     const districtNamesLayer = L.layerGroup().addTo(this.#map);
 
-    const baseMaps = {
-      "Satellite": satelliteLayer,
-      "Plan (Carto)": cartoLayer
-    };
-
     const overlayMaps = {
-      "Nomenclature (Rues)": labelsLayer,
       "Noms des quartiers définis": districtNamesLayer,
       "Noms des routes définies": routeNamesLayer
     };
 
-    L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(this.#map);
+    L.control.layers(null, overlayMaps, { position: 'topright' }).addTo(this.#map);
 
     this.#map.on('overlayadd', (e) => {
       if (e.name === "Noms des routes définies") {
