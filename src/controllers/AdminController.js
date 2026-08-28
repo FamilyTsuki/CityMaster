@@ -266,6 +266,8 @@ export class AdminController {
       districtList.addEventListener('click', (e) => {
         const editBtn = e.target.closest('.btn-edit-district');
         const deleteBtn = e.target.closest('.btn-delete-district');
+        const districtItem = e.target.closest('.route-list-item');
+
         if (editBtn) {
           const id = editBtn.dataset.id;
           const name = editBtn.dataset.name;
@@ -277,6 +279,14 @@ export class AdminController {
           const id = deleteBtn.dataset.id;
           if (id) {
             this.#deleteDistrict(id);
+          }
+        } else if (districtItem) {
+          const name = districtItem.dataset.name;
+          const district = this.#currentDistricts.find(d => d.properties.name === name);
+          if (district) {
+            districtList.querySelectorAll('.route-list-item').forEach(item => item.classList.remove('selected'));
+            districtItem.classList.add('selected');
+            this.#adminView.highlightDistrict(district);
           }
         }
       });
@@ -337,7 +347,9 @@ export class AdminController {
           const name = routeItem.dataset.name;
           const route = this.#currentRoutes.find(r => r.properties.name === name);
           if (route) {
-            this.#adminView.startEditingRoute(route);
+            routeList.querySelectorAll('.route-list-item').forEach(item => item.classList.remove('selected'));
+            routeItem.classList.add('selected');
+            this.#adminView.highlightRoute(route);
           }
         }
       });

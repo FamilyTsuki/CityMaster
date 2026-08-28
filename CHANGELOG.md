@@ -2,6 +2,13 @@
 
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 
+## [1.9.1] - 2026-08-28
+
+### Ergonomie Administration & Inspection des Voies
+- **Centrage et Surbrillance au Clic dans l'Admin** : Le clic sur un nom de rue ou de quartier dans les menus latéraux d'administration déplace et ajuste la caméra (`fitBounds`) directement sur le tracé de la voie et l'affiche avec une surbrillance colorée (`#f43f5e`, épaisseur 8px), sans ouvrir le mode d'édition de la géométrie.
+- **Bouton Éditer Dédié** : Le mode d'édition avec poignées de sommet reste réservé exclusivement au clic explicite sur le bouton "Éditer".
+- **Feedback Visuel de Sélection** : Ajout du style de sélection (`.route-list-item.selected`) mettant en évidence la ligne active dans le panneau latéral.
+
 ---
 
 ## [1.9.0] - 2026-08-28

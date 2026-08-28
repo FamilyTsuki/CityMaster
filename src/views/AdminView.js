@@ -3,6 +3,8 @@ export class AdminView {
   #tileLayer;
   #districtsLayer;
   #routesLayer;
+  #highlightedRouteLayer;
+  #highlightedDistrictLayer;
   #activePolygonLayer;
   #activeLineLayer;
   #vertexMarkers;
@@ -18,6 +20,8 @@ export class AdminView {
     this.#tileLayer = null;
     this.#districtsLayer = null;
     this.#routesLayer = null;
+    this.#highlightedRouteLayer = null;
+    this.#highlightedDistrictLayer = null;
     this.#activePolygonLayer = null;
     this.#activeLineLayer = null;
     this.#vertexMarkers = [];
@@ -219,7 +223,78 @@ export class AdminView {
     }
   }
 
+  clearHighlight() {
+    if (this.#highlightedRouteLayer) {
+      this.#highlightedRouteLayer.clearLayers();
+    }
+    if (this.#highlightedDistrictLayer) {
+      this.#highlightedDistrictLayer.clearLayers();
+    }
+  }
+
+  highlightRoute(routeFeature) {
+    if (!this.#map || !routeFeature) return;
+    this.clearHighlight();
+
+    if (!this.#highlightedRouteLayer) {
+      this.#highlightedRouteLayer = L.geoJSON(null, {
+        style: () => ({
+          color: '#f43f5e',
+          weight: 8,
+          opacity: 0.95,
+          fill: false,
+          lineCap: 'round',
+          lineJoin: 'round'
+        })
+      }).addTo(this.#map);
+    }
+
+    this.#highlightedRouteLayer.addData(routeFeature);
+    this.#highlightedRouteLayer.bringToFront();
+
+    const tempLayer = L.geoJSON(routeFeature);
+    const bounds = tempLayer.getBounds();
+    if (bounds.isValid()) {
+      if (bounds.getSouthWest().equals(bounds.getNorthEast())) {
+        this.#map.setView(bounds.getCenter(), 17);
+      } else {
+        this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
+      }
+    }
+  }
+
+  highlightDistrict(districtFeature) {
+    if (!this.#map || !districtFeature) return;
+    this.clearHighlight();
+
+    if (!this.#highlightedDistrictLayer) {
+      this.#highlightedDistrictLayer = L.geoJSON(null, {
+        style: (feature) => ({
+          color: feature?.properties?.color || '#f59e0b',
+          weight: 5,
+          opacity: 1,
+          fillColor: feature?.properties?.color || '#f59e0b',
+          fillOpacity: 0.5
+        })
+      }).addTo(this.#map);
+    }
+
+    this.#highlightedDistrictLayer.addData(districtFeature);
+    this.#highlightedDistrictLayer.bringToFront();
+
+    const tempLayer = L.geoJSON(districtFeature);
+    const bounds = tempLayer.getBounds();
+    if (bounds.isValid()) {
+      if (bounds.getSouthWest().equals(bounds.getNorthEast())) {
+        this.#map.setView(bounds.getCenter(), 17);
+      } else {
+        this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
+      }
+    }
+  }
+
   renderSavedDistricts(features) {
+    this.clearHighlight();
     if (this.#districtsLayer) {
       this.#districtsLayer.clearLayers();
       if (features && features.length > 0) {
@@ -229,6 +304,7 @@ export class AdminView {
   }
 
   renderSavedRoutes(features) {
+    this.clearHighlight();
     if (this.#routesLayer) {
       this.#routesLayer.clearLayers();
       if (features && features.length > 0) {
@@ -237,10 +313,9 @@ export class AdminView {
     }
   }
 
-
-
   startEditingDistrict(districtFeature = null) {
     this.#editMode = 'district';
+    this.clearHighlight();
     this.clearActiveDrawing();
     const editor = document.getElementById('admin-district-editor');
     const titleEl = document.getElementById('admin-editor-title');
@@ -381,6 +456,7 @@ export class AdminView {
 
   startEditingRoute(routeFeature = null) {
     this.#editMode = 'route';
+    this.clearHighlight();
     this.clearActiveRouteDrawing();
     const editor = document.getElementById('admin-route-editor');
     const titleEl = document.getElementById('admin-editor-title-routes');
@@ -554,6 +630,7 @@ export class AdminView {
     districts.forEach(d => {
       const li = document.createElement('li');
       li.className = 'route-list-item';
+      li.dataset.name = d.properties.name;
       const infoDiv = document.createElement('div');
       infoDiv.className = 'route-list-info';
       const colorDot = document.createElement('div');
