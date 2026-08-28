@@ -304,7 +304,7 @@ export class RoomController {
 
       const roomData = await res.json();
       const currentUsername = localStorage.getItem('username');
-      const isCreatorOrAdmin = roomData.createdBy === currentUsername || localStorage.getItem('is_admin') === 'true';
+      const isHost = (currentUsername || '').trim().toLowerCase() === (roomData.createdBy || '').trim().toLowerCase() || localStorage.getItem('is_admin') === 'true';
 
       this.#roomView.updateLobby(roomData, currentUsername);
 
@@ -312,7 +312,7 @@ export class RoomController {
         const me = roomData.participants.find(p => p.username.toLowerCase() === (currentUsername || '').toLowerCase());
         if (me && me.finished) {
           this.#roomView.showStep('results');
-          this.#roomView.updateResults(roomData.participants, isCreatorOrAdmin);
+          this.#roomView.updateResults(roomData.participants, isHost);
         } else {
           this.stopPolling();
           if (this.#isTransitioning) return;
