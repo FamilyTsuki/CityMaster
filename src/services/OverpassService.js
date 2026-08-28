@@ -20,7 +20,7 @@ export class OverpassService {
 
     if (bbox) {
       try {
-        const query = `[out:json][timeout:25];(way(${bbox})["highway"]["name"];way(${bbox})["place"]["name"];way(${bbox})["landuse"="residential"]["name"];node(${bbox})["place"]["name"];);out geom;`;
+        const query = `[out:json][timeout:25];(way(${bbox})["highway"~"^(primary|secondary|tertiary|unclassified|residential|living_street)$"]["name"];way(${bbox})["place"]["name"];way(${bbox})["landuse"="residential"]["name"];node(${bbox})["place"]["name"];);out geom;`;
         const response = await fetch(this.#apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
