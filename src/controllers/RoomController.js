@@ -27,7 +27,7 @@ export class RoomController {
   }
 
   #initEvents() {
-    this.#roomView.bindGuestFormSubmit((username) => this.#handleGuestLogin(username));
+    this.#roomView.bindGuestFormSubmit((username, roomCode) => this.#handleGuestLogin(username, roomCode));
     this.#roomView.bindCreateRoom(() => this.#handleCreateRoom());
     this.#roomView.bindJoinRoom(() => this.#handleJoinRoom());
     this.#roomView.bindStartGame(() => this.#handleStartGame());
@@ -52,7 +52,7 @@ export class RoomController {
 
     this.#roomView.showScreen();
     
-    if (this.#isAuthenticated()) {
+    if (this.#hasAccount()) {
       this.#roomView.showStep('setup');
     } else {
       this.#roomView.showStep('guest');
@@ -65,15 +65,19 @@ export class RoomController {
     const code = params.code ? params.code.trim().toUpperCase() : null;
     
     if (!code) {
-      this.#router.navigate('/room');
+      this.showSetup();
       return;
     }
 
     this.#currentRoomCode = code;
     this.#roomView.showScreen();
 
-    if (!this.#isAuthenticated()) {
+    if (!this.#hasToken()) {
       this.#pendingRoomCode = code;
+      const guestCodeInput = document.getElementById('room-guest-code');
+      if (guestCodeInput && !guestCodeInput.value) {
+        guestCodeInput.value = code;
+      }
       this.#roomView.showStep('guest');
       return;
     }
@@ -92,9 +96,14 @@ export class RoomController {
 
       if (!joinRes.ok) {
         const data = await joinRes.json().catch(() => ({}));
-        this.#roomView.showStep('setup');
-        this.#roomView.showJoinError(data.error || 'Impossible de rejoindre ce salon.');
-        this.#router.navigate('/room');
+        if (!this.#hasAccount()) {
+          this.#roomView.showStep('guest');
+          this.#roomView.showGuestError(data.error || 'Impossible de rejoindre ce salon.');
+        } else {
+          this.#roomView.showStep('setup');
+          this.#roomView.showJoinError(data.error || 'Impossible de rejoindre ce salon.');
+          this.#router.navigate('/room');
+        }
         return;
       }
 
@@ -102,15 +111,27 @@ export class RoomController {
 
     } catch (error) {
       console.error('Error entering room:', error);
-      this.#roomView.showStep('setup');
-      this.#roomView.showJoinError('Erreur de connexion au serveur.');
-      this.#router.navigate('/room');
+      if (!this.#hasAccount()) {
+        this.#roomView.showStep('guest');
+        this.#roomView.showGuestError('Erreur de connexion au serveur.');
+      } else {
+        this.#roomView.showStep('setup');
+        this.#roomView.showJoinError('Erreur de connexion au serveur.');
+        this.#router.navigate('/room');
+      }
     }
   }
 
-  async #handleGuestLogin(username) {
+  async #handleGuestLogin(username, roomCode) {
     try {
       this.#roomView.hideGuestError();
+      const codeToJoin = (roomCode || this.#pendingRoomCode || this.#currentRoomCode || '').trim().toUpperCase();
+
+      if (!codeToJoin) {
+        this.#roomView.showGuestError('Veuillez saisir le code du salon à rejoindre.');
+        return;
+      }
+
       const res = await fetch('/api/guest', {
         method: 'POST',
         headers: {
@@ -132,13 +153,9 @@ export class RoomController {
 
       this.#gameView.setPlayerName(data.username);
 
-      const targetCode = this.#pendingRoomCode || this.#currentRoomCode;
-      if (targetCode) {
-        this.#pendingRoomCode = null;
-        this.initRoom({ code: targetCode });
-      } else {
-        this.#roomView.showStep('setup');
-      }
+      this.#pendingRoomCode = null;
+      this.#router.navigate(`/room/${codeToJoin}`);
+      this.initRoom({ code: codeToJoin });
     } catch (error) {
       console.error('Guest Login Error:', error);
       this.#roomView.showGuestError('Erreur de connexion au serveur.');
@@ -323,7 +340,18 @@ export class RoomController {
     }
   }
 
-  #isAuthenticated() {
+  #hasAccount() {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+    const isGuest = localStorage.getItem('is_guest') === 'true';
+    return token !== null && username !== null && !isGuest;
+  }
+
+  #hasToken() {
     return localStorage.getItem('token') !== null && localStorage.getItem('username') !== null;
+  }
+
+  #isAuthenticated() {
+    return this.#hasAccount();
   }
 }

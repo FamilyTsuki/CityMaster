@@ -79,6 +79,7 @@ export class AuthController {
       }
 
       if (this.#isLoginMode) {
+        localStorage.removeItem('is_guest');
         localStorage.setItem('token', data.token);
         localStorage.setItem('username', data.username);
         if (data.isAdmin) {
@@ -86,8 +87,10 @@ export class AuthController {
         } else {
           localStorage.removeItem('is_admin');
         }
-        if (data.profileImageUrl) {
-          localStorage.setItem('citymaster_profile_image', data.profileImageUrl);
+        if (data.profileImageUrl || data.profile_image_url) {
+          localStorage.setItem('citymaster_profile_image', data.profileImageUrl || data.profile_image_url);
+        } else {
+          localStorage.removeItem('citymaster_profile_image');
         }
         this.#authView.clearInputs();
         window.location.href = '/';
@@ -121,6 +124,7 @@ export class AuthController {
         throw new Error(data.error || 'Erreur Google Auth');
       }
 
+      localStorage.removeItem('is_guest');
       localStorage.setItem('token', data.token);
       localStorage.setItem('username', data.username);
       if (data.isAdmin) {
@@ -141,10 +145,11 @@ export class AuthController {
   isAuthenticated() {
     const token = localStorage.getItem('token');
     const username = localStorage.getItem('username');
+    const isGuest = localStorage.getItem('is_guest') === 'true';
     const profileImageUrl = localStorage.getItem('citymaster_profile_image');
     const isAdmin = localStorage.getItem('is_admin') === 'true';
 
-    if (token && username) {
+    if (token && username && !isGuest) {
       this.#navbarView.setLoggedIn(username, profileImageUrl, isAdmin);
       return true;
     }
@@ -157,6 +162,7 @@ export class AuthController {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
     localStorage.removeItem('is_admin');
+    localStorage.removeItem('is_guest');
     localStorage.removeItem('citymaster_profile_image');
     this.isAuthenticated();
     this.#router.navigate('/');

@@ -136,20 +136,18 @@ export class GameController {
       let selectedStreets = [];
 
       if (testNumber && typeof testNumber === 'number') {
-        let seriesCount = 10;
+        let roomSeriesCount = targetSeries;
+        let roomDiff = difficulty;
         try {
-          const roomRes = await pool.query('SELECT series_count FROM rooms WHERE test_id = $1', [testNumber]);
+          const roomRes = await pool.query('SELECT series_count, difficulty FROM rooms WHERE test_id = $1', [testNumber]);
           if (roomRes.rows.length > 0) {
-            seriesCount = roomRes.rows[0].series_count || 10;
+            if (roomRes.rows[0].series_count) roomSeriesCount = roomRes.rows[0].series_count;
+            if (roomRes.rows[0].difficulty) roomDiff = roomRes.rows[0].difficulty;
           }
         } catch (e) {
-          console.error('Error fetching series_count for room:', e);
+          console.error('Error fetching series_count/difficulty for room:', e);
         }
 
-        const easyStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'easy');
-        const mediumStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'medium');
-        const hardStreets = uniqueStreetsList.filter(s => s.computedDifficulty === 'hard');
-        
         const mulberry32 = (a) => {
           return function() {
             var t = a += 0x6D2B79F5;
@@ -170,30 +168,19 @@ export class GameController {
           return array;
         };
 
-        shuffleSeeded(easyStreets);
-        shuffleSeeded(mediumStreets);
-        shuffleSeeded(hardStreets);
+        const matchingStreets = uniqueStreetsList.filter(s => {
+          if (roomDiff === 'lotissement') return s.properties.isCustom && s.properties.isLotissement;
+          return s.computedDifficulty === roomDiff;
+        });
 
-        const easyCount = Math.floor(seriesCount / 3);
-        const mediumCount = Math.floor(seriesCount / 3);
-        const hardCount = seriesCount - (easyCount + mediumCount);
+        const fallbackStreets = uniqueStreetsList.filter(s => !matchingStreets.includes(s));
 
-        let pickedEasy = easyStreets.splice(0, easyCount);
-        let pickedMedium = mediumStreets.splice(0, mediumCount);
-        let pickedHard = hardStreets.splice(0, hardCount);
+        shuffleSeeded(matchingStreets);
+        shuffleSeeded(fallbackStreets);
 
-        selectedStreets = [...pickedEasy, ...pickedMedium, ...pickedHard];
-        
-        let needed = seriesCount - selectedStreets.length;
-        const remaining = [...hardStreets, ...mediumStreets, ...easyStreets];
-        shuffleSeeded(remaining);
-        if (needed > 0) {
-          selectedStreets.push(...remaining.splice(0, needed));
-        }
-        
-        shuffleSeeded(selectedStreets);
+        selectedStreets = [...matchingStreets, ...fallbackStreets].slice(0, roomSeriesCount);
 
-        if (selectedStreets.length < seriesCount) {
+        if (selectedStreets.length < roomSeriesCount) {
           return res.status(400).json({ error: 'not_enough_streets_difficulty' });
         }
       } else {

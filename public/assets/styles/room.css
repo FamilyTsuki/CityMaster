@@ -1,13 +1,20 @@
 
 
+#room-screen {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
 .room-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  min-height: 100%;
+  width: 100%;
   padding: 16px 24px;
   box-sizing: border-box;
-  overflow-y: auto;
 }
 
 .room-card {
@@ -419,8 +426,10 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   font-size: 0.95rem;
-  animation: slideIn var(--transition-fast);
   box-shadow: var(--shadow-sm);
+  min-height: 52px;
+  box-sizing: border-box;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .player-avatar {
@@ -435,6 +444,15 @@
   font-weight: 700;
   font-size: 0.85rem;
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.player-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .player-name {
@@ -611,30 +629,30 @@
 
 @keyframes pulse {
   0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
   }
   70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+    opacity: 1;
+    box-shadow: 0 0 0 8px rgba(245, 158, 11, 0);
   }
   100% {
-    transform: scale(0.95);
+    opacity: 0.8;
     box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
   }
 }
 
 @keyframes pulseActive {
   0% {
-    transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+    opacity: 0.8;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
   }
   70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    opacity: 1;
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
   }
   100% {
-    transform: scale(0.95);
+    opacity: 0.8;
     box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
@@ -846,6 +864,23 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+.room-guest-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.room-guest-prompt-text {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
 }
 
 @media (max-width: 400px) {

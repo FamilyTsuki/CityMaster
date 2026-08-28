@@ -10,6 +10,10 @@ const dirname = path.dirname(filename);
 export class RoomController {
   static async createRoom(req, res) {
     try {
+      if (req.user && req.user.isGuest) {
+        return res.status(403).json({ error: 'Un compte utilisateur est requis pour créer un salon. Veuillez vous connecter.' });
+      }
+
       const { cityKey, difficulty, seriesCount, mode, validityHours } = req.body;
       const username = req.user.username;
 
@@ -178,12 +182,29 @@ export class RoomController {
       }
 
       const participantsRes = await pool.query(
-        `SELECT username, score, finished, joined_at 
-         FROM room_participants 
-         WHERE room_code = $1 
-         ORDER BY joined_at ASC`,
+        `SELECT rp.username, rp.score, rp.finished, rp.joined_at, u.profile_image_url
+         FROM room_participants rp
+         LEFT JOIN users u ON LOWER(u.username) = LOWER(rp.username)
+         WHERE rp.room_code = $1 
+         ORDER BY rp.joined_at ASC`,
         [upperCode]
       );
+
+      const uniqueMap = new Map();
+      for (const p of participantsRes.rows) {
+        const key = p.username.toLowerCase();
+        const existing = uniqueMap.get(key);
+        if (!existing || (!existing.avatarUrl && p.profile_image_url)) {
+          uniqueMap.set(key, {
+            username: p.username,
+            score: p.score,
+            finished: p.finished,
+            joinedAt: p.joined_at,
+            avatarUrl: p.profile_image_url || null
+          });
+        }
+      }
+      const participants = Array.from(uniqueMap.values());
 
       return res.json({
         roomCode: room.code,
@@ -193,7 +214,7 @@ export class RoomController {
         testId: room.test_id,
         createdBy: room.created_by,
         status: room.status,
-        participants: participantsRes.rows,
+        participants,
         cityData,
         seriesCount: room.series_count,
         expiresAt: room.expires_at

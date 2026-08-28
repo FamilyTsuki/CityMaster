@@ -42,6 +42,7 @@ export class RoomView {
   #seriesInput;
   #setupBackBtn;
   #lastParticipantsSignature = '';
+  #currentStepName = '';
 
   constructor() {
     this.#screens = {
@@ -75,6 +76,7 @@ export class RoomView {
     this.#lobbyCityName = document.getElementById('lobby-city-name');
     this.#lobbyDiffLevel = document.getElementById('lobby-diff-level');
     this.#lobbySeriesCount = document.getElementById('lobby-series-count');
+    this.#lobbyExpiresAt = document.getElementById('lobby-expires-at');
     this.#lobbyStartBtn = document.getElementById('lobby-start-btn');
     this.#lobbyWaitingMsg = document.getElementById('lobby-waiting-message');
     this.#lobbyLeaveBtn = document.getElementById('lobby-leave-btn');
@@ -322,11 +324,17 @@ export class RoomView {
   }
 
   showStep(stepName) {
+    const targetStep = this.#steps[stepName];
+    if (targetStep && !targetStep.classList.contains('hidden') && this.#currentStepName === stepName) {
+      return;
+    }
+    this.#currentStepName = stepName;
+    this.#lastParticipantsSignature = '';
     Object.values(this.#steps).forEach((step) => {
       if (step) step.classList.add('hidden');
     });
-    if (this.#steps[stepName]) {
-      this.#steps[stepName].classList.remove('hidden');
+    if (targetStep) {
+      targetStep.classList.remove('hidden');
     }
     if (stepName === 'setup' && this.#cityInput && (!this.#cityInput.value || !this.#cityInput.dataset.value)) {
       this.#cityInput.value = 'La Ferté-Saint-Aubin';
@@ -338,8 +346,10 @@ export class RoomView {
     if (this.#guestForm) {
       this.#guestForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const username = this.#guestUsername.value.trim();
-        callback(username);
+        const username = this.#guestUsername ? this.#guestUsername.value.trim() : '';
+        const roomCodeInput = document.getElementById('room-guest-code');
+        const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
+        callback(username, roomCode);
       });
     }
   }
@@ -347,6 +357,13 @@ export class RoomView {
   bindBackClick(callback) {
     if (this.#setupBackBtn) {
       this.#setupBackBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        callback();
+      });
+    }
+    const guestBackBtn = document.getElementById('room-guest-back-btn');
+    if (guestBackBtn) {
+      guestBackBtn.addEventListener('click', (e) => {
         e.preventDefault();
         callback();
       });
@@ -494,16 +511,31 @@ export class RoomView {
 
 
     if (this.#lobbyPlayersList && Array.isArray(roomData.participants)) {
-      this.#lobbyPlayersCount.textContent = roomData.participants.length;
+      const uniqueParticipants = [];
+      const seenUsernames = new Set();
+      for (const p of roomData.participants) {
+        const lowerName = (p.username || '').toLowerCase();
+        if (!seenUsernames.has(lowerName)) {
+          seenUsernames.add(lowerName);
+          uniqueParticipants.push(p);
+        }
+      }
+
+      this.#lobbyPlayersCount.textContent = uniqueParticipants.length;
       
-      const participantsSig = JSON.stringify(roomData.participants.map(p => ({
+      const participantsSig = JSON.stringify(uniqueParticipants.map(p => ({
         username: p.username,
         finished: p.finished,
-        score: p.score
+        score: p.score,
+        avatarUrl: p.avatarUrl || p.profile_image_url || null,
+        isHost: p.username === roomData.createdBy,
+        status: roomData.status
       })));
 
+      if (participantsSig !== this.#lastParticipantsSignature) {
+        this.#lastParticipantsSignature = participantsSig;
         this.#lobbyPlayersList.replaceChildren();
-        roomData.participants.forEach(p => {
+        uniqueParticipants.forEach(p => {
           const isHost = p.username === roomData.createdBy;
           const initial = p.username.charAt(0).toUpperCase();
 
@@ -512,7 +544,21 @@ export class RoomView {
 
           const avatar = document.createElement('div');
           avatar.className = 'player-avatar';
-          avatar.textContent = initial;
+          
+          const avatarSrc = p.avatarUrl || p.profile_image_url;
+          if (avatarSrc) {
+            const img = document.createElement('img');
+            img.src = avatarSrc;
+            img.alt = p.username;
+            img.className = 'player-avatar-img';
+            img.onerror = () => {
+              avatar.replaceChildren();
+              avatar.textContent = initial;
+            };
+            avatar.appendChild(img);
+          } else {
+            avatar.textContent = initial;
+          }
 
           const nameSpan = document.createElement('span');
           nameSpan.className = 'player-name';
@@ -546,6 +592,7 @@ export class RoomView {
 
           this.#lobbyPlayersList.appendChild(li);
         });
+      }
     }
 
     const isCreator = roomData.createdBy === currentUsername;
