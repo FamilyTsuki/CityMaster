@@ -302,8 +302,8 @@ export class AdminView {
       const icon = L.divIcon({
         className: 'vertex-handle-icon',
         html: `<div class="admin-marker" style="background: ${this.#activeColor};"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
       });
 
       const marker = L.marker(latlng, { icon, draggable: true }).addTo(this.#map);
@@ -449,8 +449,8 @@ export class AdminView {
       const icon = L.divIcon({
         className: 'vertex-handle-icon',
         html: `<div class="admin-marker" style="background: #f43f5e;"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
+        iconSize: [16, 16],
+        iconAnchor: [8, 8]
       });
 
       const marker = L.marker(latlng, { icon, draggable: true }).addTo(this.#map);
