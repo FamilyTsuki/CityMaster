@@ -66,12 +66,24 @@ export class AdminView {
 
     L.control.zoom({ position: 'bottomright' }).addTo(this.#map);
 
-    const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    const key = 'cb1_2cy8_1_e3fc326c9e8d112e79406187';
 
-    const satelliteLayer = L.tileLayer(satelliteUrl, { 
+    const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { 
       maxZoom: 20, 
       maxNativeZoom: 18,
       attribution: '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+
+    const streetLayer = L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${key}`, {
+      maxZoom: 20,
+      subdomains: 'abcd',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+    });
+
+    const darkLayer = L.tileLayer(`https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${key}`, {
+      maxZoom: 20,
+      subdomains: 'abcd',
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
     });
 
     this.#tileLayer = satelliteLayer;
@@ -80,12 +92,18 @@ export class AdminView {
     const routeNamesLayer = L.layerGroup().addTo(this.#map);
     const districtNamesLayer = L.layerGroup().addTo(this.#map);
 
+    const baseMaps = {
+      "Vue Satellite": satelliteLayer,
+      "Plan Urbain Standard": streetLayer,
+      "Mode Sombre": darkLayer
+    };
+
     const overlayMaps = {
       "Noms des quartiers définis": districtNamesLayer,
       "Noms des routes définies": routeNamesLayer
     };
 
-    L.control.layers(null, overlayMaps, { position: 'topright' }).addTo(this.#map);
+    L.control.layers(baseMaps, overlayMaps, { position: 'topright' }).addTo(this.#map);
 
     this.#map.on('overlayadd', (e) => {
       if (e.name === "Noms des routes définies") {
@@ -106,7 +124,7 @@ export class AdminView {
     });
 
     this.#map.on('baselayerchange', (e) => {
-      if (e.name === "Satellite") {
+      if (e.name === "Vue Satellite") {
         this.#map.getContainer().classList.add('map-satellite-active');
       } else {
         this.#map.getContainer().classList.remove('map-satellite-active');

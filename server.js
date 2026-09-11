@@ -38,7 +38,10 @@ app.use(express.json());
 app.use(compression());
 app.use(express.static(path.join(dirname, 'public'), {
   setHeaders: (res, filepath) => {
-    if (filepath.endsWith('.html')) {
+    if (filepath.endsWith('sw.js')) {
+      res.setHeader('Service-Worker-Allowed', '/');
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    } else if (filepath.endsWith('.html') || filepath.endsWith('manifest.json')) {
       res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     } else if (filepath.endsWith('.css') || filepath.endsWith('.js') || filepath.endsWith('.json')) {
       res.setHeader('Cache-Control', 'no-cache');

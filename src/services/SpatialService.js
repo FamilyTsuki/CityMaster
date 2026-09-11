@@ -78,26 +78,28 @@ export class SpatialService {
       throw new Error('Turf.js library is not loaded');
     }
     const point = this.#turf.point([longitude, latitude]);
+    const feature = streetGeoJSON.type === 'Feature' ? streetGeoJSON : this.#turf.feature(streetGeoJSON);
+    const type = feature.geometry ? feature.geometry.type : null;
 
-    const isPolygon = streetGeoJSON.geometry && (
-      streetGeoJSON.geometry.type === 'Polygon' ||
-      streetGeoJSON.geometry.type === 'MultiPolygon'
-    );
-
-    if (isPolygon) {
+    if (type === 'Polygon' || type === 'MultiPolygon') {
       try {
-        if (this.#turf.booleanPointInPolygon(point, streetGeoJSON)) {
+        if (this.#turf.booleanPointInPolygon(point, feature)) {
           return 0;
         }
+        const lines = this.#turf.polygonToLine(feature);
+        const nearest = this.#turf.nearestPointOnLine(lines, point);
+        return this.#turf.distance(point, nearest, { units: 'meters' });
       } catch (e) {}
+    } else if (type === 'Point') {
+      return this.#turf.distance(point, feature, { units: 'meters' });
     }
 
     try {
-      const nearest = this.#turf.nearestPointOnLine(streetGeoJSON, point);
+      const nearest = this.#turf.nearestPointOnLine(feature, point);
       return this.#turf.distance(point, nearest, { units: 'meters' });
     } catch (e) {
       try {
-        const center = this.getCenter(streetGeoJSON);
+        const center = this.getCenter(feature);
         const centerPoint = this.#turf.point(center);
         return this.#turf.distance(point, centerPoint, { units: 'meters' });
       } catch (err) {
@@ -121,37 +123,28 @@ export class SpatialService {
     const candidates = streetsGeoJSON.filter(street => {
       if (!street.geometry || !street.geometry.coordinates) return false;
       
-      let minLat = Infinity, maxLat = -Infinity;
-      let minLng = Infinity, maxLng = -Infinity;
-      
-      const updateBounds = (pt) => {
-        if (pt[1] < minLat) minLat = pt[1];
-        if (pt[1] > maxLat) maxLat = pt[1];
-        if (pt[0] < minLng) minLng = pt[0];
-        if (pt[0] > maxLng) maxLng = pt[0];
-      };
-
-      if (street.geometry.type === 'Point') {
-        updateBounds(street.geometry.coordinates);
-      } else if (street.geometry.type === 'LineString') {
-        for (let i = 0; i < street.geometry.coordinates.length; i++) {
-          updateBounds(street.geometry.coordinates[i]);
+      try {
+        const coords = this.#turf.coordAll(street);
+        let minLat = Infinity, maxLat = -Infinity;
+        let minLng = Infinity, maxLng = -Infinity;
+        
+        for (let i = 0; i < coords.length; i++) {
+          const pt = coords[i];
+          if (pt[1] < minLat) minLat = pt[1];
+          if (pt[1] > maxLat) maxLat = pt[1];
+          if (pt[0] < minLng) minLng = pt[0];
+          if (pt[0] > maxLng) maxLng = pt[0];
         }
-      } else if (street.geometry.type === 'MultiLineString' || street.geometry.type === 'Polygon') {
-        for (let i = 0; i < street.geometry.coordinates.length; i++) {
-          const line = street.geometry.coordinates[i];
-          for (let j = 0; j < line.length; j++) {
-            updateBounds(line[j]);
-          }
-        }
-      }
 
-      if (latitude >= minLat - latTol && latitude <= maxLat + latTol &&
-          longitude >= minLng - lngTol && longitude <= maxLng + lngTol) {
+        return (
+          latitude >= minLat - latTol &&
+          latitude <= maxLat + latTol &&
+          longitude >= minLng - lngTol &&
+          longitude <= maxLng + lngTol
+        );
+      } catch (e) {
         return true;
       }
-      
-      return false;
     });
 
     if (candidates.length === 0) {

@@ -171,12 +171,16 @@ export class GameController {
       
       this.#allCityStreets = [...geojson.features.filter(f => f.properties && f.properties.name), ...customFeatures];
       
-      const lotissements = this.#allCityStreets.filter(f => 
-        f.properties && 
-        f.properties.isLotissement && 
-        (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
-      );
-      this.#mapView.renderLotissements(lotissements);
+      if (diff === 'lotissement' || difficulty === 'lotissement') {
+        const lotissements = this.#allCityStreets.filter(f => 
+          f.properties && 
+          f.properties.isLotissement && 
+          (f.geometry.type === 'Polygon' || f.geometry.type === 'MultiPolygon')
+        );
+        this.#mapView.renderLotissements(lotissements);
+      } else {
+        this.#mapView.renderLotissements([]);
+      }
 
       const streetNames = Array.from(new Set(this.#allCityStreets.map(f => f.properties.name)));
       this.#gameView.setupAutocomplete(streetNames);

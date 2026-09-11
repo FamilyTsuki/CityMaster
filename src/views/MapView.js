@@ -11,6 +11,7 @@ export class MapView {
   #tileLayer;
   #hideLabels;
   #isSatellite;
+  #currentStyle;
 
   constructor() {
     this.#map = null;
@@ -24,7 +25,8 @@ export class MapView {
     this.#boundaryRect = null;
     this.#tileLayer = null;
     this.#hideLabels = false;
-    this.#isSatellite = true;
+    this.#isSatellite = false;
+    this.#currentStyle = 'street';
 
     this.#initThemeObserver();
     this.#initSatelliteButton();
@@ -71,12 +73,32 @@ export class MapView {
   }
 
   toggleSatellite() {
-    this.#isSatellite = true;
-    this.updateTileUrl();
+    this.#isSatellite = !this.#isSatellite;
+    this.setMapStyle(this.#isSatellite ? 'satellite' : 'street');
   }
 
   #getTileUrl() {
-    return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    const key = 'cb1_2cy8_1_e3fc326c9e8d112e79406187';
+    if (this.#currentStyle === 'satellite' || this.#isSatellite) {
+      return 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    }
+
+    if (this.#currentStyle === 'dark') {
+      return this.#hideLabels
+        ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png?key=${key}`
+        : `https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${key}`;
+    }
+
+    const theme = document.documentElement.getAttribute('data-theme') || 'light';
+    if (theme === 'dark') {
+      return this.#hideLabels
+        ? `https://{s}.basemaps.cartocdn.com/rastertiles/dark_nolabels/{z}/{x}/{y}{r}.png?key=${key}`
+        : `https://{s}.basemaps.cartocdn.com/rastertiles/dark_all/{z}/{x}/{y}{r}.png?key=${key}`;
+    }
+
+    return this.#hideLabels
+      ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png?key=${key}`
+      : `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${key}`;
   }
 
   updateTileUrl() {
@@ -85,6 +107,7 @@ export class MapView {
   }
 
   setMapStyle(styleType) {
+    this.#currentStyle = styleType;
     this.#isSatellite = styleType === 'satellite';
     const mapEl = document.getElementById('map');
     const btn = document.getElementById('satellite-toggle-btn');
@@ -328,6 +351,9 @@ export class MapView {
     }
     if (this.#selectionLayer) {
       this.#selectionLayer.clearLayers();
+    }
+    if (this.#lotissementLayer) {
+      this.#lotissementLayer.clearLayers();
     }
     this.clearTempMarker();
     this.clearFeedback();

@@ -2,9 +2,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 24px;
-  height: 64px;
-  min-height: 64px;
+  padding-left: max(24px, env(safe-area-inset-left));
+  padding-right: max(24px, env(safe-area-inset-right));
+  padding-top: env(safe-area-inset-top);
+  height: calc(64px + env(safe-area-inset-top));
+  min-height: calc(64px + env(safe-area-inset-top));
   background: var(--bg-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -181,7 +183,13 @@
   transform: translateY(0);
 }
 
-#pwa-install-btn {
+#pwa-install-btn:not(.hidden) {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 6px;
+}
+
+#pwa-install-btn.hidden {
   display: none !important;
 }
 
@@ -191,7 +199,8 @@
 
 @media (max-width: 900px) {
   .navbar {
-    padding: 10px 16px;
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
   }
   
   .navbar-brand .logo-text {
@@ -205,12 +214,6 @@
   #nav-auth-logged-in,
   #nav-auth-logged-out {
     gap: 8px;
-  }
-}
-
-@media (max-width: 768px) {
-  #pwa-install-btn:not(.hidden) {
-    display: inline-flex !important;
   }
 }
 
