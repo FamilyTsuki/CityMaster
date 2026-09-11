@@ -24,19 +24,15 @@
     "cookies_desc": "CityMaster does not use advertising cookies or third-party tracking scripts. Technical local storage (LocalStorage) is strictly used to save your in-game preferences."
   },
   "landing": {
-    "badge": "Interactive Geography Game",
     "hero_title": "Master Your City's Geography",
     "hero_subtitle": "Test your knowledge of streets, housing estates, and neighborhoods in real-time with OpenStreetMap.",
     "play_now": "Play Now",
-    "stat_cities": "French Cities",
-    "stat_streets": "Mapped Streets",
-    "stat_modes": "Game Modes",
     "feature_1_title": "Real-Time Data",
     "feature_1_desc": "Explore any municipality using live OpenStreetMap geographical data.",
-    "feature_2_title": "Innovative Game Modes",
-    "feature_2_desc": "Target placement, Sprint time-attack, or Name identification mode.",
-    "feature_3_title": "Cross-Platform & PWA",
-    "feature_3_desc": "Play on smartphone, tablet, or desktop with offline support."
+    "feature_3_title": "Cross-Platform & Mobile App",
+    "feature_3_desc": "Play on smartphone, tablet, or desktop with installable PWA app and offline support.",
+    "feature_4_title": "Team Rooms & Leaderboard",
+    "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard."
   },
   "auth": {
     "login_title": "Sign In",

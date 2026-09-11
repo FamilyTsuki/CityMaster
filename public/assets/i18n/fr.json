@@ -24,19 +24,15 @@
     "cookies_desc": "CityMaster n'utilise aucun cookie publicitaire ni aucun traceur tiers à des fins de profilage commercial. Seul le stockage technique local (LocalStorage) est utilisé pour conserver vos préférences de jeu."
   },
   "landing": {
-    "badge": "Jeu Géographique Interactif",
     "hero_title": "Maîtrisez la Géographie de Votre Ville",
     "hero_subtitle": "Testez vos connaissances sur les rues, lotissements et quartiers en temps réel grâce à OpenStreetMap.",
     "play_now": "Jouer maintenant",
-    "stat_cities": "Villes Françaises",
-    "stat_streets": "Rues Cartographiées",
-    "stat_modes": "Modes de Jeu",
     "feature_1_title": "Données en Temps Réel",
     "feature_1_desc": "Explorez n'importe quelle commune grâce aux données géographiques d'OpenStreetMap.",
-    "feature_2_title": "Modes de Jeu Inédits",
-    "feature_2_desc": "Cible, Sprint contre-la-montre ou Identification par saisie de nom.",
-    "feature_3_title": "Multi-Plateforme & PWA",
-    "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur avec prise en charge hors-ligne."
+    "feature_3_title": "Multi-Plateforme & App Mobile",
+    "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur avec application PWA installable et mode hors-ligne.",
+    "feature_4_title": "Salons Équipes & Classement",
+    "feature_4_desc": "Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement."
   },
   "auth": {
     "login_title": "Connexion",
