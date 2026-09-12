@@ -436,7 +436,9 @@ export class AuthView {
     const eyePupil = document.getElementById('eye-pupil');
     const eyeShine = document.getElementById('eye-shine');
     const earLeft = document.getElementById('cat-ear-left');
+    const earLeftInner = document.getElementById('cat-ear-left-inner');
     const earRight = document.getElementById('cat-ear-right');
+    const earRightInner = document.getElementById('cat-ear-right-inner');
     const catNose = document.getElementById('cat-nose');
     const whiskersLeftGroup = document.getElementById('whiskers-left');
     const whiskersRightGroup = document.getElementById('whiskers-right');
@@ -524,22 +526,44 @@ export class AuthView {
         earLeft.style.display = currentLeftEar > 0.5 ? 'inline' : 'none';
         earLeft.setAttribute('opacity', '1');
         const b1x = x4, b1y = y4;
-        const b2x = x4 + 0.35 * dx, b2y = y4 + 0.35 * dy;
+        const b2x = x4 + 0.38 * dx, b2y = y4 + 0.38 * dy;
         const twitchLeft = this.#activeTwitchEar === 'left' ? this.#earTwitchOffset : 0;
-        const tipX = x4 - 0.10 * dx + nx * (16 + twitchLeft);
-        const tipY = y4 - 0.10 * dy + ny * (16 + twitchLeft);
+        const tipX = x4 + 0.12 * dx + nx * (15 + twitchLeft);
+        const tipY = y4 + 0.12 * dy + ny * (15 + twitchLeft);
         earLeft.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
+
+        if (earLeftInner) {
+          earLeftInner.style.display = currentLeftEar > 0.5 ? 'inline' : 'none';
+          const ib1x = x4 + 0.08 * dx + nx * 1.5;
+          const ib1y = y4 + 0.08 * dy + ny * 1.5;
+          const ib2x = x4 + 0.30 * dx + nx * 1.5;
+          const ib2y = y4 + 0.30 * dy + ny * 1.5;
+          const itipX = x4 + 0.13 * dx + nx * (11.5 + twitchLeft);
+          const itipY = y4 + 0.13 * dy + ny * (11.5 + twitchLeft);
+          earLeftInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
+        }
       }
 
       if (earRight) {
         earRight.style.display = currentRightEar > 0.5 ? 'inline' : 'none';
         earRight.setAttribute('opacity', '1');
-        const b1x = x4 + 0.65 * dx, b1y = y4 + 0.65 * dy;
+        const b1x = x4 + 0.62 * dx, b1y = y4 + 0.62 * dy;
         const b2x = x3, b2y = y3;
         const twitchRight = this.#activeTwitchEar === 'right' ? this.#earTwitchOffset : 0;
-        const tipX = x3 + 0.10 * dx + nx * (16 + twitchRight);
-        const tipY = y3 + 0.10 * dy + ny * (18 + twitchRight);
+        const tipX = x4 + 0.88 * dx + nx * (15 + twitchRight);
+        const tipY = y4 + 0.88 * dy + ny * (15 + twitchRight);
         earRight.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
+
+        if (earRightInner) {
+          earRightInner.style.display = currentRightEar > 0.5 ? 'inline' : 'none';
+          const ib1x = x4 + 0.70 * dx + nx * 1.5;
+          const ib1y = y4 + 0.70 * dy + ny * 1.5;
+          const ib2x = x4 + 0.92 * dx + nx * 1.5;
+          const ib2y = y4 + 0.92 * dy + ny * 1.5;
+          const itipX = x4 + 0.87 * dx + nx * (11.5 + twitchRight);
+          const itipY = y4 + 0.87 * dy + ny * (11.5 + twitchRight);
+          earRightInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
+        }
       }
 
       const pupilRx = Math.max(0, currentRx * 0.42);
