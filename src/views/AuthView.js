@@ -418,17 +418,9 @@ export class AuthView {
 
   #setupMouseTracking() {
     const handlePointerMove = (e) => {
-      if (e && e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest?.('.auth-form-container'))) {
-        if (this.#mouseIdleTimeoutId) {
-          clearTimeout(this.#mouseIdleTimeoutId);
-          this.#mouseIdleTimeoutId = null;
-        }
-        this.#targetMouseOffset = { x: 0, y: 0 };
-        return;
-      }
-
-      const mascotEl = document.getElementById('mascot-2') || document.getElementById('mascot-body');
+      const mascotEl = document.getElementById('mascot-2') || document.getElementById('mascot-body') || document.getElementById('auth-mascots-container');
       if (!mascotEl) return;
+
       const rect = mascotEl.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height * 0.35;
@@ -441,28 +433,14 @@ export class AuthView {
       const distance = Math.hypot(deltaX, deltaY);
       const angle = Math.atan2(deltaY, deltaX);
 
-      const maxOffset = Math.min(3.8, distance / 70);
+      const maxOffset = Math.min(3.8, distance / 80);
       const targetX = Math.cos(angle) * maxOffset;
       const targetY = Math.sin(angle) * maxOffset;
 
-      const stateKey = this.#currentMascotStateKey;
-      if (stateKey === 'username' && targetX < -0.3) {
-        this.#targetMouseOffset = { x: 0, y: 0 };
-      } else if ((stateKey === 'password' || stateKey === 'passwordShown') && targetX > 0.3) {
-        this.#targetMouseOffset = { x: 0, y: 0 };
-      } else {
-        this.#targetMouseOffset = { x: targetX, y: targetY };
-      }
-
-      if (this.#mouseIdleTimeoutId) {
-        clearTimeout(this.#mouseIdleTimeoutId);
-      }
-      this.#mouseIdleTimeoutId = setTimeout(() => {
-        this.#targetMouseOffset = { x: 0, y: 0 };
-      }, 1200);
+      this.#targetMouseOffset = { x: targetX, y: targetY };
     };
 
-    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('mousemove', handlePointerMove, { passive: true });
     window.addEventListener('touchmove', handlePointerMove, { passive: true });
     window.addEventListener('touchstart', handlePointerMove, { passive: true });
   }
@@ -563,33 +541,6 @@ export class AuthView {
           eyeShine.setAttribute('rx', shineRx.toFixed(2));
           eyeShine.setAttribute('ry', shineRy.toFixed(2));
           eyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
-        }
-
-        const greyEyePupil = document.getElementById('grey-eye-pupil');
-        const greyEyeShine = document.getElementById('grey-eye-shine');
-
-        if (greyEyePupil) {
-          const greyRawDx = currentPx + this.#greyMouseOffset.x;
-          const greyRawDy = currentPy + this.#greyMouseOffset.y;
-          const greyClamped = this.#getClampedPupilOffset(greyRawDx, greyRawDy, currentRx, currentRy, pupilRx, pupilRy);
-
-          greyEyePupil.setAttribute('cx', (eyeX + greyClamped.x).toFixed(2));
-          greyEyePupil.setAttribute('cy', (eyeY + greyClamped.y).toFixed(2));
-          greyEyePupil.setAttribute('rx', pupilRx.toFixed(2));
-          greyEyePupil.setAttribute('ry', pupilRy.toFixed(2));
-          greyEyePupil.setAttribute('opacity', pupilRy > 0.05 ? '1' : '0');
-        }
-
-        if (greyEyeShine) {
-          const greyRawDx = currentPx + this.#greyMouseOffset.x;
-          const greyRawDy = currentPy + this.#greyMouseOffset.y;
-          const greyClamped = this.#getClampedPupilOffset(greyRawDx, greyRawDy, currentRx, currentRy, pupilRx, pupilRy);
-
-          greyEyeShine.setAttribute('cx', (eyeX + greyClamped.x - currentRx * 0.22).toFixed(2));
-          greyEyeShine.setAttribute('cy', (eyeY + greyClamped.y - currentRy * 0.22).toFixed(2));
-          greyEyeShine.setAttribute('rx', shineRx.toFixed(2));
-          greyEyeShine.setAttribute('ry', shineRy.toFixed(2));
-          greyEyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
         }
       }
 
@@ -810,10 +761,10 @@ export class AuthView {
     const wr2 = document.getElementById('wr2');
     const wr3 = document.getElementById('wr3');
 
-    const pupilRx = Math.max(0, currentRx * 0.42);
-    const pupilRy = Math.max(0, (currentRy - 1.8) * 0.42);
-    const shineRx = Math.max(0, currentRx * 0.15);
-    const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
+    const pupilRx = 3.57;
+    const pupilRy = Math.min(3.57, Math.max(0, (currentRy - 1.8) * 0.42));
+    const shineRx = 1.3;
+    const shineRy = Math.min(1.3, Math.max(0, (currentRy - 3.0) * 0.15));
 
     const fillFactor = Math.max(0, Math.min(1, (currentRy - 1.0) / 2.5));
     const rVal = Math.round(38 + (255 - 38) * fillFactor);
@@ -990,8 +941,9 @@ export class AuthView {
     const eyeX = topCenterX + (bottomCenterX - topCenterX) * 0.32 + currentOffsetX;
     const eyeY = topCenterY + (bottomCenterY - topCenterY) * 0.32 + currentOffsetY;
 
-    const currentRx = currentPupil.rx || 8.5;
-    const currentRy = currentPupil.ry || 8.5;
+    const faceScale = 1.35;
+    const currentRx = (currentPupil.rx || 8.5) * faceScale;
+    const currentRy = (currentPupil.ry || 8.5) * faceScale;
     const currentPx = currentPupil.px || 0;
     const currentPy = currentPupil.py || 0;
 
@@ -1012,10 +964,10 @@ export class AuthView {
     const gwr2 = document.getElementById('gwr2');
     const gwr3 = document.getElementById('gwr3');
 
-    const pupilRx = Math.max(0, currentRx * 0.42);
-    const pupilRy = Math.max(0, (currentRy - 1.8) * 0.42);
-    const shineRx = Math.max(0, currentRx * 0.15);
-    const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
+    const pupilRx = 4.8;
+    const pupilRy = Math.min(4.8, Math.max(0, (currentRy - 1.8) * 0.42));
+    const shineRx = 1.8;
+    const shineRy = Math.min(1.8, Math.max(0, (currentRy - 3.0) * 0.16));
 
     const fillFactor = Math.max(0, Math.min(1, (currentRy - 1.0) / 2.5));
     const rVal = Math.round(38 + (255 - 38) * fillFactor);
@@ -1064,8 +1016,8 @@ export class AuthView {
       const b1x = x4, b1y = y4;
       const b2x = x4 + 0.38 * dx, b2y = y4 + 0.38 * dy;
       const twitchLeft = this.#activeGreyTwitchEar === 'left' ? this.#greyEarTwitchOffset : 0;
-      const tipX = x4 + 0.12 * dx + nx * (15 + twitchLeft);
-      const tipY = y4 + 0.12 * dy + ny * (15 + twitchLeft);
+      const tipX = x4 + 0.12 * dx + nx * (17.5 + twitchLeft);
+      const tipY = y4 + 0.12 * dy + ny * (17.5 + twitchLeft);
       const pts = `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`;
       greyEarLeft.setAttribute('points', pts);
 
@@ -1075,8 +1027,8 @@ export class AuthView {
         const ib1y = y4 + 0.08 * dy + ny * 1.5;
         const ib2x = x4 + 0.30 * dx + nx * 1.5;
         const ib2y = y4 + 0.30 * dy + ny * 1.5;
-        const itipX = x4 + 0.13 * dx + nx * (11.5 + twitchLeft);
-        const itipY = y4 + 0.13 * dy + ny * (11.5 + twitchLeft);
+        const itipX = x4 + 0.13 * dx + nx * (13.5 + twitchLeft);
+        const itipY = y4 + 0.13 * dy + ny * (13.5 + twitchLeft);
         const ipts = `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`;
         greyEarLeftInner.setAttribute('points', ipts);
       }
@@ -1088,8 +1040,8 @@ export class AuthView {
       const b1x = x4 + 0.62 * dx, b1y = y4 + 0.62 * dy;
       const b2x = x3, b2y = y3;
       const twitchRight = this.#activeGreyTwitchEar === 'right' ? this.#greyEarTwitchOffset : 0;
-      const tipX = x4 + 0.88 * dx + nx * (15 + twitchRight);
-      const tipY = y4 + 0.88 * dy + ny * (15 + twitchRight);
+      const tipX = x4 + 0.88 * dx + nx * (17.5 + twitchRight);
+      const tipY = y4 + 0.88 * dy + ny * (17.5 + twitchRight);
       const pts = `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`;
       greyEarRight.setAttribute('points', pts);
 
@@ -1099,16 +1051,16 @@ export class AuthView {
         const ib1y = y4 + 0.70 * dy + ny * 1.5;
         const ib2x = x4 + 0.92 * dx + nx * 1.5;
         const ib2y = y4 + 0.92 * dy + ny * 1.5;
-        const itipX = x4 + 0.87 * dx + nx * (11.5 + twitchRight);
-        const itipY = y4 + 0.87 * dy + ny * (11.5 + twitchRight);
+        const itipX = x4 + 0.87 * dx + nx * (13.5 + twitchRight);
+        const itipY = y4 + 0.87 * dy + ny * (13.5 + twitchRight);
         const ipts = `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`;
         greyEarRightInner.setAttribute('points', ipts);
       }
     }
 
     const noseX = eyeX + 0.5;
-    const noseY = eyeY + Math.max(currentRy, 5) + 3;
-    const nosePts = `${noseX.toFixed(2)},${(noseY + 3).toFixed(2)} ${(noseX - 2.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 2.5).toFixed(2)},${noseY.toFixed(2)}`;
+    const noseY = eyeY + Math.max(currentRy, 6) + 3;
+    const nosePts = `${noseX.toFixed(2)},${(noseY + 4.2).toFixed(2)} ${(noseX - 3.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 3.5).toFixed(2)},${noseY.toFixed(2)}`;
     if (greyCatNose) {
       greyCatNose.setAttribute('points', nosePts);
     }
@@ -1126,45 +1078,45 @@ export class AuthView {
     }
 
     const jitter = this.#whiskerJitter;
-    const leftWhiskerStartX = eyeX - Math.max(currentRx, 6) - 2;
+    const leftWhiskerStartX = eyeX - Math.max(currentRx, 7) - 2;
 
     if (gwl1) {
       gwl1.setAttribute('x1', leftWhiskerStartX.toFixed(2));
       gwl1.setAttribute('y1', (eyeY - 2 + jitter).toFixed(2));
-      gwl1.setAttribute('x2', (leftWhiskerStartX - 13).toFixed(2));
-      gwl1.setAttribute('y2', (eyeY - 6 + jitter).toFixed(2));
+      gwl1.setAttribute('x2', (leftWhiskerStartX - 16).toFixed(2));
+      gwl1.setAttribute('y2', (eyeY - 7 + jitter).toFixed(2));
     }
     if (gwl2) {
       gwl2.setAttribute('x1', (leftWhiskerStartX - 1).toFixed(2));
       gwl2.setAttribute('y1', (eyeY + 3 - jitter).toFixed(2));
-      gwl2.setAttribute('x2', (leftWhiskerStartX - 15).toFixed(2));
+      gwl2.setAttribute('x2', (leftWhiskerStartX - 18).toFixed(2));
       gwl2.setAttribute('y2', (eyeY + 3 - jitter).toFixed(2));
     }
     if (gwl3) {
       gwl3.setAttribute('x1', leftWhiskerStartX.toFixed(2));
       gwl3.setAttribute('y1', (eyeY + 8 + jitter).toFixed(2));
-      gwl3.setAttribute('x2', (leftWhiskerStartX - 12).toFixed(2));
-      gwl3.setAttribute('y2', (eyeY + 11 + jitter).toFixed(2));
+      gwl3.setAttribute('x2', (leftWhiskerStartX - 15).toFixed(2));
+      gwl3.setAttribute('y2', (eyeY + 13 + jitter).toFixed(2));
     }
 
-    const rightWhiskerStartX = eyeX + Math.max(currentRx, 6) + 2;
+    const rightWhiskerStartX = eyeX + Math.max(currentRx, 7) + 2;
     if (gwr1) {
       gwr1.setAttribute('x1', rightWhiskerStartX.toFixed(2));
       gwr1.setAttribute('y1', (eyeY - 2 - jitter).toFixed(2));
-      gwr1.setAttribute('x2', (rightWhiskerStartX + 13).toFixed(2));
-      gwr1.setAttribute('y2', (eyeY - 6 - jitter).toFixed(2));
+      gwr1.setAttribute('x2', (rightWhiskerStartX + 16).toFixed(2));
+      gwr1.setAttribute('y2', (eyeY - 7 - jitter).toFixed(2));
     }
     if (gwr2) {
       gwr2.setAttribute('x1', (rightWhiskerStartX + 1).toFixed(2));
       gwr2.setAttribute('y1', (eyeY + 3 + jitter).toFixed(2));
-      gwr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
+      gwr2.setAttribute('x2', (rightWhiskerStartX + 18).toFixed(2));
       gwr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
     }
     if (gwr3) {
       gwr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
       gwr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
-      gwr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
-      gwr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
+      gwr3.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
+      gwr3.setAttribute('y2', (eyeY + 13 - jitter).toFixed(2));
     }
   }
 
@@ -1202,30 +1154,65 @@ export class AuthView {
       const progress = Math.min(1, elapsed / duration);
 
       const decay = Math.pow(1 - progress, 1.5);
-      const shakeOffset = Math.sin(progress * Math.PI * 7) * 12 * decay;
+      const kikoShakeOffset = Math.sin(progress * Math.PI * 7) * 12 * decay;
+      const greyShakeOffset = Math.sin((progress - 0.05) * Math.PI * 6.5) * 10 * decay;
 
-      const currentPoints = [...baseArr];
-      currentPoints[4] += shakeOffset;
-      currentPoints[6] += shakeOffset;
+      const currentPointsKiko = [...baseArr];
+      currentPointsKiko[4] += kikoShakeOffset;
+      currentPointsKiko[6] += kikoShakeOffset;
 
-      let dynamicLeftW = 1;
-      let dynamicRightW = 1;
-      if (shakeOffset > 2.0) {
-        dynamicLeftW = 1;
-        dynamicRightW = 0;
-      } else if (shakeOffset < -2.0) {
-        dynamicLeftW = 0;
-        dynamicRightW = 1;
+      let kikoLeftW = 1;
+      let kikoRightW = 1;
+      if (kikoShakeOffset > 2.0) {
+        kikoLeftW = 1;
+        kikoRightW = 0;
+      } else if (kikoShakeOffset < -2.0) {
+        kikoLeftW = 0;
+        kikoRightW = 1;
       }
 
-      const currentPupil = {
+      const currentPupilKiko = {
         ...basePupil,
-        offsetX: (basePupil.offsetX || 0) + shakeOffset * 0.70,
-        leftW: dynamicLeftW,
-        rightW: dynamicRightW
+        offsetX: (basePupil.offsetX || 0) + kikoShakeOffset * 0.70,
+        leftW: kikoLeftW,
+        rightW: kikoRightW
       };
 
-      this.#renderMascotFrame(currentPoints, currentPupil);
+      this.#renderMascotFrame(currentPointsKiko, currentPupilKiko);
+
+      let greyLeftW = 1;
+      let greyRightW = 1;
+      if (greyShakeOffset > 2.0) {
+        greyLeftW = 1;
+        greyRightW = 0;
+      } else if (greyShakeOffset < -2.0) {
+        greyLeftW = 0;
+        greyRightW = 1;
+      }
+
+      const currentPupilGrey = {
+        ...basePupil,
+        offsetX: (basePupil.offsetX || 0) + greyShakeOffset * 0.70,
+        leftW: greyLeftW,
+        rightW: greyRightW
+      };
+
+      const desiredGrey = [
+        currentPointsKiko[0] - 14,
+        currentPointsKiko[1],
+        currentPointsKiko[2] + 14,
+        currentPointsKiko[3],
+        currentPointsKiko[4] + 12 + greyShakeOffset,
+        currentPointsKiko[5],
+        currentPointsKiko[6] - 12 + greyShakeOffset,
+        currentPointsKiko[7]
+      ];
+
+      for (let i = 0; i < 8; i++) {
+        this.#currentPointsGrey[i] += (desiredGrey[i] - this.#currentPointsGrey[i]) * 0.25;
+      }
+
+      this.#renderGreyMascotFrame(currentPupilGrey);
 
       if (progress < 1) {
         this.#animFrameIdKiko = requestAnimationFrame(stepShake);
@@ -1236,22 +1223,6 @@ export class AuthView {
   }
 
   #triggerErrorShake() {
-    const formCard = document.querySelector('.auth-form-container');
-
-    if (formCard) {
-      formCard.animate([
-        { transform: 'translateX(0)' },
-        { transform: 'translateX(-8px)', offset: 0.2 },
-        { transform: 'translateX(8px)', offset: 0.4 },
-        { transform: 'translateX(-5px)', offset: 0.6 },
-        { transform: 'translateX(5px)', offset: 0.8 },
-        { transform: 'translateX(0)' }
-      ], {
-        duration: 400,
-        easing: 'cubic-bezier(0.36, 0.07, 0.19, 0.97)'
-      });
-    }
-
     this.#triggerHeadShakeNo();
     this.#whiskerJitter = 4.5;
 
