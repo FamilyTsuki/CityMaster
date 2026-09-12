@@ -372,6 +372,12 @@
   color: var(--landing-ink-muted, #594230);
 }
 
+.input-error-shake {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3.5px rgba(239, 68, 68, 0.25) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
 .auth-link {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.88rem;

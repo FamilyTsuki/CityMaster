@@ -100,9 +100,9 @@ const MASCOT_COORDINATES = {
 
 const MASCOT_EYE_STATES = {
   default:       { offsetX: 0,  offsetY: 0,  px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
-  username:      { offsetX: 8,  offsetY: 0,  px: 4,    py: 1,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 0, leftEar: 1, rightEar: 0 },
-  password:      { offsetX: -8, offsetY: 0,  px: -4,   py: -1,  rx: 7.5, ry: 7.5, leftW: 0, rightW: 1, leftEar: 0, rightEar: 1 },
-  passwordShown: { offsetX: -6, offsetY: 2,  px: 0,    py: 0,   rx: 9.0, ry: 0.9, leftW: 0, rightW: 1, leftEar: 0, rightEar: 1 }
+  username:      { offsetX: 8,  offsetY: 0,  px: 4,    py: 1,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 0, leftEar: 1, rightEar: 1 },
+  password:      { offsetX: -8, offsetY: 0,  px: -4,   py: -1,  rx: 7.5, ry: 7.5, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 },
+  passwordShown: { offsetX: -6, offsetY: 2,  px: 0,    py: 0,   rx: 9.0, ry: 0.9, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 }
 };
 
 export class AuthView {
@@ -153,6 +153,7 @@ export class AuthView {
     this.#mascotsContainer = document.getElementById('auth-mascots-container');
     this.#togglePasswordBtn = document.getElementById('toggle-password-btn');
 
+    this.#renderMascotFrame(this.#currentPointsKiko, this.#currentEyeState);
     this.#setupMascotInteractions();
     this.#setupBlinkLoop();
     this.#setupEarTwitchLoop();
@@ -422,15 +423,31 @@ export class AuthView {
     this.#triggerBlink();
   }
 
-  #animateMascotToPoints(polygonEl, targetPointsStr, targetStateKey = 'default', duration = 400) {
-    if (!polygonEl || !targetPointsStr) return;
+  #renderMascotFrame(interpolated, pupilState = null) {
+    const polygonEl = document.getElementById('mascot-body') || document.querySelector('#mascot-2 polygon');
+    if (!polygonEl || !interpolated || interpolated.length !== 8) return;
 
-    const targetArr = targetPointsStr.replace(/,/g, ' ').split(/\s+/).filter(Boolean).map(Number);
-    if (targetArr.length !== 8) return;
+    this.#currentPointsKiko = interpolated;
 
-    const startArr = [...this.#currentPointsKiko];
-    const startPupil = { ...this.#currentEyeState };
-    const targetPupil = MASCOT_EYE_STATES[targetStateKey] || MASCOT_EYE_STATES.default;
+    const pointsAttr = `${interpolated[0].toFixed(2)},${interpolated[1].toFixed(2)} ${interpolated[2].toFixed(2)},${interpolated[3].toFixed(2)} ${interpolated[4].toFixed(2)},${interpolated[5].toFixed(2)} ${interpolated[6].toFixed(2)},${interpolated[7].toFixed(2)}`;
+    polygonEl.setAttribute('points', pointsAttr);
+
+    const topCenterX = (interpolated[4] + interpolated[6]) / 2;
+    const topCenterY = (interpolated[5] + interpolated[7]) / 2;
+    const bottomCenterX = (interpolated[0] + interpolated[2]) / 2;
+    const bottomCenterY = (interpolated[1] + interpolated[3]) / 2;
+
+    const currentPupil = pupilState || this.#currentEyeState;
+    const currentOffsetX = currentPupil.offsetX || 0;
+    const currentOffsetY = currentPupil.offsetY || 0;
+
+    const eyeX = topCenterX + (bottomCenterX - topCenterX) * 0.32 + currentOffsetX;
+    const eyeY = topCenterY + (bottomCenterY - topCenterY) * 0.32 + currentOffsetY;
+
+    const currentRx = currentPupil.rx || 8.5;
+    const currentRy = currentPupil.ry || 8.5;
+    const currentPx = currentPupil.px || 0;
+    const currentPy = currentPupil.py || 0;
 
     const eyeBg = document.getElementById('eye-bg');
     const eyePupil = document.getElementById('eye-pupil');
@@ -448,6 +465,250 @@ export class AuthView {
     const wr1 = document.getElementById('wr1');
     const wr2 = document.getElementById('wr2');
     const wr3 = document.getElementById('wr3');
+
+    const pupilRx = Math.max(0, currentRx * 0.42);
+    const pupilRy = Math.max(0, (currentRy - 1.8) * 0.42);
+    const shineRx = Math.max(0, currentRx * 0.15);
+    const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
+
+    const fillFactor = Math.max(0, Math.min(1, (currentRy - 1.0) / 2.5));
+    const rVal = Math.round(38 + (255 - 38) * fillFactor);
+    const gVal = Math.round(25 + (255 - 25) * fillFactor);
+    const bVal = Math.round(15 + (255 - 15) * fillFactor);
+    const fillColor = `rgb(${rVal},${gVal},${bVal})`;
+
+    if (eyeBg) {
+      eyeBg.setAttribute('cx', eyeX.toFixed(2));
+      eyeBg.setAttribute('cy', eyeY.toFixed(2));
+      eyeBg.setAttribute('rx', currentRx.toFixed(2));
+      eyeBg.setAttribute('ry', Math.max(0.6, currentRy).toFixed(2));
+      eyeBg.setAttribute('fill', fillColor);
+    }
+
+    const mouseOffsetX = this.#currentMouseOffset.x;
+    const mouseOffsetY = this.#currentMouseOffset.y;
+    const rawDx = currentPx + mouseOffsetX;
+    const rawDy = currentPy + mouseOffsetY;
+    const clamped = this.#getClampedPupilOffset(rawDx, rawDy, currentRx, currentRy, pupilRx, pupilRy);
+
+    if (eyePupil) {
+      eyePupil.setAttribute('cx', (eyeX + clamped.x).toFixed(2));
+      eyePupil.setAttribute('cy', (eyeY + clamped.y).toFixed(2));
+      eyePupil.setAttribute('rx', pupilRx.toFixed(2));
+      eyePupil.setAttribute('ry', pupilRy.toFixed(2));
+      eyePupil.setAttribute('opacity', pupilRy > 0.05 ? '1' : '0');
+    }
+
+    if (eyeShine) {
+      eyeShine.setAttribute('cx', (eyeX + clamped.x - currentRx * 0.22).toFixed(2));
+      eyeShine.setAttribute('cy', (eyeY + clamped.y - currentRy * 0.22).toFixed(2));
+      eyeShine.setAttribute('rx', shineRx.toFixed(2));
+      eyeShine.setAttribute('ry', shineRy.toFixed(2));
+      eyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
+    }
+
+    const x3 = interpolated[4], y3 = interpolated[5];
+    const x4 = interpolated[6], y4 = interpolated[7];
+    const dx = x3 - x4, dy = y3 - y4;
+    const topLen = Math.hypot(dx, dy) || 1;
+    const nx = dy / topLen;
+    const ny = -dx / topLen;
+
+    if (earLeft) {
+      earLeft.style.display = 'inline';
+      earLeft.setAttribute('opacity', '1');
+      const b1x = x4, b1y = y4;
+      const b2x = x4 + 0.38 * dx, b2y = y4 + 0.38 * dy;
+      const twitchLeft = this.#activeTwitchEar === 'left' ? this.#earTwitchOffset : 0;
+      const tipX = x4 + 0.12 * dx + nx * (15 + twitchLeft);
+      const tipY = y4 + 0.12 * dy + ny * (15 + twitchLeft);
+      earLeft.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
+
+      if (earLeftInner) {
+        earLeftInner.style.display = 'inline';
+        const ib1x = x4 + 0.08 * dx + nx * 1.5;
+        const ib1y = y4 + 0.08 * dy + ny * 1.5;
+        const ib2x = x4 + 0.30 * dx + nx * 1.5;
+        const ib2y = y4 + 0.30 * dy + ny * 1.5;
+        const itipX = x4 + 0.13 * dx + nx * (11.5 + twitchLeft);
+        const itipY = y4 + 0.13 * dy + ny * (11.5 + twitchLeft);
+        earLeftInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
+      }
+    }
+
+    if (earRight) {
+      earRight.style.display = 'inline';
+      earRight.setAttribute('opacity', '1');
+      const b1x = x4 + 0.62 * dx, b1y = y4 + 0.62 * dy;
+      const b2x = x3, b2y = y3;
+      const twitchRight = this.#activeTwitchEar === 'right' ? this.#earTwitchOffset : 0;
+      const tipX = x4 + 0.88 * dx + nx * (15 + twitchRight);
+      const tipY = y4 + 0.88 * dy + ny * (15 + twitchRight);
+      earRight.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
+
+      if (earRightInner) {
+        earRightInner.style.display = 'inline';
+        const ib1x = x4 + 0.70 * dx + nx * 1.5;
+        const ib1y = y4 + 0.70 * dy + ny * 1.5;
+        const ib2x = x4 + 0.92 * dx + nx * 1.5;
+        const ib2y = y4 + 0.92 * dy + ny * 1.5;
+        const itipX = x4 + 0.87 * dx + nx * (11.5 + twitchRight);
+        const itipY = y4 + 0.87 * dy + ny * (11.5 + twitchRight);
+        earRightInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
+      }
+    }
+
+    const noseX = eyeX + 0.5;
+    const noseY = eyeY + Math.max(currentRy, 5) + 3;
+    if (catNose) {
+      catNose.setAttribute('points', `${noseX.toFixed(2)},${(noseY + 3).toFixed(2)} ${(noseX - 2.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 2.5).toFixed(2)},${noseY.toFixed(2)}`);
+    }
+
+    const leftW = currentPupil.leftW !== undefined ? currentPupil.leftW : 1;
+    const rightW = currentPupil.rightW !== undefined ? currentPupil.rightW : 1;
+
+    if (whiskersLeftGroup) {
+      whiskersLeftGroup.style.display = leftW > 0.5 ? 'inline' : 'none';
+      whiskersLeftGroup.setAttribute('opacity', leftW > 0.5 ? '1' : '0');
+    }
+    if (whiskersRightGroup) {
+      whiskersRightGroup.style.display = rightW > 0.5 ? 'inline' : 'none';
+      whiskersRightGroup.setAttribute('opacity', rightW > 0.5 ? '1' : '0');
+    }
+
+    const jitter = this.#whiskerJitter;
+    const leftWhiskerStartX = eyeX - Math.max(currentRx, 6) - 2;
+    if (wl1) {
+      wl1.setAttribute('x1', leftWhiskerStartX.toFixed(2));
+      wl1.setAttribute('y1', (eyeY - 2 + jitter).toFixed(2));
+      wl1.setAttribute('x2', (leftWhiskerStartX - 13).toFixed(2));
+      wl1.setAttribute('y2', (eyeY - 6 + jitter).toFixed(2));
+    }
+    if (wl2) {
+      wl2.setAttribute('x1', (leftWhiskerStartX - 1).toFixed(2));
+      wl2.setAttribute('y1', (eyeY + 3 - jitter).toFixed(2));
+      wl2.setAttribute('x2', (leftWhiskerStartX - 15).toFixed(2));
+      wl2.setAttribute('y2', (eyeY + 3 - jitter).toFixed(2));
+    }
+    if (wl3) {
+      wl3.setAttribute('x1', leftWhiskerStartX.toFixed(2));
+      wl3.setAttribute('y1', (eyeY + 8 + jitter).toFixed(2));
+      wl3.setAttribute('x2', (leftWhiskerStartX - 12).toFixed(2));
+      wl3.setAttribute('y2', (eyeY + 11 + jitter).toFixed(2));
+    }
+
+    const rightWhiskerStartX = eyeX + Math.max(currentRx, 6) + 2;
+    if (wr1) {
+      wr1.setAttribute('x1', rightWhiskerStartX.toFixed(2));
+      wr1.setAttribute('y1', (eyeY - 2 - jitter).toFixed(2));
+      wr1.setAttribute('x2', (rightWhiskerStartX + 13).toFixed(2));
+      wr1.setAttribute('y2', (eyeY - 6 - jitter).toFixed(2));
+    }
+    if (wr2) {
+      wr2.setAttribute('x1', (rightWhiskerStartX + 1).toFixed(2));
+      wr2.setAttribute('y1', (eyeY + 3 + jitter).toFixed(2));
+      wr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
+      wr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
+    }
+    if (wr3) {
+      wr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
+      wr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
+      wr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
+      wr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
+    }
+  }
+
+  #triggerHeadShakeNo() {
+    const baseStateKey = this.#currentMascotStateKey;
+    const baseCoordsStr = MASCOT_COORDINATES.kiko[baseStateKey] || MASCOT_COORDINATES.kiko.default;
+    const baseArr = baseCoordsStr.replace(/,/g, ' ').split(/\s+/).filter(Boolean).map(Number);
+    if (baseArr.length !== 8) return;
+
+    const basePupil = MASCOT_EYE_STATES[baseStateKey] || MASCOT_EYE_STATES.default;
+
+    const startTime = performance.now();
+    const duration = 550;
+
+    if (this.#animFrameIdKiko) {
+      cancelAnimationFrame(this.#animFrameIdKiko);
+    }
+
+    const stepShake = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+
+      const decay = Math.pow(1 - progress, 1.5);
+      const shakeOffset = Math.sin(progress * Math.PI * 7) * 12 * decay;
+
+      const currentPoints = [...baseArr];
+      currentPoints[4] += shakeOffset;
+      currentPoints[6] += shakeOffset;
+
+      let dynamicLeftW = 1;
+      let dynamicRightW = 1;
+      if (shakeOffset > 2.0) {
+        dynamicLeftW = 1;
+        dynamicRightW = 0;
+      } else if (shakeOffset < -2.0) {
+        dynamicLeftW = 0;
+        dynamicRightW = 1;
+      }
+
+      const currentPupil = {
+        ...basePupil,
+        offsetX: (basePupil.offsetX || 0) + shakeOffset * 0.70,
+        leftW: dynamicLeftW,
+        rightW: dynamicRightW
+      };
+
+      this.#renderMascotFrame(currentPoints, currentPupil);
+
+      if (progress < 1) {
+        this.#animFrameIdKiko = requestAnimationFrame(stepShake);
+      }
+    };
+
+    this.#animFrameIdKiko = requestAnimationFrame(stepShake);
+  }
+
+  #triggerErrorShake() {
+    const formCard = document.querySelector('.auth-form-container');
+
+    if (formCard) {
+      formCard.animate([
+        { transform: 'translateX(0)' },
+        { transform: 'translateX(-8px)', offset: 0.2 },
+        { transform: 'translateX(8px)', offset: 0.4 },
+        { transform: 'translateX(-5px)', offset: 0.6 },
+        { transform: 'translateX(5px)', offset: 0.8 },
+        { transform: 'translateX(0)' }
+      ], {
+        duration: 400,
+        easing: 'cubic-bezier(0.36, 0.07, 0.19, 0.97)'
+      });
+    }
+
+    this.#triggerHeadShakeNo();
+    this.#whiskerJitter = 4.5;
+    this.#triggerBlink();
+
+    [this.#usernameInput, this.#passwordInput].forEach((input) => {
+      if (input && !input.value.trim()) {
+        input.classList.add('input-error-shake');
+        setTimeout(() => input.classList.remove('input-error-shake'), 800);
+      }
+    });
+  }
+
+  #animateMascotToPoints(polygonEl, targetPointsStr, targetStateKey = 'default', duration = 400) {
+    if (!polygonEl || !targetPointsStr) return;
+
+    const targetArr = targetPointsStr.replace(/,/g, ' ').split(/\s+/).filter(Boolean).map(Number);
+    if (targetArr.length !== 8) return;
+
+    const startArr = [...this.#currentPointsKiko];
+    const startPupil = { ...this.#currentEyeState };
+    const targetPupil = MASCOT_EYE_STATES[targetStateKey] || MASCOT_EYE_STATES.default;
 
     const startTime = performance.now();
 
@@ -470,200 +731,17 @@ export class AuthView {
         return startVal + (targetArr[i] - startVal) * eased;
       });
 
-      this.#currentPointsKiko = interpolated;
-
-      const pointsAttr = `${interpolated[0].toFixed(2)},${interpolated[1].toFixed(2)} ${interpolated[2].toFixed(2)},${interpolated[3].toFixed(2)} ${interpolated[4].toFixed(2)},${interpolated[5].toFixed(2)} ${interpolated[6].toFixed(2)},${interpolated[7].toFixed(2)}`;
-
-      polygonEl.setAttribute('points', pointsAttr);
-
-      const topCenterX = (interpolated[4] + interpolated[6]) / 2;
-      const topCenterY = (interpolated[5] + interpolated[7]) / 2;
-      const bottomCenterX = (interpolated[0] + interpolated[2]) / 2;
-      const bottomCenterY = (interpolated[1] + interpolated[3]) / 2;
-
-      const currentOffsetX = startPupil.offsetX + (targetPupil.offsetX - startPupil.offsetX) * eased;
-      const currentOffsetY = startPupil.offsetY + (targetPupil.offsetY - startPupil.offsetY) * eased;
-
-      const eyeX = topCenterX + (bottomCenterX - topCenterX) * 0.32 + currentOffsetX;
-      const eyeY = topCenterY + (bottomCenterY - topCenterY) * 0.32 + currentOffsetY;
-
-      const currentRx = startPupil.rx + (targetPupil.rx - startPupil.rx) * eased;
-      const currentRy = startPupil.ry + (targetPupil.ry - startPupil.ry) * eased;
-      const currentPx = startPupil.px + (targetPupil.px - startPupil.px) * eased;
-      const currentPy = startPupil.py + (targetPupil.py - startPupil.py) * eased;
-
-      const targetLeftW = targetPupil.leftW !== undefined ? targetPupil.leftW : 1;
-      const targetRightW = targetPupil.rightW !== undefined ? targetPupil.rightW : 1;
-      const targetLeftEar = targetPupil.leftEar !== undefined ? targetPupil.leftEar : 1;
-      const targetRightEar = targetPupil.rightEar !== undefined ? targetPupil.rightEar : 1;
-
-      const currentLeftW = progress > 0 ? targetLeftW : (startPupil.leftW !== undefined ? startPupil.leftW : 1);
-      const currentRightW = progress > 0 ? targetRightW : (startPupil.rightW !== undefined ? startPupil.rightW : 1);
-      const currentLeftEar = progress > 0 ? targetLeftEar : (startPupil.leftEar !== undefined ? startPupil.leftEar : 1);
-      const currentRightEar = progress > 0 ? targetRightEar : (startPupil.rightEar !== undefined ? startPupil.rightEar : 1);
-
-      this.#currentEyeState = {
-        offsetX: currentOffsetX,
-        offsetY: currentOffsetY,
-        px: currentPx,
-        py: currentPy,
-        rx: currentRx,
-        ry: currentRy,
-        leftW: targetLeftW,
-        rightW: targetRightW,
-        leftEar: targetLeftEar,
-        rightEar: targetRightEar
+      const currentPupil = {
+        offsetX: startPupil.offsetX + (targetPupil.offsetX - startPupil.offsetX) * eased,
+        offsetY: startPupil.offsetY + (targetPupil.offsetY - startPupil.offsetY) * eased,
+        rx: startPupil.rx + (targetPupil.rx - startPupil.rx) * eased,
+        ry: startPupil.ry + (targetPupil.ry - startPupil.ry) * eased,
+        px: startPupil.px + (targetPupil.px - startPupil.px) * eased,
+        py: startPupil.py + (targetPupil.py - startPupil.py) * eased
       };
 
-      const x3 = interpolated[4], y3 = interpolated[5];
-      const x4 = interpolated[6], y4 = interpolated[7];
-      const dx = x3 - x4, dy = y3 - y4;
-      const topLen = Math.hypot(dx, dy) || 1;
-      const nx = dy / topLen;
-      const ny = -dx / topLen;
-
-      if (earLeft) {
-        earLeft.style.display = currentLeftEar > 0.5 ? 'inline' : 'none';
-        earLeft.setAttribute('opacity', '1');
-        const b1x = x4, b1y = y4;
-        const b2x = x4 + 0.38 * dx, b2y = y4 + 0.38 * dy;
-        const twitchLeft = this.#activeTwitchEar === 'left' ? this.#earTwitchOffset : 0;
-        const tipX = x4 + 0.12 * dx + nx * (15 + twitchLeft);
-        const tipY = y4 + 0.12 * dy + ny * (15 + twitchLeft);
-        earLeft.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
-
-        if (earLeftInner) {
-          earLeftInner.style.display = currentLeftEar > 0.5 ? 'inline' : 'none';
-          const ib1x = x4 + 0.08 * dx + nx * 1.5;
-          const ib1y = y4 + 0.08 * dy + ny * 1.5;
-          const ib2x = x4 + 0.30 * dx + nx * 1.5;
-          const ib2y = y4 + 0.30 * dy + ny * 1.5;
-          const itipX = x4 + 0.13 * dx + nx * (11.5 + twitchLeft);
-          const itipY = y4 + 0.13 * dy + ny * (11.5 + twitchLeft);
-          earLeftInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
-        }
-      }
-
-      if (earRight) {
-        earRight.style.display = currentRightEar > 0.5 ? 'inline' : 'none';
-        earRight.setAttribute('opacity', '1');
-        const b1x = x4 + 0.62 * dx, b1y = y4 + 0.62 * dy;
-        const b2x = x3, b2y = y3;
-        const twitchRight = this.#activeTwitchEar === 'right' ? this.#earTwitchOffset : 0;
-        const tipX = x4 + 0.88 * dx + nx * (15 + twitchRight);
-        const tipY = y4 + 0.88 * dy + ny * (15 + twitchRight);
-        earRight.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
-
-        if (earRightInner) {
-          earRightInner.style.display = currentRightEar > 0.5 ? 'inline' : 'none';
-          const ib1x = x4 + 0.70 * dx + nx * 1.5;
-          const ib1y = y4 + 0.70 * dy + ny * 1.5;
-          const ib2x = x4 + 0.92 * dx + nx * 1.5;
-          const ib2y = y4 + 0.92 * dy + ny * 1.5;
-          const itipX = x4 + 0.87 * dx + nx * (11.5 + twitchRight);
-          const itipY = y4 + 0.87 * dy + ny * (11.5 + twitchRight);
-          earRightInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
-        }
-      }
-
-      const pupilRx = Math.max(0, currentRx * 0.42);
-      const pupilRy = Math.max(0, (currentRy - 1.8) * 0.42);
-
-      const shineRx = Math.max(0, currentRx * 0.15);
-      const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
-
-      const fillFactor = Math.max(0, Math.min(1, (currentRy - 1.0) / 2.5));
-      const rVal = Math.round(38 + (255 - 38) * fillFactor);
-      const gVal = Math.round(25 + (255 - 25) * fillFactor);
-      const bVal = Math.round(15 + (255 - 15) * fillFactor);
-      const fillColor = `rgb(${rVal},${gVal},${bVal})`;
-
-      if (eyeBg) {
-        eyeBg.setAttribute('cx', eyeX.toFixed(2));
-        eyeBg.setAttribute('cy', eyeY.toFixed(2));
-        eyeBg.setAttribute('rx', currentRx.toFixed(2));
-        eyeBg.setAttribute('ry', Math.max(0.6, currentRy).toFixed(2));
-        eyeBg.setAttribute('fill', fillColor);
-      }
-
-      const mouseOffsetX = this.#currentMouseOffset.x;
-      const mouseOffsetY = this.#currentMouseOffset.y;
-
-      const rawDx = currentPx + mouseOffsetX;
-      const rawDy = currentPy + mouseOffsetY;
-      const clamped = this.#getClampedPupilOffset(rawDx, rawDy, currentRx, currentRy, pupilRx, pupilRy);
-
-      if (eyePupil) {
-        eyePupil.setAttribute('cx', (eyeX + clamped.x).toFixed(2));
-        eyePupil.setAttribute('cy', (eyeY + clamped.y).toFixed(2));
-        eyePupil.setAttribute('rx', pupilRx.toFixed(2));
-        eyePupil.setAttribute('ry', pupilRy.toFixed(2));
-        eyePupil.setAttribute('opacity', pupilRy > 0.05 ? '1' : '0');
-      }
-
-      if (eyeShine) {
-        eyeShine.setAttribute('cx', (eyeX + clamped.x - currentRx * 0.22).toFixed(2));
-        eyeShine.setAttribute('cy', (eyeY + clamped.y - currentRy * 0.22).toFixed(2));
-        eyeShine.setAttribute('rx', shineRx.toFixed(2));
-        eyeShine.setAttribute('ry', shineRy.toFixed(2));
-        eyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
-      }
-
-      const noseX = eyeX + 0.5;
-      const noseY = eyeY + Math.max(currentRy, 5) + 3;
-      if (catNose) {
-        catNose.setAttribute('points', `${noseX.toFixed(2)},${(noseY + 3).toFixed(2)} ${(noseX - 2.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 2.5).toFixed(2)},${noseY.toFixed(2)}`);
-      }
-
-      if (whiskersLeftGroup) {
-        whiskersLeftGroup.style.display = currentLeftW > 0.5 ? 'inline' : 'none';
-        whiskersLeftGroup.setAttribute('opacity', '1');
-      }
-      if (whiskersRightGroup) {
-        whiskersRightGroup.style.display = currentRightW > 0.5 ? 'inline' : 'none';
-        whiskersRightGroup.setAttribute('opacity', '1');
-      }
-
-      const jitter = this.#whiskerJitter;
-      const leftWhiskerStartX = eyeX - Math.max(currentRx, 6) - 2;
-      if (wl1) {
-        wl1.setAttribute('x1', leftWhiskerStartX.toFixed(2));
-        wl1.setAttribute('y1', (eyeY - 2 + jitter).toFixed(2));
-        wl1.setAttribute('x2', (leftWhiskerStartX - 13).toFixed(2));
-        wl1.setAttribute('y2', (eyeY - 6 + jitter).toFixed(2));
-      }
-      if (wl2) {
-        wl2.setAttribute('x1', (leftWhiskerStartX - 1).toFixed(2));
-        wl2.setAttribute('y1', (eyeY + 3 - jitter).toFixed(2));
-        wl2.setAttribute('x2', (leftWhiskerStartX - 15).toFixed(2));
-        wl2.setAttribute('y2', (eyeY + 3 - jitter).toFixed(2));
-      }
-      if (wl3) {
-        wl3.setAttribute('x1', leftWhiskerStartX.toFixed(2));
-        wl3.setAttribute('y1', (eyeY + 8 + jitter).toFixed(2));
-        wl3.setAttribute('x2', (leftWhiskerStartX - 12).toFixed(2));
-        wl3.setAttribute('y2', (eyeY + 11 + jitter).toFixed(2));
-      }
-
-      const rightWhiskerStartX = eyeX + Math.max(currentRx, 6) + 2;
-      if (wr1) {
-        wr1.setAttribute('x1', rightWhiskerStartX.toFixed(2));
-        wr1.setAttribute('y1', (eyeY - 2 - jitter).toFixed(2));
-        wr1.setAttribute('x2', (rightWhiskerStartX + 13).toFixed(2));
-        wr1.setAttribute('y2', (eyeY - 6 - jitter).toFixed(2));
-      }
-      if (wr2) {
-        wr2.setAttribute('x1', (rightWhiskerStartX + 1).toFixed(2));
-        wr2.setAttribute('y1', (eyeY + 3 + jitter).toFixed(2));
-        wr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
-        wr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
-      }
-      if (wr3) {
-        wr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
-        wr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
-        wr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
-        wr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
-      }
+      this.#currentEyeState = currentPupil;
+      this.#renderMascotFrame(interpolated, currentPupil);
 
       if (progress < 1) {
         this.#animFrameIdKiko = requestAnimationFrame(step);
@@ -678,6 +756,7 @@ export class AuthView {
 
     const setMascotState = (stateKey) => {
       const state = stateKey || 'default';
+      if (this.#currentMascotStateKey === state) return;
       this.#currentMascotStateKey = state;
       this.#mascotsContainer.className = 'auth-mascots-container state-' + state;
 
@@ -710,7 +789,7 @@ export class AuthView {
         updateStateFromActiveElement();
       });
       this.#usernameInput.addEventListener('blur', () => {
-        setTimeout(updateStateFromActiveElement, 50);
+        requestAnimationFrame(updateStateFromActiveElement);
       });
     }
 
@@ -721,7 +800,7 @@ export class AuthView {
         updateStateFromActiveElement();
       });
       this.#passwordInput.addEventListener('blur', () => {
-        setTimeout(updateStateFromActiveElement, 50);
+        requestAnimationFrame(updateStateFromActiveElement);
       });
     }
 
@@ -809,15 +888,23 @@ export class AuthView {
     const form = document.getElementById('auth-form');
     const handler = (e) => {
       if (e) e.preventDefault();
-      this.#triggerHappyJump();
       const username = this.#usernameInput ? this.#usernameInput.value.trim() : '';
       const password = this.#passwordInput ? this.#passwordInput.value.trim() : '';
+
+      if (!username || !password) {
+        const i18n = I18nService.getInstance();
+        this.showError(i18n.t('auth.fill_all_fields') || 'Veuillez remplir tous les champs');
+        return;
+      }
+
+      this.#triggerHappyJump();
       callback(username, password);
     };
 
     if (form) {
       form.addEventListener('submit', handler);
-    } else if (this.#authMainBtn) {
+    }
+    if (this.#authMainBtn) {
       this.#authMainBtn.addEventListener('click', handler);
     }
   }
@@ -865,6 +952,7 @@ export class AuthView {
     } else {
       this.#errorMsg.classList.remove('info-msg');
       this.#errorMsg.classList.add('error-msg-default');
+      this.#triggerErrorShake();
     }
     this.#errorMsg.classList.remove('hidden');
   }

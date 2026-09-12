@@ -7,10 +7,10 @@
             <!-- Mascot: 4-Point Polygon Character -->
             <div id="mascot-2" class="mascot-character mascot-kiko">
               <svg viewBox="0 0 100 100" class="mascot-svg" shape-rendering="geometricPrecision">
-                <polygon id="cat-ear-left" points="28,10 18,-6 43,10" fill="#f97316" stroke="#26190f" stroke-width="3.5" stroke-linejoin="round" />
-                <polygon id="cat-ear-left-inner" points="30,10 22,-3 40,10" fill="#fca5a5" stroke="#26190f" stroke-width="1.5" stroke-linejoin="round" />
-                <polygon id="cat-ear-right" points="57,10 82,-6 72,10" fill="#f97316" stroke="#26190f" stroke-width="3.5" stroke-linejoin="round" />
-                <polygon id="cat-ear-right-inner" points="60,10 78,-3 70,10" fill="#fca5a5" stroke="#26190f" stroke-width="1.5" stroke-linejoin="round" />
+                <polygon id="cat-ear-left" points="28,10 33.28,-5 44.72,10" fill="#f97316" stroke="#26190f" stroke-width="3.5" stroke-linejoin="round" />
+                <polygon id="cat-ear-left-inner" points="31.52,8.5 33.72,-1.5 41.20,8.5" fill="#fca5a5" stroke="#26190f" stroke-width="1.5" stroke-linejoin="round" />
+                <polygon id="cat-ear-right" points="55.28,10 66.72,-5 72,10" fill="#f97316" stroke="#26190f" stroke-width="3.5" stroke-linejoin="round" />
+                <polygon id="cat-ear-right-inner" points="58.80,8.5 66.28,-1.5 68.48,8.5" fill="#fca5a5" stroke="#26190f" stroke-width="1.5" stroke-linejoin="round" />
                 <path id="cat-tail" d="M 72 82 C 95 70, 105 52, 90 38" fill="none" stroke="#26190f" stroke-width="7" stroke-linecap="round" />
                 <polygon id="mascot-body" points="20,92 80,92 72,10 28,10" fill="#f97316" stroke="#26190f" stroke-width="3.5" stroke-linejoin="round" />
                 <g id="mascot-eye">
@@ -50,7 +50,7 @@
         <span data-i18n="auth.or">OU</span>
       </div>
 
-      <form id="auth-form" action="#" method="POST" onsubmit="event.preventDefault();">
+      <form id="auth-form" action="#" method="POST" novalidate onsubmit="event.preventDefault();">
         <div class="form-group">
           <label for="auth-username">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="label-icon" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
@@ -62,8 +62,6 @@
             name="username"
             placeholder="Ex: Dupont" 
             autocomplete="username"
-            required 
-            aria-required="true"
             class="input-premium"
           />
         </div>
@@ -80,8 +78,6 @@
               name="password"
               placeholder="••••••••" 
               autocomplete="current-password"
-              required 
-              aria-required="true"
               class="input-premium"
             />
             <button type="button" id="toggle-password-btn" class="toggle-password-btn" title="Afficher/Masquer le mot de passe" aria-label="Afficher le mot de passe">
