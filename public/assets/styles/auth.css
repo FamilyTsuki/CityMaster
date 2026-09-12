@@ -112,6 +112,8 @@
   justify-content: center;
   width: 100%;
   padding: 10px 0;
+  position: relative;
+  transform: translateY(35px);
 }
 
 .mascots-row {
@@ -119,7 +121,35 @@
   align-items: flex-end;
   justify-content: center;
   gap: 0;
-  margin-bottom: 14px;
+  margin-bottom: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.cat-tree-container {
+  width: 100%;
+  max-width: 320px;
+  pointer-events: none;
+}
+
+.cat-tree-back {
+  position: relative;
+  z-index: 1;
+  margin-top: -45px;
+}
+
+.cat-tree-front {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
+.cat-tree-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
 }
 
 .mascot-character {
@@ -456,6 +486,15 @@
 
   .auth-mascots-container {
     padding: 0;
+    transform: translateY(20px);
+  }
+
+  .cat-tree-container {
+    max-width: 140px;
+  }
+
+  .cat-tree-back {
+    margin-top: -20px;
   }
 
   .mascots-row {
