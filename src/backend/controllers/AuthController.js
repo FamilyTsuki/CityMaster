@@ -31,8 +31,8 @@ export class AuthController {
         return res.status(400).json({ error: 'Username can only contain alphanumeric characters, underscores, and hyphens' });
       }
 
-      if (password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+      if (password.length < 6 || password.length > 72) {
+        return res.status(400).json({ error: 'Password must be between 6 and 72 characters long' });
       }
 
       const hashedPassword = await bcrypt.hash(password, 12);
@@ -56,6 +56,9 @@ export class AuthController {
       }
 
       const trimmedUsername = username.trim();
+      if (trimmedUsername.length > 30 || password.length > 72) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
       const user = await User.findByUsername(trimmedUsername);
       if (!user) {
         return res.status(401).json({ error: 'Invalid username or password' });
