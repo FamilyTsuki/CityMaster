@@ -58,7 +58,7 @@ export class I18nService {
     }
   }
 
-  t(keyPath, params = {}) {
+  t(keyPath, params = {}, fallback = null) {
     const dict = this.#translations[this.#currentLang] || this.#translations['fr'] || {};
     const keys = keyPath.split('.');
     let result = dict;
@@ -67,11 +67,11 @@ export class I18nService {
       if (result && typeof result === 'object' && key in result) {
         result = result[key];
       } else {
-        return keyPath;
+        return fallback !== null ? fallback : keyPath;
       }
     }
 
-    if (typeof result !== 'string') return keyPath;
+    if (typeof result !== 'string') return fallback !== null ? fallback : keyPath;
 
     let text = result;
     Object.entries(params).forEach(([k, v]) => {

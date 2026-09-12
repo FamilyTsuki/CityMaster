@@ -45,7 +45,8 @@
     "register_btn": "S'inscrire",
     "has_account": "Déjà un compte ?",
     "login_link": "Se connecter",
-    "account_created": "Compte créé ! Connexion..."
+    "account_created": "Compte créé ! Connexion...",
+    "fill_all_fields": "Veuillez remplir tous les champs."
   },
   "welcome": {
     "title": "CityMaster",

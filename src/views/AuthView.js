@@ -1,4 +1,5 @@
 import { I18nService } from '../services/I18nService.js';
+import { FlashMessageService } from '../services/FlashMessageService.js';
 
 class TailSegment {
   constructor(length, angleMultiplier, restingAngle = 0) {
@@ -1449,12 +1450,8 @@ export class AuthView {
       const password = this.#passwordInput ? this.#passwordInput.value.trim() : '';
 
       if (!username || !password) {
-        if (!this.#isMobileViewport()) {
-          const i18n = I18nService.getInstance();
-          this.showError(i18n.t('auth.fill_all_fields') || 'Veuillez remplir tous les champs');
-        } else {
-          this.#triggerErrorShake();
-        }
+        const i18n = I18nService.getInstance();
+        this.showError(i18n.t('auth.fill_all_fields') || 'Veuillez remplir tous les champs');
         return;
       }
 
@@ -1504,18 +1501,15 @@ export class AuthView {
   }
 
   showError(message, isInfo = false) {
-    if (!this.#errorMsg) return;
+    if (this.#errorMsg) {
+      this.#errorMsg.classList.add('hidden');
+    }
 
-    this.#errorMsg.textContent = message;
-    if (isInfo) {
-      this.#errorMsg.classList.add('info-msg');
-      this.#errorMsg.classList.remove('error-msg-default');
-    } else {
-      this.#errorMsg.classList.remove('info-msg');
-      this.#errorMsg.classList.add('error-msg-default');
+    FlashMessageService.show(message, isInfo ? 'info' : 'error');
+
+    if (!isInfo) {
       this.#triggerErrorShake();
     }
-    this.#errorMsg.classList.remove('hidden');
   }
 
   clearInputs() {

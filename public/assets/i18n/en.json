@@ -45,7 +45,8 @@
     "register_btn": "Sign Up",
     "has_account": "Already have an account?",
     "login_link": "Sign In",
-    "account_created": "Account created! Signing in..."
+    "account_created": "Account created! Signing in...",
+    "fill_all_fields": "Please fill in all fields."
   },
   "welcome": {
     "title": "CityMaster",
