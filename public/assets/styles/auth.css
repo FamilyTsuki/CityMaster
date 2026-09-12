@@ -354,11 +354,12 @@
 
 .auth-link-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   margin-top: 4px;
+  white-space: nowrap;
 }
 
 .auth-link-container .text-muted {

@@ -14,7 +14,7 @@ class TailSegment {
 
 class CatTailAnimator {
   #segments = [];
-  #time = 0;
+  #phase = 0;
   #phaseOffsetStep;
   #isFacingRight;
 
@@ -49,7 +49,8 @@ class CatTailAnimator {
   }
 
   update(deltaTime, baseFrequency, baseAmplitude, rootPosition) {
-    this.#time += deltaTime;
+    const cappedDt = Math.min(24, Math.max(0, deltaTime));
+    this.#phase += cappedDt * baseFrequency;
     const directionMultiplier = this.#isFacingRight ? 1 : -1;
 
     for (let i = 0; i < this.#segments.length; i++) {
@@ -60,8 +61,8 @@ class CatTailAnimator {
       } else {
         const phaseShift = i * this.#phaseOffsetStep;
 
-        const normalizedPrimaryWave = (Math.sin((this.#time * baseFrequency) - phaseShift) + 1.0) * 0.5;
-        const normalizedSecondaryWave = (Math.cos((this.#time * baseFrequency * 1.6) + (phaseShift * 1.3)) + 1.0) * 0.5;
+        const normalizedPrimaryWave = (Math.sin(this.#phase - phaseShift) + 1.0) * 0.5;
+        const normalizedSecondaryWave = (Math.cos((this.#phase * 1.6) + (phaseShift * 1.3)) + 1.0) * 0.5;
 
         const waveOffset = (normalizedPrimaryWave * baseAmplitude) + (normalizedSecondaryWave * (baseAmplitude * 0.4));
 
@@ -156,6 +157,8 @@ export class AuthView {
   #tailAmplitude = 10;
   #tailSideFactor = 1;
   #lastAnimTime = 0;
+  #tailCurrentFreq = 0.0020;
+  #tailCurrentAmp = 0.24;
   #tailAnimator = new CatTailAnimator(5, 9.5, 0.42);
 
   constructor() {
@@ -193,9 +196,11 @@ export class AuthView {
   }
 
   #setupBlinkLoop() {
+    if (this.#blinkTimeoutId) clearTimeout(this.#blinkTimeoutId);
     const scheduleNext = () => {
       const delay = Math.random() * 2500 + 2500;
       this.#blinkTimeoutId = setTimeout(() => {
+        if (!document.getElementById('auth-screen')) return;
         this.#triggerBlink();
         scheduleNext();
       }, delay);
@@ -262,9 +267,11 @@ export class AuthView {
   }
 
   #setupEarTwitchLoop() {
+    if (this.#earTwitchTimeoutId) clearTimeout(this.#earTwitchTimeoutId);
     const scheduleNext = () => {
       const delay = Math.random() * 3000 + 3500;
       this.#earTwitchTimeoutId = setTimeout(() => {
+        if (!document.getElementById('auth-screen')) return;
         this.#triggerEarTwitch();
         scheduleNext();
       }, delay);
@@ -345,11 +352,22 @@ export class AuthView {
   }
 
   #setupContinuousAnimations() {
+    if (this.#continuousAnimFrameId) {
+      cancelAnimationFrame(this.#continuousAnimFrameId);
+      this.#continuousAnimFrameId = null;
+    }
+    this.#lastAnimTime = 0;
+
     const tailEl = document.getElementById('cat-tail');
 
     const animateLoop = (now) => {
+      if (!document.getElementById('auth-screen') || !document.getElementById('mascot-body')) {
+        this.#continuousAnimFrameId = null;
+        return;
+      }
+
       if (!this.#lastAnimTime) this.#lastAnimTime = now;
-      const dt = Math.min(32, now - this.#lastAnimTime);
+      const dt = Math.min(32, Math.max(0, now - this.#lastAnimTime));
       this.#lastAnimTime = now;
 
       this.#currentMouseOffset.x += (this.#targetMouseOffset.x - this.#currentMouseOffset.x) * 0.22;
@@ -407,11 +425,14 @@ export class AuthView {
 
         this.#tailAnimator.setDirection(isRight);
 
-        const baseFreq = this.#isTyping ? 0.0042 : 0.0020;
-        const baseAmp = this.#isTyping ? 0.38 : 0.24;
+        const targetFreq = this.#isTyping ? 0.0023 : 0.0020;
+        const targetAmp = this.#isTyping ? 0.27 : 0.24;
+
+        this.#tailCurrentFreq += (targetFreq - this.#tailCurrentFreq) * 0.08;
+        this.#tailCurrentAmp += (targetAmp - this.#tailCurrentAmp) * 0.08;
 
         const rootPosition = { x: 50 + side * 24, y: 82 };
-        this.#tailAnimator.update(dt, baseFreq, baseAmp, rootPosition);
+        this.#tailAnimator.update(dt, this.#tailCurrentFreq, this.#tailCurrentAmp, rootPosition);
         const segments = this.#tailAnimator.getSegments();
 
         const baseX = segments[0].startPoint.x.toFixed(2);
@@ -427,9 +448,63 @@ export class AuthView {
       }
 
       if (this.#isTyping) {
-        this.#whiskerJitter = Math.sin(now * 0.012) * 0.55;
+        this.#whiskerJitter = Math.sin(now * 0.018) * 0.75;
       } else {
         this.#whiskerJitter *= 0.85;
+      }
+
+      if (eyeBg && (this.#isTyping || Math.abs(this.#whiskerJitter) > 0.01)) {
+        const eyeX = parseFloat(eyeBg.getAttribute('cx') || '50');
+        const eyeY = parseFloat(eyeBg.getAttribute('cy') || '35');
+        const currentRx = this.#currentEyeState.rx || 8.5;
+        const jitter = this.#whiskerJitter;
+
+        const leftWhiskerStartX = eyeX - Math.max(currentRx, 6) - 2;
+        const rightWhiskerStartX = eyeX + Math.max(currentRx, 6) + 2;
+
+        const wl1 = document.getElementById('wl1');
+        const wl2 = document.getElementById('wl2');
+        const wl3 = document.getElementById('wl3');
+        const wr1 = document.getElementById('wr1');
+        const wr2 = document.getElementById('wr2');
+        const wr3 = document.getElementById('wr3');
+
+        if (wl1) {
+          wl1.setAttribute('x1', leftWhiskerStartX.toFixed(2));
+          wl1.setAttribute('y1', (eyeY - 2 + jitter).toFixed(2));
+          wl1.setAttribute('x2', (leftWhiskerStartX - 13).toFixed(2));
+          wl1.setAttribute('y2', (eyeY - 6 + jitter).toFixed(2));
+        }
+        if (wl2) {
+          wl2.setAttribute('x1', (leftWhiskerStartX - 1).toFixed(2));
+          wl2.setAttribute('y1', (eyeY + 3 - jitter).toFixed(2));
+          wl2.setAttribute('x2', (leftWhiskerStartX - 15).toFixed(2));
+          wl2.setAttribute('y2', (eyeY + 3 - jitter).toFixed(2));
+        }
+        if (wl3) {
+          wl3.setAttribute('x1', leftWhiskerStartX.toFixed(2));
+          wl3.setAttribute('y1', (eyeY + 8 + jitter).toFixed(2));
+          wl3.setAttribute('x2', (leftWhiskerStartX - 12).toFixed(2));
+          wl3.setAttribute('y2', (eyeY + 11 + jitter).toFixed(2));
+        }
+        if (wr1) {
+          wr1.setAttribute('x1', rightWhiskerStartX.toFixed(2));
+          wr1.setAttribute('y1', (eyeY - 2 - jitter).toFixed(2));
+          wr1.setAttribute('x2', (rightWhiskerStartX + 13).toFixed(2));
+          wr1.setAttribute('y2', (eyeY - 6 - jitter).toFixed(2));
+        }
+        if (wr2) {
+          wr2.setAttribute('x1', (rightWhiskerStartX + 1).toFixed(2));
+          wr2.setAttribute('y1', (eyeY + 3 + jitter).toFixed(2));
+          wr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
+          wr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
+        }
+        if (wr3) {
+          wr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
+          wr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
+          wr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
+          wr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
+        }
       }
 
       this.#continuousAnimFrameId = requestAnimationFrame(animateLoop);
@@ -443,7 +518,7 @@ export class AuthView {
     if (this.#typingTimeoutId) clearTimeout(this.#typingTimeoutId);
     this.#typingTimeoutId = setTimeout(() => {
       this.#isTyping = false;
-    }, 350);
+    }, 500);
   }
 
   #triggerHappyJump() {
