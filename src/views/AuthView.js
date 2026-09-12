@@ -812,18 +812,19 @@ export class AuthView {
     let lastAppliedState = null;
 
     const setMascotState = (stateKey, forceRefresh = false) => {
-      if (this.#mouseIdleTimeoutId) {
-        clearTimeout(this.#mouseIdleTimeoutId);
-        this.#mouseIdleTimeoutId = null;
-      }
-      this.#targetMouseOffset = { x: 0, y: 0 };
-
       const state = stateKey || 'default';
       const isMobile = this.#isMobileViewport();
       const stateId = state + '_' + (isMobile ? 'mobile' : 'desktop');
 
       if (!forceRefresh && lastAppliedState === stateId) return;
       lastAppliedState = stateId;
+
+      if (this.#mouseIdleTimeoutId) {
+        clearTimeout(this.#mouseIdleTimeoutId);
+        this.#mouseIdleTimeoutId = null;
+      }
+      this.#targetMouseOffset = { x: 0, y: 0 };
+
       this.#currentMascotStateKey = state;
       if (this.#mascotsContainer) {
         this.#mascotsContainer.className = 'auth-mascots-container state-' + state;
