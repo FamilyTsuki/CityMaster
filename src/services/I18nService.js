@@ -123,7 +123,11 @@ export class I18nService {
       const key = el.getAttribute('data-i18n');
       const translated = this.t(key);
       if (translated && translated !== key) {
-        el.textContent = translated;
+        if (translated.includes('<') && translated.includes('>')) {
+          el.innerHTML = translated;
+        } else {
+          el.textContent = translated;
+        }
       }
     });
 

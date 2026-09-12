@@ -10,6 +10,8 @@ export class NavbarView {
   #navProfileName;
   #logoBrand;
   #navAdminLink;
+  #navBurgerBtn;
+  #navbarActions;
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
@@ -23,17 +25,67 @@ export class NavbarView {
     this.#navProfileName = document.getElementById('nav-profile-name');
     this.#logoBrand = document.getElementById('logo-brand');
     this.#navAdminLink = document.getElementById('nav-admin-link');
+    this.#navBurgerBtn = document.getElementById('nav-burger-btn');
+    this.#navbarActions = document.getElementById('navbar-actions');
 
     if (this.#navProfileImg) {
       this.#navProfileImg.onerror = () => {
         this.#navProfileImg.src = '/assets/images/default-avatar.png';
       };
     }
+
+    this.#initBurgerMenu();
+  }
+
+  #initBurgerMenu() {
+    if (!this.#navBurgerBtn || !this.#navbarActions) return;
+
+    this.#navBurgerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = this.#navbarActions.classList.toggle('open');
+      this.#navBurgerBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      this.#navBurgerBtn.classList.toggle('active', isOpen);
+    });
+
+    document.addEventListener('click', (e) => {
+      const nav = document.getElementById('main-nav');
+      if (nav && !nav.contains(e.target) && this.#navbarActions.classList.contains('open')) {
+        this.closeMobileMenu();
+      }
+    });
+
+    this.#navbarActions.addEventListener('click', (e) => {
+      if (e.target.closest('button') || e.target.closest('a')) {
+        this.closeMobileMenu();
+      }
+    });
+  }
+
+  closeMobileMenu() {
+    if (this.#navbarActions && this.#navbarActions.classList.contains('open')) {
+      this.#navbarActions.classList.remove('open');
+      if (this.#navBurgerBtn) {
+        this.#navBurgerBtn.setAttribute('aria-expanded', 'false');
+        this.#navBurgerBtn.classList.remove('active');
+      }
+    }
   }
 
   onThemeToggle(callback) {
     if (this.#themeToggle) {
-      this.#themeToggle.addEventListener('click', callback);
+      this.#themeToggle.addEventListener('click', (e) => {
+        const isBurgerVisible = this.#navBurgerBtn && window.getComputedStyle(this.#navBurgerBtn).display !== 'none';
+        if (!isBurgerVisible) {
+          this.#themeToggle.classList.remove('rotate-spin');
+          void this.#themeToggle.offsetWidth;
+          this.#themeToggle.classList.add('rotate-spin');
+          setTimeout(() => {
+            callback(e);
+          }, 250);
+        } else {
+          callback(e);
+        }
+      });
     }
   }
 
@@ -123,6 +175,9 @@ export class NavbarView {
     }
     if (this.#navAuthLoggedOut) {
       this.#navAuthLoggedOut.classList.remove('hidden');
+    }
+    if (this.#navAdminLink) {
+      this.#navAdminLink.classList.add('hidden');
     }
     if (this.#navProfileImg) {
       this.#navProfileImg.classList.add('hidden');

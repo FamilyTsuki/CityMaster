@@ -16,7 +16,8 @@
   backface-visibility: hidden;
 }
 
-.card:hover {
+.card.interactive:hover,
+.card-clickable:hover {
   border-color: rgba(99, 102, 241, 0.2);
   box-shadow: 0 10px 28px -6px rgba(0, 0, 0, 0.22);
 }

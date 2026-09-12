@@ -24,7 +24,7 @@
     "cookies_desc": "CityMaster does not use advertising cookies or third-party tracking scripts. Technical local storage (LocalStorage) is strictly used to save your in-game preferences."
   },
   "landing": {
-    "hero_title": "Master Your City's Geography",
+    "hero_title": "Master the Geography of <span class=\"title-highlight\">YOUR CITY</span>",
     "hero_subtitle": "Test your knowledge of streets, housing estates, and neighborhoods in real-time with OpenStreetMap.",
     "play_now": "Play Now",
     "feature_1_title": "Real-Time Data",

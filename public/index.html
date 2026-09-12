@@ -12,11 +12,12 @@
   <meta name="apple-mobile-web-app-title" content="CityMaster" />
   <title>CityMaster - Jeu Géographique Interactif</title>
   
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png" />
-  <link rel="icon" type="image/svg+xml" href="/assets/images/icon.svg" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png" />
+  <link rel="manifest" href="/manifest.json?v=4" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=4" id="dynamic-favicon" />
+  <link rel="icon" type="image/svg+xml" href="/assets/images/icon.svg?v=4" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png?v=4" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=4" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png?v=4" />
 
   <script>
     (function() {
@@ -26,25 +27,54 @@
       } else {
         document.documentElement.setAttribute('data-theme', 'light');
       }
+
+      const fav = document.getElementById('dynamic-favicon');
+      if (fav) {
+        fav.href = '/favicon.png?v=' + Date.now();
+      }
     })();
   </script>
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
+  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="/assets/styles/style.css">
 </head>
 <body>
   <a href="#app" class="skip-link">Aller au contenu principal</a>
 
+  <svg style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <filter id="paper-wobbly-line" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+      <filter id="paper-wobbly-line-strong" x="-20%" y="-20%" width="140%" height="140%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="2" result="noise" />
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5.5" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
+
   <nav id="main-nav" class="navbar" role="navigation" aria-label="Navigation principale">
     <div class="navbar-brand">
       <span id="logo-brand" class="logo-text cursor-pointer" tabindex="0" role="button" aria-label="CityMaster Accueil">CityMaster</span>
     </div>
-    <div class="navbar-actions">
+    <button id="nav-burger-btn" class="icon-btn burger-btn" aria-label="Ouvrir le menu principal" aria-expanded="false">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="burger-icon-svg" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6" class="burger-line line-top"></line>
+        <line x1="3" y1="12" x2="21" y2="12" class="burger-line line-middle"></line>
+        <line x1="3" y1="18" x2="21" y2="18" class="burger-line line-bottom"></line>
+      </svg>
+    </button>
+    <div id="navbar-actions" class="navbar-actions">
+      <button id="nav-admin-link" class="nav-admin-link hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span data-i18n="nav.admin">Admin Quartiers</span>
+      </button>
       <button id="pwa-install-btn" class="btn secondary hidden pwa-install-btn-style" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         <span class="pwa-btn-text" data-i18n="nav.install">Installer</span>
@@ -56,15 +86,11 @@
         <button id="nav-login-btn" class="btn secondary" data-i18n="nav.login">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
-        <button id="nav-admin-link" class="nav-admin-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-          <span data-i18n="nav.admin">Admin Quartiers</span>
-        </button>
-        <button id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</button>
         <button id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="nav.profile" aria-label="Voir mon profil">
           <img id="nav-profile-img" src="/assets/images/default-avatar.png" alt="Avatar utilisateur" class="nav-avatar hidden" />
           <span id="nav-profile-name" class="profile-name"></span>
         </button>
+        <button id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</button>
       </div>
     </div>
   </nav>

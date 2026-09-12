@@ -24,7 +24,7 @@
     "cookies_desc": "CityMaster n'utilise aucun cookie publicitaire ni aucun traceur tiers à des fins de profilage commercial. Seul le stockage technique local (LocalStorage) est utilisé pour conserver vos préférences de jeu."
   },
   "landing": {
-    "hero_title": "Maîtrisez la Géographie de Votre Ville",
+    "hero_title": "Maîtrisez la Géographie de <span class=\"title-highlight\">VOTRE VILLE</span>",
     "hero_subtitle": "Testez vos connaissances sur les rues, lotissements et quartiers en temps réel grâce à OpenStreetMap.",
     "play_now": "Jouer maintenant",
     "feature_1_title": "Données en Temps Réel",

@@ -1,47 +1,65 @@
 <div id="landing-screen" class="screen">
+  <svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
+    <filter id="paper-wobbly-line">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
+  <div class="ambient-bubbles" aria-hidden="true">
+    <div class="bubble bubble-1 group-1"></div>
+    <div class="bubble bubble-2 group-1"></div>
+    <div class="bubble bubble-3 group-1"></div>
+    <div class="bubble bubble-4 group-2"></div>
+    <div class="bubble bubble-5 group-2"></div>
+    <div class="bubble bubble-6 group-2"></div>
+  </div>
+
   <div class="landing-content">
 
     <div class="hero">
-      <h1 class="hero-title" data-i18n="landing.hero_title">Maîtrisez la Géographie de Votre Ville</h1>
-      <p class="hero-subtitle" data-i18n="landing.hero_subtitle">Testez vos connaissances sur les rues, lotissements et quartiers en temps réel grâce à OpenStreetMap.</p>
+      <h1 class="hero-title" data-i18n="landing.hero_title">Maîtrisez la Géographie de <span class="title-highlight">Votre Ville</span></h1>
       
       <div class="hero-actions">
-        <button id="hero-play-btn" class="btn hero-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <button id="hero-play-btn" class="btn hero-btn paper-btn primary-paper-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
           <span data-i18n="landing.play_now">Jouer maintenant</span>
         </button>
-        <button id="hero-room-btn" class="btn hero-btn secondary">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <button id="hero-room-btn" class="btn hero-btn secondary-paper-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
           <span>Compétition Équipe</span>
         </button>
       </div>
     </div>
 
     <div class="features-grid">
-      <div class="feature-card">
+      <div class="feature-card paper-sheet sheet-tilt-left">
+        <div class="paper-tape"></div>
         <div class="feature-icon primary">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
         </div>
         <h3 data-i18n="landing.feature_1_title">Données en Temps Réel</h3>
         <p data-i18n="landing.feature_1_desc">Explorez n'importe quelle commune grâce aux données géographiques d'OpenStreetMap.</p>
       </div>
 
-      <div class="feature-card">
+      <div class="feature-card paper-sheet sheet-straight">
+        <div class="paper-tape"></div>
         <div class="feature-icon success">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </div>
         <h3 data-i18n="landing.feature_3_title">Multi-Plateforme & App Mobile</h3>
         <p data-i18n="landing.feature_3_desc">Jouez sur smartphone, tablette ou ordinateur avec application PWA installable et mode hors-ligne.</p>
       </div>
 
-      <div class="feature-card">
+      <div class="feature-card paper-sheet sheet-tilt-right">
+        <div class="paper-tape"></div>
         <div class="feature-icon warning">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path></svg>
         </div>
         <h3 data-i18n="landing.feature_4_title">Salons Équipes & Classement</h3>
         <p data-i18n="landing.feature_4_desc">Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement.</p>
       </div>
     </div>
-    <button id="landing-legal-btn" class="legal-footer-link" data-i18n="nav.legal">Mentions Légales & RGPD</button>
+    <button id="landing-legal-btn" class="legal-footer-link paper-footer-btn" data-i18n="nav.legal">Mentions Légales & RGPD</button>
   </div>
 </div>
