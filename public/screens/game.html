@@ -28,11 +28,6 @@
       </div>
     </div>
 
-    <div id="top-left-actions" class="ui-overlay-top-left map-style-widget" role="group" aria-label="Changer le style de la carte">
-      <button class="map-style-btn active" data-style="street" title="Plan Urbain Standard" data-i18n-title="game.map_street">🏙️</button>
-      <button class="map-style-btn" data-style="satellite" title="Vue Satellite Esri" data-i18n-title="game.map_satellite">🛰️</button>
-      <button class="map-style-btn" data-style="dark" title="Mode Sombre Cyber" data-i18n-title="game.map_dark">🌙</button>
-    </div>
 
     <div id="bottom-left-actions" class="ui-overlay-bottom-left">
       <button id="satellite-toggle-btn" class="satellite-btn" title="Vue Satellite (Activer/Désactiver)" data-i18n-title="game.toggle_satellite" aria-label="Basculer la vue satellite">
@@ -58,7 +53,7 @@
 
     <div id="bottom-actions" class="ui-overlay-bottom glass-panel hidden">
       <div id="identify-input-container" class="input-container custom-select-container hidden game-input-container">
-        <input type="text" id="street-name-input" placeholder="Nom de la rue ou lotissement..." data-i18n-placeholder="game.identify_placeholder" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="autocomplete-suggestions" />
+        <input type="text" id="street-name-input" class="input-premium" placeholder="Nom de la rue ou lotissement..." data-i18n-placeholder="game.identify_placeholder" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="autocomplete-suggestions" />
         <ul id="autocomplete-suggestions" class="dropdown-list hidden" role="listbox" aria-label="Suggestions de rues et lotissements"></ul>
         <button id="submit-answer-btn" class="btn" data-i18n="game.submit_answer">Valider la réponse</button>
       </div>
@@ -92,7 +87,7 @@
 
       <div class="form-group">
         <label for="report-category-select" class="form-label">Type de problème :</label>
-        <select id="report-category-select" class="input" required>
+        <select id="report-category-select" class="input input-premium" required>
           <option value="street_name">Rue mal nommée</option>
           <option value="difficulty">Mauvais niveau de difficulté</option>
           <option value="map_error">Erreur de tracé / carte</option>
@@ -102,7 +97,7 @@
 
       <div class="form-group">
         <label for="report-description" class="form-label">Description du problème :</label>
-        <textarea id="report-description" class="input textarea" rows="4" placeholder="Expliquez précisément le problème rencontré..." required></textarea>
+        <textarea id="report-description" class="input textarea input-premium" rows="4" placeholder="Expliquez précisément le problème rencontré..." required></textarea>
       </div>
 
       <div id="report-modal-error" class="form-error hidden"></div>

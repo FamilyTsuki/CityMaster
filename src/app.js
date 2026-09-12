@@ -53,6 +53,18 @@ class App {
       }
     });
 
+    const skipLink = document.querySelector('.skip-link');
+    if (skipLink) {
+      skipLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        const appEl = document.getElementById('app');
+        if (appEl) {
+          appEl.tabIndex = -1;
+          appEl.focus();
+        }
+      });
+    }
+
     this.#authController = new AuthController(null, this.#authView, this.#navbarView);
     this.#profileController = new ProfileController(null, this.#profileView, this.#navbarView, this.#gameView, this.#audioService);
     this.#controller = new GameController(this.#gameView, this.#mapView, this.#certificateView, this.#scoreController, null, this.#audioService);

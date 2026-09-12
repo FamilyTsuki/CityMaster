@@ -128,15 +128,15 @@
     "logout": "Se déconnecter"
   },
   "certificate": {
-    "title": "Diplôme Officiel de Cartographe",
-    "subtitle": "Ce diplôme atteste de la maîtrise géographique de",
-    "score_label": "Score final obtenu :",
-    "points": "points",
+    "title": "Bilan de la Partie",
+    "subtitle": "Résultats obtenus par",
+    "score_label": "Score total :",
+    "points": "pts",
     "session_details": "Détails de la session",
     "street": "Voie",
     "distance": "Distance",
-    "restart": "Rejouer une partie",
-    "print": "Imprimer mon Diplôme"
+    "restart": "Rejouer",
+    "print": "Imprimer"
   },
   "errors": {
     "fill_fields": "Veuillez remplir tous les champs.",

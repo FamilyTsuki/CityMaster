@@ -141,7 +141,7 @@
   inset: -2px;
   border-radius: 53% 47% 52% 48% / 48% 54% 46% 52%;
   border: 4px solid var(--landing-ink, #26190f);
-  box-shadow: 4px 5px 0px var(--landing-shadow, #26190f);
+  box-shadow: none !important;
   filter: url(#paper-wobbly-line-strong);
   pointer-events: none;
   z-index: 3;

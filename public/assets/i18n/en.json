@@ -128,15 +128,15 @@
     "logout": "Sign Out"
   },
   "certificate": {
-    "title": "Official Cartographer Certificate",
-    "subtitle": "This certificate testifies to the geographical mastery of",
-    "score_label": "Final Score obtained:",
-    "points": "points",
+    "title": "Game Results",
+    "subtitle": "Results for",
+    "score_label": "Total score:",
+    "points": "pts",
     "session_details": "Session details",
     "street": "Street",
     "distance": "Distance",
     "restart": "Play Again",
-    "print": "Print My Certificate"
+    "print": "Print"
   },
   "errors": {
     "fill_fields": "Please fill in all fields.",

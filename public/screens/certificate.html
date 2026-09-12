@@ -1,8 +1,8 @@
 <div id="certificate-screen" class="screen">
   <div class="card certificate-card">
     <div class="certificate-header">
-      <div class="trophy-container">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="trophy-svg">
+      <div class="trophy-container" aria-hidden="true">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="trophy-svg">
           <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
           <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
           <path d="M4 22h16"></path>
@@ -10,19 +10,26 @@
           <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path>
         </svg>
       </div>
-      <span class="cert-title" data-i18n="certificate.title">Diplôme Officiel de Cartographe</span>
+      <h2 class="cert-title" data-i18n="certificate.title">Bilan de la Partie</h2>
     </div>
     
     <div class="certificate-body">
-      <p class="cert-intro" data-i18n="certificate.subtitle">Ce diplôme atteste de la maîtrise géographique de</p>
-      <h1 id="cert-player-name">Joueur</h1>
+      <h1 id="cert-player-name"></h1>
       
-      <div class="cert-divider"></div>
+      <div class="cert-divider" aria-hidden="true"></div>
       
-      <p class="cert-score-label" data-i18n="certificate.score_label">Score final obtenu :</p>
-      <div id="cert-score-container">
-        <span id="cert-score">0</span>
-        <span class="cert-points-label" data-i18n="certificate.points">points</span>
+      <div class="cert-stats-block">
+        <div class="cert-score-box">
+          <span class="cert-score-label" data-i18n="certificate.score_label">Score total</span>
+          <div id="cert-score-container">
+            <span id="cert-score">0</span>
+            <span class="cert-points-label" data-i18n="certificate.points">pts</span>
+          </div>
+        </div>
+
+        <div id="cert-rank-comparison" class="cert-rank-comparison hidden">
+          <span id="cert-percentile-text" class="rank-text">Top 15%</span>
+        </div>
       </div>
 
       <div id="sprint-recap" class="sprint-recap hidden">
@@ -39,6 +46,7 @@
           </tbody>
         </table>
       </div>
+
       <div id="test-leaderboard-container" class="sprint-recap test-leaderboard-recap hidden">
         <h3 id="test-leaderboard-title">Classement du Test</h3>
         <table class="sprint-recap-table">
@@ -57,14 +65,14 @@
     </div>
 
     <div class="certificate-actions">
-      <button id="home-btn" class="btn btn-secondary">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Retour à l'accueil</span>
+      <button id="restart-btn" class="btn-paper-primary" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        <span data-i18n="certificate.restart">Rejouer</span>
       </button>
 
-      <button id="restart-btn" class="btn">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
-        <span data-i18n="certificate.restart">Rejouer (mêmes options)</span>
+      <button id="home-btn" class="btn-paper-secondary" type="button">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span>Accueil</span>
       </button>
     </div>
   </div>

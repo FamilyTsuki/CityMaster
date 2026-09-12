@@ -3,22 +3,58 @@ import { I18nService } from '../services/I18nService.js';
 export class CertificateView {
   #certPlayerName;
   #certScore;
+  #certPercentileText;
+  #certRankComparison;
   #recapContainer;
   #recapBody;
 
   constructor() {
     this.#certPlayerName = document.getElementById('cert-player-name');
     this.#certScore = document.getElementById('cert-score');
+    this.#certPercentileText = document.getElementById('cert-percentile-text');
+    this.#certRankComparison = document.getElementById('cert-rank-comparison');
     this.#recapContainer = document.getElementById('sprint-recap');
     this.#recapBody = document.getElementById('sprint-recap-body');
   }
 
   render(playerName, score, mode = 'target', sprintHistory = [], testNumber = null) {
-    if (this.#certPlayerName) {
-      this.#certPlayerName.textContent = playerName;
+    const numericScore = Number(score) || 0;
+
+    let displayName = playerName;
+    if (!displayName || displayName === 'Joueur' || displayName === 'Guest') {
+      try {
+        const rawUser = localStorage.getItem('user');
+        if (rawUser) {
+          const userObj = JSON.parse(rawUser);
+          if (userObj && userObj.username) {
+            displayName = userObj.username;
+          }
+        }
+      } catch (e) {}
     }
+
+    if (this.#certPlayerName) {
+      if (displayName && displayName !== 'Joueur' && displayName !== 'Guest') {
+        this.#certPlayerName.textContent = displayName;
+        this.#certPlayerName.style.display = 'block';
+      } else {
+        this.#certPlayerName.textContent = '';
+        this.#certPlayerName.style.display = 'none';
+      }
+    }
+
     if (this.#certScore) {
-      this.#certScore.textContent = score;
+      this.#certScore.textContent = numericScore;
+    }
+
+    if (this.#certRankComparison && this.#certPercentileText) {
+      if (numericScore > 0) {
+        const topPercent = this.#calculatePercentile(numericScore, mode);
+        this.#certPercentileText.textContent = `Top ${topPercent}% des joueurs`;
+        this.#certRankComparison.classList.remove('hidden');
+      } else {
+        this.#certRankComparison.classList.add('hidden');
+      }
     }
 
     if (this.#recapContainer && this.#recapBody) {
@@ -82,10 +118,13 @@ export class CertificateView {
               return;
             }
 
+            let userRankIndex = -1;
+
             data.forEach((entry, index) => {
               const tr = document.createElement('tr');
-              if (entry.username === playerName && entry.score === score) {
+              if (entry.username === displayName && entry.score === numericScore) {
                 tr.classList.add('current-user-row');
+                userRankIndex = index;
               }
 
               const tdRank = document.createElement('td');
@@ -100,6 +139,12 @@ export class CertificateView {
               tr.append(tdRank, tdUser, tdScore);
               testBody.appendChild(tr);
             });
+
+            if (userRankIndex !== -1 && data.length > 0 && this.#certPercentileText && this.#certRankComparison && numericScore > 0) {
+              const rankNumber = userRankIndex + 1;
+              this.#certPercentileText.textContent = `Rang #${rankNumber} sur ${data.length} joueurs`;
+              this.#certRankComparison.classList.remove('hidden');
+            }
           })
           .catch(() => {
             const errTr = document.createElement('tr');
@@ -114,5 +159,25 @@ export class CertificateView {
         testContainer.classList.add('hidden');
       }
     }
+  }
+
+  #calculatePercentile(score, mode) {
+    if (mode === 'sprint') {
+      if (score >= 4000) return 5;
+      if (score >= 3000) return 15;
+      if (score >= 2000) return 30;
+      if (score >= 1200) return 45;
+      if (score >= 600) return 65;
+      if (score >= 200) return 80;
+      return 90;
+    }
+    // target mode (max 5000)
+    if (score >= 4600) return 5;
+    if (score >= 4000) return 15;
+    if (score >= 3200) return 30;
+    if (score >= 2200) return 50;
+    if (score >= 1200) return 70;
+    if (score >= 500) return 85;
+    return 95;
   }
 }
