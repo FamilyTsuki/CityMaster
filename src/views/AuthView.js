@@ -91,18 +91,34 @@ class CatTailAnimator {
 
 const MASCOT_COORDINATES = {
   kiko: {
-    default:        "20,92 80,92 72,10 28,10",
-    username:       "20,92 80,92 86,18 42,22",
-    password:       "20,92 80,92 60,22 20,22",
-    passwordShown:  "10,92 80,92 34,35 2,35"
+    desktop: {
+      default:        "20,92 80,92 72,10 28,10",
+      username:       "20,92 80,92 86,18 42,22",
+      password:       "20,92 80,92 60,22 20,22",
+      passwordShown:  "10,92 80,92 34,35 2,35"
+    },
+    mobile: {
+      default:        "20,92 80,92 72,14 28,14",
+      username:       "20,92 80,92 70,22 30,22",
+      password:       "20,92 80,92 72,8 28,8",
+      passwordShown:  "20,92 80,92 62,3 20,3"
+    }
   }
 };
 
 const MASCOT_EYE_STATES = {
-  default:       { offsetX: 0,  offsetY: 0,  px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
-  username:      { offsetX: 8,  offsetY: 0,  px: 4,    py: 1,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 0, leftEar: 1, rightEar: 1 },
-  password:      { offsetX: -8, offsetY: 0,  px: -4,   py: -1,  rx: 7.5, ry: 7.5, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 },
-  passwordShown: { offsetX: -6, offsetY: 2,  px: 0,    py: 0,   rx: 9.0, ry: 0.9, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 }
+  desktop: {
+    default:       { offsetX: 0,  offsetY: 0,  px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
+    username:      { offsetX: 8,  offsetY: 0,  px: 4,    py: 1,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 0, leftEar: 1, rightEar: 1 },
+    password:      { offsetX: -8, offsetY: 0,  px: -4,   py: -1,  rx: 7.5, ry: 7.5, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 },
+    passwordShown: { offsetX: -6, offsetY: 2,  px: 0,    py: 0,   rx: 9.0, ry: 0.9, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 }
+  },
+  mobile: {
+    default:       { offsetX: 0,  offsetY: 0,   px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
+    username:      { offsetX: 0,  offsetY: 5,   px: 0,    py: 3,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
+    password:      { offsetX: 0,  offsetY: -8,  px: 0,    py: -3,  rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
+    passwordShown: { offsetX: 0,  offsetY: -15, px: 0,    py: -4,  rx: 9.0, ry: 0.9, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 }
+  }
 };
 
 export class AuthView {
@@ -133,6 +149,7 @@ export class AuthView {
   #activeTwitchEar = null;
   #earTwitchTimeoutId = null;
   #continuousAnimFrameId = null;
+  #mouseIdleTimeoutId = null;
 
   #tailPhase = 0;
   #tailSpeed = 0.0025;
@@ -277,15 +294,27 @@ export class AuthView {
   }
 
   #setupMouseTracking() {
-    window.addEventListener('mousemove', (e) => {
+    const handlePointerMove = (e) => {
+      if (e && e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON' || e.target.closest?.('.auth-form-container'))) {
+        if (this.#mouseIdleTimeoutId) {
+          clearTimeout(this.#mouseIdleTimeoutId);
+          this.#mouseIdleTimeoutId = null;
+        }
+        this.#targetMouseOffset = { x: 0, y: 0 };
+        return;
+      }
+
       const mascotEl = document.getElementById('mascot-2') || document.getElementById('mascot-body');
       if (!mascotEl) return;
       const rect = mascotEl.getBoundingClientRect();
       const centerX = rect.left + rect.width / 2;
       const centerY = rect.top + rect.height * 0.35;
 
-      const deltaX = e.clientX - centerX;
-      const deltaY = e.clientY - centerY;
+      const clientX = e.touches && e.touches.length > 0 ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches && e.touches.length > 0 ? e.touches[0].clientY : e.clientY;
+
+      const deltaX = clientX - centerX;
+      const deltaY = clientY - centerY;
       const distance = Math.hypot(deltaX, deltaY);
       const angle = Math.atan2(deltaY, deltaX);
 
@@ -301,7 +330,18 @@ export class AuthView {
       } else {
         this.#targetMouseOffset = { x: targetX, y: targetY };
       }
-    });
+
+      if (this.#mouseIdleTimeoutId) {
+        clearTimeout(this.#mouseIdleTimeoutId);
+      }
+      this.#mouseIdleTimeoutId = setTimeout(() => {
+        this.#targetMouseOffset = { x: 0, y: 0 };
+      }, 1200);
+    };
+
+    window.addEventListener('mousemove', handlePointerMove);
+    window.addEventListener('touchmove', handlePointerMove, { passive: true });
+    window.addEventListener('touchstart', handlePointerMove, { passive: true });
   }
 
   #setupContinuousAnimations() {
@@ -618,13 +658,27 @@ export class AuthView {
     }
   }
 
+  #isMobileViewport() {
+    return window.innerWidth < 768;
+  }
+
+  #getMascotCoordinates(stateKey) {
+    const mode = this.#isMobileViewport() ? 'mobile' : 'desktop';
+    return MASCOT_COORDINATES.kiko[mode][stateKey] || MASCOT_COORDINATES.kiko[mode].default;
+  }
+
+  #getMascotEyeState(stateKey) {
+    const mode = this.#isMobileViewport() ? 'mobile' : 'desktop';
+    return MASCOT_EYE_STATES[mode][stateKey] || MASCOT_EYE_STATES[mode].default;
+  }
+
   #triggerHeadShakeNo() {
     const baseStateKey = this.#currentMascotStateKey;
-    const baseCoordsStr = MASCOT_COORDINATES.kiko[baseStateKey] || MASCOT_COORDINATES.kiko.default;
+    const baseCoordsStr = this.#getMascotCoordinates(baseStateKey);
     const baseArr = baseCoordsStr.replace(/,/g, ' ').split(/\s+/).filter(Boolean).map(Number);
     if (baseArr.length !== 8) return;
 
-    const basePupil = MASCOT_EYE_STATES[baseStateKey] || MASCOT_EYE_STATES.default;
+    const basePupil = this.#getMascotEyeState(baseStateKey);
 
     const startTime = performance.now();
     const duration = 550;
@@ -690,7 +744,6 @@ export class AuthView {
 
     this.#triggerHeadShakeNo();
     this.#whiskerJitter = 4.5;
-    this.#triggerBlink();
 
     [this.#usernameInput, this.#passwordInput].forEach((input) => {
       if (input && !input.value.trim()) {
@@ -708,7 +761,7 @@ export class AuthView {
 
     const startArr = [...this.#currentPointsKiko];
     const startPupil = { ...this.#currentEyeState };
-    const targetPupil = MASCOT_EYE_STATES[targetStateKey] || MASCOT_EYE_STATES.default;
+    const targetPupil = this.#getMascotEyeState(targetStateKey);
 
     const startTime = performance.now();
 
@@ -737,7 +790,9 @@ export class AuthView {
         rx: startPupil.rx + (targetPupil.rx - startPupil.rx) * eased,
         ry: startPupil.ry + (targetPupil.ry - startPupil.ry) * eased,
         px: startPupil.px + (targetPupil.px - startPupil.px) * eased,
-        py: startPupil.py + (targetPupil.py - startPupil.py) * eased
+        py: startPupil.py + (targetPupil.py - startPupil.py) * eased,
+        leftW: targetPupil.leftW,
+        rightW: targetPupil.rightW
       };
 
       this.#currentEyeState = currentPupil;
@@ -754,53 +809,72 @@ export class AuthView {
   #setupMascotInteractions() {
     if (!this.#mascotsContainer) return;
 
-    const setMascotState = (stateKey) => {
+    let lastAppliedState = null;
+
+    const setMascotState = (stateKey, forceRefresh = false) => {
+      if (this.#mouseIdleTimeoutId) {
+        clearTimeout(this.#mouseIdleTimeoutId);
+        this.#mouseIdleTimeoutId = null;
+      }
+      this.#targetMouseOffset = { x: 0, y: 0 };
+
       const state = stateKey || 'default';
-      if (this.#currentMascotStateKey === state) return;
+      const isMobile = this.#isMobileViewport();
+      const stateId = state + '_' + (isMobile ? 'mobile' : 'desktop');
+
+      if (!forceRefresh && lastAppliedState === stateId) return;
+      lastAppliedState = stateId;
       this.#currentMascotStateKey = state;
-      this.#mascotsContainer.className = 'auth-mascots-container state-' + state;
+      if (this.#mascotsContainer) {
+        this.#mascotsContainer.className = 'auth-mascots-container state-' + state;
+      }
 
       const polygonKiko = document.getElementById('mascot-body') || document.querySelector('#mascot-2 polygon');
+      const targetPointsStr = this.#getMascotCoordinates(state);
 
-      if (polygonKiko && MASCOT_COORDINATES.kiko[state]) {
-        this.#animateMascotToPoints(polygonKiko, MASCOT_COORDINATES.kiko[state], state, 400);
+      if (polygonKiko && targetPointsStr) {
+        this.#animateMascotToPoints(polygonKiko, targetPointsStr, state, 400);
       }
     };
 
-    const updateStateFromActiveElement = () => {
+    const updateStateFromActiveElement = (forceRefresh = false) => {
       const active = document.activeElement;
       if (active === this.#usernameInput) {
-        setMascotState('username');
+        setMascotState('username', forceRefresh);
       } else if (active === this.#passwordInput) {
         if (this.#passwordInput.type === 'text') {
-          setMascotState('passwordShown');
+          setMascotState('passwordShown', forceRefresh);
         } else {
-          setMascotState('password');
+          setMascotState('password', forceRefresh);
         }
       } else {
-        setMascotState('default');
+        setMascotState('default', forceRefresh);
       }
     };
 
+    window.addEventListener('resize', () => {
+      updateStateFromActiveElement(true);
+    });
+
     if (this.#usernameInput) {
-      this.#usernameInput.addEventListener('focus', updateStateFromActiveElement);
+      this.#usernameInput.addEventListener('focus', () => updateStateFromActiveElement());
       this.#usernameInput.addEventListener('input', () => {
         this.#handleTypingActivity();
         updateStateFromActiveElement();
       });
       this.#usernameInput.addEventListener('blur', () => {
-        requestAnimationFrame(updateStateFromActiveElement);
+        requestAnimationFrame(() => updateStateFromActiveElement());
       });
     }
 
     if (this.#passwordInput) {
-      this.#passwordInput.addEventListener('focus', updateStateFromActiveElement);
+      this.#passwordInput.addEventListener('focus', () => updateStateFromActiveElement());
       this.#passwordInput.addEventListener('input', () => {
         this.#handleTypingActivity();
         updateStateFromActiveElement();
       });
       this.#passwordInput.addEventListener('blur', () => {
-        requestAnimationFrame(updateStateFromActiveElement);
+        requestAnimationFrame(() => updateStateFromActiveElement());
       });
     }
 
@@ -813,13 +887,13 @@ export class AuthView {
         e.preventDefault();
         const isPassword = this.#passwordInput.type === 'password';
         this.#passwordInput.type = isPassword ? 'text' : 'password';
-        
-        updateStateFromActiveElement();
+
+        updateStateFromActiveElement(true);
         this.#passwordInput.focus();
       });
     }
 
-    setMascotState('default');
+    setMascotState('default', true);
   }
 
   async initGoogleSignIn(callback) {
@@ -892,8 +966,12 @@ export class AuthView {
       const password = this.#passwordInput ? this.#passwordInput.value.trim() : '';
 
       if (!username || !password) {
-        const i18n = I18nService.getInstance();
-        this.showError(i18n.t('auth.fill_all_fields') || 'Veuillez remplir tous les champs');
+        if (!this.#isMobileViewport()) {
+          const i18n = I18nService.getInstance();
+          this.showError(i18n.t('auth.fill_all_fields') || 'Veuillez remplir tous les champs');
+        } else {
+          this.#triggerErrorShake();
+        }
         return;
       }
 
