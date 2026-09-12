@@ -1,32 +1,105 @@
+/* ==========================================
+   CityMaster Legal Screen Styles (Paper Theme)
+   ========================================== */
+
 #legal-screen {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 32px 16px;
-  background: radial-gradient(circle at top right, rgba(79, 70, 229, 0.12), transparent 45%),
-              var(--bg-main);
+  padding: 40px 16px 32px 16px;
+  background: transparent;
+  min-height: 100%;
+  width: 100%;
+  box-sizing: border-box;
   overflow-y: auto;
   overflow-x: hidden;
-  height: 100%;
 }
 
-.legal-card {
-  max-width: 720px;
-  text-align: left;
+#legal-screen .legal-card,
+.legal-card.card {
+  position: relative;
+  background-color: var(--landing-card-bg, #f8f0de);
+  background-image: repeating-linear-gradient(
+    transparent,
+    transparent 27px,
+    var(--notebook-line, rgba(180, 140, 90, 0.22)) 28px
+  );
+  border: none !important;
+  border-radius: 24px 18px 22px 16px / 16px 22px 18px 24px;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  filter: none !important;
+  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 36px 44px;
+  max-width: 820px;
+  width: 100%;
   margin: auto;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+/* Layering relative to pseudo-elements */
+.legal-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Hand-drawn wobbly paper border */
+.legal-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 3.5px solid var(--landing-ink, #26190f);
+  border-radius: 24px 18px 22px 16px / 16px 22px 18px 24px;
+  box-shadow: 6px 8px 0px var(--landing-shadow, #26190f), 0 16px 32px rgba(0, 0, 0, 0.22);
+  filter: url(#paper-wobbly-line);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Scotch tape piece on top center */
+.legal-card::before {
+  content: '';
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-0.9deg);
+  width: 100px;
+  height: 25px;
+  background: var(--landing-tape-bg, rgba(240, 225, 195, 0.65));
+  border: 2px solid var(--landing-tape-border, rgba(38, 25, 15, 0.5));
+  border-radius: 120px 8px 95px 12px/8px 110px 10px 105px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  pointer-events: none;
+  filter: url(#paper-wobbly-line);
 }
 
 .legal-header {
   text-align: center;
-  margin-bottom: 28px;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 16px;
+  margin-bottom: 24px;
+  border-bottom: 2.5px dashed var(--landing-ink-muted, rgba(89, 66, 48, 0.4));
+  padding-bottom: 18px;
 }
 
 .legal-header h1 {
-  font-size: clamp(1.5rem, 4vw, 2.2rem);
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 8px;
+  font-family: 'Lilita One', 'Titan One', cursive, sans-serif;
+  font-size: 2.1rem;
+  font-weight: 900;
+  color: var(--landing-ink, #26190f);
+  margin-top: 0;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+
+.legal-header p {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--landing-ink-muted, #594230);
+  margin: 0;
 }
 
 .legal-body {
@@ -36,66 +109,116 @@
   margin-bottom: 28px;
 }
 
+.legal-section {
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid var(--landing-ink, #26190f);
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 3px 3px 0px var(--landing-shadow, #26190f);
+}
+
 .legal-section h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--primary);
+  font-family: 'Lilita One', 'Titan One', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: var(--landing-ink, #26190f);
   margin-top: 0;
   margin-bottom: 8px;
+  letter-spacing: 0.01em;
 }
 
 .legal-section p {
-  font-size: 0.92rem;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.9rem;
   line-height: 1.6;
-  color: var(--text-muted);
-  margin: 0;
+  color: var(--landing-ink, #26190f);
+  font-weight: 600;
+  margin: 0 0 6px 0;
+}
+
+.legal-section p:last-child {
+  margin-bottom: 0;
+}
+
+.legal-section strong {
+  font-weight: 800;
+  color: var(--landing-ink, #26190f);
 }
 
 .legal-section a {
-  color: var(--primary);
-  text-decoration: none;
-  font-weight: 500;
+  color: var(--landing-ink, #26190f);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 800;
+  transition: color 0.15s ease;
 }
 
 .legal-section a:hover {
-  text-decoration: underline;
+  color: var(--paper-primary-hover, #d97706);
 }
 
 .legal-actions {
   display: flex;
   justify-content: center;
-  border-top: 1px solid var(--border-color);
+  border-top: 2.5px dashed var(--landing-ink-muted, rgba(89, 66, 48, 0.4));
   padding-top: 20px;
 }
 
-.legal-footer-link {
-  display: inline-block;
-  font-size: 0.82rem;
-  color: var(--text-muted);
-  text-decoration: none;
-  font-weight: 600;
-  transition: color var(--transition-fast);
-  margin-top: 12px;
+#legal-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 24px;
+  height: 44px;
+  background: var(--bg-card-solid, #ffffff);
+  color: var(--landing-ink, #26190f);
+  border: 2.5px solid var(--landing-ink, #26190f);
+  border-radius: 14px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3.5px 0px var(--landing-shadow, #26190f);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
-.legal-footer-link:hover {
-  color: var(--primary);
-  text-decoration: underline;
+#legal-back-btn:hover {
+  background: var(--paper-badge-bg, #fde047);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0px var(--landing-shadow, #26190f);
+}
+
+#legal-back-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 1.5px 0px var(--landing-shadow, #26190f);
+}
+
+#legal-back-btn .action-icon {
+  width: 18px;
+  height: 18px;
+  stroke: var(--landing-ink, #26190f);
 }
 
 @media (max-width: 640px) {
   #legal-screen {
-    padding: 20px 12px;
+    padding: 16px 12px;
   }
 
-  .legal-card {
-    padding: 20px 16px;
-    width: 100%;
-    box-sizing: border-box;
+  #legal-screen .legal-card,
+  .legal-card.card {
+    padding: 24px 18px;
   }
 
-  .legal-actions .btn {
+  .legal-header h1 {
+    font-size: 1.65rem;
+  }
+
+  .legal-section {
+    padding: 14px 16px;
+  }
+
+  #legal-back-btn {
     width: 100%;
-    justify-content: center;
   }
 }
