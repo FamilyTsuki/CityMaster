@@ -106,14 +106,28 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: 20px;
+  gap: 0;
   margin-bottom: 14px;
 }
 
 .mascot-character {
-  width: clamp(115px, 18vw, 150px);
-  height: clamp(115px, 18vw, 150px);
-  transform-origin: 50% 100%; /* Bottom 2 points anchored to ground */
+  width: clamp(160px, 22vw, 215px);
+  height: clamp(160px, 22vw, 215px);
+  transform-origin: 50% 100%;
+}
+
+.mascot-character.mascot-kiko {
+  position: relative;
+  z-index: 1;
+}
+
+.mascot-character.mascot-grey {
+  position: relative;
+  z-index: 2;
+  width: clamp(108px, 15vw, 145px);
+  height: clamp(108px, 15vw, 145px);
+  margin-right: clamp(-85px, -11vw, -135px);
+  margin-bottom: calc((clamp(160px, 22vw, 215px) - clamp(108px, 15vw, 145px)) * 0.08);
 }
 
 .mascot-svg {
@@ -433,12 +447,20 @@
   }
 
   .mascots-row {
+    gap: 0;
     margin-bottom: 0;
   }
 
   .mascot-character {
     width: 65px;
     height: 65px;
+  }
+
+  .mascot-character.mascot-grey {
+    width: 42px;
+    height: 42px;
+    margin-right: -35px;
+    margin-bottom: 1.84px;
   }
 
   .auth-form-container,

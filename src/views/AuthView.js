@@ -135,20 +135,27 @@ export class AuthView {
   #togglePasswordBtn;
 
   #currentPointsKiko = [20, 92, 80, 92, 72, 10, 28, 10];
+  #currentPointsGrey = [6, 92, 94, 92, 84, 10, 16, 10];
   #currentEyeState = { offsetX: 0, offsetY: 0, px: 0, py: 0, rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 };
   #currentMascotStateKey = 'default';
   #animFrameIdKiko = null;
   #blinkTimeoutId = null;
   #isBlinking = false;
+  #greyBlinkTimeoutId = null;
+  #isGreyBlinking = false;
 
   #targetMouseOffset = { x: 0, y: 0 };
   #currentMouseOffset = { x: 0, y: 0 };
+  #greyMouseOffset = { x: 0, y: 0 };
   #isTyping = false;
   #typingTimeoutId = null;
   #whiskerJitter = 0;
   #earTwitchOffset = 0;
   #activeTwitchEar = null;
   #earTwitchTimeoutId = null;
+  #greyEarTwitchOffset = 0;
+  #activeGreyTwitchEar = null;
+  #greyEarTwitchTimeoutId = null;
   #continuousAnimFrameId = null;
   #mouseIdleTimeoutId = null;
 
@@ -156,10 +163,12 @@ export class AuthView {
   #tailSpeed = 0.0025;
   #tailAmplitude = 10;
   #tailSideFactor = 1;
+  #greyTailSideFactor = -1;
   #lastAnimTime = 0;
   #tailCurrentFreq = 0.0020;
   #tailCurrentAmp = 0.24;
   #tailAnimator = new CatTailAnimator(5, 9.5, 0.42);
+  #greyTailAnimator = new CatTailAnimator(5, 15.0, 0.42);
 
   constructor() {
     this.#usernameInput = document.getElementById('auth-username');
@@ -176,7 +185,9 @@ export class AuthView {
     this.#renderMascotFrame(this.#currentPointsKiko, this.#currentEyeState);
     this.#setupMascotInteractions();
     this.#setupBlinkLoop();
+    this.#setupGreyBlinkLoop();
     this.#setupEarTwitchLoop();
+    this.#setupGreyEarTwitchLoop();
     this.#setupMouseTracking();
     this.#setupContinuousAnimations();
   }
@@ -266,6 +277,77 @@ export class AuthView {
     requestAnimationFrame(stepBlink);
   }
 
+  #setupGreyBlinkLoop() {
+    if (this.#greyBlinkTimeoutId) clearTimeout(this.#greyBlinkTimeoutId);
+    const scheduleNext = () => {
+      const delay = Math.random() * 3200 + 2000;
+      this.#greyBlinkTimeoutId = setTimeout(() => {
+        if (!document.getElementById('auth-screen')) return;
+        this.#triggerGreyBlink();
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+  }
+
+  #triggerGreyBlink() {
+    if (this.#isGreyBlinking || this.#currentMascotStateKey === 'passwordShown') return;
+
+    this.#isGreyBlinking = true;
+    const eyeBg = document.getElementById('grey-eye-bg');
+    const eyePupil = document.getElementById('grey-eye-pupil');
+    const eyeShine = document.getElementById('grey-eye-shine');
+    if (!eyeBg) return;
+
+    const baseRy = this.#currentEyeState.ry || 8.5;
+    const startTime = performance.now();
+    const duration = 160;
+
+    const stepBlink = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      const squashFactor = Math.sin(progress * Math.PI);
+
+      const currentRy = baseRy * (1 - squashFactor * 0.9);
+      const pupilRy = Math.max(0, (currentRy - 1.8) * 0.42);
+      const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
+
+      const fillFactor = Math.max(0, Math.min(1, (currentRy - 1.0) / 2.5));
+      const rVal = Math.round(38 + (255 - 38) * fillFactor);
+      const gVal = Math.round(25 + (255 - 25) * fillFactor);
+      const bVal = Math.round(15 + (255 - 15) * fillFactor);
+
+      eyeBg.setAttribute('ry', Math.max(0.6, currentRy).toFixed(2));
+      eyeBg.setAttribute('fill', `rgb(${rVal},${gVal},${bVal})`);
+      if (eyePupil) {
+        eyePupil.setAttribute('ry', pupilRy.toFixed(2));
+        eyePupil.setAttribute('opacity', pupilRy > 0.05 ? '1' : '0');
+      }
+      if (eyeShine) {
+        eyeShine.setAttribute('ry', shineRy.toFixed(2));
+        eyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(stepBlink);
+      } else {
+        this.#isGreyBlinking = false;
+        eyeBg.setAttribute('ry', baseRy.toFixed(2));
+        eyeBg.setAttribute('fill', '#ffffff');
+        if (eyePupil) {
+          eyePupil.setAttribute('ry', Math.max(0, (baseRy - 1.8) * 0.42).toFixed(2));
+          eyePupil.setAttribute('opacity', '1');
+        }
+        if (eyeShine) {
+          eyeShine.setAttribute('ry', Math.max(0, (baseRy - 3.0) * 0.15).toFixed(2));
+          eyeShine.setAttribute('opacity', '1');
+        }
+      }
+    };
+
+    requestAnimationFrame(stepBlink);
+  }
+
   #setupEarTwitchLoop() {
     if (this.#earTwitchTimeoutId) clearTimeout(this.#earTwitchTimeoutId);
     const scheduleNext = () => {
@@ -295,6 +377,40 @@ export class AuthView {
       } else {
         this.#earTwitchOffset = 0;
         this.#activeTwitchEar = null;
+      }
+    };
+    requestAnimationFrame(stepTwitch);
+  }
+
+  #setupGreyEarTwitchLoop() {
+    if (this.#greyEarTwitchTimeoutId) clearTimeout(this.#greyEarTwitchTimeoutId);
+    const scheduleNext = () => {
+      const delay = Math.random() * 3800 + 4000;
+      this.#greyEarTwitchTimeoutId = setTimeout(() => {
+        if (!document.getElementById('auth-screen')) return;
+        this.#triggerGreyEarTwitch();
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+  }
+
+  #triggerGreyEarTwitch() {
+    if (this.#greyEarTwitchOffset !== 0) return;
+    this.#activeGreyTwitchEar = Math.random() > 0.5 ? 'left' : 'right';
+    const startTime = performance.now();
+    const duration = 240;
+
+    const stepTwitch = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      this.#greyEarTwitchOffset = Math.sin(progress * Math.PI * 2) * 3.0;
+
+      if (progress < 1) {
+        requestAnimationFrame(stepTwitch);
+      } else {
+        this.#greyEarTwitchOffset = 0;
+        this.#activeGreyTwitchEar = null;
       }
     };
     requestAnimationFrame(stepTwitch);
@@ -373,6 +489,45 @@ export class AuthView {
       this.#currentMouseOffset.x += (this.#targetMouseOffset.x - this.#currentMouseOffset.x) * 0.22;
       this.#currentMouseOffset.y += (this.#targetMouseOffset.y - this.#currentMouseOffset.y) * 0.22;
 
+      this.#greyMouseOffset.x += (this.#targetMouseOffset.x - this.#greyMouseOffset.x) * 0.12;
+      this.#greyMouseOffset.y += (this.#targetMouseOffset.y - this.#greyMouseOffset.y) * 0.12;
+
+      const kikoBreathingX = Math.sin(now * 0.0021 + 0.5) * 0.65;
+      const kikoBreathingY = Math.cos(now * 0.0021 + 0.5) * 0.65;
+
+      const kikoRenderPoints = [
+        this.#currentPointsKiko[0],
+        this.#currentPointsKiko[1],
+        this.#currentPointsKiko[2],
+        this.#currentPointsKiko[3],
+        this.#currentPointsKiko[4] + kikoBreathingX,
+        this.#currentPointsKiko[5] + kikoBreathingY,
+        this.#currentPointsKiko[6] + kikoBreathingX,
+        this.#currentPointsKiko[7] + kikoBreathingY
+      ];
+
+      this.#renderMascotFrame(kikoRenderPoints, this.#currentEyeState);
+
+      const breathingX = Math.sin(now * 0.0016) * 0.7;
+      const breathingY = Math.cos(now * 0.0016) * 0.7;
+
+      const desiredGrey = [
+        this.#currentPointsKiko[0] - 14,
+        this.#currentPointsKiko[1],
+        this.#currentPointsKiko[2] + 14,
+        this.#currentPointsKiko[3],
+        this.#currentPointsKiko[4] + 12 + breathingX,
+        this.#currentPointsKiko[5] + breathingY,
+        this.#currentPointsKiko[6] - 12 + breathingX,
+        this.#currentPointsKiko[7] + breathingY
+      ];
+
+      for (let i = 0; i < 8; i++) {
+        this.#currentPointsGrey[i] += (desiredGrey[i] - this.#currentPointsGrey[i]) * 0.13;
+      }
+
+      this.#renderGreyMascotFrame(this.#currentEyeState);
+
       const eyeBg = document.getElementById('eye-bg');
       const eyePupil = document.getElementById('eye-pupil');
       const eyeShine = document.getElementById('eye-shine');
@@ -409,21 +564,63 @@ export class AuthView {
           eyeShine.setAttribute('ry', shineRy.toFixed(2));
           eyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
         }
+
+        const greyEyePupil = document.getElementById('grey-eye-pupil');
+        const greyEyeShine = document.getElementById('grey-eye-shine');
+
+        if (greyEyePupil) {
+          const greyRawDx = currentPx + this.#greyMouseOffset.x;
+          const greyRawDy = currentPy + this.#greyMouseOffset.y;
+          const greyClamped = this.#getClampedPupilOffset(greyRawDx, greyRawDy, currentRx, currentRy, pupilRx, pupilRy);
+
+          greyEyePupil.setAttribute('cx', (eyeX + greyClamped.x).toFixed(2));
+          greyEyePupil.setAttribute('cy', (eyeY + greyClamped.y).toFixed(2));
+          greyEyePupil.setAttribute('rx', pupilRx.toFixed(2));
+          greyEyePupil.setAttribute('ry', pupilRy.toFixed(2));
+          greyEyePupil.setAttribute('opacity', pupilRy > 0.05 ? '1' : '0');
+        }
+
+        if (greyEyeShine) {
+          const greyRawDx = currentPx + this.#greyMouseOffset.x;
+          const greyRawDy = currentPy + this.#greyMouseOffset.y;
+          const greyClamped = this.#getClampedPupilOffset(greyRawDx, greyRawDy, currentRx, currentRy, pupilRx, pupilRy);
+
+          greyEyeShine.setAttribute('cx', (eyeX + greyClamped.x - currentRx * 0.22).toFixed(2));
+          greyEyeShine.setAttribute('cy', (eyeY + greyClamped.y - currentRy * 0.22).toFixed(2));
+          greyEyeShine.setAttribute('rx', shineRx.toFixed(2));
+          greyEyeShine.setAttribute('ry', shineRy.toFixed(2));
+          greyEyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
+        }
       }
 
       if (tailEl) {
-        let targetSide = 1;
-        if (this.#currentMascotStateKey === 'username') {
-          targetSide = -1;
+        const kikoGazeX = (this.#currentEyeState.offsetX || 0) + (this.#currentEyeState.px || 0) + this.#currentMouseOffset.x;
+        const greyGazeX = (this.#currentEyeState.offsetX || 0) + (this.#currentEyeState.px || 0) + this.#greyMouseOffset.x;
+
+        let kikoTargetSide = 1;
+        if (kikoGazeX > 0.2) {
+          kikoTargetSide = -1;
+        } else if (kikoGazeX < -0.2) {
+          kikoTargetSide = 1;
+        } else if (this.#currentMascotStateKey === 'username') {
+          kikoTargetSide = -1;
         } else if (this.#currentMascotStateKey === 'password' || this.#currentMascotStateKey === 'passwordShown') {
-          targetSide = 1;
+          kikoTargetSide = 1;
         }
 
-        this.#tailSideFactor += (targetSide - this.#tailSideFactor) * 0.05;
-        const side = this.#tailSideFactor;
-        const isRight = side > 0;
+        let greyTargetSide = -1;
+        if (greyGazeX > 0.2) {
+          greyTargetSide = -1;
+        } else if (greyGazeX < -0.2) {
+          greyTargetSide = 1;
+        } else if (this.#currentMascotStateKey === 'username') {
+          greyTargetSide = -1;
+        } else if (this.#currentMascotStateKey === 'password' || this.#currentMascotStateKey === 'passwordShown') {
+          greyTargetSide = 1;
+        }
 
-        this.#tailAnimator.setDirection(isRight);
+        this.#tailSideFactor += (kikoTargetSide - this.#tailSideFactor) * 0.05;
+        this.#greyTailSideFactor += (greyTargetSide - this.#greyTailSideFactor) * 0.05;
 
         const targetFreq = this.#isTyping ? 0.0023 : 0.0020;
         const targetAmp = this.#isTyping ? 0.27 : 0.24;
@@ -431,20 +628,42 @@ export class AuthView {
         this.#tailCurrentFreq += (targetFreq - this.#tailCurrentFreq) * 0.08;
         this.#tailCurrentAmp += (targetAmp - this.#tailCurrentAmp) * 0.08;
 
-        const rootPosition = { x: 50 + side * 24, y: 82 };
-        this.#tailAnimator.update(dt, this.#tailCurrentFreq, this.#tailCurrentAmp, rootPosition);
-        const segments = this.#tailAnimator.getSegments();
+        const kikoSide = this.#tailSideFactor;
+        this.#tailAnimator.setDirection(kikoSide > 0);
+        const kikoRootPosition = { x: 50 + kikoSide * 24, y: 82 };
+        this.#tailAnimator.update(dt, this.#tailCurrentFreq, this.#tailCurrentAmp, kikoRootPosition);
+        const kikoSegments = this.#tailAnimator.getSegments();
 
-        const baseX = segments[0].startPoint.x.toFixed(2);
-        const baseY = segments[0].startPoint.y.toFixed(2);
-        const cp1X = segments[0].endPoint.x.toFixed(2);
-        const cp1Y = segments[0].endPoint.y.toFixed(2);
-        const cp2X = segments[2].endPoint.x.toFixed(2);
-        const cp2Y = segments[2].endPoint.y.toFixed(2);
-        const tipX = segments[segments.length - 1].endPoint.x.toFixed(2);
-        const tipY = segments[segments.length - 1].endPoint.y.toFixed(2);
+        const kBaseX = kikoSegments[0].startPoint.x.toFixed(2);
+        const kBaseY = kikoSegments[0].startPoint.y.toFixed(2);
+        const kCp1X = kikoSegments[0].endPoint.x.toFixed(2);
+        const kCp1Y = kikoSegments[0].endPoint.y.toFixed(2);
+        const kCp2X = kikoSegments[2].endPoint.x.toFixed(2);
+        const kCp2Y = kikoSegments[2].endPoint.y.toFixed(2);
+        const kTipX = kikoSegments[kikoSegments.length - 1].endPoint.x.toFixed(2);
+        const kTipY = kikoSegments[kikoSegments.length - 1].endPoint.y.toFixed(2);
 
-        tailEl.setAttribute('d', `M ${baseX} ${baseY} C ${cp1X} ${cp1Y}, ${cp2X} ${cp2Y}, ${tipX} ${tipY}`);
+        tailEl.setAttribute('d', `M ${kBaseX} ${kBaseY} C ${kCp1X} ${kCp1Y}, ${kCp2X} ${kCp2Y}, ${kTipX} ${kTipY}`);
+
+        const greyTailEl = document.getElementById('grey-cat-tail');
+        if (greyTailEl) {
+          const greySide = this.#greyTailSideFactor;
+          this.#greyTailAnimator.setDirection(greySide > 0);
+          const greyRootPosition = { x: 50 + greySide * 24, y: 82 };
+          this.#greyTailAnimator.update(dt, this.#tailCurrentFreq * 0.9, this.#tailCurrentAmp, greyRootPosition);
+          const greySegments = this.#greyTailAnimator.getSegments();
+
+          const gBaseX = greySegments[0].startPoint.x.toFixed(2);
+          const gBaseY = greySegments[0].startPoint.y.toFixed(2);
+          const gCp1X = greySegments[0].endPoint.x.toFixed(2);
+          const gCp1Y = greySegments[0].endPoint.y.toFixed(2);
+          const gCp2X = greySegments[2].endPoint.x.toFixed(2);
+          const gCp2Y = greySegments[2].endPoint.y.toFixed(2);
+          const gTipX = greySegments[greySegments.length - 1].endPoint.x.toFixed(2);
+          const gTipY = greySegments[greySegments.length - 1].endPoint.y.toFixed(2);
+
+          greyTailEl.setAttribute('d', `M ${gBaseX} ${gBaseY} C ${gCp1X} ${gCp1Y}, ${gCp2X} ${gCp2Y}, ${gTipX} ${gTipY}`);
+        }
       }
 
       if (this.#isTyping) {
@@ -499,12 +718,6 @@ export class AuthView {
           wr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
           wr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
         }
-        if (wr3) {
-          wr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
-          wr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
-          wr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
-          wr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
-        }
       }
 
       this.#continuousAnimFrameId = requestAnimationFrame(animateLoop);
@@ -522,27 +735,43 @@ export class AuthView {
   }
 
   #triggerHappyJump() {
-    const mascotContainer = document.getElementById('mascot-2');
-    if (!mascotContainer) return;
+    const mascotKiko = document.getElementById('mascot-2');
+    if (mascotKiko) {
+      mascotKiko.animate([
+        { transform: 'translateY(0) scale(1, 1)' },
+        { transform: 'translateY(-28px) scale(0.9, 1.1)', offset: 0.4 },
+        { transform: 'translateY(4px) scale(1.15, 0.85)', offset: 0.8 },
+        { transform: 'translateY(0) scale(1, 1)' }
+      ], {
+        duration: 500,
+        easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
+      });
+    }
 
-    mascotContainer.animate([
-      { transform: 'translateY(0) scale(1, 1)' },
-      { transform: 'translateY(-28px) scale(0.9, 1.1)', offset: 0.4 },
-      { transform: 'translateY(4px) scale(1.15, 0.85)', offset: 0.8 },
-      { transform: 'translateY(0) scale(1, 1)' }
-    ], {
-      duration: 500,
-      easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)'
-    });
+    const mascotGrey = document.getElementById('mascot-1');
+    if (mascotGrey) {
+      setTimeout(() => {
+        mascotGrey.animate([
+          { transform: 'translateY(0) scale(1, 1)' },
+          { transform: 'translateY(-20px) scale(0.85, 1.15)', offset: 0.45 },
+          { transform: 'translateY(5px) scale(1.18, 0.82)', offset: 0.82 },
+          { transform: 'translateY(0) scale(1, 1)' }
+        ], {
+          duration: 560,
+          easing: 'cubic-bezier(0.34, 1.4, 0.64, 1)'
+        });
+      }, 75);
+    }
 
     this.#triggerBlink();
+    if (!this.#isGreyBlinking) {
+      setTimeout(() => this.#triggerGreyBlink(), 100);
+    }
   }
 
   #renderMascotFrame(interpolated, pupilState = null) {
     const polygonEl = document.getElementById('mascot-body') || document.querySelector('#mascot-2 polygon');
     if (!polygonEl || !interpolated || interpolated.length !== 8) return;
-
-    this.#currentPointsKiko = interpolated;
 
     const pointsAttr = `${interpolated[0].toFixed(2)},${interpolated[1].toFixed(2)} ${interpolated[2].toFixed(2)},${interpolated[3].toFixed(2)} ${interpolated[4].toFixed(2)},${interpolated[5].toFixed(2)} ${interpolated[6].toFixed(2)},${interpolated[7].toFixed(2)}`;
     polygonEl.setAttribute('points', pointsAttr);
@@ -637,7 +866,8 @@ export class AuthView {
       const twitchLeft = this.#activeTwitchEar === 'left' ? this.#earTwitchOffset : 0;
       const tipX = x4 + 0.12 * dx + nx * (15 + twitchLeft);
       const tipY = y4 + 0.12 * dy + ny * (15 + twitchLeft);
-      earLeft.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
+      const pts = `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`;
+      earLeft.setAttribute('points', pts);
 
       if (earLeftInner) {
         earLeftInner.style.display = 'inline';
@@ -647,7 +877,8 @@ export class AuthView {
         const ib2y = y4 + 0.30 * dy + ny * 1.5;
         const itipX = x4 + 0.13 * dx + nx * (11.5 + twitchLeft);
         const itipY = y4 + 0.13 * dy + ny * (11.5 + twitchLeft);
-        earLeftInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
+        const ipts = `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`;
+        earLeftInner.setAttribute('points', ipts);
       }
     }
 
@@ -659,7 +890,8 @@ export class AuthView {
       const twitchRight = this.#activeTwitchEar === 'right' ? this.#earTwitchOffset : 0;
       const tipX = x4 + 0.88 * dx + nx * (15 + twitchRight);
       const tipY = y4 + 0.88 * dy + ny * (15 + twitchRight);
-      earRight.setAttribute('points', `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`);
+      const pts = `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`;
+      earRight.setAttribute('points', pts);
 
       if (earRightInner) {
         earRightInner.style.display = 'inline';
@@ -669,14 +901,16 @@ export class AuthView {
         const ib2y = y4 + 0.92 * dy + ny * 1.5;
         const itipX = x4 + 0.87 * dx + nx * (11.5 + twitchRight);
         const itipY = y4 + 0.87 * dy + ny * (11.5 + twitchRight);
-        earRightInner.setAttribute('points', `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`);
+        const ipts = `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`;
+        earRightInner.setAttribute('points', ipts);
       }
     }
 
     const noseX = eyeX + 0.5;
     const noseY = eyeY + Math.max(currentRy, 5) + 3;
+    const nosePts = `${noseX.toFixed(2)},${(noseY + 3).toFixed(2)} ${(noseX - 2.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 2.5).toFixed(2)},${noseY.toFixed(2)}`;
     if (catNose) {
-      catNose.setAttribute('points', `${noseX.toFixed(2)},${(noseY + 3).toFixed(2)} ${(noseX - 2.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 2.5).toFixed(2)},${noseY.toFixed(2)}`);
+      catNose.setAttribute('points', nosePts);
     }
 
     const leftW = currentPupil.leftW !== undefined ? currentPupil.leftW : 1;
@@ -693,6 +927,7 @@ export class AuthView {
 
     const jitter = this.#whiskerJitter;
     const leftWhiskerStartX = eyeX - Math.max(currentRx, 6) - 2;
+
     if (wl1) {
       wl1.setAttribute('x1', leftWhiskerStartX.toFixed(2));
       wl1.setAttribute('y1', (eyeY - 2 + jitter).toFixed(2));
@@ -719,17 +954,217 @@ export class AuthView {
       wr1.setAttribute('x2', (rightWhiskerStartX + 13).toFixed(2));
       wr1.setAttribute('y2', (eyeY - 6 - jitter).toFixed(2));
     }
+
     if (wr2) {
       wr2.setAttribute('x1', (rightWhiskerStartX + 1).toFixed(2));
       wr2.setAttribute('y1', (eyeY + 3 + jitter).toFixed(2));
       wr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
       wr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
     }
+
     if (wr3) {
       wr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
       wr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
       wr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
       wr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
+    }
+  }
+
+  #renderGreyMascotFrame(pupilState = null) {
+    const greyPolygonEl = document.getElementById('grey-mascot-body');
+    if (!greyPolygonEl) return;
+
+    const points = this.#currentPointsGrey;
+    const pointsAttr = `${points[0].toFixed(2)},${points[1].toFixed(2)} ${points[2].toFixed(2)},${points[3].toFixed(2)} ${points[4].toFixed(2)},${points[5].toFixed(2)} ${points[6].toFixed(2)},${points[7].toFixed(2)}`;
+    greyPolygonEl.setAttribute('points', pointsAttr);
+
+    const topCenterX = (points[4] + points[6]) / 2;
+    const topCenterY = (points[5] + points[7]) / 2;
+    const bottomCenterX = (points[0] + points[2]) / 2;
+    const bottomCenterY = (points[1] + points[3]) / 2;
+
+    const currentPupil = pupilState || this.#currentEyeState;
+    const currentOffsetX = currentPupil.offsetX || 0;
+    const currentOffsetY = currentPupil.offsetY || 0;
+
+    const eyeX = topCenterX + (bottomCenterX - topCenterX) * 0.32 + currentOffsetX;
+    const eyeY = topCenterY + (bottomCenterY - topCenterY) * 0.32 + currentOffsetY;
+
+    const currentRx = currentPupil.rx || 8.5;
+    const currentRy = currentPupil.ry || 8.5;
+    const currentPx = currentPupil.px || 0;
+    const currentPy = currentPupil.py || 0;
+
+    const greyEyeBg = document.getElementById('grey-eye-bg');
+    const greyEyePupil = document.getElementById('grey-eye-pupil');
+    const greyEyeShine = document.getElementById('grey-eye-shine');
+    const greyEarLeft = document.getElementById('grey-cat-ear-left');
+    const greyEarLeftInner = document.getElementById('grey-cat-ear-left-inner');
+    const greyEarRight = document.getElementById('grey-cat-ear-right');
+    const greyEarRightInner = document.getElementById('grey-cat-ear-right-inner');
+    const greyCatNose = document.getElementById('grey-cat-nose');
+    const greyWhiskersLeftGroup = document.getElementById('grey-whiskers-left');
+    const greyWhiskersRightGroup = document.getElementById('grey-whiskers-right');
+    const gwl1 = document.getElementById('gwl1');
+    const gwl2 = document.getElementById('gwl2');
+    const gwl3 = document.getElementById('gwl3');
+    const gwr1 = document.getElementById('gwr1');
+    const gwr2 = document.getElementById('gwr2');
+    const gwr3 = document.getElementById('gwr3');
+
+    const pupilRx = Math.max(0, currentRx * 0.42);
+    const pupilRy = Math.max(0, (currentRy - 1.8) * 0.42);
+    const shineRx = Math.max(0, currentRx * 0.15);
+    const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
+
+    const fillFactor = Math.max(0, Math.min(1, (currentRy - 1.0) / 2.5));
+    const rVal = Math.round(38 + (255 - 38) * fillFactor);
+    const gVal = Math.round(25 + (255 - 25) * fillFactor);
+    const bVal = Math.round(15 + (255 - 15) * fillFactor);
+    const fillColor = `rgb(${rVal},${gVal},${bVal})`;
+
+    if (greyEyeBg && !this.#isGreyBlinking) {
+      greyEyeBg.setAttribute('cx', eyeX.toFixed(2));
+      greyEyeBg.setAttribute('cy', eyeY.toFixed(2));
+      greyEyeBg.setAttribute('rx', currentRx.toFixed(2));
+      greyEyeBg.setAttribute('ry', Math.max(0.6, currentRy).toFixed(2));
+      greyEyeBg.setAttribute('fill', fillColor);
+    }
+
+    const rawDx = currentPx + this.#greyMouseOffset.x;
+    const rawDy = currentPy + this.#greyMouseOffset.y;
+    const clamped = this.#getClampedPupilOffset(rawDx, rawDy, currentRx, currentRy, pupilRx, pupilRy);
+
+    if (greyEyePupil && !this.#isGreyBlinking) {
+      greyEyePupil.setAttribute('cx', (eyeX + clamped.x).toFixed(2));
+      greyEyePupil.setAttribute('cy', (eyeY + clamped.y).toFixed(2));
+      greyEyePupil.setAttribute('rx', pupilRx.toFixed(2));
+      greyEyePupil.setAttribute('ry', pupilRy.toFixed(2));
+      greyEyePupil.setAttribute('opacity', pupilRy > 0.05 ? '1' : '0');
+    }
+
+    if (greyEyeShine && !this.#isGreyBlinking) {
+      greyEyeShine.setAttribute('cx', (eyeX + clamped.x - currentRx * 0.22).toFixed(2));
+      greyEyeShine.setAttribute('cy', (eyeY + clamped.y - currentRy * 0.22).toFixed(2));
+      greyEyeShine.setAttribute('rx', shineRx.toFixed(2));
+      greyEyeShine.setAttribute('ry', shineRy.toFixed(2));
+      greyEyeShine.setAttribute('opacity', shineRy > 0.05 ? '1' : '0');
+    }
+
+    const x3 = points[4], y3 = points[5];
+    const x4 = points[6], y4 = points[7];
+    const dx = x3 - x4, dy = y3 - y4;
+    const topLen = Math.hypot(dx, dy) || 1;
+    const nx = dy / topLen;
+    const ny = -dx / topLen;
+
+    if (greyEarLeft) {
+      greyEarLeft.style.display = 'inline';
+      greyEarLeft.setAttribute('opacity', '1');
+      const b1x = x4, b1y = y4;
+      const b2x = x4 + 0.38 * dx, b2y = y4 + 0.38 * dy;
+      const twitchLeft = this.#activeGreyTwitchEar === 'left' ? this.#greyEarTwitchOffset : 0;
+      const tipX = x4 + 0.12 * dx + nx * (15 + twitchLeft);
+      const tipY = y4 + 0.12 * dy + ny * (15 + twitchLeft);
+      const pts = `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`;
+      greyEarLeft.setAttribute('points', pts);
+
+      if (greyEarLeftInner) {
+        greyEarLeftInner.style.display = 'inline';
+        const ib1x = x4 + 0.08 * dx + nx * 1.5;
+        const ib1y = y4 + 0.08 * dy + ny * 1.5;
+        const ib2x = x4 + 0.30 * dx + nx * 1.5;
+        const ib2y = y4 + 0.30 * dy + ny * 1.5;
+        const itipX = x4 + 0.13 * dx + nx * (11.5 + twitchLeft);
+        const itipY = y4 + 0.13 * dy + ny * (11.5 + twitchLeft);
+        const ipts = `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`;
+        greyEarLeftInner.setAttribute('points', ipts);
+      }
+    }
+
+    if (greyEarRight) {
+      greyEarRight.style.display = 'inline';
+      greyEarRight.setAttribute('opacity', '1');
+      const b1x = x4 + 0.62 * dx, b1y = y4 + 0.62 * dy;
+      const b2x = x3, b2y = y3;
+      const twitchRight = this.#activeGreyTwitchEar === 'right' ? this.#greyEarTwitchOffset : 0;
+      const tipX = x4 + 0.88 * dx + nx * (15 + twitchRight);
+      const tipY = y4 + 0.88 * dy + ny * (15 + twitchRight);
+      const pts = `${b1x.toFixed(2)},${b1y.toFixed(2)} ${tipX.toFixed(2)},${tipY.toFixed(2)} ${b2x.toFixed(2)},${b2y.toFixed(2)}`;
+      greyEarRight.setAttribute('points', pts);
+
+      if (greyEarRightInner) {
+        greyEarRightInner.style.display = 'inline';
+        const ib1x = x4 + 0.70 * dx + nx * 1.5;
+        const ib1y = y4 + 0.70 * dy + ny * 1.5;
+        const ib2x = x4 + 0.92 * dx + nx * 1.5;
+        const ib2y = y4 + 0.92 * dy + ny * 1.5;
+        const itipX = x4 + 0.87 * dx + nx * (11.5 + twitchRight);
+        const itipY = y4 + 0.87 * dy + ny * (11.5 + twitchRight);
+        const ipts = `${ib1x.toFixed(2)},${ib1y.toFixed(2)} ${itipX.toFixed(2)},${itipY.toFixed(2)} ${ib2x.toFixed(2)},${ib2y.toFixed(2)}`;
+        greyEarRightInner.setAttribute('points', ipts);
+      }
+    }
+
+    const noseX = eyeX + 0.5;
+    const noseY = eyeY + Math.max(currentRy, 5) + 3;
+    const nosePts = `${noseX.toFixed(2)},${(noseY + 3).toFixed(2)} ${(noseX - 2.5).toFixed(2)},${noseY.toFixed(2)} ${(noseX + 2.5).toFixed(2)},${noseY.toFixed(2)}`;
+    if (greyCatNose) {
+      greyCatNose.setAttribute('points', nosePts);
+    }
+
+    const leftW = currentPupil.leftW !== undefined ? currentPupil.leftW : 1;
+    const rightW = currentPupil.rightW !== undefined ? currentPupil.rightW : 1;
+
+    if (greyWhiskersLeftGroup) {
+      greyWhiskersLeftGroup.style.display = leftW > 0.5 ? 'inline' : 'none';
+      greyWhiskersLeftGroup.setAttribute('opacity', leftW > 0.5 ? '1' : '0');
+    }
+    if (greyWhiskersRightGroup) {
+      greyWhiskersRightGroup.style.display = rightW > 0.5 ? 'inline' : 'none';
+      greyWhiskersRightGroup.setAttribute('opacity', rightW > 0.5 ? '1' : '0');
+    }
+
+    const jitter = this.#whiskerJitter;
+    const leftWhiskerStartX = eyeX - Math.max(currentRx, 6) - 2;
+
+    if (gwl1) {
+      gwl1.setAttribute('x1', leftWhiskerStartX.toFixed(2));
+      gwl1.setAttribute('y1', (eyeY - 2 + jitter).toFixed(2));
+      gwl1.setAttribute('x2', (leftWhiskerStartX - 13).toFixed(2));
+      gwl1.setAttribute('y2', (eyeY - 6 + jitter).toFixed(2));
+    }
+    if (gwl2) {
+      gwl2.setAttribute('x1', (leftWhiskerStartX - 1).toFixed(2));
+      gwl2.setAttribute('y1', (eyeY + 3 - jitter).toFixed(2));
+      gwl2.setAttribute('x2', (leftWhiskerStartX - 15).toFixed(2));
+      gwl2.setAttribute('y2', (eyeY + 3 - jitter).toFixed(2));
+    }
+    if (gwl3) {
+      gwl3.setAttribute('x1', leftWhiskerStartX.toFixed(2));
+      gwl3.setAttribute('y1', (eyeY + 8 + jitter).toFixed(2));
+      gwl3.setAttribute('x2', (leftWhiskerStartX - 12).toFixed(2));
+      gwl3.setAttribute('y2', (eyeY + 11 + jitter).toFixed(2));
+    }
+
+    const rightWhiskerStartX = eyeX + Math.max(currentRx, 6) + 2;
+    if (gwr1) {
+      gwr1.setAttribute('x1', rightWhiskerStartX.toFixed(2));
+      gwr1.setAttribute('y1', (eyeY - 2 - jitter).toFixed(2));
+      gwr1.setAttribute('x2', (rightWhiskerStartX + 13).toFixed(2));
+      gwr1.setAttribute('y2', (eyeY - 6 - jitter).toFixed(2));
+    }
+    if (gwr2) {
+      gwr2.setAttribute('x1', (rightWhiskerStartX + 1).toFixed(2));
+      gwr2.setAttribute('y1', (eyeY + 3 + jitter).toFixed(2));
+      gwr2.setAttribute('x2', (rightWhiskerStartX + 15).toFixed(2));
+      gwr2.setAttribute('y2', (eyeY + 3 + jitter).toFixed(2));
+    }
+    if (gwr3) {
+      gwr3.setAttribute('x1', rightWhiskerStartX.toFixed(2));
+      gwr3.setAttribute('y1', (eyeY + 8 - jitter).toFixed(2));
+      gwr3.setAttribute('x2', (rightWhiskerStartX + 12).toFixed(2));
+      gwr3.setAttribute('y2', (eyeY + 11 - jitter).toFixed(2));
     }
   }
 
@@ -870,6 +1305,7 @@ export class AuthView {
         rightW: targetPupil.rightW
       };
 
+      this.#currentPointsKiko = interpolated;
       this.#currentEyeState = currentPupil;
       this.#renderMascotFrame(interpolated, currentPupil);
 
