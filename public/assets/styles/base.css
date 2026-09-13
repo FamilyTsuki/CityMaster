@@ -91,6 +91,9 @@ img {
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+  padding-top: 0;
+  padding-bottom: 0 !important;
   padding-left: max(16px, env(safe-area-inset-left));
   padding-right: max(16px, env(safe-area-inset-right));
 }
@@ -99,6 +102,7 @@ img {
   opacity: 1;
   visibility: visible;
   transform: translate3d(0, 0, 0) scale(1);
+  padding-bottom: 0 !important;
 }
 
 #game-screen {

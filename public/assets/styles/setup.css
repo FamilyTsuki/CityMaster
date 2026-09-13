@@ -1,6 +1,4 @@
-/* ==========================================
-   CityMaster Setup Screen Styles (Paper Theme)
-   ========================================== */
+
 
 #setup-screen {
   display: flex;
@@ -39,13 +37,13 @@
   box-sizing: border-box;
 }
 
-/* Children layering relative to pseudo-elements */
+
 .setup-card > * {
   position: relative;
   z-index: 2;
 }
 
-/* Hand-drawn wobbly paper border on pseudo-element */
+
 .setup-card::after {
   content: '';
   position: absolute;
@@ -58,7 +56,7 @@
   z-index: 1;
 }
 
-/* Scotch tape piece on top center */
+
 .setup-card::before {
   content: '';
   position: absolute;
@@ -117,17 +115,7 @@
   stroke: var(--landing-ink, #26190f);
 }
 
-#setup-title {
-  font-family: 'Lilita One', 'Titan One', cursive, sans-serif;
-  font-size: 2rem;
-  font-weight: 900;
-  margin: 0;
-  color: var(--landing-ink, #26190f);
-  text-shadow: 2px 2px 0px rgba(255, 255, 255, 0.7);
-  letter-spacing: -0.01em;
-  background: none;
-  -webkit-text-fill-color: initial;
-}
+
 
 .setup-grid {
   display: flex;
@@ -190,7 +178,7 @@
   cursor: pointer;
 }
 
-/* Custom Dropdown List */
+
 .dropdown-list {
   position: absolute;
   top: calc(100% + 4px);
@@ -242,7 +230,7 @@
   flex-shrink: 0;
 }
 
-/* Error message badge */
+
 .setup-col .error-msg {
   background-color: rgba(239, 68, 68, 0.12);
   color: var(--danger, #ef4444);
@@ -256,7 +244,7 @@
   text-align: left;
 }
 
-/* Action Buttons */
+
 #start-btn {
   display: inline-flex;
   align-items: center;
@@ -265,33 +253,38 @@
   width: 100%;
   height: 48px;
   margin-top: 8px;
-  background: var(--paper-primary-bg, #f59e0b);
+  background: var(--paper-primary-hover, #d97706);
   color: var(--landing-ink, #26190f);
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 14px;
-  font-family: 'Lilita One', 'Titan One', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 900;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  box-shadow: 0 4px 0px var(--paper-primary-depth, #92400e);
-  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease, background-color 0.15s ease;
+  box-shadow: 0 3.5px 0px var(--landing-shadow, #26190f);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 }
 
 #start-btn:hover {
-  background: var(--paper-primary-hover, #d97706);
+  background: var(--paper-primary-depth, #b45309);
+  color: var(--landing-ink, #26190f);
   transform: translateY(-2px);
-  box-shadow: 0 6px 0px var(--paper-primary-depth, #92400e);
+  box-shadow: 0 5px 0px var(--landing-shadow, #26190f);
 }
 
 #start-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 1.5px 0px var(--paper-primary-depth, #92400e);
+  box-shadow: 0 1.5px 0px var(--landing-shadow, #26190f);
 }
 
 #start-btn .action-icon {
   width: 20px;
   height: 20px;
-  stroke: var(--landing-ink, #26190f);
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  color: inherit !important;
+  flex-shrink: 0;
 }
 
 #setup-room-btn {
@@ -326,12 +319,15 @@
 }
 
 #setup-room-btn .action-icon {
-  width: 18px;
-  height: 18px;
-  stroke: var(--landing-ink, #26190f);
+  width: 20px;
+  height: 20px;
+  stroke: currentColor !important;
+  color: inherit !important;
+  stroke-width: 2.5px;
+  flex-shrink: 0;
 }
 
-/* Right Column - Leaderboard Section */
+
 .leaderboard-section {
   display: flex;
   flex-direction: column;
@@ -385,12 +381,13 @@
   color: var(--landing-ink, #26190f);
 }
 
-.setup-leaderboard-tab-btn.active {
-  background: var(--paper-badge-bg, #fde047);
-  color: var(--landing-ink, #26190f);
-  border: 2.5px solid var(--landing-ink, #26190f);
-  box-shadow: 0 2.5px 0px var(--landing-shadow, #26190f);
-  font-weight: 900;
+.setup-leaderboard-tab-btn.active,
+.btn.secondary.active.setup-leaderboard-tab-btn {
+  background: var(--paper-primary-hover, #d97706) !important;
+  color: var(--landing-ink, #26190f) !important;
+  border: 2.5px solid var(--landing-ink, #26190f) !important;
+  box-shadow: 0 2.5px 0px var(--landing-shadow, #26190f) !important;
+  font-weight: 900 !important;
 }
 
 .leaderboard-container {
@@ -524,7 +521,5 @@
     padding-top: 16px;
   }
 
-  #setup-title {
-    font-size: 1.6rem;
-  }
+
 }

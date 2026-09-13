@@ -110,15 +110,15 @@ const MASCOT_COORDINATES = {
 
 const MASCOT_EYE_STATES = {
   desktop: {
-    default:       { offsetX: 0,  offsetY: 0,  px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
-    username:      { offsetX: 8,  offsetY: 0,  px: 4,    py: 1,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 0, leftEar: 1, rightEar: 1 },
-    password:      { offsetX: -8, offsetY: 0,  px: -4,   py: -1,  rx: 7.5, ry: 7.5, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 },
-    passwordShown: { offsetX: -6, offsetY: 2,  px: 0,    py: 0,   rx: 9.0, ry: 0.9, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 }
+    default:       { offsetX: 0,   offsetY: 0,  px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
+    username:      { offsetX: 8,   offsetY: 0,  px: 4,    py: 1,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 0, leftEar: 1, rightEar: 1 },
+    password:      { offsetX: -14, offsetY: 0,  px: -6,   py: 0,   rx: 7.5, ry: 7.5, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 },
+    passwordShown: { offsetX: -12, offsetY: 2,  px: -5,   py: 1,   rx: 9.0, ry: 0.9, leftW: 0, rightW: 1, leftEar: 1, rightEar: 1 }
   },
   mobile: {
     default:       { offsetX: 0,  offsetY: 0,   px: 0,    py: 0,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
     username:      { offsetX: 0,  offsetY: 5,   px: 0,    py: 3,   rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
-    password:      { offsetX: 0,  offsetY: -8,  px: 0,    py: -3,  rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
+    password:      { offsetX: 0,  offsetY: -12, px: 0,    py: -5,  rx: 8.5, ry: 8.5, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 },
     passwordShown: { offsetX: 0,  offsetY: -15, px: 0,    py: -4,  rx: 9.0, ry: 0.9, leftW: 1, rightW: 1, leftEar: 1, rightEar: 1 }
   }
 };
@@ -434,7 +434,10 @@ export class AuthView {
       const distance = Math.hypot(deltaX, deltaY);
       const angle = Math.atan2(deltaY, deltaX);
 
-      const maxOffset = Math.min(3.8, distance / 80);
+      let maxOffset = Math.min(3.8, distance / 80);
+      if (deltaX < -30) {
+        maxOffset = Math.min(1.5, maxOffset);
+      }
       const targetX = Math.cos(angle) * maxOffset;
       const targetY = Math.sin(angle) * maxOffset;
 
@@ -525,8 +528,12 @@ export class AuthView {
         const shineRx = Math.max(0, currentRx * 0.15);
         const shineRy = Math.max(0, (currentRy - 3.0) * 0.15);
 
-        const rawDx = currentPx + this.#currentMouseOffset.x;
-        const rawDy = currentPy + this.#currentMouseOffset.y;
+        const isPasswordMode = this.#currentMascotStateKey === 'password' || this.#currentMascotStateKey === 'passwordShown';
+        const mouseX = isPasswordMode ? 0 : this.#currentMouseOffset.x;
+        const mouseY = isPasswordMode ? 0 : this.#currentMouseOffset.y;
+
+        const rawDx = currentPx + mouseX;
+        const rawDy = currentPy + mouseY;
 
         const clamped = this.#getClampedPupilOffset(rawDx, rawDy, currentRx, currentRy, pupilRx, pupilRy);
 
@@ -984,8 +991,12 @@ export class AuthView {
       greyEyeBg.setAttribute('fill', fillColor);
     }
 
-    const rawDx = currentPx + this.#greyMouseOffset.x;
-    const rawDy = currentPy + this.#greyMouseOffset.y;
+    const isPasswordMode = this.#currentMascotStateKey === 'password' || this.#currentMascotStateKey === 'passwordShown';
+    const greyMouseX = isPasswordMode ? 0 : this.#greyMouseOffset.x;
+    const greyMouseY = isPasswordMode ? 0 : this.#greyMouseOffset.y;
+
+    const rawDx = currentPx + greyMouseX;
+    const rawDy = currentPy + greyMouseY;
     const clamped = this.#getClampedPupilOffset(rawDx, rawDy, currentRx, currentRy, pupilRx, pupilRy);
 
     if (greyEyePupil && !this.#isGreyBlinking) {

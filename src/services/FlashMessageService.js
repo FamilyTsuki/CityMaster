@@ -39,14 +39,17 @@ export class FlashMessageService {
     `;
 
     const closeButton = flashElement.querySelector('.flash-close-btn');
+    let isDismissed = false;
     const dismissHandler = () => {
+      if (isDismissed) return;
+      isDismissed = true;
       flashElement.classList.remove('show');
       flashElement.classList.add('hide');
       setTimeout(() => {
         if (flashElement.parentNode) {
           flashElement.parentNode.removeChild(flashElement);
         }
-      }, 350);
+      }, 420);
     };
 
     if (closeButton) {
@@ -56,7 +59,9 @@ export class FlashMessageService {
     container.appendChild(flashElement);
 
     requestAnimationFrame(() => {
-      flashElement.classList.add('show');
+      requestAnimationFrame(() => {
+        flashElement.classList.add('show');
+      });
     });
 
     if (duration > 0) {

@@ -1,13 +1,11 @@
-/* ==========================================
-   CityMaster Game / Play Screen Styles (Paper Theme)
-   ========================================== */
-
 #game-screen {
-  position: absolute !important;
+  position: fixed !important;
   top: 0 !important;
   left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  z-index: 10 !important;
   display: flex !important;
   flex-direction: column;
   overflow: hidden !important;
@@ -29,10 +27,9 @@
   z-index: 1;
 }
 
-/* Floating Top Instruction Banner */
 .ui-overlay-top {
   position: absolute;
-  top: 20px;
+  top: calc(64px + max(12px, env(safe-area-inset-top)));
   left: 50%;
   transform: translate3d(-50%, 0, 0);
   padding: 14px 28px;
@@ -68,7 +65,7 @@
   }
 }
 
-/* Round Progress Dots */
+
 .hud-round-indicators {
   display: flex;
   align-items: center;
@@ -100,7 +97,7 @@
   background-color: #ef4444;
 }
 
-/* Instruction Text */
+
 .instruction-text {
   font-family: 'Lilita One', 'Titan One', sans-serif;
   font-size: 1.25rem;
@@ -110,7 +107,7 @@
   line-height: 1.3;
 }
 
-/* Combo Badge */
+
 .combo-badge {
   display: inline-flex;
   align-items: center;
@@ -138,7 +135,7 @@
   }
 }
 
-/* Timer Container */
+
 .timer-container {
   width: 100%;
   height: 10px;
@@ -156,7 +153,7 @@
   transition: width 0.1s linear;
 }
 
-/* Map Style Controls Top-Left */
+
 .ui-overlay-top-left {
   position: absolute;
   top: 20px;
@@ -196,10 +193,9 @@
   box-shadow: 0 2px 0px var(--landing-shadow, #26190f);
 }
 
-/* Top-Right Quick Actions (Quit & Report) */
 .ui-overlay-top-right {
   position: absolute;
-  top: 20px;
+  top: calc(64px + max(12px, env(safe-area-inset-top)));
   right: 20px;
   z-index: 1000;
   display: flex;
@@ -238,7 +234,7 @@
   color: var(--landing-ink, #26190f);
 }
 
-/* Satellite Toggle Bottom-Left */
+
 .ui-overlay-bottom-left {
   position: absolute;
   bottom: 24px;
@@ -272,7 +268,7 @@
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Bottom Actions Panel */
+
 .ui-overlay-bottom {
   position: absolute;
   bottom: 28px;
@@ -390,7 +386,7 @@
   box-shadow: 0 1.5px 0px #047857;
 }
 
-/* Autocomplete Dropdown List */
+
 #autocomplete-suggestions {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -425,7 +421,7 @@
   transform: translateX(2px);
 }
 
-/* Map Loader Overlay */
+
 .map-overlay-loader {
   position: absolute;
   top: 0;
@@ -456,7 +452,7 @@
   margin-top: 16px;
 }
 
-/* Report Problem Modal */
+
 #report-modal.modal-overlay.hidden {
   display: none !important;
 }
@@ -562,12 +558,11 @@
   box-shadow: 0 3.5px 0px var(--paper-primary-depth, #92400e);
 }
 
-/* Responsive Media Queries */
 @media (max-width: 640px) {
   .ui-overlay-top {
     max-width: calc(100% - 32px);
     padding: 10px 16px;
-    top: 12px;
+    top: calc(60px + max(8px, env(safe-area-inset-top)));
   }
 
   .instruction-text {
@@ -575,12 +570,12 @@
   }
 
   .ui-overlay-top-left {
-    top: 12px;
+    top: calc(60px + max(8px, env(safe-area-inset-top)));
     left: 12px;
   }
 
   .ui-overlay-top-right {
-    top: 12px;
+    top: calc(60px + max(8px, env(safe-area-inset-top)));
     right: 12px;
   }
 

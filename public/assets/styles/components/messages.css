@@ -61,19 +61,38 @@
   line-height: 1.4;
   box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.2), 0 4px 12px -2px rgba(0, 0, 0, 0.1);
   backdrop-filter: blur(12px);
+  overflow: hidden;
+  max-height: 120px;
+  margin-top: 0;
+  margin-bottom: 0;
   opacity: 0;
-  transform: translateX(110%) scale(0.95);
-  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translate3d(100%, 0, 0) scale(0.92);
+  transition:
+    opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    max-height 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    gap 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity, max-height;
 }
 
 .flash-message.show {
   opacity: 1;
-  transform: translateX(0) scale(1);
+  transform: translate3d(0, 0, 0) scale(1);
+  max-height: 140px;
 }
 
 .flash-message.hide {
-  opacity: 0;
-  transform: translateX(110%) scale(0.9);
+  opacity: 0 !important;
+  transform: translate3d(100%, -10px, 0) scale(0.85) !important;
+  max-height: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  margin-top: -10px !important;
+  margin-bottom: 0 !important;
+  gap: 0 !important;
+  border-width: 0 !important;
 }
 
 .flash-message.flash-error {

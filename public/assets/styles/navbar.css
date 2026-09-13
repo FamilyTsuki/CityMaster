@@ -3,12 +3,12 @@
   justify-content: space-between;
   align-items: center;
   position: sticky;
-  top: max(12px, env(safe-area-inset-top));
-  margin: max(12px, env(safe-area-inset-top)) auto 0 auto;
+  top: max(8px, env(safe-area-inset-top));
+  margin: max(8px, env(safe-area-inset-top)) auto 0 auto;
   width: calc(100% - 32px);
   max-width: 1280px;
-  height: 60px;
-  min-height: 60px;
+  height: 56px;
+  min-height: 56px;
   padding: 0 24px;
   background-color: var(--landing-card-bg, #f8f0de);
   background-image: repeating-linear-gradient(
@@ -113,8 +113,8 @@
   gap: 6px;
   box-sizing: border-box;
   background: var(--paper-primary-bg, #f59e0b);
-  color: var(--paper-badge-text, #26190f);
-  border: 2.5px solid var(--landing-ink, #26190f) !important;
+  color: #26190f !important;
+  border: 2.5px solid #26190f !important;
   border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
   box-shadow: 0 3px 0px var(--paper-primary-depth, #92400e);
   cursor: pointer;
@@ -126,7 +126,7 @@
 #nav-login-btn:hover,
 .pwa-install-btn-style:hover {
   background: var(--paper-primary-hover, #d97706);
-  color: var(--paper-badge-text, #26190f);
+  color: #26190f !important;
   transform: translateY(-2px) rotate(-1deg);
   box-shadow: 0 5px 0px var(--paper-primary-depth, #92400e);
 }

@@ -24,6 +24,13 @@
   backface-visibility: hidden;
 }
 
+.btn svg,
+.btn .action-icon {
+  stroke: currentColor;
+  color: inherit;
+  flex-shrink: 0;
+}
+
 .btn:hover {
   background: linear-gradient(135deg, var(--primary-hover) 0%, #3730a3 100%);
   transform: translate3d(0, -2px, 0);
