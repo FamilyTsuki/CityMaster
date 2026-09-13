@@ -1,7 +1,3 @@
-/* ==========================================
-   CityMaster Room Screen Styles (Paper Theme)
-   ========================================== */
-
 #room-screen {
   display: flex;
   flex-direction: column;
@@ -28,7 +24,7 @@
   box-sizing: border-box;
 }
 
-/* Paper Notebook Cards */
+
 .room-card,
 #room-screen .room-card,
 #room-lobby-step {
@@ -53,14 +49,14 @@
   box-sizing: border-box;
 }
 
-/* Layering relative to pseudo-elements */
+
 .room-card > *,
 #room-lobby-step > * {
   position: relative;
   z-index: 2;
 }
 
-/* Hand-drawn wobbly paper border */
+
 .room-card::after,
 #room-lobby-step::after {
   content: '';
@@ -74,7 +70,7 @@
   z-index: 1;
 }
 
-/* Scotch tape piece on top center */
+
 .room-card::before,
 #room-lobby-step::before {
   content: '';
@@ -93,7 +89,7 @@
   filter: url(#paper-wobbly-line);
 }
 
-/* Specific Card Widths */
+
 #room-guest-step {
   max-width: 480px;
   padding: 32px 36px;
@@ -212,7 +208,7 @@
   margin-bottom: 4px;
 }
 
-/* Number Input Counter Wrapper */
+
 .number-input-wrapper {
   display: flex;
   align-items: center;
@@ -268,7 +264,7 @@
   transform: scale(0.92);
 }
 
-/* Buttons */
+
 .room-btn-wide {
   display: inline-flex;
   align-items: center;
@@ -286,18 +282,22 @@
 }
 
 #room-create-btn,
+#lobby-start-btn,
 #room-guest-form button[type="submit"] {
-  background: var(--paper-primary-bg, #f59e0b);
+  background: var(--paper-primary-hover, #d97706);
   color: var(--landing-ink, #26190f);
   border: 2.5px solid var(--landing-ink, #26190f);
-  box-shadow: 0 4px 0px var(--paper-primary-depth, #92400e);
+  box-shadow: 0 3.5px 0px var(--landing-shadow, #26190f);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-weight: 800;
 }
 
 #room-create-btn:hover,
+#lobby-start-btn:hover,
 #room-guest-form button[type="submit"]:hover {
-  background: var(--paper-primary-hover, #d97706);
+  background: var(--paper-primary-depth, #b45309);
   transform: translateY(-2px);
-  box-shadow: 0 6px 0px var(--paper-primary-depth, #92400e);
+  box-shadow: 0 5px 0px var(--landing-shadow, #26190f);
 }
 
 #room-join-btn {
@@ -341,7 +341,7 @@
   color: var(--paper-primary-hover, #d97706);
 }
 
-/* Error message badge */
+
 .error-message {
   background-color: rgba(239, 68, 68, 0.12);
   color: var(--danger, #ef4444);
@@ -359,7 +359,7 @@
   display: none !important;
 }
 
-/* Lobby Step */
+
 .lobby-header {
   display: flex;
   justify-content: space-between;
@@ -572,7 +572,7 @@
   box-shadow: 0 2.5px 0px var(--landing-shadow, #26190f);
 }
 
-/* Results Step */
+
 .results-table-wrapper {
   background: var(--bg-card-solid, #ffffff);
   border: 2.5px solid var(--landing-ink, #26190f);
@@ -649,7 +649,7 @@
   transform: translateY(-2px);
 }
 
-/* Confirmation Modal */
+
 .modal-overlay.hidden,
 #room-confirm-modal.hidden {
   display: none !important;
@@ -726,7 +726,7 @@
   cursor: pointer;
 }
 
-/* Responsive Media Queries */
+
 @media (max-width: 768px) {
   #room-screen {
     padding: 24px 12px 32px 12px;
