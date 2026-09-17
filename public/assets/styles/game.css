@@ -45,7 +45,9 @@
   );
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 18px 14px 16px 12px / 12px 16px 14px 18px;
-  box-shadow: 4px 5px 0px var(--landing-shadow, #26190f), 0 12px 28px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    4px 5px 0px var(--landing-shadow, #26190f),
+    0 12px 28px rgba(0, 0, 0, 0.15);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -65,7 +67,6 @@
   }
 }
 
-
 .hud-round-indicators {
   display: flex;
   align-items: center;
@@ -80,7 +81,9 @@
   background-color: var(--bg-card-solid, #ffffff);
   border: 2px solid var(--landing-ink, #26190f);
   box-shadow: 0 1.5px 0px var(--landing-shadow, #26190f);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -97,16 +100,14 @@
   background-color: #ef4444;
 }
 
-
 .instruction-text {
-  font-family: 'Lilita One', 'Titan One', sans-serif;
+  font-family: "Lilita One", "Titan One", sans-serif;
   font-size: 1.25rem;
   font-weight: 900;
   color: var(--landing-ink, #26190f);
   letter-spacing: -0.01em;
   line-height: 1.3;
 }
-
 
 .combo-badge {
   display: inline-flex;
@@ -117,7 +118,7 @@
   color: var(--landing-ink, #26190f);
   border: 2px solid var(--landing-ink, #26190f);
   border-radius: 10px;
-  font-family: 'Lilita One', sans-serif;
+  font-family: "Lilita One", sans-serif;
   font-size: 0.95rem;
   font-weight: 900;
   box-shadow: 0 2.5px 0px var(--landing-shadow, #26190f);
@@ -135,7 +136,6 @@
   }
 }
 
-
 .timer-container {
   width: 100%;
   height: 10px;
@@ -152,7 +152,6 @@
   border-radius: 999px;
   transition: width 0.1s linear;
 }
-
 
 .ui-overlay-top-left {
   position: absolute;
@@ -179,7 +178,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .map-style-btn:hover {
@@ -214,7 +215,10 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 2.5px 3.5px 0px var(--landing-shadow, #26190f);
-  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .quit-btn:hover {
@@ -233,7 +237,6 @@
   background: var(--paper-badge-bg, #fde047);
   color: var(--landing-ink, #26190f);
 }
-
 
 .ui-overlay-bottom-left {
   position: absolute;
@@ -254,7 +257,9 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 2.5px 3.5px 0px var(--landing-shadow, #26190f);
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .satellite-btn:hover {
@@ -267,7 +272,6 @@
   background: var(--paper-badge-bg, #fde047);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
 
 .ui-overlay-bottom {
   position: absolute;
@@ -308,13 +312,15 @@
   color: var(--landing-ink, #26190f);
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 12px;
-  font-family: 'Lilita One', sans-serif;
+  font-family: "Lilita One", sans-serif;
   font-size: 1rem;
   font-weight: 900;
   cursor: pointer;
   box-shadow: 0 3px 0px var(--paper-primary-depth, #92400e);
   flex-shrink: 0;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    background-color 0.15s ease;
 }
 
 #submit-answer-btn:hover {
@@ -335,7 +341,7 @@
   color: var(--landing-ink, #26190f);
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 16px;
-  font-family: 'Lilita One', 'Titan One', sans-serif;
+  font-family: "Lilita One", "Titan One", sans-serif;
   font-size: 1.15rem;
   font-weight: 900;
   cursor: pointer;
@@ -343,7 +349,10 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease;
 }
 
 #validate-btn:hover {
@@ -364,7 +373,7 @@
   color: #ffffff;
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 16px;
-  font-family: 'Lilita One', 'Titan One', sans-serif;
+  font-family: "Lilita One", "Titan One", sans-serif;
   font-size: 1.15rem;
   font-weight: 900;
   cursor: pointer;
@@ -372,7 +381,9 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 #next-btn:hover {
@@ -386,7 +397,6 @@
   box-shadow: 0 1.5px 0px #047857;
 }
 
-
 #autocomplete-suggestions {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -397,7 +407,9 @@
   background: var(--landing-card-bg, #f8f0de);
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 14px;
-  box-shadow: 4px 6px 0px var(--landing-shadow, #26190f), 0 10px 20px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    4px 6px 0px var(--landing-shadow, #26190f),
+    0 10px 20px rgba(0, 0, 0, 0.15);
   z-index: 2500;
   list-style: none;
   padding: 6px;
@@ -406,13 +418,15 @@
 
 #autocomplete-suggestions .dropdown-item {
   padding: 10px 14px;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--landing-ink, #26190f);
   cursor: pointer;
   border-radius: 8px;
-  transition: background-color 0.12s ease, transform 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    transform 0.12s ease;
 }
 
 #autocomplete-suggestions .dropdown-item:hover,
@@ -420,7 +434,6 @@
   background-color: var(--paper-badge-bg, #fde047);
   transform: translateX(2px);
 }
-
 
 .map-overlay-loader {
   position: absolute;
@@ -435,7 +448,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.25s ease, visibility 0.25s ease;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
 }
 
 .map-overlay-loader.hidden {
@@ -445,13 +460,12 @@
 }
 
 .map-overlay-loader p {
-  font-family: 'Lilita One', cursive, sans-serif;
+  font-family: "Lilita One", cursive, sans-serif;
   font-size: 1.2rem;
   font-weight: 900;
   color: var(--landing-ink, #26190f);
   margin-top: 16px;
 }
-
 
 #report-modal.modal-overlay.hidden {
   display: none !important;
@@ -495,7 +509,7 @@
 }
 
 #report-modal .modal-title {
-  font-family: 'Lilita One', 'Titan One', cursive, sans-serif;
+  font-family: "Lilita One", "Titan One", cursive, sans-serif;
   font-size: 1.4rem;
   font-weight: 900;
   color: var(--landing-ink, #26190f);
@@ -517,7 +531,7 @@
   border: 2px solid var(--landing-ink, #26190f);
   border-radius: 12px;
   padding: 12px 14px;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.88rem;
   box-shadow: 0 2px 0px var(--landing-shadow, #26190f);
   display: flex;
@@ -538,10 +552,69 @@
 }
 
 #report-modal .form-label {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.88rem;
   font-weight: 800;
   color: var(--landing-ink, #26190f);
+}
+
+#report-modal select,
+#report-modal #report-category-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--bg-card-solid, #ffffff);
+  color: var(--landing-ink, #26190f);
+  border: 2.5px solid var(--landing-ink, #26190f);
+  border-radius: 12px;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  height: 42px;
+  padding: 0 2.5rem 0 14px;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2326190f' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.85rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] #report-modal select,
+[data-theme="dark"] #report-modal #report-category-select {
+  background-color: rgba(28, 19, 11, 0.85);
+  color: var(--text-main, #fdf8f2);
+  border-color: var(--landing-ink, #fdf8f2);
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23fdf8f2' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.85rem center;
+  background-repeat: no-repeat;
+  background-size: 1.25em 1.25em;
+}
+
+#report-modal select:focus,
+#report-modal #report-category-select:focus {
+  outline: none;
+  border-color: var(--paper-primary-bg, #f59e0b);
+  box-shadow: 0 0 0 3.5px var(--primary-glow, rgba(245, 158, 11, 0.35));
+}
+
+#report-modal select option {
+  background-color: var(--bg-card-solid, #ffffff);
+  color: var(--landing-ink, #26190f);
+}
+
+[data-theme="dark"] #report-modal select option {
+  background-color: #1e130a;
+  color: var(--text-main, #fdf8f2);
+}
+
+#report-modal textarea,
+#report-modal textarea.input-premium {
+  height: auto !important;
+  min-height: 96px !important;
+  padding: 10px 14px !important;
+  resize: vertical;
+  line-height: 1.45;
+  box-sizing: border-box;
 }
 
 #report-modal #report-submit-btn {
@@ -551,7 +624,7 @@
   color: var(--landing-ink, #26190f);
   border: 2.5px solid var(--landing-ink, #26190f);
   border-radius: 12px;
-  font-family: 'Lilita One', sans-serif;
+  font-family: "Lilita One", sans-serif;
   font-size: 1.05rem;
   font-weight: 900;
   cursor: pointer;

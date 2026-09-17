@@ -1,12 +1,14 @@
 <div id="game-screen" class="screen">
   <div class="map-area">
     <div id="map"></div>
-    
+
     <div id="map-loader" class="map-overlay-loader">
       <div class="loader-spinner"></div>
-      <p id="map-loader-message" data-i18n="game.loading_geo">Chargement des données géographiques...</p>
+      <p id="map-loader-message" data-i18n="game.loading_geo">
+        Chargement des données géographiques...
+      </p>
     </div>
-    
+
     <div id="top-banner" class="ui-overlay-top glass-panel hidden">
       <div class="hud-round-indicators" id="round-indicators">
         <span class="round-dot" data-round="1"></span>
@@ -15,9 +17,9 @@
         <span class="round-dot" data-round="4"></span>
         <span class="round-dot" data-round="5"></span>
       </div>
-      
+
       <span id="game-instruction" class="instruction-text">Chargement...</span>
-      
+
       <div id="combo-badge" class="combo-badge hidden">
         <span class="combo-icon">⚡</span>
         <span id="combo-text">Combo x2</span>
@@ -28,10 +30,25 @@
       </div>
     </div>
 
-
     <div id="bottom-left-actions" class="ui-overlay-bottom-left">
-      <button id="satellite-toggle-btn" class="satellite-btn" title="Vue Satellite (Activer/Désactiver)" data-i18n-title="game.toggle_satellite" aria-label="Basculer la vue satellite">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="satellite-icon" aria-hidden="true">
+      <button
+        id="satellite-toggle-btn"
+        class="satellite-btn"
+        title="Vue Satellite (Activer/Désactiver)"
+        data-i18n-title="game.toggle_satellite"
+        aria-label="Basculer la vue satellite"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="satellite-icon"
+          aria-hidden="true"
+        >
           <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
           <polyline points="2 17 12 22 22 17"></polyline>
           <polyline points="2 12 12 17 22 12"></polyline>
@@ -40,71 +57,192 @@
     </div>
 
     <div id="top-right-actions" class="ui-overlay-top-right">
-      <button id="quit-btn" class="quit-btn" title="Quitter la partie (Échap)" data-i18n-title="game.quit_title">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon game-action-icon-left"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+      <button
+        id="quit-btn"
+        class="quit-btn"
+        title="Quitter la partie (Échap)"
+        data-i18n-title="game.quit_title"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="action-icon game-action-icon-left"
+        >
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
       </button>
-      <button id="report-btn" class="quit-btn report-btn-icon" title="Signaler un problème sur cette rue" aria-label="Signaler un problème">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true">
-          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+      <button
+        id="report-btn"
+        class="quit-btn report-btn-icon"
+        title="Signaler un problème sur cette rue"
+        aria-label="Signaler un problème"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="action-icon"
+          aria-hidden="true"
+        >
+          <path
+            d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"
+          ></path>
           <line x1="4" y1="22" x2="4" y2="15"></line>
         </svg>
       </button>
     </div>
 
     <div id="bottom-actions" class="ui-overlay-bottom glass-panel hidden">
-      <div id="identify-input-container" class="input-container custom-select-container hidden game-input-container">
-        <input type="text" id="street-name-input" class="input-premium" placeholder="Nom de la rue ou lotissement..." data-i18n-placeholder="game.identify_placeholder" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="autocomplete-suggestions" />
-        <ul id="autocomplete-suggestions" class="dropdown-list hidden" role="listbox" aria-label="Suggestions de rues et lotissements"></ul>
-        <button id="submit-answer-btn" class="btn" data-i18n="game.submit_answer">Valider la réponse</button>
+      <div
+        id="identify-input-container"
+        class="input-container custom-select-container hidden game-input-container"
+      >
+        <input
+          type="text"
+          id="street-name-input"
+          class="input-premium"
+          placeholder="Nom de la rue ou lotissement..."
+          data-i18n-placeholder="game.identify_placeholder"
+          autocomplete="off"
+          role="combobox"
+          aria-autocomplete="list"
+          aria-expanded="false"
+          aria-controls="autocomplete-suggestions"
+        />
+        <ul
+          id="autocomplete-suggestions"
+          class="dropdown-list hidden"
+          role="listbox"
+          aria-label="Suggestions de rues et lotissements"
+        ></ul>
+        <button
+          id="submit-answer-btn"
+          class="btn"
+          data-i18n="game.submit_answer"
+        >
+          Valider la réponse
+        </button>
       </div>
 
       <div id="game-actions" class="action-buttons">
         <button id="validate-btn" class="btn hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-          <span data-i18n="game.validate_guess">Valider l'emplacement (Espace)</span>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <circle cx="12" cy="12" r="6"></circle>
+            <circle cx="12" cy="12" r="2"></circle>
+          </svg>
+          <span data-i18n="game.validate_guess"
+            >Valider l'emplacement (Espace)</span
+          >
         </button>
         <button id="next-btn" class="btn hidden">
-          <span data-i18n="game.next_street">Rue Suivante (Entrée / Espace)</span>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon game-action-icon-right"><polygon points="5 4 15 12 5 20 5 4"></polygon><line x1="19" y1="5" x2="19" y2="19"></line></svg>
+          <span data-i18n="game.next_street"
+            >Rue Suivante (Entrée / Espace)</span
+          >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon game-action-icon-right"
+          >
+            <polygon points="5 4 15 12 5 20 5 4"></polygon>
+            <line x1="19" y1="5" x2="19" y2="19"></line>
+          </svg>
         </button>
       </div>
     </div>
   </div>
-</div>
 
-<div id="report-modal" class="modal-overlay hidden">
-  <div class="modal-card">
-    <div class="modal-header">
-      <h3 class="modal-title">Signaler un problème</h3>
-      <button id="report-modal-close-btn" type="button" class="btn-close" onclick="const m=document.getElementById('report-modal'); if(m){ m.classList.add('hidden'); m.style.setProperty('display','none','important'); }" aria-label="Fermer">&times;</button>
+  <div id="report-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Signaler un problème</h3>
+        <button
+          id="report-modal-close-btn"
+          type="button"
+          class="btn-close"
+          aria-label="Fermer"
+        >
+          &times;
+        </button>
+      </div>
+      <form id="report-form" class="modal-body">
+        <div class="report-context-info">
+          <p>
+            <strong>Joueur :</strong>
+            <span id="report-user-display">Anonyme</span>
+          </p>
+          <p>
+            <strong>Rue cible :</strong>
+            <span id="report-target-street-display">Aucune</span>
+          </p>
+          <p id="report-clicked-street-container" class="hidden">
+            <strong>Rue cliquée :</strong>
+            <span id="report-clicked-street-display">Aucune</span>
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="report-category-select" class="form-label"
+            >Type de problème :</label
+          >
+          <select
+            id="report-category-select"
+            class="input input-premium"
+            required
+          >
+            <option value="street_name">Rue mal nommée</option>
+            <option value="difficulty">Mauvais niveau de difficulté</option>
+            <option value="map_error">Erreur de tracé / carte</option>
+            <option value="other">Autre problème</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="report-description" class="form-label"
+            >Description du problème :</label
+          >
+          <textarea
+            id="report-description"
+            class="input textarea input-premium"
+            rows="4"
+            placeholder="Expliquez précisément le problème rencontré..."
+            required
+          ></textarea>
+        </div>
+
+        <div id="report-modal-error" class="form-error hidden"></div>
+
+        <div class="modal-actions">
+          <button type="submit" id="report-submit-btn" class="btn">
+            Envoyer le signalement
+          </button>
+        </div>
+      </form>
     </div>
-    <form id="report-form" class="modal-body">
-      <div class="report-context-info">
-        <p><strong>Joueur :</strong> <span id="report-user-display">Anonyme</span></p>
-        <p><strong>Rue cible :</strong> <span id="report-target-street-display">Aucune</span></p>
-        <p id="report-clicked-street-container" class="hidden"><strong>Rue cliquée :</strong> <span id="report-clicked-street-display">Aucune</span></p>
-      </div>
-
-      <div class="form-group">
-        <label for="report-category-select" class="form-label">Type de problème :</label>
-        <select id="report-category-select" class="input input-premium" required>
-          <option value="street_name">Rue mal nommée</option>
-          <option value="difficulty">Mauvais niveau de difficulté</option>
-          <option value="map_error">Erreur de tracé / carte</option>
-          <option value="other">Autre problème</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="report-description" class="form-label">Description du problème :</label>
-        <textarea id="report-description" class="input textarea input-premium" rows="4" placeholder="Expliquez précisément le problème rencontré..." required></textarea>
-      </div>
-
-      <div id="report-modal-error" class="form-error hidden"></div>
-
-      <div class="modal-actions">
-        <button type="submit" id="report-submit-btn" class="btn">Envoyer le signalement</button>
-      </div>
-    </form>
   </div>
 </div>

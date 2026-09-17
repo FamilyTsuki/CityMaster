@@ -8,20 +8,33 @@ export class GameSession {
   #roundIndex;
   #gameToken;
   #currentPrompt;
+  #nextPrompt;
   #isFinished;
   #difficulty;
   #testNumber;
 
-  constructor(playerName, city, initialMode = 'target', gameToken = null, initialPrompt = null, difficulty = 'hard', testNumber = null) {
+  constructor(
+    playerName,
+    city,
+    initialMode = "target",
+    gameToken = null,
+    initialPrompt = null,
+    difficulty = "hard",
+    testNumber = null,
+  ) {
     this.#playerName = playerName;
     this.#city = city;
     this.#currentMode = initialMode;
     this.#score = 0;
     this.#sprintHistory = [];
     this.#roundHistory = [];
-    this.#roundIndex = (initialPrompt && typeof initialPrompt.roundIndex === 'number') ? initialPrompt.roundIndex + 1 : 1;
+    this.#roundIndex =
+      initialPrompt && typeof initialPrompt.roundIndex === "number"
+        ? initialPrompt.roundIndex + 1
+        : 1;
     this.#gameToken = gameToken;
     this.#currentPrompt = initialPrompt;
+    this.#nextPrompt = null;
     this.#isFinished = false;
     this.#difficulty = difficulty;
     this.#testNumber = testNumber;
@@ -88,10 +101,18 @@ export class GameSession {
   }
 
   get totalRounds() {
-    if (this.#currentPrompt && typeof this.#currentPrompt.totalRounds === 'number') {
+    if (
+      this.#currentPrompt &&
+      typeof this.#currentPrompt.totalRounds === "number"
+    ) {
       return this.#currentPrompt.totalRounds;
     }
-    return this.#roundHistory && this.#roundHistory.length > 0 ? Math.max(5, this.#roundHistory.length) : 5;
+    if (this.#nextPrompt && typeof this.#nextPrompt.totalRounds === "number") {
+      return this.#nextPrompt.totalRounds;
+    }
+    return this.#roundHistory && this.#roundHistory.length > 0
+      ? Math.max(5, this.#roundHistory.length)
+      : 5;
   }
 
   addRoundResult(result) {
@@ -112,9 +133,17 @@ export class GameSession {
 
   set currentPrompt(prompt) {
     this.#currentPrompt = prompt;
-    if (prompt && typeof prompt.roundIndex === 'number') {
+    if (prompt && typeof prompt.roundIndex === "number") {
       this.#roundIndex = prompt.roundIndex + 1;
     }
+  }
+
+  get nextPrompt() {
+    return this.#nextPrompt;
+  }
+
+  set nextPrompt(prompt) {
+    this.#nextPrompt = prompt;
   }
 
   isFinished() {
@@ -136,9 +165,10 @@ export class GameSession {
       roundIndex: this.#roundIndex,
       gameToken: this.#gameToken,
       currentPrompt: this.#currentPrompt,
+      nextPrompt: this.#nextPrompt,
       isFinished: this.#isFinished,
       difficulty: this.#difficulty,
-      testNumber: this.#testNumber
+      testNumber: this.#testNumber,
     });
   }
 
@@ -153,16 +183,17 @@ export class GameSession {
         data.gameToken,
         data.currentPrompt,
         data.difficulty,
-        data.testNumber
+        data.testNumber,
       );
       session.score = data.score;
       session.sprintHistory = data.sprintHistory || [];
       session.roundHistory = data.roundHistory || [];
       session.roundIndex = data.roundIndex || 1;
+      session.nextPrompt = data.nextPrompt || null;
       session.setFinished(data.isFinished || false);
       return session;
     } catch (e) {
-      console.error('Failed to parse game session', e);
+      console.error("Failed to parse game session", e);
       return null;
     }
   }

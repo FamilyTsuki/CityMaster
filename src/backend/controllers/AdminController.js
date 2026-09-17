@@ -1,17 +1,35 @@
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import pool from '../config/database.js';
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
+import pool from "../config/database.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
-const districtsFilePath = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data', 'custom_districts.json');
+const districtsFilePath = path.join(
+  dirname,
+  "..",
+  "..",
+  "..",
+  "public",
+  "assets",
+  "data",
+  "custom_districts.json",
+);
 
-const routesFilePath = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data', 'custom_routes.json');
+const routesFilePath = path.join(
+  dirname,
+  "..",
+  "..",
+  "..",
+  "public",
+  "assets",
+  "data",
+  "custom_routes.json",
+);
 
 async function readDistrictsFile() {
   try {
-    const content = await fs.readFile(districtsFilePath, 'utf8');
+    const content = await fs.readFile(districtsFilePath, "utf8");
     return JSON.parse(content);
   } catch (e) {
     return {};
@@ -19,12 +37,12 @@ async function readDistrictsFile() {
 }
 
 async function writeDistrictsFile(data) {
-  await fs.writeFile(districtsFilePath, JSON.stringify(data, null, 2), 'utf8');
+  await fs.writeFile(districtsFilePath, JSON.stringify(data, null, 2), "utf8");
 }
 
 async function readRoutesFile() {
   try {
-    const content = await fs.readFile(routesFilePath, 'utf8');
+    const content = await fs.readFile(routesFilePath, "utf8");
     return JSON.parse(content);
   } catch (e) {
     return {};
@@ -32,7 +50,7 @@ async function readRoutesFile() {
 }
 
 async function writeRoutesFile(data) {
-  await fs.writeFile(routesFilePath, JSON.stringify(data, null, 2), 'utf8');
+  await fs.writeFile(routesFilePath, JSON.stringify(data, null, 2), "utf8");
 }
 
 export class AdminController {
@@ -40,22 +58,32 @@ export class AdminController {
     try {
       const { cityKey } = req.query;
       if (!cityKey) {
-        return res.status(400).json({ error: 'cityKey is required' });
+        return res.status(400).json({ error: "cityKey is required" });
       }
 
       const allData = await readDistrictsFile();
       const cityDistricts = allData[cityKey] || [];
       return res.json(cityDistricts);
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error getting districts' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error getting districts" });
     }
   }
 
   static async saveDistrict(req, res) {
     try {
       const { cityKey, district } = req.body;
-      if (!cityKey || !district || !district.name || !district.coordinates || !Array.isArray(district.coordinates)) {
-        return res.status(400).json({ error: 'cityKey and valid district payload are required' });
+      if (
+        !cityKey ||
+        !district ||
+        !district.name ||
+        !district.coordinates ||
+        !Array.isArray(district.coordinates)
+      ) {
+        return res
+          .status(400)
+          .json({ error: "cityKey and valid district payload are required" });
       }
 
       const allData = await readDistrictsFile();
@@ -63,24 +91,34 @@ export class AdminController {
         allData[cityKey] = [];
       }
 
-      const districtId = district.id || `district_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const districtId =
+        district.id ||
+        `district_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const feature = {
-        type: 'Feature',
+        type: "Feature",
         properties: {
           id: districtId,
           name: district.name.trim(),
+          originalName: district.originalName || undefined,
           isLotissement: true,
           isCustom: true,
-          itemType: 'lotissement',
-          color: district.color || '#f59e0b'
+          itemType: "lotissement",
+          color: district.color || "#f59e0b",
         },
         geometry: {
-          type: 'Polygon',
-          coordinates: [district.coordinates]
-        }
+          type: "Polygon",
+          coordinates: [district.coordinates],
+        },
       };
 
-      const existingIndex = allData[cityKey].findIndex(d => d.properties && d.properties.id === districtId);
+      const existingIndex = allData[cityKey].findIndex(
+        (d) =>
+          d.properties &&
+          (d.properties.id === districtId ||
+            (district.originalName &&
+              (d.properties.name === district.originalName ||
+                d.properties.originalName === district.originalName))),
+      );
       if (existingIndex >= 0) {
         allData[cityKey][existingIndex] = feature;
       } else {
@@ -88,9 +126,11 @@ export class AdminController {
       }
 
       await writeDistrictsFile(allData);
-      return res.json({ message: 'District saved successfully', feature });
+      return res.json({ message: "District saved successfully", feature });
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error saving district' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error saving district" });
     }
   }
 
@@ -98,18 +138,47 @@ export class AdminController {
     try {
       const { cityKey, id } = req.params;
       if (!cityKey || !id) {
-        return res.status(400).json({ error: 'cityKey and id are required' });
+        return res.status(400).json({ error: "cityKey and id are required" });
       }
 
       const allData = await readDistrictsFile();
-      if (allData[cityKey]) {
-        allData[cityKey] = allData[cityKey].filter(d => d.properties && d.properties.id !== id);
-        await writeDistrictsFile(allData);
+      if (!allData[cityKey]) {
+        allData[cityKey] = [];
       }
 
-      return res.json({ message: 'District deleted successfully' });
+      const existingIdx = allData[cityKey].findIndex(
+        (d) =>
+          d.properties && (d.properties.id === id || d.properties.name === id),
+      );
+
+      if (existingIdx >= 0) {
+        const prevProps = allData[cityKey][existingIdx].properties || {};
+        allData[cityKey][existingIdx] = {
+          type: "Feature",
+          properties: {
+            ...prevProps,
+            id,
+            name: prevProps.name || id,
+            isDeleted: true,
+          },
+        };
+      } else {
+        allData[cityKey].push({
+          type: "Feature",
+          properties: {
+            id,
+            name: id,
+            isDeleted: true,
+          },
+        });
+      }
+
+      await writeDistrictsFile(allData);
+      return res.json({ message: "District deleted successfully" });
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error deleting district' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error deleting district" });
     }
   }
 
@@ -117,22 +186,32 @@ export class AdminController {
     try {
       const { cityKey } = req.query;
       if (!cityKey) {
-        return res.status(400).json({ error: 'cityKey is required' });
+        return res.status(400).json({ error: "cityKey is required" });
       }
 
       const allData = await readRoutesFile();
       const cityRoutes = allData[cityKey] || [];
       return res.json(cityRoutes);
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error getting routes' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error getting routes" });
     }
   }
 
   static async saveRoute(req, res) {
     try {
       const { cityKey, route } = req.body;
-      if (!cityKey || !route || !route.name || !route.coordinates || !Array.isArray(route.coordinates)) {
-        return res.status(400).json({ error: 'cityKey and valid route payload are required' });
+      if (
+        !cityKey ||
+        !route ||
+        !route.name ||
+        !route.coordinates ||
+        !Array.isArray(route.coordinates)
+      ) {
+        return res
+          .status(400)
+          .json({ error: "cityKey and valid route payload are required" });
       }
 
       const allData = await readRoutesFile();
@@ -140,22 +219,32 @@ export class AdminController {
         allData[cityKey] = [];
       }
 
-      const routeId = route.id || `route_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+      const routeId =
+        route.id ||
+        `route_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
       const feature = {
-        type: 'Feature',
+        type: "Feature",
         properties: {
           id: routeId,
           name: route.name.trim(),
+          originalName: route.originalName || undefined,
           isCustom: true,
-          itemType: 'route'
+          itemType: "route",
         },
         geometry: {
-          type: 'LineString',
-          coordinates: route.coordinates
-        }
+          type: "LineString",
+          coordinates: route.coordinates,
+        },
       };
 
-      const existingIndex = allData[cityKey].findIndex(d => d.properties && d.properties.id === routeId);
+      const existingIndex = allData[cityKey].findIndex(
+        (d) =>
+          d.properties &&
+          (d.properties.id === routeId ||
+            (route.originalName &&
+              (d.properties.name === route.originalName ||
+                d.properties.originalName === route.originalName))),
+      );
       if (existingIndex >= 0) {
         allData[cityKey][existingIndex] = feature;
       } else {
@@ -163,9 +252,11 @@ export class AdminController {
       }
 
       await writeRoutesFile(allData);
-      return res.json({ message: 'Route saved successfully', feature });
+      return res.json({ message: "Route saved successfully", feature });
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error saving route' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error saving route" });
     }
   }
 
@@ -173,31 +264,62 @@ export class AdminController {
     try {
       const { cityKey, id } = req.params;
       if (!cityKey || !id) {
-        return res.status(400).json({ error: 'cityKey and id are required' });
+        return res.status(400).json({ error: "cityKey and id are required" });
       }
 
       const allData = await readRoutesFile();
-      if (allData[cityKey]) {
-        allData[cityKey] = allData[cityKey].filter(d => d.properties && d.properties.id !== id);
-        await writeRoutesFile(allData);
+      if (!allData[cityKey]) {
+        allData[cityKey] = [];
       }
 
-      return res.json({ message: 'Route deleted successfully' });
+      const existingIdx = allData[cityKey].findIndex(
+        (d) =>
+          d.properties && (d.properties.id === id || d.properties.name === id),
+      );
+
+      if (existingIdx >= 0) {
+        const prevProps = allData[cityKey][existingIdx].properties || {};
+        allData[cityKey][existingIdx] = {
+          type: "Feature",
+          properties: {
+            ...prevProps,
+            id,
+            name: prevProps.name || id,
+            isDeleted: true,
+          },
+        };
+      } else {
+        allData[cityKey].push({
+          type: "Feature",
+          properties: {
+            id,
+            name: id,
+            isDeleted: true,
+          },
+        });
+      }
+
+      await writeRoutesFile(allData);
+      return res.json({ message: "Route deleted successfully" });
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error deleting route' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error deleting route" });
     }
   }
 
   static async getSettings(req, res) {
     try {
-      const result = await pool.query('SELECT key, value FROM global_settings');
+      const result = await pool.query("SELECT key, value FROM global_settings");
       const settings = {};
       for (const row of result.rows) {
         settings[row.key] = row.value;
       }
       return res.json(settings);
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error getting settings' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error getting settings" });
     }
   }
 
@@ -205,15 +327,17 @@ export class AdminController {
     try {
       const { key, value } = req.body;
       if (!key || value === undefined) {
-        return res.status(400).json({ error: 'key and value are required' });
+        return res.status(400).json({ error: "key and value are required" });
       }
       await pool.query(
-        'INSERT INTO global_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2',
-        [key, value]
+        "INSERT INTO global_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2",
+        [key, value],
       );
       return res.json({ success: true });
     } catch (err) {
-      return res.status(500).json({ error: 'Internal server error saving settings' });
+      return res
+        .status(500)
+        .json({ error: "Internal server error saving settings" });
     }
   }
 }
