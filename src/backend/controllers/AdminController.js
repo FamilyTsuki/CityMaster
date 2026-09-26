@@ -27,6 +27,53 @@ const routesFilePath = path.join(
   "custom_routes.json",
 );
 
+const diffFilePath = path.join(
+  dirname,
+  "..",
+  "..",
+  "..",
+  "public",
+  "assets",
+  "data",
+  "difficulty_overrides.json",
+);
+
+export async function readDifficultyOverridesFile(cityKey = null) {
+  let fileData = {};
+  try {
+    const content = await fs.readFile(diffFilePath, "utf8");
+    if (content && content.trim()) {
+      fileData = JSON.parse(content);
+    }
+  } catch (e) {
+    fileData = {};
+  }
+
+  try {
+    let query =
+      "SELECT city_key, street_name, difficulty FROM route_difficulties";
+    const params = [];
+    if (cityKey) {
+      query += " WHERE city_key = $1";
+      params.push(cityKey);
+    }
+    const res = await pool.query(query, params);
+    if (res && res.rows && res.rows.length > 0) {
+      res.rows.forEach((row) => {
+        if (!fileData[row.city_key]) fileData[row.city_key] = {};
+        fileData[row.city_key][row.street_name.toLowerCase().trim()] =
+          row.difficulty;
+      });
+    }
+  } catch (e) {}
+
+  return fileData;
+}
+
+export async function writeDifficultyOverridesFile(data) {
+  await fs.writeFile(diffFilePath, JSON.stringify(data, null, 2), "utf8");
+}
+
 async function readDistrictsFile() {
   try {
     const content = await fs.readFile(districtsFilePath, "utf8");
@@ -199,6 +246,74 @@ export class AdminController {
     }
   }
 
+  static async getRouteDifficulties(req, res) {
+    try {
+      const { cityKey } = req.query;
+      if (!cityKey) {
+        return res.status(400).json({ error: "cityKey is required" });
+      }
+
+      const allData = await readDifficultyOverridesFile(cityKey);
+      const cityDifficulties = allData[cityKey] || {};
+      return res.json(cityDifficulties);
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "Internal server error getting difficulties" });
+    }
+  }
+
+  static async setRouteDifficulty(req, res) {
+    try {
+      const { cityKey, streetName, difficulty } = req.body;
+      if (!cityKey || !streetName) {
+        return res
+          .status(400)
+          .json({ error: "cityKey and streetName are required" });
+      }
+
+      const nameKey = streetName.toLowerCase().trim();
+      const validDifficulties = ["easy", "medium", "hard"];
+      const allData = await readDifficultyOverridesFile();
+
+      if (!allData[cityKey]) {
+        allData[cityKey] = {};
+      }
+
+      if (difficulty && validDifficulties.includes(difficulty)) {
+        allData[cityKey][nameKey] = difficulty;
+        try {
+          await pool.query(
+            `INSERT INTO route_difficulties (city_key, street_name, difficulty, updated_at)
+             VALUES ($1, $2, $3, NOW())
+             ON CONFLICT (city_key, street_name) DO UPDATE SET difficulty = $3, updated_at = NOW()`,
+            [cityKey, nameKey, difficulty],
+          );
+        } catch (e) {}
+      } else {
+        delete allData[cityKey][nameKey];
+        try {
+          await pool.query(
+            "DELETE FROM route_difficulties WHERE city_key = $1 AND street_name = $2",
+            [cityKey, nameKey],
+          );
+        } catch (e) {}
+      }
+
+      await writeDifficultyOverridesFile(allData);
+      return res.json({
+        success: true,
+        cityKey,
+        streetName,
+        difficulty: allData[cityKey][nameKey] || null,
+      });
+    } catch (err) {
+      return res
+        .status(500)
+        .json({ error: "Internal server error setting difficulty" });
+    }
+  }
+
   static async saveRoute(req, res) {
     try {
       const { cityKey, route } = req.body;
@@ -236,6 +351,34 @@ export class AdminController {
           coordinates: route.coordinates,
         },
       };
+
+      if (route.difficulty !== undefined) {
+        const diffData = await readDifficultyOverridesFile();
+        if (!diffData[cityKey]) diffData[cityKey] = {};
+        const nameKey = route.name.trim().toLowerCase();
+
+        if (["easy", "medium", "hard"].includes(route.difficulty)) {
+          feature.properties.difficulty = route.difficulty;
+          diffData[cityKey][nameKey] = route.difficulty;
+          try {
+            await pool.query(
+              `INSERT INTO route_difficulties (city_key, street_name, difficulty, updated_at)
+               VALUES ($1, $2, $3, NOW())
+               ON CONFLICT (city_key, street_name) DO UPDATE SET difficulty = $3, updated_at = NOW()`,
+              [cityKey, nameKey, route.difficulty],
+            );
+          } catch (e) {}
+        } else if (route.difficulty === "auto" || route.difficulty === null) {
+          delete diffData[cityKey][nameKey];
+          try {
+            await pool.query(
+              "DELETE FROM route_difficulties WHERE city_key = $1 AND street_name = $2",
+              [cityKey, nameKey],
+            );
+          } catch (e) {}
+        }
+        await writeDifficultyOverridesFile(diffData);
+      }
 
       const existingIndex = allData[cityKey].findIndex(
         (d) =>

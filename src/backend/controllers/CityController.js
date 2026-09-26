@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import * as turf from "@turf/turf";
 import { City } from "../models/City.js";
 import pool from "../config/database.js";
+import { readDifficultyOverridesFile } from "./AdminController.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -255,8 +256,20 @@ export class CityController {
         });
       }
 
+      let difficultyOverrides = {};
+      try {
+        const allDiffData = await readDifficultyOverridesFile(key);
+        difficultyOverrides = allDiffData[key] || {};
+      } catch (e) {}
+
       allCityStreets.forEach((f, i) => {
         const nameKey = f.properties.name.toLowerCase().trim();
+        const manualDiff = difficultyOverrides[nameKey] || f.properties?.difficulty;
+        if (manualDiff && ["easy", "medium", "hard"].includes(manualDiff)) {
+          diffCount[manualDiff].add(nameKey);
+          return;
+        }
+
         const MINOR_KEYWORDS = [
           "chemin",
           "chemins",

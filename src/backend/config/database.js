@@ -1,5 +1,5 @@
-import 'dotenv/config';
-import pg from 'pg';
+import "dotenv/config";
+import pg from "pg";
 
 const { Pool } = pg;
 const pool = new Pool({
@@ -10,8 +10,8 @@ const pool = new Pool({
   database: process.env.PGDATABASE,
 });
 
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle PostgreSQL client:', err);
+pool.on("error", (err) => {
+  console.error("Unexpected error on idle PostgreSQL client:", err);
 });
 
 export const initDB = async () => {
@@ -26,27 +26,35 @@ export const initDB = async () => {
     `);
 
     try {
-      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image_url VARCHAR(500);');
+      await pool.query(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_image_url VARCHAR(500);",
+      );
     } catch (e) {
-      console.error('Error adding profile_image_url:', e);
+      console.error("Error adding profile_image_url:", e);
     }
 
     try {
-      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE;');
+      await pool.query(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE;",
+      );
     } catch (e) {
-      console.error('Error adding google_id:', e);
+      console.error("Error adding google_id:", e);
     }
 
     try {
-      await pool.query('ALTER TABLE users ALTER COLUMN password DROP NOT NULL;');
+      await pool.query(
+        "ALTER TABLE users ALTER COLUMN password DROP NOT NULL;",
+      );
     } catch (e) {
-      console.error('Error dropping password not null constraint:', e);
+      console.error("Error dropping password not null constraint:", e);
     }
 
     try {
-      await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;');
+      await pool.query(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE;",
+      );
     } catch (e) {
-      console.error('Error adding is_admin:', e);
+      console.error("Error adding is_admin:", e);
     }
 
     try {
@@ -62,7 +70,7 @@ export const initDB = async () => {
         ON CONFLICT (key) DO NOTHING;
       `);
     } catch (e) {
-      console.error('Error creating global_settings:', e);
+      console.error("Error creating global_settings:", e);
     }
 
     await pool.query(`
@@ -77,15 +85,19 @@ export const initDB = async () => {
     `);
 
     try {
-      await pool.query("ALTER TABLE scores ADD COLUMN IF NOT EXISTS difficulty VARCHAR(50) DEFAULT 'hard';");
+      await pool.query(
+        "ALTER TABLE scores ADD COLUMN IF NOT EXISTS difficulty VARCHAR(50) DEFAULT 'hard';",
+      );
     } catch (e) {
-      console.error('Error adding difficulty column to scores:', e);
+      console.error("Error adding difficulty column to scores:", e);
     }
 
     try {
-      await pool.query("ALTER TABLE scores ADD COLUMN IF NOT EXISTS test_id INTEGER;");
+      await pool.query(
+        "ALTER TABLE scores ADD COLUMN IF NOT EXISTS test_id INTEGER;",
+      );
     } catch (e) {
-      console.error('Error adding test_id column to scores:', e);
+      console.error("Error adding test_id column to scores:", e);
     }
 
     await pool.query(`
@@ -105,21 +117,27 @@ export const initDB = async () => {
     `);
 
     try {
-      await pool.query('ALTER TABLE rooms ADD COLUMN IF NOT EXISTS series_count INTEGER DEFAULT 10;');
+      await pool.query(
+        "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS series_count INTEGER DEFAULT 10;",
+      );
     } catch (e) {
-      console.error('Error adding series_count to rooms:', e);
+      console.error("Error adding series_count to rooms:", e);
     }
 
     try {
-      await pool.query("ALTER TABLE rooms ADD COLUMN IF NOT EXISTS mode VARCHAR(50) DEFAULT 'target';");
+      await pool.query(
+        "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS mode VARCHAR(50) DEFAULT 'target';",
+      );
     } catch (e) {
-      console.error('Error adding mode to rooms:', e);
+      console.error("Error adding mode to rooms:", e);
     }
 
     try {
-      await pool.query('ALTER TABLE rooms ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;');
+      await pool.query(
+        "ALTER TABLE rooms ADD COLUMN IF NOT EXISTS expires_at TIMESTAMP;",
+      );
     } catch (e) {
-      console.error('Error adding expires_at to rooms:', e);
+      console.error("Error adding expires_at to rooms:", e);
     }
 
     await pool.query(`
@@ -150,9 +168,20 @@ export const initDB = async () => {
       );
     `);
 
-    console.log('PostgreSQL database tables verified.');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS route_difficulties (
+        city_key VARCHAR(255) NOT NULL,
+        street_name VARCHAR(255) NOT NULL,
+        difficulty VARCHAR(50) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (city_key, street_name)
+      );
+    `);
+
+    console.log("PostgreSQL database tables verified.");
   } catch (error) {
-    console.error('Failed to initialize PostgreSQL database:', error);
+    console.error("Failed to initialize PostgreSQL database:", error);
   }
 };
 
