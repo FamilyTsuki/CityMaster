@@ -1,5 +1,5 @@
-import { escapeHTML } from '../utils/security.js';
-import { ApiService } from '../services/ApiService.js';
+import { escapeHTML } from "../utils/security.js";
+import { ApiService } from "../services/ApiService.js";
 
 export class RoomView {
   #screens;
@@ -42,77 +42,78 @@ export class RoomView {
   #lobbyExpiresAt;
   #seriesInput;
   #setupBackBtn;
-  #lastParticipantsSignature = '';
-  #currentStepName = '';
+  #lastParticipantsSignature = "";
+  #currentStepName = "";
 
   constructor() {
     this.#screens = {
-      room: document.getElementById('room-screen')
+      room: document.getElementById("room-screen"),
     };
 
     this.#steps = {
-      guest: document.getElementById('room-guest-step'),
-      setup: document.getElementById('room-setup-step'),
-      lobby: document.getElementById('room-lobby-step'),
-      results: document.getElementById('room-results-step')
+      guest: document.getElementById("room-guest-step"),
+      setup: document.getElementById("room-setup-step"),
+      lobby: document.getElementById("room-lobby-step"),
+      results: document.getElementById("room-results-step"),
     };
 
-    this.#guestForm = document.getElementById('room-guest-form');
-    this.#guestUsername = document.getElementById('room-guest-username');
-    this.#guestError = document.getElementById('room-guest-error');
+    this.#guestForm = document.getElementById("room-guest-form");
+    this.#guestUsername = document.getElementById("room-guest-username");
+    this.#guestError = document.getElementById("room-guest-error");
 
-    this.#createBtn = document.getElementById('room-create-btn');
-    this.#joinBtn = document.getElementById('room-join-btn');
-    this.#codeInput = document.getElementById('room-code-input');
-    this.#joinError = document.getElementById('room-join-error');
+    this.#createBtn = document.getElementById("room-create-btn");
+    this.#joinBtn = document.getElementById("room-join-btn");
+    this.#codeInput = document.getElementById("room-code-input");
+    this.#joinError = document.getElementById("room-join-error");
 
-    this.#lobbyCodeBadge = document.getElementById('lobby-code-badge');
-    this.#lobbyShareUrl = document.getElementById('lobby-share-url');
-    this.#lobbyCodeFeedback = document.getElementById('lobby-code-feedback');
-    this.#lobbyLinkFeedback = document.getElementById('lobby-link-feedback');
-    this.#lobbyPlayersCount = document.getElementById('lobby-players-count');
-    this.#lobbyPlayersList = document.getElementById('lobby-players-list');
-    this.#lobbyStatusText = document.getElementById('lobby-status-text');
-    this.#lobbyCreatorName = document.getElementById('lobby-creator-name');
-    this.#lobbyCityName = document.getElementById('lobby-city-name');
-    this.#lobbyDiffLevel = document.getElementById('lobby-diff-level');
-    this.#lobbySeriesCount = document.getElementById('lobby-series-count');
-    this.#lobbyExpiresAt = document.getElementById('lobby-expires-at');
-    this.#lobbyStartBtn = document.getElementById('lobby-start-btn');
-    this.#lobbyWaitingMsg = document.getElementById('lobby-waiting-message');
-    this.#lobbyLeaveBtn = document.getElementById('lobby-leave-btn');
+    this.#lobbyCodeBadge = document.getElementById("lobby-code-badge");
+    this.#lobbyShareUrl = document.getElementById("lobby-share-url");
+    this.#lobbyCodeFeedback = document.getElementById("lobby-code-feedback");
+    this.#lobbyLinkFeedback = document.getElementById("lobby-link-feedback");
+    this.#lobbyPlayersCount = document.getElementById("lobby-players-count");
+    this.#lobbyPlayersList = document.getElementById("lobby-players-list");
+    this.#lobbyStatusText = document.getElementById("lobby-status-text");
+    this.#lobbyCreatorName = document.getElementById("lobby-creator-name");
+    this.#lobbyCityName = document.getElementById("lobby-city-name");
+    this.#lobbyDiffLevel = document.getElementById("lobby-diff-level");
+    this.#lobbySeriesCount = document.getElementById("lobby-series-count");
+    this.#lobbyExpiresAt = document.getElementById("lobby-expires-at");
+    this.#lobbyStartBtn = document.getElementById("lobby-start-btn");
+    this.#lobbyWaitingMsg = document.getElementById("lobby-waiting-message");
+    this.#lobbyLeaveBtn = document.getElementById("lobby-leave-btn");
 
-    this.#resultsTableBody = document.getElementById('results-table-body');
-    this.#resultsHomeBtn = document.getElementById('results-home-btn');
-    this.#resultsLeaveBtn = document.getElementById('results-leave-btn');
-    this.#resultsRefreshBtn = document.getElementById('results-refresh-btn');
-    this.#resultsResetBtn = document.getElementById('results-reset-btn');
+    this.#resultsTableBody = document.getElementById("results-table-body");
+    this.#resultsHomeBtn = document.getElementById("results-home-btn");
+    this.#resultsLeaveBtn = document.getElementById("results-leave-btn");
+    this.#resultsRefreshBtn = document.getElementById("results-refresh-btn");
+    this.#resultsResetBtn = document.getElementById("results-reset-btn");
 
-    this.#cityInput = document.getElementById('room-city-search');
-    this.#cityDropdown = document.getElementById('room-city-dropdown');
-    this.#diffInput = document.getElementById('room-diff-search');
-    this.#diffDropdown = document.getElementById('room-diff-dropdown');
-    this.#modeInput = document.getElementById('room-mode-search');
-    this.#modeDropdown = document.getElementById('room-mode-dropdown');
-    this.#validityInput = document.getElementById('room-validity-search');
-    this.#validityDropdown = document.getElementById('room-validity-dropdown');
-    this.#seriesInput = document.getElementById('room-series-input');
-    this.#setupBackBtn = document.getElementById('room-back-btn');
+    this.#cityInput = document.getElementById("room-city-search");
+    this.#cityDropdown = document.getElementById("room-city-dropdown");
+    this.#diffInput = document.getElementById("room-diff-search");
+    this.#diffDropdown = document.getElementById("room-diff-dropdown");
+    this.#modeInput = document.getElementById("room-mode-search");
+    this.#modeDropdown = document.getElementById("room-mode-dropdown");
+    this.#validityInput = document.getElementById("room-validity-search");
+    this.#validityDropdown = document.getElementById("room-validity-dropdown");
+    this.#seriesInput = document.getElementById("room-series-input");
+    this.#setupBackBtn = document.getElementById("room-back-btn");
     this.#setupCopyLink();
     this.#setupWelcomeForm();
   }
 
   #setupCopyLink() {
     if (this.#lobbyShareUrl) {
-      this.#lobbyShareUrl.addEventListener('click', () => {
+      this.#lobbyShareUrl.addEventListener("click", () => {
         this.#lobbyShareUrl.select();
         this.#lobbyShareUrl.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(this.#lobbyShareUrl.value)
+        navigator.clipboard
+          .writeText(this.#lobbyShareUrl.value)
           .then(() => {
             if (this.#lobbyLinkFeedback) {
-              this.#lobbyLinkFeedback.classList.remove('hidden');
+              this.#lobbyLinkFeedback.classList.remove("hidden");
               setTimeout(() => {
-                this.#lobbyLinkFeedback.classList.add('hidden');
+                this.#lobbyLinkFeedback.classList.add("hidden");
               }, 2000);
             }
           })
@@ -121,15 +122,16 @@ export class RoomView {
     }
 
     if (this.#lobbyCodeBadge) {
-      this.#lobbyCodeBadge.addEventListener('click', () => {
+      this.#lobbyCodeBadge.addEventListener("click", () => {
         const code = this.#lobbyCodeBadge.textContent;
-        if (code && code !== '------') {
-          navigator.clipboard.writeText(code)
+        if (code && code !== "------") {
+          navigator.clipboard
+            .writeText(code)
             .then(() => {
               if (this.#lobbyCodeFeedback) {
-                this.#lobbyCodeFeedback.classList.remove('hidden');
+                this.#lobbyCodeFeedback.classList.remove("hidden");
                 setTimeout(() => {
-                  this.#lobbyCodeFeedback.classList.add('hidden');
+                  this.#lobbyCodeFeedback.classList.add("hidden");
                 }, 2000);
               }
             })
@@ -148,47 +150,50 @@ export class RoomView {
     const modeDropdown = this.#modeDropdown;
 
     if (diffInput && diffDropdown) {
-      diffInput.addEventListener('click', (e) => {
+      diffInput.addEventListener("click", (e) => {
         e.stopPropagation();
-        diffDropdown.classList.toggle('hidden');
+        diffDropdown.classList.toggle("hidden");
       });
 
-      diffDropdown.querySelectorAll('li').forEach((item) => {
-        item.addEventListener('click', () => {
+      diffDropdown.querySelectorAll("li").forEach((item) => {
+        item.addEventListener("click", () => {
           diffInput.value = item.textContent.trim();
-          diffInput.dataset.value = item.getAttribute('data-value');
-          diffDropdown.classList.add('hidden');
+          diffInput.dataset.value = item.getAttribute("data-value");
+          diffDropdown.classList.add("hidden");
         });
       });
     }
 
     if (modeInput && modeDropdown) {
-      modeInput.addEventListener('click', (e) => {
+      modeInput.addEventListener("click", (e) => {
         e.stopPropagation();
-        modeDropdown.classList.toggle('hidden');
+        modeDropdown.classList.toggle("hidden");
       });
 
-      modeDropdown.querySelectorAll('li').forEach((item) => {
-        item.addEventListener('click', () => {
+      modeDropdown.querySelectorAll("li").forEach((item) => {
+        item.addEventListener("click", () => {
           modeInput.value = item.textContent.trim();
-          modeInput.dataset.value = item.getAttribute('data-value');
-          modeDropdown.classList.add('hidden');
+          modeInput.dataset.value = item.getAttribute("data-value");
+          modeDropdown.classList.add("hidden");
         });
       });
 
-      const firstMode = modeDropdown.querySelector('li');
+      const firstMode = modeDropdown.querySelector("li");
       if (firstMode && (!modeInput.value || !modeInput.dataset.value)) {
         modeInput.value = firstMode.textContent.trim();
-        modeInput.dataset.value = firstMode.getAttribute('data-value') || 'target';
+        modeInput.dataset.value =
+          firstMode.getAttribute("data-value") || "target";
       }
     }
 
     if (cityInput && cityDropdown) {
       let debounceTimer = null;
 
-      const searchCities = async (query = '') => {
+      const searchCities = async (query = "") => {
         try {
-          const res = await ApiService.get(`/cities?q=${encodeURIComponent(query)}`);
+          const res = await ApiService.get(
+            `/cities?q=${encodeURIComponent(query)}`,
+          );
           if (!res.ok || !res.data) return [];
           return res.data;
         } catch (e) {
@@ -199,42 +204,42 @@ export class RoomView {
       const renderCityMatches = (cities) => {
         cityDropdown.replaceChildren();
         if (!cities || cities.length === 0) {
-          cityDropdown.classList.add('hidden');
+          cityDropdown.classList.add("hidden");
           return;
         }
 
         cities.forEach((city) => {
-          const li = document.createElement('li');
-          li.className = 'dropdown-item';
+          const li = document.createElement("li");
+          li.className = "dropdown-item";
           if (city.isVerified) {
-            li.classList.add('city-option-verified');
+            li.classList.add("city-option-verified");
           }
-          const strong = document.createElement('strong');
+          const strong = document.createElement("strong");
           strong.textContent = city.name;
           li.appendChild(strong);
           if (city.isVerified) {
-            const badge = document.createElement('span');
-            badge.className = 'city-verified-badge';
-            badge.textContent = '✓ Validée';
+            const badge = document.createElement("span");
+            badge.className = "city-verified-badge";
+            badge.textContent = "✓ Validée";
             li.appendChild(badge);
           }
-          li.addEventListener('click', () => {
+          li.addEventListener("click", () => {
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;
-            cityDropdown.classList.add('hidden');
+            cityDropdown.classList.add("hidden");
           });
           cityDropdown.appendChild(li);
         });
 
-        cityDropdown.classList.remove('hidden');
+        cityDropdown.classList.remove("hidden");
       };
 
-      cityInput.addEventListener('focus', () => {
+      cityInput.addEventListener("focus", () => {
         const query = cityInput.value.trim();
         searchCities(query).then(renderCityMatches);
       });
 
-      cityInput.addEventListener('input', () => {
+      cityInput.addEventListener("input", () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const query = cityInput.value.trim();
@@ -248,49 +253,69 @@ export class RoomView {
     const validityDropdown = this.#validityDropdown;
 
     if (validityInput && validityDropdown) {
-      validityInput.addEventListener('click', (e) => {
+      validityInput.addEventListener("click", (e) => {
         e.stopPropagation();
-        validityDropdown.classList.toggle('hidden');
+        validityDropdown.classList.toggle("hidden");
       });
 
-      validityDropdown.querySelectorAll('li').forEach((item) => {
-        item.addEventListener('click', () => {
+      validityDropdown.querySelectorAll("li").forEach((item) => {
+        item.addEventListener("click", () => {
           validityInput.value = item.textContent.trim();
-          validityInput.dataset.value = item.getAttribute('data-value');
-          validityDropdown.classList.add('hidden');
+          validityInput.dataset.value = item.getAttribute("data-value");
+          validityDropdown.classList.add("hidden");
         });
       });
     }
 
-    document.addEventListener('click', (e) => {
-      if (cityDropdown && cityInput && !cityInput.contains(e.target) && !cityDropdown.contains(e.target)) {
-        cityDropdown.classList.add('hidden');
+    document.addEventListener("click", (e) => {
+      if (
+        cityDropdown &&
+        cityInput &&
+        !cityInput.contains(e.target) &&
+        !cityDropdown.contains(e.target)
+      ) {
+        cityDropdown.classList.add("hidden");
       }
-      if (diffDropdown && diffInput && !diffInput.contains(e.target) && !diffDropdown.contains(e.target)) {
-        diffDropdown.classList.add('hidden');
+      if (
+        diffDropdown &&
+        diffInput &&
+        !diffInput.contains(e.target) &&
+        !diffDropdown.contains(e.target)
+      ) {
+        diffDropdown.classList.add("hidden");
       }
-      if (modeDropdown && modeInput && !modeInput.contains(e.target) && !modeDropdown.contains(e.target)) {
-        modeDropdown.classList.add('hidden');
+      if (
+        modeDropdown &&
+        modeInput &&
+        !modeInput.contains(e.target) &&
+        !modeDropdown.contains(e.target)
+      ) {
+        modeDropdown.classList.add("hidden");
       }
-      if (validityDropdown && validityInput && !validityInput.contains(e.target) && !validityDropdown.contains(e.target)) {
-        validityDropdown.classList.add('hidden');
+      if (
+        validityDropdown &&
+        validityInput &&
+        !validityInput.contains(e.target) &&
+        !validityDropdown.contains(e.target)
+      ) {
+        validityDropdown.classList.add("hidden");
       }
     });
 
     if (diffInput && diffDropdown) {
-      const firstItem = diffDropdown.querySelector('li');
+      const firstItem = diffDropdown.querySelector("li");
       if (firstItem && !diffInput.value) {
         diffInput.value = firstItem.textContent.trim();
-        diffInput.dataset.value = firstItem.getAttribute('data-value');
+        diffInput.dataset.value = firstItem.getAttribute("data-value");
       }
     }
 
-    const minusBtn = document.getElementById('series-minus-btn');
-    const plusBtn = document.getElementById('series-plus-btn');
+    const minusBtn = document.getElementById("series-minus-btn");
+    const plusBtn = document.getElementById("series-plus-btn");
     const seriesInput = this.#seriesInput;
 
     if (minusBtn && plusBtn && seriesInput) {
-      minusBtn.addEventListener('click', (e) => {
+      minusBtn.addEventListener("click", (e) => {
         e.preventDefault();
         const current = parseInt(seriesInput.value, 10) || 10;
         const min = parseInt(seriesInput.min, 10) || 5;
@@ -300,7 +325,7 @@ export class RoomView {
         }
       });
 
-      plusBtn.addEventListener('click', (e) => {
+      plusBtn.addEventListener("click", (e) => {
         e.preventDefault();
         const current = parseInt(seriesInput.value, 10) || 10;
         const max = parseInt(seriesInput.max, 10) || 50;
@@ -313,41 +338,53 @@ export class RoomView {
   }
 
   showScreen() {
-    const screens = document.querySelectorAll('.screen');
+    const screens = document.querySelectorAll(".screen");
     screens.forEach((screen) => {
-      if (screen) screen.classList.remove('active');
+      if (screen) screen.classList.remove("active");
     });
     if (this.#screens.room) {
-      this.#screens.room.classList.add('active');
+      this.#screens.room.classList.add("active");
     }
   }
 
   showStep(stepName) {
     const targetStep = this.#steps[stepName];
-    if (targetStep && !targetStep.classList.contains('hidden') && this.#currentStepName === stepName) {
+    if (
+      targetStep &&
+      !targetStep.classList.contains("hidden") &&
+      this.#currentStepName === stepName
+    ) {
       return;
     }
     this.#currentStepName = stepName;
-    this.#lastParticipantsSignature = '';
+    this.#lastParticipantsSignature = "";
     Object.values(this.#steps).forEach((step) => {
-      if (step) step.classList.add('hidden');
+      if (step) step.classList.add("hidden");
     });
     if (targetStep) {
-      targetStep.classList.remove('hidden');
+      targetStep.classList.remove("hidden");
     }
-    if (stepName === 'setup' && this.#cityInput && (!this.#cityInput.value || !this.#cityInput.dataset.value)) {
-      this.#cityInput.value = 'La Ferté-Saint-Aubin';
-      this.#cityInput.dataset.value = 'la_ferte_saint_aubin';
+    if (
+      stepName === "setup" &&
+      this.#cityInput &&
+      (!this.#cityInput.value || !this.#cityInput.dataset.value)
+    ) {
+      this.#cityInput.value = "La Ferté-Saint-Aubin";
+      this.#cityInput.dataset.value = "la_ferte_saint_aubin";
     }
   }
 
   bindGuestFormSubmit(callback) {
     if (this.#guestForm) {
-      this.#guestForm.addEventListener('submit', (e) => {
+      this.#guestForm.addEventListener("submit", (e) => {
         e.preventDefault();
-        const username = this.#guestUsername ? this.#guestUsername.value.trim() : '';
-        const roomCodeInput = document.getElementById('room-guest-code');
-        const roomCode = roomCodeInput ? roomCodeInput.value.trim().toUpperCase() : '';
+        const username = this.#guestUsername
+          ? this.#guestUsername.value.trim()
+          : "";
+        const roomCodeInput = document.getElementById("room-guest-code");
+        const roomCode = roomCodeInput
+          ? roomCodeInput.value.trim().toUpperCase()
+          : "";
         callback(username, roomCode);
       });
     }
@@ -355,14 +392,14 @@ export class RoomView {
 
   bindBackClick(callback) {
     if (this.#setupBackBtn) {
-      this.#setupBackBtn.addEventListener('click', (e) => {
+      this.#setupBackBtn.addEventListener("click", (e) => {
         e.preventDefault();
         callback();
       });
     }
-    const guestBackBtn = document.getElementById('room-guest-back-btn');
+    const guestBackBtn = document.getElementById("room-guest-back-btn");
     if (guestBackBtn) {
-      guestBackBtn.addEventListener('click', (e) => {
+      guestBackBtn.addEventListener("click", (e) => {
         e.preventDefault();
         callback();
       });
@@ -371,18 +408,18 @@ export class RoomView {
 
   bindCreateRoom(callback) {
     if (this.#createBtn) {
-      this.#createBtn.addEventListener('click', callback);
+      this.#createBtn.addEventListener("click", callback);
     }
   }
 
   bindJoinRoom(callback) {
     if (this.#joinBtn) {
-      this.#joinBtn.addEventListener('click', callback);
+      this.#joinBtn.addEventListener("click", callback);
     }
-    
+
     if (this.#codeInput) {
-      this.#codeInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
+      this.#codeInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") {
           callback();
         }
       });
@@ -391,34 +428,34 @@ export class RoomView {
 
   bindStartGame(callback) {
     if (this.#lobbyStartBtn) {
-      this.#lobbyStartBtn.addEventListener('click', callback);
+      this.#lobbyStartBtn.addEventListener("click", callback);
     }
   }
 
   bindLeaveRoom(callback) {
     if (this.#lobbyLeaveBtn) {
-      this.#lobbyLeaveBtn.addEventListener('click', callback);
+      this.#lobbyLeaveBtn.addEventListener("click", callback);
     }
     if (this.#resultsLeaveBtn) {
-      this.#resultsLeaveBtn.addEventListener('click', callback);
+      this.#resultsLeaveBtn.addEventListener("click", callback);
     }
   }
 
   bindHomeClick(callback) {
     if (this.#resultsHomeBtn) {
-      this.#resultsHomeBtn.addEventListener('click', callback);
+      this.#resultsHomeBtn.addEventListener("click", callback);
     }
   }
 
   bindRefreshScores(callback) {
     if (this.#resultsRefreshBtn) {
-      this.#resultsRefreshBtn.addEventListener('click', callback);
+      this.#resultsRefreshBtn.addEventListener("click", callback);
     }
   }
 
   bindResetRoom(callback) {
     if (this.#resultsResetBtn) {
-      this.#resultsResetBtn.addEventListener('click', callback);
+      this.#resultsResetBtn.addEventListener("click", callback);
     }
   }
 
@@ -427,93 +464,117 @@ export class RoomView {
     const cityName = this.#cityInput ? this.#cityInput.value.trim() : null;
 
     if (!cityKey && cityName) {
-      cityKey = cityName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+      cityKey = cityName
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
     }
 
     return {
-      cityKey: cityKey || 'la_ferte_saint_aubin',
-      cityName: cityName || 'La Ferté-Saint-Aubin',
-      difficulty: (this.#diffInput && this.#diffInput.dataset.value) ? this.#diffInput.dataset.value : 'easy',
-      mode: (this.#modeInput && this.#modeInput.dataset.value) ? this.#modeInput.dataset.value : 'target',
-      seriesCount: this.#seriesInput ? (parseInt(this.#seriesInput.value, 10) || 10) : 10,
-      validityHours: (this.#validityInput && this.#validityInput.dataset.value) ? (parseInt(this.#validityInput.dataset.value, 10) || 24) : 24
+      cityKey: cityKey || "la_ferte_saint_aubin",
+      cityName: cityName || "La Ferté-Saint-Aubin",
+      difficulty:
+        this.#diffInput && this.#diffInput.dataset.value
+          ? this.#diffInput.dataset.value
+          : "easy",
+      mode:
+        this.#modeInput && this.#modeInput.dataset.value
+          ? this.#modeInput.dataset.value
+          : "target",
+      seriesCount: this.#seriesInput
+        ? parseInt(this.#seriesInput.value, 10) || 10
+        : 10,
+      validityHours:
+        this.#validityInput && this.#validityInput.dataset.value
+          ? parseInt(this.#validityInput.dataset.value, 10) || 24
+          : 24,
     };
   }
 
   getCodeInputValue() {
-    return this.#codeInput ? this.#codeInput.value.trim().toUpperCase() : '';
+    return this.#codeInput ? this.#codeInput.value.trim().toUpperCase() : "";
   }
 
   showGuestError(message) {
     if (this.#guestError) {
       this.#guestError.textContent = message;
-      this.#guestError.classList.remove('hidden');
+      this.#guestError.classList.remove("hidden");
     }
   }
 
   hideGuestError() {
     if (this.#guestError) {
-      this.#guestError.classList.add('hidden');
+      this.#guestError.classList.add("hidden");
     }
   }
 
   showJoinError(message) {
     if (this.#joinError) {
       this.#joinError.textContent = message;
-      this.#joinError.classList.remove('hidden');
+      this.#joinError.classList.remove("hidden");
     }
   }
 
   hideJoinError() {
     if (this.#joinError) {
-      this.#joinError.classList.add('hidden');
+      this.#joinError.classList.add("hidden");
     }
   }
 
   updateLobby(roomData, currentUsername) {
-    if (this.#lobbyCodeBadge) this.#lobbyCodeBadge.textContent = roomData.roomCode;
-    
+    if (this.#lobbyCodeBadge)
+      this.#lobbyCodeBadge.textContent = roomData.roomCode;
+
     const shareUrl = `${window.location.origin}/room/${roomData.roomCode}`;
     if (this.#lobbyShareUrl && this.#lobbyShareUrl.value !== shareUrl) {
       this.#lobbyShareUrl.value = shareUrl;
     }
 
-    if (this.#lobbyCreatorName) this.#lobbyCreatorName.textContent = roomData.createdBy;
+    if (this.#lobbyCreatorName)
+      this.#lobbyCreatorName.textContent = roomData.createdBy;
     if (this.#lobbyDiffLevel) {
-      const difficulties = { easy: 'Facile', medium: 'Moyen', hard: 'Difficile' };
-      this.#lobbyDiffLevel.textContent = difficulties[roomData.difficulty] || roomData.difficulty;
+      const difficulties = {
+        easy: "Facile",
+        medium: "Moyen",
+        hard: "Difficile",
+      };
+      this.#lobbyDiffLevel.textContent =
+        difficulties[roomData.difficulty] || roomData.difficulty;
     }
 
     if (this.#lobbySeriesCount) {
       this.#lobbySeriesCount.textContent = `${roomData.seriesCount || 10} Rues`;
     }
-    
+
     if (this.#lobbyCityName) {
-      const niceName = roomData.cityKey.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('-');
+      const niceName = roomData.cityKey
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join("-");
       this.#lobbyCityName.textContent = niceName;
     }
 
     if (this.#lobbyExpiresAt) {
       if (roomData.expiresAt) {
         const exp = new Date(roomData.expiresAt);
-        this.#lobbyExpiresAt.textContent = exp.toLocaleString('fr-FR', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
+        this.#lobbyExpiresAt.textContent = exp.toLocaleString("fr-FR", {
+          day: "2-digit",
+          month: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
         });
       } else {
-        this.#lobbyExpiresAt.textContent = '24h';
+        this.#lobbyExpiresAt.textContent = "24h";
       }
     }
-
-
 
     if (this.#lobbyPlayersList && Array.isArray(roomData.participants)) {
       const uniqueParticipants = [];
       const seenUsernames = new Set();
       for (const p of roomData.participants) {
-        const lowerName = (p.username || '').toLowerCase();
+        const lowerName = (p.username || "").toLowerCase();
         if (!seenUsernames.has(lowerName)) {
           seenUsernames.add(lowerName);
           uniqueParticipants.push(p);
@@ -521,35 +582,37 @@ export class RoomView {
       }
 
       this.#lobbyPlayersCount.textContent = uniqueParticipants.length;
-      
-      const participantsSig = JSON.stringify(uniqueParticipants.map(p => ({
-        username: p.username,
-        finished: p.finished,
-        score: p.score,
-        avatarUrl: p.avatarUrl || p.profile_image_url || null,
-        isHost: p.username === roomData.createdBy,
-        status: roomData.status
-      })));
+
+      const participantsSig = JSON.stringify(
+        uniqueParticipants.map((p) => ({
+          username: p.username,
+          finished: p.finished,
+          score: p.score,
+          avatarUrl: p.avatarUrl || p.profile_image_url || null,
+          isHost: p.username === roomData.createdBy,
+          status: roomData.status,
+        })),
+      );
 
       if (participantsSig !== this.#lastParticipantsSignature) {
         this.#lastParticipantsSignature = participantsSig;
         this.#lobbyPlayersList.replaceChildren();
-        uniqueParticipants.forEach(p => {
+        uniqueParticipants.forEach((p) => {
           const isHost = p.username === roomData.createdBy;
           const initial = p.username.charAt(0).toUpperCase();
 
-          const li = document.createElement('li');
-          li.className = 'player-item';
+          const li = document.createElement("li");
+          li.className = "player-item";
 
-          const avatar = document.createElement('div');
-          avatar.className = 'player-avatar';
-          
+          const avatar = document.createElement("div");
+          avatar.className = "player-avatar";
+
           const avatarSrc = p.avatarUrl || p.profile_image_url;
           if (avatarSrc) {
-            const img = document.createElement('img');
+            const img = document.createElement("img");
             img.src = avatarSrc;
             img.alt = p.username;
-            img.className = 'player-avatar-img';
+            img.className = "player-avatar-img";
             img.onerror = () => {
               avatar.replaceChildren();
               avatar.textContent = initial;
@@ -559,33 +622,33 @@ export class RoomView {
             avatar.textContent = initial;
           }
 
-          const nameSpan = document.createElement('span');
-          nameSpan.className = 'player-name';
-          nameSpan.textContent = p.username + ' ';
+          const nameSpan = document.createElement("span");
+          nameSpan.className = "player-name";
+          nameSpan.textContent = p.username + " ";
           if (p.username === currentUsername) {
-            const youStrong = document.createElement('strong');
-            youStrong.textContent = '(Vous)';
+            const youStrong = document.createElement("strong");
+            youStrong.textContent = "(Vous)";
             nameSpan.appendChild(youStrong);
           }
 
           li.append(avatar, nameSpan);
 
           if (isHost) {
-            const hostBadge = document.createElement('span');
-            hostBadge.className = 'player-badge-host';
-            hostBadge.textContent = 'Hôte';
+            const hostBadge = document.createElement("span");
+            hostBadge.className = "player-badge-host";
+            hostBadge.textContent = "Hôte";
             li.appendChild(hostBadge);
           }
 
           if (p.finished) {
-            const readyBadge = document.createElement('span');
-            readyBadge.className = 'player-badge-ready';
+            const readyBadge = document.createElement("span");
+            readyBadge.className = "player-badge-ready";
             readyBadge.textContent = `Score: ${p.score} pts`;
             li.appendChild(readyBadge);
-          } else if (roomData.status === 'playing') {
-            const playingBadge = document.createElement('span');
-            playingBadge.className = 'player-badge-host player-badge-playing';
-            playingBadge.textContent = 'Joue...';
+          } else if (roomData.status === "playing") {
+            const playingBadge = document.createElement("span");
+            playingBadge.className = "player-badge-host player-badge-playing";
+            playingBadge.textContent = "Joue...";
             li.appendChild(playingBadge);
           }
 
@@ -595,78 +658,83 @@ export class RoomView {
     }
 
     const isCreator = roomData.createdBy === currentUsername;
-    const pulseInd = document.querySelector('.pulse-indicator');
-    
-    if (roomData.status === 'playing') {
-      if (this.#lobbyStatusText) this.#lobbyStatusText.textContent = 'Partie en cours !';
-      if (pulseInd) pulseInd.className = 'pulse-indicator active';
+    const pulseInd = document.querySelector(".pulse-indicator");
+
+    if (roomData.status === "playing") {
+      if (this.#lobbyStatusText)
+        this.#lobbyStatusText.textContent = "Partie en cours !";
+      if (pulseInd) pulseInd.className = "pulse-indicator active";
     } else {
-      if (this.#lobbyStatusText) this.#lobbyStatusText.textContent = 'En attente du lancement...';
-      if (pulseInd) pulseInd.className = 'pulse-indicator';
+      if (this.#lobbyStatusText)
+        this.#lobbyStatusText.textContent = "En attente du lancement...";
+      if (pulseInd) pulseInd.className = "pulse-indicator";
     }
 
     if (isCreator) {
       if (this.#lobbyStartBtn) {
-        this.#lobbyStartBtn.classList.remove('hidden');
-        this.#lobbyStartBtn.disabled = roomData.status === 'playing';
+        this.#lobbyStartBtn.classList.remove("hidden");
+        this.#lobbyStartBtn.disabled = roomData.status === "playing";
       }
-      if (this.#lobbyWaitingMsg) this.#lobbyWaitingMsg.classList.add('hidden');
+      if (this.#lobbyWaitingMsg) this.#lobbyWaitingMsg.classList.add("hidden");
     } else {
-      if (this.#lobbyStartBtn) this.#lobbyStartBtn.classList.add('hidden');
-      if (this.#lobbyWaitingMsg) this.#lobbyWaitingMsg.classList.remove('hidden');
+      if (this.#lobbyStartBtn) this.#lobbyStartBtn.classList.add("hidden");
+      if (this.#lobbyWaitingMsg)
+        this.#lobbyWaitingMsg.classList.remove("hidden");
     }
   }
 
   updateResults(participants, isCreatorOrAdmin = false) {
     if (this.#resultsResetBtn) {
       if (isCreatorOrAdmin) {
-        this.#resultsResetBtn.classList.remove('hidden');
+        this.#resultsResetBtn.classList.remove("hidden");
       } else {
-        this.#resultsResetBtn.classList.add('hidden');
+        this.#resultsResetBtn.classList.add("hidden");
       }
     }
     if (!this.#resultsTableBody || !Array.isArray(participants)) return;
-    
-    const sorted = [...participants].sort((a, b) => (b.score || 0) - (a.score || 0));
-    
+
+    const sorted = [...participants].sort(
+      (a, b) => (b.score || 0) - (a.score || 0),
+    );
+
     this.#resultsTableBody.replaceChildren();
     sorted.forEach((p, idx) => {
       let rankDisplay = `${idx + 1}`;
-      if (idx === 0) rankDisplay = '🥇';
-      else if (idx === 1) rankDisplay = '🥈';
-      else if (idx === 2) rankDisplay = '🥉';
+      if (idx === 0) rankDisplay = "🥇";
+      else if (idx === 1) rankDisplay = "🥈";
+      else if (idx === 2) rankDisplay = "🥉";
 
-      const tr = document.createElement('tr');
+      const tr = document.createElement("tr");
 
-      const rankTd = document.createElement('td');
-      rankTd.className = 'rank-cell';
+      const rankTd = document.createElement("td");
+      rankTd.className = "rank-cell";
       rankTd.textContent = rankDisplay;
 
-      const nameTd = document.createElement('td');
+      const nameTd = document.createElement("td");
       nameTd.textContent = p.username;
 
-      const scoreTd = document.createElement('td');
-      scoreTd.className = 'text-right';
+      const scoreTd = document.createElement("td");
+      scoreTd.className = "text-right";
       if (p.finished) {
-        const strong = document.createElement('strong');
+        const strong = document.createElement("strong");
         strong.textContent = p.score;
-        scoreTd.append(strong, ' pts');
+        scoreTd.append(strong, " pts");
       } else {
-        const span = document.createElement('span');
-        span.className = 'text-muted';
-        span.textContent = 'En cours...';
+        const span = document.createElement("span");
+        span.className = "text-muted";
+        span.textContent = "En cours...";
         scoreTd.appendChild(span);
       }
 
-      const statusTd = document.createElement('td');
-      statusTd.className = 'text-center';
-      const statusSpan = document.createElement('span');
+      const statusTd = document.createElement("td");
+      statusTd.className = "text-center";
+      const statusSpan = document.createElement("span");
       if (p.finished) {
-        statusSpan.className = 'player-badge-ready';
-        statusSpan.textContent = 'Terminé';
+        statusSpan.className = "player-badge-ready";
+        statusSpan.textContent = "Terminé";
       } else {
-        statusSpan.className = 'player-badge-host player-badge-playing';
-        statusSpan.textContent = 'En cours...';
+        statusSpan.className = "player-badge-host player-badge-playing";
+        statusSpan.textContent = "En cours...";
       }
       statusTd.appendChild(statusSpan);
 
@@ -680,8 +748,8 @@ export class RoomView {
   }
 
   showAlertModal(title, message) {
-    const toast = document.createElement('div');
-    toast.className = 'room-toast-msg';
+    const toast = document.createElement("div");
+    toast.className = "room-toast-msg";
     toast.textContent = message ? `${title}: ${message}` : title;
     document.body.appendChild(toast);
     setTimeout(() => {

@@ -126,7 +126,7 @@ export class GameView {
       const searchCities = async (query = "") => {
         try {
           const res = await ApiService.get(
-            `/cities?q=${encodeURIComponent(query)}`
+            `/cities?q=${encodeURIComponent(query)}`,
           );
           if (res.status === 401 || res.status === 403) {
             ApiService.clearToken();
@@ -330,7 +330,7 @@ export class GameView {
       try {
         const resDist = await ApiService.get(
           `/assets/data/custom_districts.json?t=${Date.now()}`,
-          { includeAuth: false }
+          { includeAuth: false },
         );
         if (resDist.ok && resDist.data) {
           districts = (resDist.data[cityKey] || []).filter(
@@ -347,9 +347,13 @@ export class GameView {
       let availableDiffs = ["easy", "medium", "hard"];
       try {
         const resDiff = await ApiService.get(
-          `/cities/${encodeURIComponent(cityKey)}/difficulties`
+          `/cities/${encodeURIComponent(cityKey)}/difficulties`,
         );
-        if (resDiff.ok && Array.isArray(resDiff.data) && resDiff.data.length > 0) {
+        if (
+          resDiff.ok &&
+          Array.isArray(resDiff.data) &&
+          resDiff.data.length > 0
+        ) {
           availableDiffs = resDiff.data;
         }
       } catch (e) {}
@@ -672,7 +676,7 @@ export class GameView {
         if (!selectedCityData && cityKey && cityKeyInput) {
           try {
             const res = await ApiService.get(
-              `/cities?q=${encodeURIComponent(cityKeyInput.value)}`
+              `/cities?q=${encodeURIComponent(cityKeyInput.value)}`,
             );
             if (res.ok && Array.isArray(res.data)) {
               const matched = res.data.find(
