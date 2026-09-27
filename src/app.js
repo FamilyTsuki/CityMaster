@@ -16,7 +16,6 @@ import { AdminController } from "./controllers/AdminController.js";
 import { RoomView } from "./views/RoomView.js";
 import { RoomController } from "./controllers/RoomController.js";
 import { Router } from "./Router.js";
-import { ApiService } from "./services/ApiService.js";
 
 class App {
   #gameView;
@@ -135,13 +134,19 @@ class App {
         if (localStorage.getItem("is_admin") === "true") {
           this.#showAdmin();
         } else {
-          if (ApiService.getToken()) {
+          const token = localStorage.getItem("token");
+          if (token) {
             try {
-              const res = await ApiService.get("/profile");
-              if (res.ok && res.data?.isAdmin) {
-                localStorage.setItem("is_admin", "true");
-                this.#showAdmin();
-                return;
+              const res = await fetch("/api/profile", {
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (res.ok) {
+                const data = await res.json();
+                if (data.isAdmin) {
+                  localStorage.setItem("is_admin", "true");
+                  this.#showAdmin();
+                  return;
+                }
               }
             } catch (e) {}
           }
@@ -230,10 +235,10 @@ class App {
 
   static init() {
     document.addEventListener("DOMContentLoaded", async () => {
-      ApiService.get("/version", { includeAuth: false })
-        .then((res) => {
-          const data = res.data;
-          if (data?.version && data.version !== "unknown") {
+      fetch("/api/version")
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.version && data.version !== "unknown") {
             const logoBrand = document.getElementById("logo-brand");
             if (logoBrand && logoBrand.parentElement) {
               const vSpan = document.createElement("small");
