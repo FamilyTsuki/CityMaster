@@ -1,4 +1,4 @@
-import { ApiService } from '../services/ApiService.js';
+import { ApiService } from "../services/ApiService.js";
 
 export class RoomController {
   #router;
@@ -15,7 +15,7 @@ export class RoomController {
     this.#roomView = roomView;
     this.#gameView = gameView;
     this.#gameController = gameController;
-    
+
     this.#pollingInterval = null;
     this.#currentRoomCode = null;
     this.#pendingRoomCode = null;
@@ -29,19 +29,21 @@ export class RoomController {
   }
 
   #initEvents() {
-    this.#roomView.bindGuestFormSubmit((username, roomCode) => this.#handleGuestLogin(username, roomCode));
+    this.#roomView.bindGuestFormSubmit((username, roomCode) =>
+      this.#handleGuestLogin(username, roomCode),
+    );
     this.#roomView.bindCreateRoom(() => this.#handleCreateRoom());
     this.#roomView.bindJoinRoom(() => this.#handleJoinRoom());
     this.#roomView.bindStartGame(() => this.#handleStartGame());
     this.#roomView.bindLeaveRoom(() => this.#handleLeaveRoom());
     this.#roomView.bindBackClick(() => {
       this.stopPolling();
-      this.#router.navigate('/');
+      this.#router.navigate("/");
     });
 
     this.#roomView.bindHomeClick(() => {
       this.stopPolling();
-      this.#router.navigate('/');
+      this.#router.navigate("/");
     });
     this.#roomView.bindRefreshScores(() => this.#fetchRoomDetails());
     this.#roomView.bindResetRoom(() => this.#handleResetRoom());
@@ -53,11 +55,11 @@ export class RoomController {
     this.#pendingRoomCode = null;
 
     this.#roomView.showScreen();
-    
+
     if (this.#hasAccount()) {
-      this.#roomView.showStep('setup');
+      this.#roomView.showStep("setup");
     } else {
-      this.#roomView.showStep('guest');
+      this.#roomView.showStep("guest");
     }
   }
 
@@ -65,7 +67,7 @@ export class RoomController {
     this.stopPolling();
     this.#isTransitioning = false;
     const code = params.code ? params.code.trim().toUpperCase() : null;
-    
+
     if (!code) {
       this.showSetup();
       return;
@@ -76,11 +78,11 @@ export class RoomController {
 
     if (!this.#hasToken()) {
       this.#pendingRoomCode = code;
-      const guestCodeInput = document.getElementById('room-guest-code');
+      const guestCodeInput = document.getElementById("room-guest-code");
       if (guestCodeInput && !guestCodeInput.value) {
         guestCodeInput.value = code;
       }
-      this.#roomView.showStep('guest');
+      this.#roomView.showStep("guest");
       return;
     }
 
@@ -88,29 +90,29 @@ export class RoomController {
       const joinRes = await ApiService.post(`/rooms/${code}/join`);
 
       if (!joinRes.ok) {
-        const errorMsg = joinRes.data?.error || 'Impossible de rejoindre ce salon.';
+        const errorMsg =
+          joinRes.data?.error || "Impossible de rejoindre ce salon.";
         if (!this.#hasAccount()) {
-          this.#roomView.showStep('guest');
+          this.#roomView.showStep("guest");
           this.#roomView.showGuestError(errorMsg);
         } else {
-          this.#roomView.showStep('setup');
+          this.#roomView.showStep("setup");
           this.#roomView.showJoinError(errorMsg);
-          this.#router.navigate('/room');
+          this.#router.navigate("/room");
         }
         return;
       }
 
       this.#startPolling(code);
-
     } catch (error) {
-      console.error('Error entering room:', error);
+      console.error("Error entering room:", error);
       if (!this.#hasAccount()) {
-        this.#roomView.showStep('guest');
-        this.#roomView.showGuestError('Erreur de connexion au serveur.');
+        this.#roomView.showStep("guest");
+        this.#roomView.showGuestError("Erreur de connexion au serveur.");
       } else {
-        this.#roomView.showStep('setup');
-        this.#roomView.showJoinError('Erreur de connexion au serveur.');
-        this.#router.navigate('/room');
+        this.#roomView.showStep("setup");
+        this.#roomView.showJoinError("Erreur de connexion au serveur.");
+        this.#router.navigate("/room");
       }
     }
   }
@@ -118,24 +120,39 @@ export class RoomController {
   async #handleGuestLogin(username, roomCode) {
     try {
       this.#roomView.hideGuestError();
-      const codeToJoin = (roomCode || this.#pendingRoomCode || this.#currentRoomCode || '').trim().toUpperCase();
+      const codeToJoin = (
+        roomCode ||
+        this.#pendingRoomCode ||
+        this.#currentRoomCode ||
+        ""
+      )
+        .trim()
+        .toUpperCase();
 
       if (!codeToJoin) {
-        this.#roomView.showGuestError('Veuillez saisir le code du salon à rejoindre.');
+        this.#roomView.showGuestError(
+          "Veuillez saisir le code du salon à rejoindre.",
+        );
         return;
       }
 
-      const res = await ApiService.post('/guest', { username }, { includeAuth: false });
+      const res = await ApiService.post(
+        "/guest",
+        { username },
+        { includeAuth: false },
+      );
 
       if (!res.ok) {
-        this.#roomView.showGuestError(res.data?.error || 'Erreur lors de la connexion invité.');
+        this.#roomView.showGuestError(
+          res.data?.error || "Erreur lors de la connexion invité.",
+        );
         return;
       }
 
       const data = res.data;
       ApiService.setToken(data.token);
-      localStorage.setItem('username', data.username);
-      localStorage.setItem('is_guest', 'true');
+      localStorage.setItem("username", data.username);
+      localStorage.setItem("is_guest", "true");
 
       this.#gameView.setPlayerName(data.username);
 
@@ -143,8 +160,8 @@ export class RoomController {
       this.#router.navigate(`/room/${codeToJoin}`);
       this.initRoom({ code: codeToJoin });
     } catch (error) {
-      console.error('Guest Login Error:', error);
-      this.#roomView.showGuestError('Erreur de connexion au serveur.');
+      console.error("Guest Login Error:", error);
+      this.#roomView.showGuestError("Erreur de connexion au serveur.");
     }
   }
 
@@ -153,35 +170,41 @@ export class RoomController {
       this.#roomView.hideJoinError();
       const config = this.#roomView.getSetupConfig();
       if (!config.cityKey) {
-        this.#roomView.showJoinError('Veuillez sélectionner une ville pour créer le salon.');
+        this.#roomView.showJoinError(
+          "Veuillez sélectionner une ville pour créer le salon.",
+        );
         return;
       }
 
-      const res = await ApiService.post('/rooms', {
+      const res = await ApiService.post("/rooms", {
         cityKey: config.cityKey,
         difficulty: config.difficulty,
         seriesCount: config.seriesCount,
         mode: config.mode,
-        validityHours: config.validityHours
+        validityHours: config.validityHours,
       });
 
       if (!res.ok) {
-        this.#roomView.showJoinError(res.data?.error || 'Impossible de créer la room.');
+        this.#roomView.showJoinError(
+          res.data?.error || "Impossible de créer la room.",
+        );
         return;
       }
 
       const data = res.data;
       this.#router.navigate(`/room/${data.roomCode}`);
     } catch (error) {
-      console.error('Create Room UI Error:', error);
-      this.#roomView.showJoinError('Erreur réseau lors de la création du salon.');
+      console.error("Create Room UI Error:", error);
+      this.#roomView.showJoinError(
+        "Erreur réseau lors de la création du salon.",
+      );
     }
   }
 
   async #handleJoinRoom() {
     const code = this.#roomView.getCodeInputValue();
     if (!code || code.length < 3) {
-      this.#roomView.showJoinError('Veuillez entrer un code de salon valide.');
+      this.#roomView.showJoinError("Veuillez entrer un code de salon valide.");
       return;
     }
     this.#router.navigate(`/room/${code}`);
@@ -190,14 +213,19 @@ export class RoomController {
   async #handleStartGame() {
     if (!this.#currentRoomCode) return;
     try {
-      this.#gameView.showLoading('Lancement du test multijoueurs...');
-      const res = await ApiService.post(`/rooms/${this.#currentRoomCode}/start`);
+      this.#gameView.showLoading("Lancement du test multijoueurs...");
+      const res = await ApiService.post(
+        `/rooms/${this.#currentRoomCode}/start`,
+      );
       if (!res.ok) {
-        await this.#roomView.showAlertModal('Erreur', res.data?.error || 'Erreur lors du lancement de la partie.');
+        await this.#roomView.showAlertModal(
+          "Erreur",
+          res.data?.error || "Erreur lors du lancement de la partie.",
+        );
         this.#roomView.showScreen();
       }
     } catch (error) {
-      console.error('Start Game UI Error:', error);
+      console.error("Start Game UI Error:", error);
       this.#roomView.showScreen();
     }
   }
@@ -206,11 +234,16 @@ export class RoomController {
     if (!this.#currentRoomCode) return;
 
     try {
-      this.#gameView.showLoading('Réinitialisation du salon...');
-      const res = await ApiService.post(`/rooms/${this.#currentRoomCode}/reset`);
+      this.#gameView.showLoading("Réinitialisation du salon...");
+      const res = await ApiService.post(
+        `/rooms/${this.#currentRoomCode}/reset`,
+      );
 
       if (!res.ok) {
-        await this.#roomView.showAlertModal('Erreur', res.data?.error || 'Erreur lors de la réinitialisation du salon.');
+        await this.#roomView.showAlertModal(
+          "Erreur",
+          res.data?.error || "Erreur lors de la réinitialisation du salon.",
+        );
         this.#roomView.showScreen();
         return;
       }
@@ -219,9 +252,8 @@ export class RoomController {
       this.#roomView.showScreen();
       this.stopPolling();
       this.#startPolling(this.#currentRoomCode);
-
     } catch (error) {
-      console.error('Reset Room UI Error:', error);
+      console.error("Reset Room UI Error:", error);
       this.#roomView.showScreen();
     }
   }
@@ -229,7 +261,7 @@ export class RoomController {
   #handleLeaveRoom() {
     this.stopPolling();
     this.#currentRoomCode = null;
-    this.#router.navigate('/room');
+    this.#router.navigate("/room");
   }
 
   #startPolling(code) {
@@ -255,31 +287,40 @@ export class RoomController {
       if (!res.ok) {
         if (res.status === 404 || res.status === 410) {
           this.stopPolling();
-          await this.#roomView.showAlertModal('Salon indisponible', res.data?.error || 'Ce salon a expiré ou n\'existe plus.');
-          this.#router.navigate('/room');
+          await this.#roomView.showAlertModal(
+            "Salon indisponible",
+            res.data?.error || "Ce salon a expiré ou n'existe plus.",
+          );
+          this.#router.navigate("/room");
         }
         return;
       }
 
       const roomData = res.data;
-      const currentUsername = localStorage.getItem('username');
-      const isHost = (currentUsername || '').trim().toLowerCase() === (roomData?.createdBy || '').trim().toLowerCase() || localStorage.getItem('is_admin') === 'true';
+      const currentUsername = localStorage.getItem("username");
+      const isHost =
+        (currentUsername || "").trim().toLowerCase() ===
+          (roomData?.createdBy || "").trim().toLowerCase() ||
+        localStorage.getItem("is_admin") === "true";
 
       this.#roomView.updateLobby(roomData, currentUsername);
 
-      if (roomData.status === 'playing' || roomData.status === 'finished') {
-        const me = roomData.participants.find(p => p.username.toLowerCase() === (currentUsername || '').toLowerCase());
+      if (roomData.status === "playing" || roomData.status === "finished") {
+        const me = roomData.participants.find(
+          (p) =>
+            p.username.toLowerCase() === (currentUsername || "").toLowerCase(),
+        );
         if (me && me.finished) {
-          this.#roomView.showStep('results');
+          this.#roomView.showStep("results");
           this.#roomView.updateResults(roomData.participants, isHost);
         } else {
           this.stopPolling();
           if (this.#isTransitioning) return;
           this.#isTransitioning = true;
-          
-          const mode = roomData.mode || 'target';
-          this.#gameView.showLoading('Chargement de la partie...');
-          
+
+          const mode = roomData.mode || "target";
+          this.#gameView.showLoading("Chargement de la partie...");
+
           this.#gameController.startRoomGame(
             currentUsername,
             roomData.cityData,
@@ -287,27 +328,26 @@ export class RoomController {
             roomData.difficulty,
             roomData.testId,
             roomData.roomCode,
-            roomData.seriesCount
+            roomData.seriesCount,
           );
         }
       } else {
-        this.#roomView.showStep('lobby');
+        this.#roomView.showStep("lobby");
       }
-
     } catch (error) {
-      console.error('Error fetching room details:', error);
+      console.error("Error fetching room details:", error);
     }
   }
 
   #hasAccount() {
     const token = ApiService.getToken();
-    const username = localStorage.getItem('username');
-    const isGuest = localStorage.getItem('is_guest') === 'true';
+    const username = localStorage.getItem("username");
+    const isGuest = localStorage.getItem("is_guest") === "true";
     return Boolean(token && username && !isGuest);
   }
 
   #hasToken() {
-    return Boolean(ApiService.getToken() && localStorage.getItem('username'));
+    return Boolean(ApiService.getToken() && localStorage.getItem("username"));
   }
 
   #isAuthenticated() {
