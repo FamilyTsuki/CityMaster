@@ -47,6 +47,8 @@ export class AdminController {
   #currentRoutes;
   #difficultyMode;
   #routeFilterQuery;
+  #routeDifficultyFilter;
+  #routeDifficultyOverrides;
   #reportsSearchQuery;
 
   constructor(adminView, gameView, router = null) {
@@ -58,6 +60,8 @@ export class AdminController {
     this.#currentRoutes = [];
     this.#difficultyMode = "length";
     this.#routeFilterQuery = "";
+    this.#routeDifficultyFilter = "all";
+    this.#routeDifficultyOverrides = {};
     this.#reportsSearchQuery = "";
 
     this.#initEvents();
@@ -401,7 +405,12 @@ export class AdminController {
               (!r.properties.id && r.properties.name === name),
           );
           if (route) {
-            this.#adminView.startEditingRoute(route);
+            const nameLower = (route.properties.name || "")
+              .toLowerCase()
+              .trim();
+            const currentDiff =
+              this.#routeDifficultyOverrides[nameLower] || "auto";
+            this.#adminView.startEditingRoute(route, currentDiff);
           }
         } else if (deleteBtn) {
           const id = deleteBtn.dataset.id;
@@ -443,6 +452,64 @@ export class AdminController {
         this.#renderRouteList();
       });
     }
+
+    const filterTabs = document.querySelectorAll(
+      ".admin-route-filter-tabs .btn-filter-tab",
+    );
+    filterTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        filterTabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        this.#routeDifficultyFilter = tab.dataset.filter || "all";
+        this.#renderRouteList();
+      });
+    });
+
+    this.#adminView.onRouteMapClick = (feature, layer, e) => {
+      const name = feature?.properties?.name;
+      if (!name) return;
+      const nameLower = name.toLowerCase().trim();
+      const isManual = Boolean(
+        this.#routeDifficultyOverrides &&
+        this.#routeDifficultyOverrides[nameLower],
+      );
+      const currentDiff =
+        feature._difficulty ||
+        (this.#routeDifficultyOverrides &&
+          this.#routeDifficultyOverrides[nameLower]) ||
+        this.#getRouteDifficulty(feature);
+      const diffLabels = { easy: "Facile", medium: "Moyen", hard: "Difficile" };
+      const diffLabel = diffLabels[currentDiff] || currentDiff;
+
+      const popupContent = document.createElement("div");
+      popupContent.className = "admin-route-popup";
+      popupContent.innerHTML = `
+        <h4>${name}</h4>
+        <div class="admin-route-popup-diff">
+          <span>Difficulté :</span>
+          <strong class="diff-tag diff-${currentDiff}">${diffLabel}</strong>
+          ${isManual ? '<span class="badge-manual-diff">Manuel</span>' : ""}
+        </div>
+        <div class="admin-popup-actions">
+          <button type="button" class="btn-popup-diff diff-easy" data-diff="easy">Facile</button>
+          <button type="button" class="btn-popup-diff diff-medium" data-diff="medium">Moyen</button>
+          <button type="button" class="btn-popup-diff diff-hard" data-diff="hard">Difficile</button>
+          <button type="button" class="btn-popup-diff diff-auto" data-diff="auto">Auto</button>
+        </div>
+      `;
+
+      popupContent.querySelectorAll(".btn-popup-diff").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const diff = btn.dataset.diff;
+          await this.setRouteDifficulty(name, diff);
+          if (layer && layer.closePopup) layer.closePopup();
+        });
+      });
+
+      if (layer && layer.bindPopup) {
+        layer.bindPopup(popupContent).openPopup(e ? e.latlng : undefined);
+      }
+    };
   }
 
   async #loadSettings() {
@@ -463,9 +530,9 @@ export class AdminController {
         const modeTextEl = document.getElementById("admin-route-mode-text");
         if (modeTextEl) {
           const modeLabels = {
-            length: "Par longueur (Longueur >800m / 250m-800m / <250m)",
-            nomenclature: "Par nomenclature (Grands axes vs Voies secondaires)",
-            center: "Par centre-ville (Densité de croisements)",
+            length: "Longueur",
+            nomenclature: "Nomenclature",
+            center: "Centre-ville",
           };
           modeTextEl.textContent =
             modeLabels[this.#difficultyMode] || this.#difficultyMode;
@@ -663,7 +730,7 @@ export class AdminController {
       });
 
       this.#currentRoutes = [...filteredDefaultStreets, ...activeCustomRoutes];
-
+      await this.#loadRouteDifficultyOverrides();
       this.#adminView.renderSavedRoutes(this.#currentRoutes);
       this.#renderRouteList();
     } catch (e) {
@@ -671,9 +738,87 @@ export class AdminController {
     }
   }
 
+  async #loadRouteDifficultyOverrides() {
+    if (!this.#selectedCity) return;
+    try {
+      const token = localStorage.getItem("token");
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+      const res = await fetch(
+        `/api/admin/routes/difficulties?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
+        { headers },
+      );
+      if (res.ok) {
+        this.#routeDifficultyOverrides = await res.json();
+      } else {
+        this.#routeDifficultyOverrides = {};
+      }
+    } catch (e) {
+      console.error("Failed to load difficulty overrides", e);
+      this.#routeDifficultyOverrides = {};
+    }
+  }
+
+  async setRouteDifficulty(streetName, difficulty, showToast = true) {
+    if (!this.#selectedCity || !streetName) return;
+    try {
+      const token = localStorage.getItem("token");
+      const headers = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const res = await fetch("/api/admin/routes/difficulty", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          cityKey: this.#selectedCity.key,
+          streetName,
+          difficulty,
+        }),
+      });
+
+      if (res.ok) {
+        const lower = streetName.toLowerCase().trim();
+        if (difficulty === "auto") {
+          delete this.#routeDifficultyOverrides[lower];
+        } else {
+          this.#routeDifficultyOverrides[lower] = difficulty;
+        }
+        this.#renderRouteList();
+        if (showToast) {
+          const diffLabels = {
+            easy: "Facile",
+            medium: "Moyen",
+            hard: "Difficile",
+            auto: "Automatique",
+          };
+          const label = diffLabels[difficulty] || difficulty;
+          this.#adminView.showToast(
+            `Difficulté mise à jour pour "${streetName}" : ${label}`,
+            "success",
+          );
+        }
+      } else {
+        const err = await res.json().catch(() => ({}));
+        this.#adminView.showToast(
+          err.error || "Erreur lors de la mise à jour",
+          "error",
+        );
+      }
+    } catch (e) {
+      console.error("Failed to set route difficulty", e);
+      this.#adminView.showToast("Erreur de connexion", "error");
+    }
+  }
+
   #getRouteDifficulty(route) {
-    const name = route.properties.name || "";
+    const name = route.properties?.name || "";
     const nameLower = name.toLowerCase().trim();
+    if (
+      this.#routeDifficultyOverrides &&
+      this.#routeDifficultyOverrides[nameLower]
+    ) {
+      return this.#routeDifficultyOverrides[nameLower];
+    }
+
     const isMinorWay = MINOR_WAY_KEYWORDS.some((k) => nameLower.includes(k));
 
     if (this.#difficultyMode === "nomenclature") {
@@ -684,7 +829,7 @@ export class AdminController {
       return "medium";
     } else {
       let len = 0;
-      if (route.geometry.type === "Point") return "hard";
+      if (route.geometry?.type === "Point") return "hard";
       try {
         if (window.turf) {
           len = window.turf.length(route, { units: "meters" });
@@ -700,20 +845,14 @@ export class AdminController {
   }
 
   #renderRouteList() {
-    let displayRoutes = this.#currentRoutes;
-    if (this.#routeFilterQuery) {
-      displayRoutes = displayRoutes.filter(
-        (r) =>
-          r.properties.name &&
-          r.properties.name.toLowerCase().includes(this.#routeFilterQuery),
-      );
-    }
+    const allRoutes = this.#currentRoutes;
+    const counts = { all: 0, easy: 0, medium: 0, hard: 0, manual: 0 };
+    const routeMeta = new Map();
 
-    const grouped = { easy: [], medium: [], hard: [] };
     let centroids = [];
     if (this.#difficultyMode === "center" && window.turf) {
-      centroids = displayRoutes.map((r) => {
-        if (r.geometry.type === "Point") return r;
+      centroids = allRoutes.map((r) => {
+        if (r.geometry?.type === "Point") return r;
         try {
           return window.turf.centroid(r);
         } catch (e) {
@@ -722,10 +861,17 @@ export class AdminController {
       });
     }
 
-    displayRoutes.forEach((r, i) => {
+    allRoutes.forEach((r, i) => {
+      const nameLower = (r.properties?.name || "").toLowerCase().trim();
+      const isManual = Boolean(
+        this.#routeDifficultyOverrides &&
+        this.#routeDifficultyOverrides[nameLower],
+      );
       let diff = "hard";
-      if (this.#difficultyMode === "center") {
-        const nameLower = (r.properties.name || "").toLowerCase().trim();
+
+      if (isManual) {
+        diff = this.#routeDifficultyOverrides[nameLower];
+      } else if (this.#difficultyMode === "center") {
         const isMinorWay = MINOR_WAY_KEYWORDS.some((k) =>
           nameLower.includes(k),
         );
@@ -754,13 +900,55 @@ export class AdminController {
       } else {
         diff = this.#getRouteDifficulty(r);
       }
-      grouped[diff].push(r);
+
+      r._difficulty = diff;
+      routeMeta.set(r, { diff, isManual });
+
+      counts.all++;
+      if (isManual) counts.manual++;
+      if (counts[diff] !== undefined) counts[diff]++;
+    });
+
+    let displayRoutes = allRoutes;
+    if (this.#routeFilterQuery) {
+      displayRoutes = displayRoutes.filter(
+        (r) =>
+          r.properties?.name &&
+          r.properties.name.toLowerCase().includes(this.#routeFilterQuery),
+      );
+    }
+
+    if (this.#routeDifficultyFilter === "manual") {
+      displayRoutes = displayRoutes.filter((r) => routeMeta.get(r)?.isManual);
+    } else if (
+      this.#routeDifficultyFilter &&
+      this.#routeDifficultyFilter !== "all"
+    ) {
+      displayRoutes = displayRoutes.filter(
+        (r) => routeMeta.get(r)?.diff === this.#routeDifficultyFilter,
+      );
+    }
+
+    const grouped = { easy: [], medium: [], hard: [] };
+    displayRoutes.forEach((r) => {
+      const meta = routeMeta.get(r);
+      const diff = meta?.diff || "hard";
+      if (grouped[diff]) {
+        grouped[diff].push(r);
+      }
     });
 
     this.#adminView.renderRouteList(
       displayRoutes,
       this.#difficultyMode,
       grouped,
+      {
+        currentFilter: this.#routeDifficultyFilter,
+        counts,
+        overrides: this.#routeDifficultyOverrides,
+        onDifficultyChange: (streetName, newDiff) =>
+          this.setRouteDifficulty(streetName, newDiff),
+      },
     );
   }
 
@@ -816,6 +1004,11 @@ export class AdminController {
   }
 
   async #saveRoute(routePayload) {
+    if (!this.#selectedCity) {
+      this.#adminView.showToast("Veuillez sélectionner une commune.", "error");
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       const headers = token
@@ -834,13 +1027,19 @@ export class AdminController {
       });
 
       if (!res.ok) {
-        throw new Error("Erreur lors de la sauvegarde de la route");
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(
+          errorData.error ||
+            `Erreur lors de la sauvegarde de la route (${res.status})`,
+        );
       }
 
       this.#adminView.clearActiveRouteDrawing();
       await this.loadRoutes();
+      this.#adminView.showToast("Route sauvegardée avec succès !", "success");
     } catch (err) {
-      this.#adminView.showToast(err.message);
+      console.error("Failed to save route:", err);
+      this.#adminView.showToast(err.message, "error");
     }
   }
 
@@ -917,7 +1116,7 @@ export class AdminController {
     } catch (e) {}
   }
 
-  showDistricts() {
+  async showDistricts() {
     const dashboard = document.getElementById("admin-dashboard-view");
     const districts = document.getElementById("admin-districts-view");
     const routes = document.getElementById("admin-routes-view");
@@ -937,6 +1136,15 @@ export class AdminController {
     }
 
     this.#adminView.initMap();
+    if (!this.#selectedCity) {
+      const lastCityRaw = localStorage.getItem("citymaster_last_city");
+      if (lastCityRaw) {
+        try {
+          const lastCity = JSON.parse(lastCityRaw);
+          await this.selectCity(lastCity);
+        } catch (e) {}
+      }
+    }
   }
 
   async showRoutes() {
@@ -959,6 +1167,17 @@ export class AdminController {
     }
 
     this.#adminView.initMap();
+
+    if (!this.#selectedCity) {
+      const lastCityRaw = localStorage.getItem("citymaster_last_city");
+      if (lastCityRaw) {
+        try {
+          const lastCity = JSON.parse(lastCityRaw);
+          await this.selectCity(lastCity);
+        } catch (e) {}
+      }
+    }
+
     await this.#loadSettings();
     this.#renderRouteList();
   }

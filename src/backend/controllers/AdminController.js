@@ -397,9 +397,10 @@ export class AdminController {
       await writeRoutesFile(allData);
       return res.json({ message: "Route saved successfully", feature });
     } catch (err) {
+      console.error("Error in saveRoute:", err);
       return res
         .status(500)
-        .json({ error: "Internal server error saving route" });
+        .json({ error: err.message || "Internal server error saving route" });
     }
   }
 

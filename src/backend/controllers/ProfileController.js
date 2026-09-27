@@ -1,7 +1,7 @@
-import sharp from 'sharp';
-import path from 'path';
-import { User } from '../models/User.js';
-import { Score } from '../models/Score.js';
+import sharp from "sharp";
+import path from "path";
+import { User } from "../models/User.js";
+import { Score } from "../models/Score.js";
 
 export class ProfileController {
   static async getProfile(req, res) {
@@ -13,18 +13,18 @@ export class ProfileController {
       if (!user && req.user.username) {
         user = await User.findByUsername(req.user.username);
       }
-      
+
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
+        return res.status(404).json({ error: "User not found" });
       }
 
       const totalScore = await Score.getTotalScoreByPlayer(user.username);
-      
+
       res.json({
         username: user.username,
         profileImageUrl: user.profile_image_url,
         totalScore: totalScore || 0,
-        isAdmin: user.is_admin || false
+        isAdmin: user.is_admin || false,
       });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -33,29 +33,29 @@ export class ProfileController {
 
   static async uploadAvatar(req, res) {
     if (!req.file) {
-      return res.status(400).json({ error: 'Aucun fichier reçu' });
+      return res.status(400).json({ error: "Aucun fichier reçu" });
     }
 
     try {
       const userId = req.user.id;
       const filename = `avatar_${userId}.webp`;
-      const outputPath = path.join(process.cwd(), 'uploads', filename);
+      const outputPath = path.join(process.cwd(), "uploads", filename);
 
       await sharp(req.file.buffer)
-        .resize(256, 256, { fit: 'cover' })
+        .resize(256, 256, { fit: "cover" })
         .webp({ quality: 80 })
         .toFile(outputPath);
 
       const fileUrl = `/uploads/${filename}?t=${Date.now()}`;
       await User.updateProfileImage(userId, fileUrl);
 
-      res.json({ 
-        message: 'Image uploadée et optimisée avec succès',
-        profileImageUrl: fileUrl 
+      res.json({
+        message: "Image uploadée et optimisée avec succès",
+        profileImageUrl: fileUrl,
       });
     } catch (error) {
-      console.error('Error processing image:', error);
-      res.status(500).json({ error: 'Erreur lors du traitement de l\'image' });
+      console.error("Error processing image:", error);
+      res.status(500).json({ error: "Erreur lors du traitement de l'image" });
     }
   }
 }

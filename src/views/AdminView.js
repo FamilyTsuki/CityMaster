@@ -186,7 +186,7 @@ export class AdminView {
           layer.on("click", (e) => {
             L.DomEvent.stopPropagation(e);
             if (this.#editMode === "route" && this.onRouteMapClick) {
-              this.onRouteMapClick(feature);
+              this.onRouteMapClick(feature, layer, e);
             }
           });
         },
@@ -513,15 +513,17 @@ export class AdminView {
     };
   }
 
-  startEditingRoute(routeFeature = null) {
+  startEditingRoute(routeFeature = null, currentDifficulty = "auto") {
     this.#editMode = "route";
     this.clearHighlight();
     this.clearActiveRouteDrawing();
     const editor = document.getElementById("admin-route-editor");
     const titleEl = document.getElementById("admin-editor-title-routes");
     const nameInput = document.getElementById("admin-route-name");
+    const diffSelect = document.getElementById("admin-route-difficulty");
 
     if (editor) editor.classList.remove("hidden");
+    if (diffSelect) diffSelect.value = currentDifficulty || "auto";
 
     if (routeFeature) {
       this.#editingRouteId =
@@ -541,7 +543,7 @@ export class AdminView {
           line = routeFeature.geometry.coordinates || [];
         } else if (routeFeature.geometry.type === "MultiLineString") {
           const coordsArr = routeFeature.geometry.coordinates || [];
-          line = coordsArr.length > 0 ? coordsArr[0] : [];
+          line = coordsArr.flat();
         } else if (routeFeature.geometry.type === "Point") {
           line = [routeFeature.geometry.coordinates];
         }
@@ -656,6 +658,8 @@ export class AdminView {
   getActiveRoutePayload() {
     const nameInput = document.getElementById("admin-route-name");
     const name = nameInput ? nameInput.value.trim() : "";
+    const diffSelect = document.getElementById("admin-route-difficulty");
+    const difficulty = diffSelect ? diffSelect.value : "auto";
 
     if (!name || this.#activeRoutePoints.length < 2) {
       return null;
@@ -667,6 +671,7 @@ export class AdminView {
       id: this.#editingRouteId,
       originalName: this.#originalRouteName,
       name,
+      difficulty,
       coordinates: line,
     };
   }
@@ -736,18 +741,55 @@ export class AdminView {
     });
   }
 
-  renderRouteList(displayRoutes, difficultyMode, groupedRoutes) {
+  renderRouteList(displayRoutes, difficultyMode, groupedRoutes, options = {}) {
     const listEl = document.getElementById("admin-route-list");
     const countEl = document.getElementById("admin-route-count");
     const modeTextEl = document.getElementById("admin-route-mode-text");
 
     if (modeTextEl) {
       const modeLabels = {
-        length: "Par longueur (Longueur >800m / 250m-800m / <250m)",
-        nomenclature: "Par nomenclature (Grands axes vs Voies secondaires)",
-        center: "Par centre-ville (Densité de croisements)",
+        length: "Longueur",
+        nomenclature: "Nomenclature",
+        center: "Centre-ville",
       };
       modeTextEl.textContent = modeLabels[difficultyMode] || difficultyMode;
+    }
+
+    // Update filter tabs counts and active states
+    const currentFilter = options.currentFilter || "all";
+    const tabAll = document.querySelector('.btn-filter-tab[data-filter="all"]');
+    const tabEasy = document.querySelector(
+      '.btn-filter-tab[data-filter="easy"]',
+    );
+    const tabMedium = document.querySelector(
+      '.btn-filter-tab[data-filter="medium"]',
+    );
+    const tabHard = document.querySelector(
+      '.btn-filter-tab[data-filter="hard"]',
+    );
+    const tabManual = document.querySelector(
+      '.btn-filter-tab[data-filter="manual"]',
+    );
+
+    if (tabAll) {
+      tabAll.textContent = `Tous (${options.counts?.all ?? displayRoutes.length})`;
+      tabAll.classList.toggle("active", currentFilter === "all");
+    }
+    if (tabEasy) {
+      tabEasy.textContent = `Facile (${options.counts?.easy ?? (groupedRoutes?.easy?.length || 0)})`;
+      tabEasy.classList.toggle("active", currentFilter === "easy");
+    }
+    if (tabMedium) {
+      tabMedium.textContent = `Moyen (${options.counts?.medium ?? (groupedRoutes?.medium?.length || 0)})`;
+      tabMedium.classList.toggle("active", currentFilter === "medium");
+    }
+    if (tabHard) {
+      tabHard.textContent = `Difficile (${options.counts?.hard ?? (groupedRoutes?.hard?.length || 0)})`;
+      tabHard.classList.toggle("active", currentFilter === "hard");
+    }
+    if (tabManual) {
+      tabManual.textContent = `Manuels (${options.counts?.manual ?? 0})`;
+      tabManual.classList.toggle("active", currentFilter === "manual");
     }
 
     if (countEl) countEl.textContent = displayRoutes.length;
@@ -763,7 +805,7 @@ export class AdminView {
     }
 
     const renderGroup = (routes, title, color) => {
-      if (routes.length === 0) return;
+      if (!routes || routes.length === 0) return;
       const header = document.createElement("div");
       header.className = "route-difficulty-header";
       header.style.setProperty("--diff-color", color);
@@ -804,8 +846,20 @@ export class AdminView {
         strongName.textContent = r.properties.name;
         infoDiv.append(svgIcon, strongName);
 
+        const nameLower = (r.properties.name || "").toLowerCase().trim();
+        const manualDiff = options.overrides?.[nameLower];
+        const isManual = Boolean(manualDiff);
+
+        if (isManual) {
+          const badge = document.createElement("span");
+          badge.className = "badge-manual-diff";
+          badge.textContent = "Manuel";
+          infoDiv.appendChild(badge);
+        }
+
         const actionsDiv = document.createElement("div");
         actionsDiv.className = "route-list-actions";
+
         const editBtn = document.createElement("button");
         editBtn.type = "button";
         editBtn.className = "btn-edit-item btn-edit-route";
@@ -825,9 +879,19 @@ export class AdminView {
       });
     };
 
-    renderGroup(groupedRoutes.easy, "Facile", "#10b981");
-    renderGroup(groupedRoutes.medium, "Moyen", "#f59e0b");
-    renderGroup(groupedRoutes.hard, "Difficile", "#ef4444");
+    if (currentFilter === "easy") {
+      renderGroup(groupedRoutes.easy, "Facile", "#10b981");
+    } else if (currentFilter === "medium") {
+      renderGroup(groupedRoutes.medium, "Moyen", "#f59e0b");
+    } else if (currentFilter === "hard") {
+      renderGroup(groupedRoutes.hard, "Difficile", "#ef4444");
+    } else if (currentFilter === "manual") {
+      renderGroup(displayRoutes, "Manuels", "#8b5cf6");
+    } else {
+      renderGroup(groupedRoutes.easy, "Facile", "#10b981");
+      renderGroup(groupedRoutes.medium, "Moyen", "#f59e0b");
+      renderGroup(groupedRoutes.hard, "Difficile", "#ef4444");
+    }
   }
 
   renderReportsList(reports, onResolve, onDismiss, onDelete, onCopy) {
@@ -926,7 +990,7 @@ export class AdminView {
         const copyBtn = document.createElement("button");
         copyBtn.type = "button";
         copyBtn.className = "btn-copy-street";
-        copyBtn.textContent = "📋 Copier";
+        copyBtn.textContent = "Copier";
         copyBtn.addEventListener("click", () => onCopy(safeTarget));
         targetSpan.appendChild(copyBtn);
       }
@@ -941,7 +1005,7 @@ export class AdminView {
           const copyBtn = document.createElement("button");
           copyBtn.type = "button";
           copyBtn.className = "btn-copy-street";
-          copyBtn.textContent = "📋 Copier";
+          copyBtn.textContent = "Copier";
           copyBtn.addEventListener("click", () => onCopy(safeClicked));
           clickedSpan.appendChild(copyBtn);
         }

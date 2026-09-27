@@ -1,22 +1,24 @@
-import jwt from 'jsonwebtoken';
-import pool from '../config/database.js';
+import jwt from "jsonwebtoken";
+import { User, isUserAdmin } from "../models/User.js";
 
 export const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ error: 'Access token required' });
+    return res.status(401).json({ error: "Access token required" });
   }
 
   const secret = process.env.JWT_SECRET;
   if (!secret) {
-    return res.status(500).json({ error: 'Server security configuration error' });
+    return res
+      .status(500)
+      .json({ error: "Server security configuration error" });
   }
 
   jwt.verify(token, secret, (err, user) => {
     if (err) {
-      return res.status(403).json({ error: 'Invalid or expired token' });
+      return res.status(403).json({ error: "Invalid or expired token" });
     }
     req.user = user;
     next();
@@ -26,27 +28,43 @@ export const authenticateToken = (req, res, next) => {
 export const requireAdmin = (req, res, next) => {
   authenticateToken(req, res, async () => {
     if (!req.user) {
-      return res.status(403).json({ error: 'Admin access required' });
+      try {
+        const fs = await import("fs");
+        fs.appendFileSync(
+          "/tmp/auth_debug.log",
+          `[${new Date().toISOString()}] REJECT NO_USER: ${req.method} ${req.originalUrl}\n`,
+        );
+      } catch (e) {}
+      return res.status(403).json({ error: "Admin access required" });
     }
-    if (req.user.is_admin) {
+    if (isUserAdmin(req.user)) {
+      req.user.is_admin = true;
       return next();
     }
     if (req.user.id || req.user.username) {
       try {
-        let userRes;
+        let dbUser = null;
         if (req.user.id) {
-          userRes = await pool.query('SELECT is_admin FROM users WHERE id = $1', [req.user.id]);
-        } else {
-          userRes = await pool.query('SELECT is_admin FROM users WHERE username = $1', [req.user.username]);
+          dbUser = await User.findById(req.user.id);
         }
-        if (userRes && userRes.rows.length > 0 && userRes.rows[0].is_admin) {
+        if (!dbUser && req.user.username) {
+          dbUser = await User.findByUsername(req.user.username);
+        }
+        if (dbUser && isUserAdmin(dbUser)) {
           req.user.is_admin = true;
           return next();
         }
       } catch (err) {
-        console.error('Error checking admin status in DB:', err);
+        console.error("Error checking admin status in User model:", err);
       }
     }
-    return res.status(403).json({ error: 'Admin access required' });
+    try {
+      const fs = await import("fs");
+      fs.appendFileSync(
+        "/tmp/auth_debug.log",
+        `[${new Date().toISOString()}] REJECT NOT_ADMIN: ${req.method} ${req.originalUrl} user=${JSON.stringify(req.user)}\n`,
+      );
+    } catch (e) {}
+    return res.status(403).json({ error: "Admin access required" });
   });
 };
