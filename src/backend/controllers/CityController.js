@@ -264,7 +264,8 @@ export class CityController {
 
       allCityStreets.forEach((f, i) => {
         const nameKey = f.properties.name.toLowerCase().trim();
-        const manualDiff = difficultyOverrides[nameKey] || f.properties?.difficulty;
+        const manualDiff =
+          difficultyOverrides[nameKey] || f.properties?.difficulty;
         if (manualDiff && ["easy", "medium", "hard"].includes(manualDiff)) {
           diffCount[manualDiff].add(nameKey);
           return;

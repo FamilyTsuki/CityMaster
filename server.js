@@ -1,27 +1,29 @@
-import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import compression from 'compression';
-import { initDB } from './src/backend/config/database.js';
-import { configureHelmet, globalRateLimiter } from './src/backend/middleware/security.js';
+import "dotenv/config";
+import express from "express";
+import cors from "cors";
+import path from "path";
+import { fileURLToPath } from "url";
+import compression from "compression";
+import { initDB } from "./src/backend/config/database.js";
+import {
+  configureHelmet,
+  globalRateLimiter,
+} from "./src/backend/middleware/security.js";
 
-import authRoutes from './src/backend/routes/auth.routes.js';
-import scoreRoutes from './src/backend/routes/scores.routes.js';
-import overpassRoutes from './src/backend/routes/overpass.routes.js';
-import profileRoutes from './src/backend/routes/profile.routes.js';
-import citiesRoutes from './src/backend/routes/cities.routes.js';
-import gameRoutes from './src/backend/routes/game.routes.js';
-import adminRoutes from './src/backend/routes/admin.routes.js';
-import roomRoutes from './src/backend/routes/room.routes.js';
-import reportsRoutes from './src/backend/routes/reports.routes.js';
+import authRoutes from "./src/backend/routes/auth.routes.js";
+import scoreRoutes from "./src/backend/routes/scores.routes.js";
+import overpassRoutes from "./src/backend/routes/overpass.routes.js";
+import profileRoutes from "./src/backend/routes/profile.routes.js";
+import citiesRoutes from "./src/backend/routes/cities.routes.js";
+import gameRoutes from "./src/backend/routes/game.routes.js";
+import adminRoutes from "./src/backend/routes/admin.routes.js";
+import roomRoutes from "./src/backend/routes/room.routes.js";
+import reportsRoutes from "./src/backend/routes/reports.routes.js";
 
 if (!process.env.JWT_SECRET) {
-  console.error('FATAL ERROR: JWT_SECRET environment variable is missing.');
+  console.error("FATAL ERROR: JWT_SECRET environment variable is missing.");
   process.exit(1);
 }
-
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -36,47 +38,67 @@ app.use(cors());
 app.use(express.json());
 
 app.use(compression());
-app.use(express.static(path.join(dirname, 'public'), {
-  setHeaders: (res, filepath) => {
-    if (filepath.endsWith('sw.js')) {
-      res.setHeader('Service-Worker-Allowed', '/');
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    } else if (filepath.endsWith('.html') || filepath.endsWith('manifest.json')) {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    } else if (filepath.endsWith('.css') || filepath.endsWith('.js') || filepath.endsWith('.json')) {
-      res.setHeader('Cache-Control', 'no-cache');
-    } else {
-      res.setHeader('Cache-Control', 'public, max-age=86400');
-    }
-  }
-}));
-app.use('/src', express.static(path.join(dirname, 'src')));
-app.use('/uploads', express.static(path.join(dirname, 'uploads'), {
-  maxAge: '1d'
-}));
+app.use(
+  express.static(path.join(dirname, "public"), {
+    setHeaders: (res, filepath) => {
+      if (filepath.endsWith("sw.js")) {
+        res.setHeader("Service-Worker-Allowed", "/");
+        res.setHeader(
+          "Cache-Control",
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+        );
+      } else if (
+        filepath.endsWith(".html") ||
+        filepath.endsWith("manifest.json")
+      ) {
+        res.setHeader(
+          "Cache-Control",
+          "no-store, no-cache, must-revalidate, proxy-revalidate",
+        );
+      } else if (
+        filepath.endsWith(".css") ||
+        filepath.endsWith(".js") ||
+        filepath.endsWith(".json")
+      ) {
+        res.setHeader("Cache-Control", "no-cache");
+      } else {
+        res.setHeader("Cache-Control", "public, max-age=86400");
+      }
+    },
+  }),
+);
+app.use("/src", express.static(path.join(dirname, "src")));
+app.use(
+  "/uploads",
+  express.static(path.join(dirname, "uploads"), {
+    maxAge: "1d",
+  }),
+);
 
-app.use('/api', authRoutes);
-app.use('/api/scores', scoreRoutes);
-app.use('/api/overpass', overpassRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/cities', citiesRoutes);
-app.use('/api/game', gameRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/rooms', roomRoutes);
-app.use('/api/reports', reportsRoutes);
+app.use("/api", authRoutes);
+app.use("/api/scores", scoreRoutes);
+app.use("/api/overpass", overpassRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/cities", citiesRoutes);
+app.use("/api/game", gameRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/rooms", roomRoutes);
+app.use("/api/reports", reportsRoutes);
 
-import fs from 'fs';
-app.get('/api/version', (req, res) => {
+import fs from "fs";
+app.get("/api/version", (req, res) => {
   try {
-    const pkg = JSON.parse(fs.readFileSync(path.join(dirname, 'package.json'), 'utf8'));
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(dirname, "package.json"), "utf8"),
+    );
     res.json({ version: pkg.version });
   } catch (err) {
-    res.json({ version: 'unknown' });
+    res.json({ version: "unknown" });
   }
 });
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(dirname, 'public', 'index.html'));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(dirname, "public", "index.html"));
 });
 initDB().then(() => {
   app.listen(port, () => {
