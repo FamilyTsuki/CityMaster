@@ -1,3 +1,5 @@
+import { ApiService } from '../services/ApiService.js';
+
 export class RoomController {
   #router;
   #roomView;
@@ -83,25 +85,16 @@ export class RoomController {
     }
 
     try {
-      const token = localStorage.getItem('token');
-      const headers = {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      };
-
-      const joinRes = await fetch(`/api/rooms/${code}/join`, {
-        method: 'POST',
-        headers
-      });
+      const joinRes = await ApiService.post(`/rooms/${code}/join`);
 
       if (!joinRes.ok) {
-        const data = await joinRes.json().catch(() => ({}));
+        const errorMsg = joinRes.data?.error || 'Impossible de rejoindre ce salon.';
         if (!this.#hasAccount()) {
           this.#roomView.showStep('guest');
-          this.#roomView.showGuestError(data.error || 'Impossible de rejoindre ce salon.');
+          this.#roomView.showGuestError(errorMsg);
         } else {
           this.#roomView.showStep('setup');
-          this.#roomView.showJoinError(data.error || 'Impossible de rejoindre ce salon.');
+          this.#roomView.showJoinError(errorMsg);
           this.#router.navigate('/room');
         }
         return;
@@ -132,22 +125,15 @@ export class RoomController {
         return;
       }
 
-      const res = await fetch('/api/guest', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ username })
-      });
+      const res = await ApiService.post('/guest', { username }, { includeAuth: false });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        this.#roomView.showGuestError(data.error || 'Erreur lors de la connexion invité.');
+        this.#roomView.showGuestError(res.data?.error || 'Erreur lors de la connexion invité.');
         return;
       }
 
-      const data = await res.json();
-      localStorage.setItem('token', data.token);
+      const data = res.data;
+      ApiService.setToken(data.token);
       localStorage.setItem('username', data.username);
       localStorage.setItem('is_guest', 'true');
 
@@ -171,29 +157,20 @@ export class RoomController {
         return;
       }
 
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          cityKey: config.cityKey,
-          difficulty: config.difficulty,
-          seriesCount: config.seriesCount,
-          mode: config.mode,
-          validityHours: config.validityHours
-        })
+      const res = await ApiService.post('/rooms', {
+        cityKey: config.cityKey,
+        difficulty: config.difficulty,
+        seriesCount: config.seriesCount,
+        mode: config.mode,
+        validityHours: config.validityHours
       });
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        this.#roomView.showJoinError(data.error || 'Impossible de créer la room.');
+        this.#roomView.showJoinError(res.data?.error || 'Impossible de créer la room.');
         return;
       }
 
-      const data = await res.json();
+      const data = res.data;
       this.#router.navigate(`/room/${data.roomCode}`);
     } catch (error) {
       console.error('Create Room UI Error:', error);
@@ -214,16 +191,9 @@ export class RoomController {
     if (!this.#currentRoomCode) return;
     try {
       this.#gameView.showLoading('Lancement du test multijoueurs...');
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/rooms/${this.#currentRoomCode}/start`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const res = await ApiService.post(`/rooms/${this.#currentRoomCode}/start`);
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        await this.#roomView.showAlertModal('Erreur', data.error || 'Erreur lors du lancement de la partie.');
+        await this.#roomView.showAlertModal('Erreur', res.data?.error || 'Erreur lors du lancement de la partie.');
         this.#roomView.showScreen();
       }
     } catch (error) {
@@ -237,17 +207,10 @@ export class RoomController {
 
     try {
       this.#gameView.showLoading('Réinitialisation du salon...');
-      const token = localStorage.getItem('token');
-      const res = await fetch(`/api/rooms/${this.#currentRoomCode}/reset`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      const res = await ApiService.post(`/rooms/${this.#currentRoomCode}/reset`);
 
       if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        await this.#roomView.showAlertModal('Erreur', data.error || 'Erreur lors de la réinitialisation du salon.');
+        await this.#roomView.showAlertModal('Erreur', res.data?.error || 'Erreur lors de la réinitialisation du salon.');
         this.#roomView.showScreen();
         return;
       }
@@ -288,23 +251,19 @@ export class RoomController {
     if (!this.#currentRoomCode) return;
     try {
       const code = this.#currentRoomCode;
-      const token = localStorage.getItem('token');
-      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-      const res = await fetch(`/api/rooms/${code}`, { headers });
+      const res = await ApiService.get(`/rooms/${code}`);
       if (!res.ok) {
         if (res.status === 404 || res.status === 410) {
           this.stopPolling();
-          const errData = await res.json().catch(() => ({}));
-          await this.#roomView.showAlertModal('Salon indisponible', errData.error || 'Ce salon a expiré ou n\'existe plus.');
+          await this.#roomView.showAlertModal('Salon indisponible', res.data?.error || 'Ce salon a expiré ou n\'existe plus.');
           this.#router.navigate('/room');
         }
         return;
       }
 
-      const roomData = await res.json();
+      const roomData = res.data;
       const currentUsername = localStorage.getItem('username');
-      const isHost = (currentUsername || '').trim().toLowerCase() === (roomData.createdBy || '').trim().toLowerCase() || localStorage.getItem('is_admin') === 'true';
+      const isHost = (currentUsername || '').trim().toLowerCase() === (roomData?.createdBy || '').trim().toLowerCase() || localStorage.getItem('is_admin') === 'true';
 
       this.#roomView.updateLobby(roomData, currentUsername);
 
@@ -341,14 +300,14 @@ export class RoomController {
   }
 
   #hasAccount() {
-    const token = localStorage.getItem('token');
+    const token = ApiService.getToken();
     const username = localStorage.getItem('username');
     const isGuest = localStorage.getItem('is_guest') === 'true';
-    return token !== null && username !== null && !isGuest;
+    return Boolean(token && username && !isGuest);
   }
 
   #hasToken() {
-    return localStorage.getItem('token') !== null && localStorage.getItem('username') !== null;
+    return Boolean(ApiService.getToken() && localStorage.getItem('username'));
   }
 
   #isAuthenticated() {

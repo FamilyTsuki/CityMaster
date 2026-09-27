@@ -1,6 +1,10 @@
 import { GameSession } from "../models/GameSession.js";
 import { OverpassService } from "../services/OverpassService.js";
-import { SpatialService } from "../services/SpatialService.js";
+import {
+  SpatialService,
+  mergeCityStreets,
+} from "../services/SpatialService.js";
+import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
 import { CustomLotissementService } from "../services/CustomLotissementService.js";
 
@@ -102,15 +106,11 @@ export class GameController {
 
       if (!bbox || !center || !cityData.osmId) {
         try {
-          const token = localStorage.getItem("token");
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-          const res = await fetch(
-            `/api/cities?q=${encodeURIComponent(cityData.name || cityKey)}`,
-            { headers },
+          const res = await ApiService.get(
+            `/cities?q=${encodeURIComponent(cityData.name || cityKey)}`,
           );
-          if (res.ok) {
-            const cities = await res.json();
-            const matched = cities.find(
+          if (res.ok && Array.isArray(res.data)) {
+            const matched = res.data.find(
               (c) =>
                 c.key === cityKey ||
                 c.name.toLowerCase() ===
@@ -131,22 +131,12 @@ export class GameController {
       this.#gameView.updateComboBadge(1);
       this.#gameView.showLoading(i18n.t("loading.generating_city"));
 
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const generateResponse = await fetch("/api/cities/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...headers,
-        },
-        body: JSON.stringify({
-          cityKey: cityKey,
-          name: cityData.name,
-          osmId: cityData.osmId || cityData.osm_id,
-          osm_id: cityData.osm_id || cityData.osmId,
-          bbox: bbox,
-        }),
+      const generateResponse = await ApiService.post("/cities/generate", {
+        cityKey: cityKey,
+        name: cityData.name,
+        osmId: cityData.osmId || cityData.osm_id,
+        osm_id: cityData.osm_id || cityData.osmId,
+        bbox: bbox,
       });
 
       if (!generateResponse.ok) {
@@ -157,25 +147,17 @@ export class GameController {
           this.#handleAuthError();
           return;
         }
-        const errData = await generateResponse.json().catch(() => ({}));
-        throw new Error(i18n.formatError(errData.error));
+        throw new Error(i18n.formatError(generateResponse.data?.error));
       }
 
       this.#gameView.showLoading(i18n.t("loading.init_session"));
 
-      const startResponse = await fetch("/api/game/start", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...headers,
-        },
-        body: JSON.stringify({
-          cityKey,
-          mode,
-          difficulty: diff,
-          testNumber,
-          seriesCount,
-        }),
+      const startResponse = await ApiService.post("/game/start", {
+        cityKey,
+        mode,
+        difficulty: diff,
+        testNumber,
+        seriesCount,
       });
 
       if (!startResponse.ok) {
@@ -183,11 +165,10 @@ export class GameController {
           this.#handleAuthError();
           return;
         }
-        const errData = await startResponse.json().catch(() => ({}));
-        throw new Error(i18n.formatError(errData.error));
+        throw new Error(i18n.formatError(startResponse.data?.error));
       }
 
-      const startData = await startResponse.json();
+      const startData = startResponse.data;
 
       this.#gameView.showLoading(i18n.t("loading.loading_streets"));
 
@@ -207,7 +188,7 @@ export class GameController {
         this.#fetchCustomRoutes(cityKey),
       ]);
 
-      this.#allCityStreets = this.#mergeCityStreets(
+      this.#allCityStreets = mergeCityStreets(
         geojson.features,
         customDistricts,
         customRoutes,
@@ -414,7 +395,7 @@ export class GameController {
       customRoutesPromise,
     ])
       .then(([_, geojson, customDistricts, customRoutes]) => {
-        this.#allCityStreets = this.#mergeCityStreets(
+        this.#allCityStreets = mergeCityStreets(
           geojson.features,
           customDistricts,
           customRoutes,
@@ -455,12 +436,11 @@ export class GameController {
 
   async #fetchCustomDistricts(cityKey) {
     try {
-      const response = await fetch(
+      const res = await ApiService.get(
         `/assets/data/custom_districts.json?t=${Date.now()}`,
       );
-      if (response.ok) {
-        const data = await response.json();
-        return data[cityKey] || [];
+      if (res.ok && res.data) {
+        return res.data[cityKey] || [];
       }
     } catch (err) {
       console.warn("Could not fetch custom districts:", err);
@@ -470,55 +450,16 @@ export class GameController {
 
   async #fetchCustomRoutes(cityKey) {
     try {
-      const response = await fetch(
+      const res = await ApiService.get(
         `/assets/data/custom_routes.json?t=${Date.now()}`,
       );
-      if (response.ok) {
-        const data = await response.json();
-        return data[cityKey] || [];
+      if (res.ok && res.data) {
+        return res.data[cityKey] || [];
       }
     } catch (err) {
       console.warn("Could not fetch custom routes:", err);
     }
     return [];
-  }
-
-  #mergeCityStreets(
-    defaultFeatures = [],
-    customDistricts = [],
-    customRoutes = [],
-  ) {
-    const overridden = new Set();
-    const deleted = new Set();
-
-    [...customDistricts, ...customRoutes].forEach((f) => {
-      if (!f || !f.properties) return;
-      if (f.properties.isDeleted) {
-        if (f.properties.id) deleted.add(f.properties.id);
-        if (f.properties.name) deleted.add(f.properties.name);
-        if (f.properties.originalName) deleted.add(f.properties.originalName);
-      } else {
-        if (f.properties.id) overridden.add(f.properties.id);
-        if (f.properties.name) overridden.add(f.properties.name);
-        if (f.properties.originalName)
-          overridden.add(f.properties.originalName);
-      }
-    });
-
-    const activeCustom = [...customDistricts, ...customRoutes].filter(
-      (f) => f && f.properties && !f.properties.isDeleted && f.properties.name,
-    );
-
-    const filteredDefaults = defaultFeatures.filter((f) => {
-      if (!f || !f.properties || !f.properties.name) return false;
-      const id = f.properties.id;
-      const name = f.properties.name;
-      if (id && (deleted.has(id) || overridden.has(id))) return false;
-      if (name && (deleted.has(name) || overridden.has(name))) return false;
-      return true;
-    });
-
-    return [...filteredDefaults, ...activeCustom];
   }
 
   #updateHUD() {
@@ -676,32 +617,21 @@ export class GameController {
   }
 
   async #submitRoundToBackend(guess, elapsedSeconds) {
-    const token = localStorage.getItem("token");
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-    const response = await fetch("/api/game/submit-round", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...headers,
-      },
-      body: JSON.stringify({
-        gameToken: this.#session.gameToken,
-        guess,
-        elapsedSeconds,
-      }),
+    const res = await ApiService.post("/game/submit-round", {
+      gameToken: this.#session.gameToken,
+      guess,
+      elapsedSeconds,
     });
 
-    if (!response.ok) {
-      if (response.status === 401 || response.status === 403) {
+    if (!res.ok) {
+      if (res.status === 401 || res.status === 403) {
         this.#handleAuthError();
         throw new Error(I18nService.getInstance().t("errors.session_expired"));
       }
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(I18nService.getInstance().formatError(errData.error));
+      throw new Error(I18nService.getInstance().formatError(res.data?.error));
     }
 
-    return await response.json();
+    return res.data;
   }
 
   async #validateGuess(forced = false) {
@@ -856,22 +786,7 @@ export class GameController {
       const roomCode = this.roomCode;
       this.roomCode = null;
       this.#gameView.showLoading("Calcul du classement du salon...");
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      try {
-        await fetch(`/api/rooms/${roomCode}/submit-score`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...headers,
-          },
-          body: JSON.stringify({ score }),
-        });
-      } catch (err) {
-        console.error("Error submitting room score:", err);
-      }
-
+      await this.#submitRoomScore(roomCode, score);
       this.#clearState();
       this.#router.navigate(`/room/${roomCode}`);
       return;
@@ -889,6 +804,14 @@ export class GameController {
     this.#clearState();
   }
 
+  async #submitRoomScore(roomCode, score) {
+    try {
+      await ApiService.post(`/rooms/${roomCode}/submit-score`, { score });
+    } catch (err) {
+      console.error("Error submitting room score:", err);
+    }
+  }
+
   async #quitGame() {
     this.#stopRoundTimer();
     if (this.roomCode) {
@@ -898,20 +821,7 @@ export class GameController {
           ? this.#session.score
           : 0;
       this.roomCode = null;
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      try {
-        await fetch(`/api/rooms/${code}/submit-score`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...headers,
-          },
-          body: JSON.stringify({ score }),
-        });
-      } catch (err) {
-        console.error("Error submitting room score on quit:", err);
-      }
+      await this.#submitRoomScore(code, score);
       this.#clearState();
       this.#router.navigate(`/room/${code}`);
     } else {
@@ -929,20 +839,7 @@ export class GameController {
           ? this.#session.score
           : 0;
       this.roomCode = null;
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      try {
-        await fetch(`/api/rooms/${code}/submit-score`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...headers,
-          },
-          body: JSON.stringify({ score }),
-        });
-      } catch (err) {
-        console.error("Error submitting room score on goHome:", err);
-      }
+      await this.#submitRoomScore(code, score);
       this.#clearState();
       this.#router.navigate(`/room/${code}`);
     } else {

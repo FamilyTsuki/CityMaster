@@ -1,5 +1,6 @@
 import { CustomLotissementService } from "../services/CustomLotissementService.js";
 import { I18nService } from "../services/I18nService.js";
+import { ApiService } from "../services/ApiService.js";
 
 export class GameView {
   #screens;
@@ -124,21 +125,18 @@ export class GameView {
 
       const searchCities = async (query = "") => {
         try {
-          const token = localStorage.getItem("token");
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-          const res = await fetch(
-            `/api/cities?q=${encodeURIComponent(query)}`,
-            { headers },
+          const res = await ApiService.get(
+            `/cities?q=${encodeURIComponent(query)}`
           );
           if (res.status === 401 || res.status === 403) {
-            localStorage.removeItem("token");
+            ApiService.clearToken();
             localStorage.removeItem("username");
             localStorage.removeItem("citymaster_session");
             window.location.hash = "#/login";
             return [];
           }
-          if (!res.ok) return [];
-          return await res.json();
+          if (!res.ok || !res.data) return [];
+          return res.data;
         } catch (e) {
           return [];
         }
@@ -328,17 +326,14 @@ export class GameView {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
       let districts = [];
       try {
-        const resDist = await fetch(
+        const resDist = await ApiService.get(
           `/assets/data/custom_districts.json?t=${Date.now()}`,
+          { includeAuth: false }
         );
-        if (resDist.ok) {
-          const allDistricts = await resDist.json();
-          districts = (allDistricts[cityKey] || []).filter(
+        if (resDist.ok && resDist.data) {
+          districts = (resDist.data[cityKey] || []).filter(
             (d) => d && d.properties && !d.properties.isDeleted,
           );
         }
@@ -351,15 +346,11 @@ export class GameView {
 
       let availableDiffs = ["easy", "medium", "hard"];
       try {
-        const resDiff = await fetch(
-          `/api/cities/${encodeURIComponent(cityKey)}/difficulties`,
-          { headers },
+        const resDiff = await ApiService.get(
+          `/cities/${encodeURIComponent(cityKey)}/difficulties`
         );
-        if (resDiff.ok) {
-          const fetched = await resDiff.json();
-          if (Array.isArray(fetched) && fetched.length > 0) {
-            availableDiffs = fetched;
-          }
+        if (resDiff.ok && Array.isArray(resDiff.data) && resDiff.data.length > 0) {
+          availableDiffs = resDiff.data;
         }
       } catch (e) {}
 
@@ -680,15 +671,11 @@ export class GameView {
 
         if (!selectedCityData && cityKey && cityKeyInput) {
           try {
-            const token = localStorage.getItem("token");
-            const headers = token ? { Authorization: `Bearer ${token}` } : {};
-            const res = await fetch(
-              `/api/cities?q=${encodeURIComponent(cityKeyInput.value)}`,
-              { headers },
+            const res = await ApiService.get(
+              `/cities?q=${encodeURIComponent(cityKeyInput.value)}`
             );
-            if (res.ok) {
-              const cities = await res.json();
-              const matched = cities.find(
+            if (res.ok && Array.isArray(res.data)) {
+              const matched = res.data.find(
                 (c) =>
                   c.key === cityKey ||
                   c.name.toLowerCase() ===
@@ -1367,15 +1354,7 @@ export class GameView {
         submitBtn.disabled = true;
         submitBtn.textContent = "Envoi en cours...";
       }
-      const token = localStorage.getItem("token");
-      const headers = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-
-      const res = await fetch("/api/reports", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload),
-      });
+      const res = await ApiService.post("/reports", payload);
 
       if (submitBtn) {
         submitBtn.disabled = false;
@@ -1383,9 +1362,8 @@ export class GameView {
       }
 
       if (!res.ok) {
-        const errData = await res.json();
         throw new Error(
-          errData.error || "Erreur lors de l’envoi du signalement.",
+          res.data?.error || "Erreur lors de l’envoi du signalement.",
         );
       }
 

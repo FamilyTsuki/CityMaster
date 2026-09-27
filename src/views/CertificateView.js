@@ -1,4 +1,5 @@
 import { I18nService } from '../services/I18nService.js';
+import { ApiService } from '../services/ApiService.js';
 
 export class CertificateView {
   #certPlayerName;
@@ -103,9 +104,9 @@ export class CertificateView {
         loadingTr.appendChild(loadingTd);
         testBody.replaceChildren(loadingTr);
         
-        fetch(`/api/scores/test/${testNumber}`)
-          .then(res => res.json())
-          .then(data => {
+        ApiService.get(`/scores/test/${testNumber}`)
+          .then(res => {
+            const data = res.data;
             testBody.replaceChildren();
             if (!Array.isArray(data) || data.length === 0) {
               const emptyTr = document.createElement('tr');

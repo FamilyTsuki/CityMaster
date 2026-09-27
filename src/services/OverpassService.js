@@ -1,17 +1,19 @@
+import { ApiService } from './ApiService.js';
+import { I18nService } from './I18nService.js';
+
 export class OverpassService {
   #apiUrl;
 
-  constructor(apiUrl = '/api/overpass') {
+  constructor(apiUrl = '/overpass') {
     this.#apiUrl = apiUrl;
   }
 
   async fetchStreets(bbox, cityKey = null) {
     if (cityKey) {
       try {
-        const response = await fetch(`/assets/data/${cityKey}.json?t=${Date.now()}`);
-        if (response.ok) {
-          const geojson = await response.json();
-          return geojson;
+        const res = await ApiService.get(`/assets/data/${cityKey}.json?t=${Date.now()}`, { includeAuth: false });
+        if (res.ok && res.data) {
+          return res.data;
         }
       } catch (err) {
         console.warn(`Static data unavailable for city ${cityKey}, falling back to dynamic query.`);
@@ -21,21 +23,15 @@ export class OverpassService {
     if (bbox) {
       try {
         const query = `[out:json][timeout:25];(way(${bbox})["highway"~"^(primary|secondary|tertiary|unclassified|residential|living_street)$"]["name"];way(${bbox})["place"]["name"];way(${bbox})["landuse"="residential"]["name"];node(${bbox})["place"]["name"];);out geom;`;
-        const response = await fetch(this.#apiUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query })
-        });
-        if (response.ok) {
-          const data = await response.json();
-          return this.#convertToGeoJSON(data);
+        const res = await ApiService.post(this.#apiUrl, { query });
+        if (res.ok && res.data) {
+          return this.#convertToGeoJSON(res.data);
         }
       } catch (err) {
         console.warn('Dynamic Overpass query failed:', err);
       }
     }
 
-    const { I18nService } = await import('./I18nService.js');
     throw new Error(I18nService.getInstance().t('errors.network_error'));
   }
 
@@ -53,23 +49,9 @@ export class OverpassService {
       query = `[out:json][timeout:25];(way(around:${radiusMeters},${lat},${lng})["highway"]["name"];way(around:${radiusMeters},${lat},${lng})["place"]["name"];way(around:${radiusMeters},${lat},${lng})["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})["place"]["name"];);out geom;`;
     }
 
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json'
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    const response = await fetch('/api/overpass', {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ query }),
-      signal
-    });
-    if (!response.ok) return null;
-    const data = await response.json();
-    return this.#convertToGeoJSON(data);
+    const res = await ApiService.post('/overpass', { query }, { signal });
+    if (!res.ok || !res.data) return null;
+    return this.#convertToGeoJSON(res.data);
   }
 
   #convertToGeoJSON(data) {

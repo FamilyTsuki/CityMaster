@@ -1,42 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-
-function mergeCityStreets(
-  defaultFeatures = [],
-  customDistricts = [],
-  customRoutes = [],
-) {
-  const overridden = new Set();
-  const deleted = new Set();
-
-  [...customDistricts, ...customRoutes].forEach((f) => {
-    if (!f || !f.properties) return;
-    if (f.properties.isDeleted) {
-      if (f.properties.id) deleted.add(f.properties.id);
-      if (f.properties.name) deleted.add(f.properties.name);
-      if (f.properties.originalName) deleted.add(f.properties.originalName);
-    } else {
-      if (f.properties.id) overridden.add(f.properties.id);
-      if (f.properties.name) overridden.add(f.properties.name);
-      if (f.properties.originalName) overridden.add(f.properties.originalName);
-    }
-  });
-
-  const activeCustom = [...customDistricts, ...customRoutes].filter(
-    (f) => f && f.properties && !f.properties.isDeleted && f.properties.name,
-  );
-
-  const filteredDefaults = defaultFeatures.filter((f) => {
-    if (!f || !f.properties || !f.properties.name) return false;
-    const id = f.properties.id;
-    const name = f.properties.name;
-    if (id && (deleted.has(id) || overridden.has(id))) return false;
-    if (name && (deleted.has(name) || overridden.has(name))) return false;
-    return true;
-  });
-
-  return [...filteredDefaults, ...activeCustom];
-}
+import { mergeCityStreets } from "../src/services/SpatialService.js";
 
 test("Merge streets correctly adds custom routes", () => {
   const defaults = [

@@ -1,3 +1,5 @@
+import { ApiService } from "./ApiService.js";
+
 export class I18nService {
   #currentLang;
   #translations;
@@ -8,8 +10,10 @@ export class I18nService {
     if (I18nService.#instance) {
       return I18nService.#instance;
     }
-    const saved = localStorage.getItem('lang');
-    const browser = (navigator.language || '').toLowerCase().startsWith('en') ? 'en' : 'fr';
+    const saved = localStorage.getItem("lang");
+    const browser = (navigator.language || "").toLowerCase().startsWith("en")
+      ? "en"
+      : "fr";
     this.#currentLang = saved || browser;
     this.#translations = {};
     this.#listeners = [];
@@ -36,7 +40,7 @@ export class I18nService {
     if (this.#currentLang === lang && this.#translations[lang]) return;
     await this.#loadDictionary(lang);
     this.#currentLang = lang;
-    localStorage.setItem('lang', lang);
+    localStorage.setItem("lang", lang);
     document.documentElement.lang = lang;
     this.translateDOM();
     this.#notifyListeners();
@@ -45,85 +49,106 @@ export class I18nService {
   async #loadDictionary(lang) {
     if (this.#translations[lang]) return;
     try {
-      const response = await fetch(`/assets/i18n/${lang}.json?t=${Date.now()}`);
-      if (!response.ok) {
+      const res = await ApiService.get(
+        `/assets/i18n/${lang}.json?t=${Date.now()}`,
+        { includeAuth: false },
+      );
+      if (!res.ok || !res.data) {
         throw new Error(`Could not load dictionary for language: ${lang}`);
       }
-      this.#translations[lang] = await response.json();
+      this.#translations[lang] = res.data;
     } catch (err) {
       console.warn(`Failed loading ${lang}.json fallback to fr`, err);
-      if (lang !== 'fr' && !this.#translations['fr']) {
-        await this.#loadDictionary('fr');
+      if (lang !== "fr" && !this.#translations["fr"]) {
+        await this.#loadDictionary("fr");
       }
     }
   }
 
   t(keyPath, params = {}, fallback = null) {
-    const dict = this.#translations[this.#currentLang] || this.#translations['fr'] || {};
-    const keys = keyPath.split('.');
+    const dict =
+      this.#translations[this.#currentLang] || this.#translations["fr"] || {};
+    const keys = keyPath.split(".");
     let result = dict;
 
     for (const key of keys) {
-      if (result && typeof result === 'object' && key in result) {
+      if (result && typeof result === "object" && key in result) {
         result = result[key];
       } else {
         return fallback !== null ? fallback : keyPath;
       }
     }
 
-    if (typeof result !== 'string') return fallback !== null ? fallback : keyPath;
+    if (typeof result !== "string")
+      return fallback !== null ? fallback : keyPath;
 
     let text = result;
     Object.entries(params).forEach(([k, v]) => {
-      text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), v);
+      text = text.replace(new RegExp(`\\{${k}\\}`, "g"), v);
     });
 
     return text;
   }
 
   formatError(rawError) {
-    if (!rawError || typeof rawError !== 'string') {
-      return this.t('errors.network_error');
+    if (!rawError || typeof rawError !== "string") {
+      return this.t("errors.network_error");
     }
 
     const lower = rawError.toLowerCase();
-    if (lower.includes('token') || lower.includes('expired') || lower.includes('unauthorized') || lower.includes('access token')) {
-      return this.t('errors.session_expired');
+    if (
+      lower.includes("token") ||
+      lower.includes("expired") ||
+      lower.includes("unauthorized") ||
+      lower.includes("access token")
+    ) {
+      return this.t("errors.session_expired");
     }
-    if (lower.includes('invalid username or password') || lower.includes('credentials')) {
-      return this.t('errors.invalid_credentials');
+    if (
+      lower.includes("invalid username or password") ||
+      lower.includes("credentials")
+    ) {
+      return this.t("errors.invalid_credentials");
     }
-    if (lower.includes('already exists') || lower.includes('existe déjà')) {
-      return this.t('errors.user_exists');
+    if (lower.includes("already exists") || lower.includes("existe déjà")) {
+      return this.t("errors.user_exists");
     }
-    if (lower.includes('large') || lower.includes('volumineuse')) {
-      return this.t('errors.file_too_large');
+    if (lower.includes("large") || lower.includes("volumineuse")) {
+      return this.t("errors.file_too_large");
     }
-    if (lower.includes('not_enough_streets_difficulty') || lower.includes('not enough streets')) {
-      return this.t('errors.not_enough_streets_difficulty');
+    if (
+      lower.includes("not_enough_streets_difficulty") ||
+      lower.includes("not enough streets")
+    ) {
+      return this.t("errors.not_enough_streets_difficulty");
     }
-    if (lower.includes('overpass')) {
+    if (lower.includes("overpass")) {
       return "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.";
     }
 
-    if (rawError.includes(' ') && !lower.includes('failed to fetch') && !lower.includes('networkerror') && !lower.includes('error')) {
+    if (
+      rawError.includes(" ") &&
+      !lower.includes("failed to fetch") &&
+      !lower.includes("networkerror") &&
+      !lower.includes("error")
+    ) {
       return rawError;
     }
 
-    if (lower.includes('city') || lower.includes('commune')) {
-      return this.t('errors.select_city_valid');
+    if (lower.includes("city") || lower.includes("commune")) {
+      return this.t("errors.select_city_valid");
     }
 
-    return this.t('errors.network_error');
+    return this.t("errors.network_error");
   }
 
   translateDOM() {
-    const elements = document.querySelectorAll('[data-i18n]');
-    elements.forEach(el => {
-      const key = el.getAttribute('data-i18n');
+    const elements = document.querySelectorAll("[data-i18n]");
+    elements.forEach((el) => {
+      const key = el.getAttribute("data-i18n");
       const translated = this.t(key);
       if (translated && translated !== key) {
-        if (translated.includes('<') && translated.includes('>')) {
+        if (translated.includes("<") && translated.includes(">")) {
           el.innerHTML = translated;
         } else {
           el.textContent = translated;
@@ -131,30 +156,30 @@ export class I18nService {
       }
     });
 
-    const placeholders = document.querySelectorAll('[data-i18n-placeholder]');
-    placeholders.forEach(el => {
-      const key = el.getAttribute('data-i18n-placeholder');
+    const placeholders = document.querySelectorAll("[data-i18n-placeholder]");
+    placeholders.forEach((el) => {
+      const key = el.getAttribute("data-i18n-placeholder");
       const translated = this.t(key);
       if (translated && translated !== key) {
         el.placeholder = translated;
       }
     });
 
-    const titles = document.querySelectorAll('[data-i18n-title]');
-    titles.forEach(el => {
-      const key = el.getAttribute('data-i18n-title');
+    const titles = document.querySelectorAll("[data-i18n-title]");
+    titles.forEach((el) => {
+      const key = el.getAttribute("data-i18n-title");
       const translated = this.t(key);
       if (translated && translated !== key) {
         el.title = translated;
       }
     });
 
-    const arias = document.querySelectorAll('[data-i18n-aria]');
-    arias.forEach(el => {
-      const key = el.getAttribute('data-i18n-aria');
+    const arias = document.querySelectorAll("[data-i18n-aria]");
+    arias.forEach((el) => {
+      const key = el.getAttribute("data-i18n-aria");
       const translated = this.t(key);
       if (translated && translated !== key) {
-        el.setAttribute('aria-label', translated);
+        el.setAttribute("aria-label", translated);
       }
     });
   }
@@ -164,6 +189,6 @@ export class I18nService {
   }
 
   #notifyListeners() {
-    this.#listeners.forEach(cb => cb(this.#currentLang));
+    this.#listeners.forEach((cb) => cb(this.#currentLang));
   }
 }

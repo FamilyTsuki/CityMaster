@@ -1,3 +1,6 @@
+import { ApiService } from '../services/ApiService.js';
+import { I18nService } from '../services/I18nService.js';
+
 export class ScoreController {
   #gameView;
 
@@ -7,12 +10,11 @@ export class ScoreController {
 
   async loadLeaderboard(type = 'monthly', difficulty = 'hard') {
     try {
-      const response = await fetch(`/api/scores?type=${type}&difficulty=${difficulty}`);
-      if (response.ok) {
-        const scores = await response.json();
-        this.#gameView.renderLeaderboard(scores, type, difficulty);
+      const res = await ApiService.get(`/scores?type=${encodeURIComponent(type)}&difficulty=${encodeURIComponent(difficulty)}`, { includeAuth: false });
+      if (res.ok && res.data) {
+        this.#gameView.renderLeaderboard(res.data, type, difficulty);
       } else {
-        console.error('Failed to load leaderboard', response.status);
+        console.error('Failed to load leaderboard', res.status);
       }
     } catch (e) {
       console.error('Failed to fetch leaderboard', e);
@@ -20,31 +22,23 @@ export class ScoreController {
   }
 
   async submitScore(playerName, score) {
-    const token = localStorage.getItem('token');
-    if (!token) return false;
+    if (!ApiService.getToken()) return false;
 
     try {
-      const response = await fetch('/api/scores', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ player: playerName, score })
-      });
+      const res = await ApiService.post('/scores', { player: playerName, score });
 
-      if (response.status === 401 || response.status === 403) {
-        localStorage.removeItem('token');
+      if (res.status === 401 || res.status === 403) {
+        ApiService.clearToken();
         localStorage.removeItem('username');
-        const { I18nService } = await import('../services/I18nService.js');
         this.#gameView.showError(I18nService.getInstance().t('errors.session_expired'));
         return false;
       }
       
-      return response.ok;
+      return res.ok;
     } catch (e) {
       console.error('Failed to post score', e);
       return false;
     }
   }
 }
+

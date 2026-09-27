@@ -1,4 +1,5 @@
 import { escapeHTML } from '../utils/security.js';
+import { ApiService } from '../services/ApiService.js';
 
 export class RoomView {
   #screens;
@@ -187,11 +188,9 @@ export class RoomView {
 
       const searchCities = async (query = '') => {
         try {
-          const token = localStorage.getItem('token');
-          const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-          const res = await fetch(`/api/cities?q=${encodeURIComponent(query)}`, { headers });
-          if (!res.ok) return [];
-          return await res.json();
+          const res = await ApiService.get(`/cities?q=${encodeURIComponent(query)}`);
+          if (!res.ok || !res.data) return [];
+          return res.data;
         } catch (e) {
           return [];
         }

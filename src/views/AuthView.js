@@ -1,5 +1,6 @@
 import { I18nService } from '../services/I18nService.js';
 import { FlashMessageService } from '../services/FlashMessageService.js';
+import { ApiService } from '../services/ApiService.js';
 
 class TailSegment {
   constructor(length, angleMultiplier, restingAngle = 0) {
@@ -1393,8 +1394,8 @@ export class AuthView {
 
   async initGoogleSignIn(callback) {
     try {
-      const response = await fetch('/api/config');
-      const config = await response.json();
+      const res = await ApiService.get('/config', { includeAuth: false });
+      const config = res.data;
       const btnContainer = document.getElementById('google-login-btn');
 
       if (!config || !config.googleClientId) {

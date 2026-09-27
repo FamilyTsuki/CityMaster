@@ -1,42 +1,10 @@
-const MINOR_WAY_KEYWORDS = [
-  "chemin",
-  "chemins",
-  "sentier",
-  "sentiers",
-  "ruelle",
-  "ruelles",
-  "passage",
-  "passages",
-  "allée",
-  "allées",
-  "impasse",
-  "impasses",
-  "traverse",
-  "traverses",
-  "chemain",
-  "cour",
-  "cours",
-  "villa",
-  "villas",
-  "cité",
-  "cités",
-  "square",
-  "squares",
-];
-
-const MAJOR_WAY_TYPES = [
-  "boulevard",
-  "boulevards",
-  "avenue",
-  "avenues",
-  "place",
-  "places",
-  "cours",
-  "quai",
-  "quais",
-  "pont",
-  "ponts",
-];
+import { ApiService } from "../services/ApiService.js";
+import {
+  RouteDifficultyService,
+  MINOR_WAY_KEYWORDS,
+  MAJOR_WAY_TYPES,
+} from "../services/RouteDifficultyService.js";
+import { mergeCityStreets } from "../services/SpatialService.js";
 
 export class AdminController {
   #adminView;
@@ -175,14 +143,11 @@ export class AdminController {
 
       const searchCities = async (query = "") => {
         try {
-          const token = localStorage.getItem("token");
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-          const res = await fetch(
-            `/api/cities?q=${encodeURIComponent(query)}`,
-            { headers },
+          const res = await ApiService.get(
+            `/cities?q=${encodeURIComponent(query)}`,
           );
-          if (!res.ok) return [];
-          return await res.json();
+          if (!res.ok || !Array.isArray(res.data)) return [];
+          return res.data;
         } catch (e) {
           return [];
         }
@@ -245,20 +210,12 @@ export class AdminController {
       verifyBtn.addEventListener("click", async () => {
         if (!this.#selectedCity) return;
         try {
-          const token = localStorage.getItem("token");
-          const headers = { "Content-Type": "application/json" };
-          if (token) headers["Authorization"] = `Bearer ${token}`;
-
-          const res = await fetch(
-            `/api/cities/${encodeURIComponent(this.#selectedCity.key)}/verify`,
-            {
-              method: "PATCH",
-              headers,
-            },
+          const res = await ApiService.patch(
+            `/cities/${encodeURIComponent(this.#selectedCity.key)}/verify`,
           );
 
-          if (res.ok) {
-            const updatedCity = await res.json();
+          if (res.ok && res.data) {
+            const updatedCity = res.data;
             this.#selectedCity.isVerified = updatedCity.isVerified;
             localStorage.setItem(
               "citymaster_last_city",
@@ -515,11 +472,9 @@ export class AdminController {
   async #loadSettings() {
     if (localStorage.getItem("is_admin") !== "true") return;
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch("/api/admin/settings", { headers });
-      if (res.ok) {
-        const settings = await res.json();
+      const res = await ApiService.get("/admin/settings");
+      if (res.ok && res.data) {
+        const settings = res.data;
         if (settings.difficulty_mode) {
           this.#difficultyMode = settings.difficulty_mode;
         }
@@ -545,14 +500,7 @@ export class AdminController {
 
   async #saveSetting(key, value) {
     try {
-      const token = localStorage.getItem("token");
-      const headers = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-      await fetch("/api/admin/settings", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ key, value }),
-      });
+      await ApiService.post("/admin/settings", { key, value });
     } catch (e) {
       console.error("Failed to save settings", e);
     }
@@ -597,68 +545,29 @@ export class AdminController {
     if (!this.#selectedCity || localStorage.getItem("is_admin") !== "true")
       return;
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const defaultRes = await fetch(
+      const defaultRes = await ApiService.get(
         `/assets/data/${this.#selectedCity.key}.json`,
       );
       let defaultDistricts = [];
-      if (defaultRes.ok) {
-        const defaultData = await defaultRes.json();
-        if (defaultData && defaultData.features) {
-          defaultDistricts = defaultData.features.filter(
-            (f) =>
-              f.properties &&
-              f.properties.isLotissement &&
-              (f.geometry.type === "Polygon" ||
-                f.geometry.type === "MultiPolygon"),
-          );
-        }
+      if (defaultRes.ok && defaultRes.data?.features) {
+        defaultDistricts = defaultRes.data.features.filter(
+          (f) =>
+            f.properties &&
+            f.properties.isLotissement &&
+            (f.geometry.type === "Polygon" ||
+              f.geometry.type === "MultiPolygon"),
+        );
       }
 
-      const res = await fetch(
-        `/api/admin/districts?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
-        { headers },
+      const { ok, data: customDistricts } = await ApiService.get(
+        `/admin/districts?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
       );
-      let customDistricts = [];
-      if (res.ok) {
-        customDistricts = await res.json();
-      }
 
-      const customNames = new Set();
-      const deletedIdsOrNames = new Set();
-      customDistricts.forEach((d) => {
-        if (d.properties?.isDeleted) {
-          if (d.properties.id) deletedIdsOrNames.add(d.properties.id);
-          if (d.properties.name) deletedIdsOrNames.add(d.properties.name);
-          if (d.properties.originalName)
-            deletedIdsOrNames.add(d.properties.originalName);
-        } else {
-          if (d.properties?.name) customNames.add(d.properties.name);
-          if (d.properties?.originalName)
-            customNames.add(d.properties.originalName);
-          if (d.properties?.id) customNames.add(d.properties.id);
-        }
-      });
-
-      const activeCustomDistricts = customDistricts.filter(
-        (d) => !d.properties?.isDeleted,
+      this.#currentDistricts = mergeCityStreets(
+        defaultDistricts,
+        ok && Array.isArray(customDistricts) ? customDistricts : [],
+        [],
       );
-      const filteredDefaultDistricts = defaultDistricts.filter((f) => {
-        const id = f.properties?.id;
-        const name = f.properties?.name;
-        if (id && (deletedIdsOrNames.has(id) || customNames.has(id)))
-          return false;
-        if (name && (deletedIdsOrNames.has(name) || customNames.has(name)))
-          return false;
-        return true;
-      });
-
-      this.#currentDistricts = [
-        ...filteredDefaultDistricts,
-        ...activeCustomDistricts,
-      ];
 
       this.#adminView.renderSavedDistricts(this.#currentDistricts);
       this.#renderDistrictList();
@@ -675,61 +584,26 @@ export class AdminController {
     if (!this.#selectedCity || localStorage.getItem("is_admin") !== "true")
       return;
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const defaultRes = await fetch(
+      const defaultRes = await ApiService.get(
         `/assets/data/${this.#selectedCity.key}.json`,
       );
       let defaultStreets = [];
-      if (defaultRes.ok) {
-        const defaultData = await defaultRes.json();
-        if (defaultData && defaultData.features) {
-          defaultStreets = defaultData.features.filter(
-            (f) => !f.properties.isLotissement,
-          );
-        }
+      if (defaultRes.ok && defaultRes.data?.features) {
+        defaultStreets = defaultRes.data.features.filter(
+          (f) => !f.properties.isLotissement,
+        );
       }
 
-      const customRes = await fetch(
-        `/api/admin/routes?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
-        { headers },
+      const { ok, data: customRoutes } = await ApiService.get(
+        `/admin/routes?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
       );
-      let customRoutes = [];
-      if (customRes.ok) {
-        customRoutes = await customRes.json();
-      }
 
-      const customNames = new Set();
-      const deletedIdsOrNames = new Set();
-      customRoutes.forEach((r) => {
-        if (r.properties?.isDeleted) {
-          if (r.properties.id) deletedIdsOrNames.add(r.properties.id);
-          if (r.properties.name) deletedIdsOrNames.add(r.properties.name);
-          if (r.properties.originalName)
-            deletedIdsOrNames.add(r.properties.originalName);
-        } else {
-          if (r.properties?.name) customNames.add(r.properties.name);
-          if (r.properties?.originalName)
-            customNames.add(r.properties.originalName);
-          if (r.properties?.id) customNames.add(r.properties.id);
-        }
-      });
-
-      const activeCustomRoutes = customRoutes.filter(
-        (r) => !r.properties?.isDeleted,
+      this.#currentRoutes = mergeCityStreets(
+        defaultStreets,
+        [],
+        ok && Array.isArray(customRoutes) ? customRoutes : [],
       );
-      const filteredDefaultStreets = defaultStreets.filter((f) => {
-        const id = f.properties?.id;
-        const name = f.properties?.name;
-        if (id && (deletedIdsOrNames.has(id) || customNames.has(id)))
-          return false;
-        if (name && (deletedIdsOrNames.has(name) || customNames.has(name)))
-          return false;
-        return true;
-      });
 
-      this.#currentRoutes = [...filteredDefaultStreets, ...activeCustomRoutes];
       await this.#loadRouteDifficultyOverrides();
       this.#adminView.renderSavedRoutes(this.#currentRoutes);
       this.#renderRouteList();
@@ -741,17 +615,10 @@ export class AdminController {
   async #loadRouteDifficultyOverrides() {
     if (!this.#selectedCity) return;
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(
-        `/api/admin/routes/difficulties?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
-        { headers },
+      const res = await ApiService.get(
+        `/admin/routes/difficulties?cityKey=${encodeURIComponent(this.#selectedCity.key)}`,
       );
-      if (res.ok) {
-        this.#routeDifficultyOverrides = await res.json();
-      } else {
-        this.#routeDifficultyOverrides = {};
-      }
+      this.#routeDifficultyOverrides = res.ok && res.data ? res.data : {};
     } catch (e) {
       console.error("Failed to load difficulty overrides", e);
       this.#routeDifficultyOverrides = {};
@@ -761,18 +628,10 @@ export class AdminController {
   async setRouteDifficulty(streetName, difficulty, showToast = true) {
     if (!this.#selectedCity || !streetName) return;
     try {
-      const token = localStorage.getItem("token");
-      const headers = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-
-      const res = await fetch("/api/admin/routes/difficulty", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          cityKey: this.#selectedCity.key,
-          streetName,
-          difficulty,
-        }),
+      const res = await ApiService.post("/admin/routes/difficulty", {
+        cityKey: this.#selectedCity.key,
+        streetName,
+        difficulty,
       });
 
       if (res.ok) {
@@ -797,7 +656,7 @@ export class AdminController {
           );
         }
       } else {
-        const err = await res.json().catch(() => ({}));
+        const err = res.data || {};
         this.#adminView.showToast(
           err.error || "Erreur lors de la mise à jour",
           "error",
@@ -954,24 +813,15 @@ export class AdminController {
 
   async #saveDistrict(districtPayload) {
     try {
-      const token = localStorage.getItem("token");
-      const headers = token
-        ? {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          }
-        : { "Content-Type": "application/json" };
-      const res = await fetch("/api/admin/districts", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          cityKey: this.#selectedCity.key,
-          district: districtPayload,
-        }),
+      const res = await ApiService.post("/admin/districts", {
+        cityKey: this.#selectedCity.key,
+        district: districtPayload,
       });
 
       if (!res.ok) {
-        throw new Error("Erreur lors de la sauvegarde du quartier");
+        throw new Error(
+          res.data?.error || "Erreur lors de la sauvegarde du quartier",
+        );
       }
 
       this.#adminView.clearActiveDrawing();
@@ -983,18 +833,12 @@ export class AdminController {
 
   async #deleteDistrict(id) {
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(
-        `/api/admin/districts/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}`,
-        {
-          method: "DELETE",
-          headers,
-        },
+      const res = await ApiService.delete(
+        `/admin/districts/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}`,
       );
 
       if (!res.ok) {
-        throw new Error("Erreur lors de la suppression");
+        throw new Error(res.data?.error || "Erreur lors de la suppression");
       }
 
       await this.loadDistricts();
@@ -1010,24 +854,13 @@ export class AdminController {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const headers = token
-        ? {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          }
-        : { "Content-Type": "application/json" };
-      const res = await fetch("/api/admin/routes", {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          cityKey: this.#selectedCity.key,
-          route: routePayload,
-        }),
+      const res = await ApiService.post("/admin/routes", {
+        cityKey: this.#selectedCity.key,
+        route: routePayload,
       });
 
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
+        const errorData = res.data || {};
         throw new Error(
           errorData.error ||
             `Erreur lors de la sauvegarde de la route (${res.status})`,
@@ -1045,18 +878,12 @@ export class AdminController {
 
   async #deleteRoute(id) {
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(
-        `/api/admin/routes/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}`,
-        {
-          method: "DELETE",
-          headers,
-        },
+      const res = await ApiService.delete(
+        `/admin/routes/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}`,
       );
 
       if (!res.ok) {
-        throw new Error("Erreur lors de la suppression");
+        throw new Error(res.data?.error || "Erreur lors de la suppression");
       }
 
       await this.loadRoutes();
@@ -1094,11 +921,9 @@ export class AdminController {
   async #loadPendingReportsCount() {
     if (localStorage.getItem("is_admin") !== "true") return;
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch("/api/reports?status=pending", { headers });
-      if (res.ok) {
-        const reports = await res.json();
+      const res = await ApiService.get("/reports?status=pending");
+      if (res.ok && Array.isArray(res.data)) {
+        const reports = res.data;
         const badge = document.getElementById("admin-pending-reports-badge");
         if (badge) {
           const count = reports.length;
@@ -1204,18 +1029,14 @@ export class AdminController {
     const status = filterSelect ? filterSelect.value : "all";
 
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const res = await fetch(
-        `/api/reports?status=${encodeURIComponent(status)}`,
-        { headers },
+      const res = await ApiService.get(
+        `/reports?status=${encodeURIComponent(status)}`,
       );
-      if (!res.ok) {
+      if (!res.ok || !Array.isArray(res.data)) {
         throw new Error("Failed to load reports");
       }
 
-      const reports = await res.json();
-      this.#renderReportsList(reports);
+      this.#renderReportsList(res.data);
     } catch (err) {
       this.#adminView.showToast("Erreur lors du chargement des signalements.");
     }
@@ -1261,18 +1082,10 @@ export class AdminController {
 
   async #updateReportStatus(id, status) {
     try {
-      const token = localStorage.getItem("token");
-      const headers = { "Content-Type": "application/json" };
-      if (token) headers["Authorization"] = `Bearer ${token}`;
-
-      const res = await fetch(`/api/reports/${id}/status`, {
-        method: "PATCH",
-        headers,
-        body: JSON.stringify({ status }),
-      });
+      const res = await ApiService.patch(`/reports/${id}/status`, { status });
 
       if (!res.ok) {
-        throw new Error("Mise à jour échouée");
+        throw new Error(res.data?.error || "Mise à jour échouée");
       }
 
       this.loadReports();
@@ -1283,16 +1096,10 @@ export class AdminController {
 
   async #deleteReport(id) {
     try {
-      const token = localStorage.getItem("token");
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-      const res = await fetch(`/api/reports/${id}`, {
-        method: "DELETE",
-        headers,
-      });
+      const res = await ApiService.delete(`/reports/${id}`);
 
       if (!res.ok) {
-        throw new Error("Suppression échouée");
+        throw new Error(res.data?.error || "Suppression échouée");
       }
 
       this.loadReports();
