@@ -4,15 +4,15 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: var(--space-md);
   height: 100%;
   margin: auto;
 }
 
 .loader-spinner {
-  width: 56px;
-  height: 56px;
-  border: 4px solid var(--primary-light);
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 0.25rem solid var(--primary-light);
   border-top-color: var(--primary);
   border-radius: 50%;
   animation: spin 0.9s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);

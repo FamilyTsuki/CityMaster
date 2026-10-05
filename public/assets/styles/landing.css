@@ -6,7 +6,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: transparent;
-  padding: 40px 16px;
+  padding: var(--screen-padding-y) var(--screen-padding-x);
   height: 100%;
   box-sizing: border-box;
   transform: none !important;
@@ -181,18 +181,18 @@
 .landing-content {
   position: relative;
   z-index: 10;
-  max-width: 1040px;
+  max-width: var(--container-xl);
   width: 100%;
   margin: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 36px;
+  gap: clamp(1.5rem, 4dvh, 2.25rem);
 }
 
 .hero {
   text-align: center;
-  max-width: 840px;
+  max-width: min(100%, 52.5rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -201,10 +201,10 @@
 .hero-title {
   font-family: 'Lilita One', 'Plus Jakarta Sans', system-ui, sans-serif;
   text-transform: uppercase;
-  font-size: clamp(2.4rem, 6.5vw, 4.2rem);
+  font-size: clamp(2.2rem, 6vw, 4rem);
   font-weight: 900;
   line-height: 1.15;
-  margin-bottom: 24px;
+  margin-bottom: clamp(1rem, 2.5dvh, 1.5rem);
   color: var(--text-main, #292524);
   letter-spacing: -0.01em;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -218,14 +218,14 @@
   text-transform: uppercase;
   font-size: 1.12em;
   color: var(--primary, #ea580c);
-  margin-left: 6px;
+  margin-left: 0.375rem;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  gap: clamp(0.75rem, 2vw, 1rem);
   justify-content: center;
   animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.21s forwards;
   opacity: 0;
@@ -233,16 +233,16 @@
 }
 
 .hero-btn {
-  font-size: 1.05rem;
-  padding: 14px 32px;
-  border-radius: 14px;
+  font-size: clamp(0.95rem, 1.8vw, 1.05rem);
+  padding: clamp(0.625rem, 1.8dvh, 0.875rem) clamp(1.25rem, 3vw, 2rem);
+  border-radius: var(--border-radius-sm);
   font-weight: 800;
   letter-spacing: 0.01em;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 0.625rem;
   transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
   opacity: 1;
@@ -250,10 +250,10 @@
 }
 
 .hero-btn .action-icon {
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
-  min-height: 22px;
+  width: 1.375rem;
+  height: 1.375rem;
+  min-width: 1.375rem;
+  min-height: 1.375rem;
   flex-shrink: 0;
 }
 
@@ -299,11 +299,11 @@
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
+  gap: clamp(1rem, 2.5vw, 1.5rem);
   width: 100%;
   animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.28s forwards;
   opacity: 0;
-  padding-top: 14px;
+  padding-top: 0.875rem;
 }
 
 .paper-sheet {
@@ -312,8 +312,8 @@
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
-  border-radius: 20px;
-  padding: 30px 24px 26px 24px;
+  border-radius: var(--border-radius-lg);
+  padding: clamp(1.25rem, 2.5dvh, 1.875rem) clamp(1rem, 2.5vw, 1.5rem);
   text-align: left;
   box-shadow: var(--shadow-md);
   transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
@@ -337,24 +337,24 @@
 }
 
 .feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 14px;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--border-radius-sm);
   border: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 18px;
+  margin-bottom: 1rem;
   flex-shrink: 0;
   box-shadow: var(--shadow-xs);
   opacity: 1;
 }
 
 .feature-icon svg {
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
-  min-height: 24px;
+  width: 1.5rem;
+  height: 1.5rem;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
   flex-shrink: 0;
 }
 
@@ -378,7 +378,7 @@
   font-weight: 800;
   color: var(--text-main, #292524);
   margin-top: 0;
-  margin-bottom: 8px;
+  margin-bottom: 0.5rem;
   letter-spacing: -0.01em;
 }
 
@@ -396,13 +396,13 @@
   backdrop-filter: blur(8px);
   border: 1px solid var(--border-color) !important;
   color: var(--text-secondary, #57534e) !important;
-  padding: 10px 22px !important;
-  border-radius: 12px;
+  padding: 0.625rem 1.375rem !important;
+  border-radius: var(--border-radius-sm);
   font-weight: 700;
   font-size: 0.88rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  margin-top: 10px;
+  margin-top: 0.625rem;
   box-shadow: var(--shadow-xs);
   transform: none;
   opacity: 1;
@@ -510,12 +510,12 @@
 
 @media (max-width: 640px) {
   #landing-screen {
-    padding: 24px 14px;
+    padding: var(--screen-padding-y) var(--screen-padding-x);
   }
 
   .hero-actions {
     flex-direction: column;
-    gap: 14px;
+    gap: 0.875rem;
   }
 
   .hero-btn {
@@ -525,7 +525,7 @@
 
   .features-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 1.25rem;
   }
 
   .sheet-tilt-left, .sheet-tilt-right, .sheet-straight {
