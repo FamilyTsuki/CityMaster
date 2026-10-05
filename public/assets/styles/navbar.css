@@ -3,23 +3,19 @@
   justify-content: space-between;
   align-items: center;
   position: sticky;
-  top: max(8px, env(safe-area-inset-top));
-  margin: max(8px, env(safe-area-inset-top)) auto 0 auto;
+  top: max(10px, env(safe-area-inset-top));
+  margin: max(10px, env(safe-area-inset-top)) auto 0 auto;
   width: calc(100% - 32px);
   max-width: 1280px;
-  height: 56px;
-  min-height: 56px;
+  height: 60px;
+  min-height: 60px;
   padding: 0 24px;
-  background-color: var(--landing-card-bg, #f8f0de);
-  background-image: repeating-linear-gradient(
-    transparent,
-    transparent 19px,
-    var(--notebook-line, rgba(180, 140, 90, 0.22)) 20px
-  );
-  border: 3.5px solid var(--landing-ink, #26190f);
-  border-radius: 16px 28px 14px 24px / 26px 14px 28px 16px;
-  box-shadow: 0 6px 0px var(--landing-shadow, #26190f), 0 12px 24px rgba(0, 0, 0, 0.18);
-  filter: url(#paper-wobbly-line);
+  background-color: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-color);
+  border-radius: 18px;
+  box-shadow: var(--shadow-sm);
   z-index: var(--z-navbar, 1000);
   transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   box-sizing: border-box;
@@ -102,75 +98,74 @@
 #nav-login-btn,
 .pwa-install-btn-style {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  height: 36px;
-  min-height: 36px;
-  padding: 0 16px;
-  font-size: 0.85rem;
-  font-weight: 800;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   box-sizing: border-box;
-  background: var(--paper-primary-bg, #f59e0b);
-  color: #26190f !important;
-  border: 2.5px solid #26190f !important;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
-  box-shadow: 0 3px 0px var(--paper-primary-depth, #92400e);
+  background: var(--primary, #ea580c);
+  color: #ffffff !important;
+  border: 1px solid transparent !important;
+  border-radius: 12px;
+  box-shadow: var(--shadow-xs);
   cursor: pointer;
-  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s ease, background-color 0.15s ease;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
   white-space: nowrap;
 }
 
 #nav-login-btn:hover,
 .pwa-install-btn-style:hover {
-  background: var(--paper-primary-hover, #d97706);
-  color: #26190f !important;
-  transform: translateY(-2px) rotate(-1deg);
-  box-shadow: 0 5px 0px var(--paper-primary-depth, #92400e);
+  background: var(--primary-hover, #c2410c);
+  color: #ffffff !important;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 #nav-login-btn:active,
 .pwa-install-btn-style:active {
-  transform: translateY(1px) rotate(0deg);
-  box-shadow: 0 1px 0px var(--paper-primary-depth, #92400e);
+  transform: translateY(0);
+  box-shadow: var(--shadow-xs);
 }
 
 .nav-admin-link {
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  height: 36px;
-  min-height: 36px;
-  padding: 0 14px;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 16px;
   font-size: 0.85rem;
-  font-weight: 800;
+  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   box-sizing: border-box;
-  background: var(--paper-secondary-bg, #e05638);
-  color: #ffffff;
-  border: 2.5px solid var(--landing-ink, #26190f) !important;
-  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  background: var(--surface);
+  color: var(--text-main);
+  border: 1px solid var(--border-color) !important;
+  border-radius: 12px;
   box-shadow: none !important;
   cursor: pointer;
-  transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.15s ease;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
   user-select: none;
   white-space: nowrap;
   align-self: center;
 }
 
 .nav-admin-link:hover {
-  background: var(--paper-secondary-hover, #c2410c);
-  color: #ffffff;
+  background: var(--surface-hover);
+  color: var(--primary);
+  border-color: var(--primary) !important;
   transform: translateY(-1px);
-  box-shadow: none !important;
 }
 
 .nav-admin-link:active {
-  transform: translateY(1px);
-  box-shadow: none !important;
+  transform: translateY(0);
 }
 
 .profile-name {
@@ -242,52 +237,53 @@
 }
 
 .nav-avatar {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--landing-ink, #26190f) !important;
-  box-shadow: none !important;
-  filter: url(#paper-wobbly-line);
+  border: 2px solid var(--border-color) !important;
+  box-shadow: var(--shadow-xs) !important;
   background: var(--bg-card-solid, #ffffff);
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease;
   flex-shrink: 0;
 }
 
 .profile-link:hover .nav-avatar {
-  transform: scale(1.08) rotate(-3deg);
-  box-shadow: none !important;
+  transform: scale(1.05);
+  border-color: var(--primary) !important;
+  box-shadow: var(--shadow-sm) !important;
 }
 
 .icon-btn {
-  background: var(--landing-card-bg, #f8f0de);
-  border: 2.5px solid var(--landing-ink, #26190f);
-  border-radius: 140px 15px 125px 15px/15px 135px 15px 145px;
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  min-height: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  min-height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, background-color 0.15s ease;
-  color: var(--landing-ink, #26190f);
-  box-shadow: 0 3px 0px var(--landing-shadow, #26190f);
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--text-secondary);
+  box-shadow: none;
   flex-shrink: 0;
   box-sizing: border-box;
 }
 
 .icon-btn:hover {
-  background-color: var(--paper-badge-bg, #fde047);
-  color: var(--paper-badge-text, #26190f);
-  transform: translateY(-2px) rotate(3deg);
-  box-shadow: 0 4.5px 0px var(--landing-shadow, #26190f);
+  background-color: var(--surface-hover);
+  color: var(--primary);
+  border-color: var(--border-color-focus);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-xs);
 }
 
 .icon-btn:hover svg {
-  stroke: var(--paper-badge-text, #26190f);
-  color: var(--paper-badge-text, #26190f);
+  stroke: var(--primary);
+  color: var(--primary);
 }
 
 #theme-toggle,
@@ -341,11 +337,11 @@
     top: max(8px, env(safe-area-inset-top));
     margin: max(8px, env(safe-area-inset-top)) auto 0 auto;
     width: calc(100% - 20px);
-    height: 52px;
-    min-height: 52px;
+    height: 54px;
+    min-height: 54px;
     padding: 0 16px;
-    border-radius: 14px 22px 12px 20px / 20px 12px 22px 14px;
-    box-shadow: 0 5px 0px var(--landing-shadow, #26190f), 0 8px 16px rgba(0, 0, 0, 0.16);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
   }
   
   .navbar-brand .logo-text {
@@ -367,18 +363,12 @@
     top: calc(100% + 10px);
     right: 0;
     left: 0;
-    background-color: var(--landing-card-bg, #f8f0de);
-    background-image: repeating-linear-gradient(
-      transparent,
-      transparent 19px,
-      var(--notebook-line, rgba(180, 140, 90, 0.22)) 20px
-    );
-    border: 3.5px solid var(--landing-ink, #26190f);
-    border-radius: 16px 24px 14px 22px / 22px 14px 24px 16px;
-    box-shadow: 0 8px 0px var(--landing-shadow, #26190f), 0 16px 32px rgba(0, 0, 0, 0.25);
-    filter: url(#paper-wobbly-line);
+    background-color: var(--bg-card-solid);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
     padding: 16px;
-    gap: 12px;
+    gap: 10px;
     z-index: 2000;
     animation: popInMobileMenu 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
@@ -389,7 +379,7 @@
     flex-direction: column;
     align-items: stretch;
     width: 100%;
-    gap: 12px;
+    gap: 10px;
     margin: 0;
     padding: 0;
     border: none;
@@ -406,37 +396,43 @@
     width: 100% !important;
     max-width: 100% !important;
     min-width: 100% !important;
-    height: 48px !important;
-    min-height: 48px !important;
+    height: 46px !important;
+    min-height: 46px !important;
     margin: 0 !important;
     padding: 0 16px !important;
     box-sizing: border-box !important;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     font-size: 0.92rem;
-    font-weight: 800;
+    font-weight: 700;
     display: flex !important;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    border-radius: 14px !important;
-    border: 2.5px solid var(--landing-ink, #26190f) !important;
-    background: var(--bg-card-solid, #ffffff) !important;
-    color: var(--landing-ink, #26190f) !important;
-    box-shadow: 0 3.5px 0px var(--landing-shadow, #26190f) !important;
-    transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.12s ease, background-color 0.15s ease;
+    border-radius: 12px !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--surface) !important;
+    color: var(--text-main) !important;
+    box-shadow: var(--shadow-xs) !important;
+    transition: all 0.15s ease;
     cursor: pointer;
+  }
+
+  .navbar-actions.open #nav-login-btn {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
   }
 
   .navbar-actions.open .logout-link {
     width: 100% !important;
-    height: 42px !important;
-    min-height: 42px !important;
+    height: 40px !important;
+    min-height: 40px !important;
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
     color: var(--danger, #ef4444) !important;
-    font-size: 0.92rem;
-    font-weight: 800;
+    font-size: 0.9rem;
+    font-weight: 700;
     display: flex !important;
     align-items: center;
     justify-content: center;
@@ -447,45 +443,52 @@
     cursor: pointer;
   }
 
-  .navbar-actions.open #nav-login-btn svg,
+  .navbar-actions.open #nav-login-btn svg {
+    color: #ffffff !important;
+    stroke: #ffffff !important;
+  }
+
   .navbar-actions.open .pwa-install-btn-style svg,
   .navbar-actions.open .nav-admin-link svg,
   .navbar-actions.open #theme-toggle svg {
-    color: var(--landing-ink, #26190f) !important;
-    stroke: var(--landing-ink, #26190f) !important;
+    color: var(--text-main) !important;
+    stroke: var(--text-main) !important;
   }
 
   .navbar-actions.open .profile-link .nav-avatar {
     width: 28px;
     height: 28px;
-    border: 2px solid var(--landing-ink, #26190f) !important;
+    border: 2px solid var(--primary) !important;
     border-radius: 50%;
   }
 
   .navbar-actions.open .profile-link .profile-name {
-    color: var(--landing-ink, #26190f) !important;
-    font-weight: 800;
+    color: var(--text-main) !important;
+    font-weight: 700;
     font-size: 0.92rem;
   }
 
-  .navbar-actions.open #nav-login-btn:hover,
+  .navbar-actions.open #nav-login-btn:hover {
+    background: var(--primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm) !important;
+  }
+
   .navbar-actions.open .pwa-install-btn-style:hover,
   .navbar-actions.open .nav-admin-link:hover,
   .navbar-actions.open #theme-toggle:hover,
   .navbar-actions.open .profile-link:hover {
-    background: var(--paper-primary-light, rgba(245, 158, 11, 0.18)) !important;
-    color: var(--landing-ink, #26190f) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 0px var(--landing-shadow, #26190f) !important;
-    opacity: 1;
+    background: var(--surface-hover) !important;
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm) !important;
   }
 
   .navbar-actions.open .logout-link:hover {
-    background: rgba(239, 68, 68, 0.12) !important;
+    background: rgba(239, 68, 68, 0.08) !important;
     color: var(--danger-hover, #dc2626) !important;
     text-decoration: underline;
-    transform: none !important;
-    box-shadow: none !important;
   }
 
   .navbar-actions.open #nav-login-btn:active,
@@ -493,14 +496,12 @@
   .navbar-actions.open .nav-admin-link:active,
   .navbar-actions.open #theme-toggle:active,
   .navbar-actions.open .profile-link:active {
-    transform: translateY(1px);
-    box-shadow: 0 1px 0px var(--landing-shadow, #26190f) !important;
+    transform: translateY(0);
+    box-shadow: var(--shadow-xs) !important;
   }
 
   .navbar-actions.open .logout-link:active {
-    transform: none !important;
     opacity: 0.8;
-    box-shadow: none !important;
   }
 
   .navbar-actions.open .profile-name,
