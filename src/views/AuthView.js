@@ -1658,13 +1658,27 @@ export class AuthView {
         e.preventDefault();
       });
 
+      const updateTogglePasswordLabel = () => {
+        if (!this.#togglePasswordBtn || !this.#passwordInput) return;
+        const isShown = this.#passwordInput.type === "text";
+        const hideLabel = I18nService.getInstance().t("auth.hide_password", {}, "Masquer le mot de passe");
+        const showLabel = I18nService.getInstance().t("auth.show_password", {}, "Afficher le mot de passe");
+        this.#togglePasswordBtn.setAttribute("aria-label", isShown ? hideLabel : showLabel);
+        this.#togglePasswordBtn.setAttribute("aria-pressed", isShown ? "true" : "false");
+      };
+
       this.#togglePasswordBtn.addEventListener("click", (e) => {
         e.preventDefault();
         const isPassword = this.#passwordInput.type === "password";
         this.#passwordInput.type = isPassword ? "text" : "password";
+        updateTogglePasswordLabel();
 
         updateStateFromActiveElement(true);
         this.#passwordInput.focus();
+      });
+
+      I18nService.getInstance().onLanguageChange(() => {
+        updateTogglePasswordLabel();
       });
     }
 

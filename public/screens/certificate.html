@@ -10,11 +10,11 @@
           <path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path>
         </svg>
       </div>
-      <h2 class="cert-title" data-i18n="certificate.title">Bilan de la Partie</h2>
+      <h1 class="cert-title" data-i18n="certificate.title">Bilan de la Partie</h1>
     </div>
     
     <div class="certificate-body">
-      <h1 id="cert-player-name"></h1>
+      <h2 id="cert-player-name" class="cert-player-heading"></h2>
       
       <div class="cert-divider" aria-hidden="true"></div>
       
@@ -37,9 +37,9 @@
         <table class="sprint-recap-table">
           <thead>
             <tr>
-              <th data-i18n="certificate.street">Voie</th>
-              <th data-i18n="certificate.distance">Distance</th>
-              <th data-i18n="welcome.score">Score</th>
+              <th scope="col" data-i18n="certificate.street">Voie</th>
+              <th scope="col" data-i18n="certificate.distance">Distance</th>
+              <th scope="col" data-i18n="welcome.score">Score</th>
             </tr>
           </thead>
           <tbody id="sprint-recap-body">
@@ -48,17 +48,17 @@
       </div>
 
       <div id="test-leaderboard-container" class="sprint-recap test-leaderboard-recap hidden">
-        <h3 id="test-leaderboard-title">Classement du Test</h3>
+        <h3 id="test-leaderboard-title" data-i18n="certificate.test_leaderboard">Classement du Test</h3>
         <table class="sprint-recap-table">
           <thead>
             <tr>
-              <th>Rang</th>
-              <th>Joueur</th>
-              <th>Score</th>
+              <th scope="col" data-i18n="welcome.rank">Rang</th>
+              <th scope="col" data-i18n="welcome.player">Joueur</th>
+              <th scope="col" data-i18n="welcome.score">Score</th>
             </tr>
           </thead>
           <tbody id="test-leaderboard-body">
-            <tr><td colspan="3" class="text-center">Chargement...</td></tr>
+            <tr><td colspan="3" class="text-center" data-i18n="common.loading">Chargement...</td></tr>
           </tbody>
         </table>
       </div>
@@ -66,13 +66,13 @@
 
     <div class="certificate-actions">
       <button id="restart-btn" class="btn-paper-primary" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
         <span data-i18n="certificate.restart">Rejouer</span>
       </button>
 
       <button id="home-btn" class="btn-paper-secondary" type="button">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        <span>Accueil</span>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span data-i18n="common.home">Accueil</span>
       </button>
     </div>
   </div>

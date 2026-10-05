@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="description" content="CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !">
   <meta name="theme-color" content="#4f46e5" />
   <meta name="color-scheme" content="light dark" />
@@ -44,7 +44,7 @@
   <link rel="stylesheet" href="/assets/styles/style.css">
 </head>
 <body>
-  <a href="#app" class="skip-link">Aller au contenu principal</a>
+  <a href="#app" class="skip-link" data-i18n="nav.skip_link">Aller au contenu principal</a>
 
   <svg style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
     <defs>
@@ -59,11 +59,11 @@
     </defs>
   </svg>
 
-  <nav id="main-nav" class="navbar" role="navigation" aria-label="Navigation principale">
+  <nav id="main-nav" class="navbar" role="navigation" aria-label="Navigation principale" data-i18n-aria-label="nav.main_nav">
     <div class="navbar-brand">
-      <span id="logo-brand" class="logo-text cursor-pointer" tabindex="0" role="button" aria-label="CityMaster Accueil">CityMaster</span>
+      <span id="logo-brand" class="logo-text cursor-pointer" tabindex="0" role="button" aria-label="CityMaster Accueil" data-i18n-aria-label="nav.home">CityMaster</span>
     </div>
-    <button id="nav-burger-btn" class="icon-btn burger-btn" aria-label="Ouvrir le menu principal" aria-expanded="false">
+    <button id="nav-burger-btn" class="icon-btn burger-btn" aria-label="Ouvrir le menu principal" data-i18n-aria-label="nav.burger_menu" aria-expanded="false">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="burger-icon-svg" aria-hidden="true">
         <line x1="3" y1="6" x2="21" y2="6" class="burger-line line-top"></line>
         <line x1="3" y1="12" x2="21" y2="12" class="burger-line line-middle"></line>
@@ -71,23 +71,23 @@
       </svg>
     </button>
     <div id="navbar-actions" class="navbar-actions">
-      <button id="nav-admin-link" class="nav-admin-link hidden">
+      <button id="nav-admin-link" class="nav-admin-link hidden" aria-label="Administration des Quartiers" data-i18n-aria-label="nav.admin_label">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
         <span data-i18n="nav.admin">Admin Quartiers</span>
       </button>
-      <button id="pwa-install-btn" class="btn secondary hidden pwa-install-btn-style" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title">
+      <button id="pwa-install-btn" class="btn secondary hidden pwa-install-btn-style" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title" aria-label="Installer l'application sur votre appareil" data-i18n-aria-label="nav.install_label">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
         <span class="pwa-btn-text" data-i18n="nav.install">Installer</span>
       </button>
-      <button id="theme-toggle" class="icon-btn" title="Changer de thème" data-i18n-title="nav.theme_title" aria-label="Basculer le thème clair ou sombre">
+      <button id="theme-toggle" class="icon-btn" title="Changer de thème" data-i18n-title="nav.theme_title" aria-label="Basculer le thème clair ou sombre" data-i18n-aria-label="nav.theme_toggle">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
       </button>
       <div id="nav-auth-logged-out">
         <button id="nav-login-btn" class="btn secondary" data-i18n="nav.login">Se connecter</button>
       </div>
       <div id="nav-auth-logged-in" class="hidden">
-        <button id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="nav.profile" aria-label="Voir mon profil">
-          <img id="nav-profile-img" src="/assets/images/default-avatar.png" alt="Avatar utilisateur" class="nav-avatar hidden" />
+        <button id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="profile.title" aria-label="Voir mon profil" data-i18n-aria-label="profile.view_profile">
+          <img id="nav-profile-img" src="/assets/images/default-avatar.png" alt="" class="nav-avatar hidden" aria-hidden="true" />
           <span id="nav-profile-name" class="profile-name"></span>
         </button>
         <button id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</button>
@@ -95,10 +95,10 @@
     </div>
   </nav>
 
-  <main id="app" role="main">
+  <main id="app" role="main" tabindex="-1">
     <div id="loading-screen" class="screen active">
       <div class="loader-container">
-        <div class="loader-spinner" role="status" aria-label="Chargement en cours"></div>
+        <div class="loader-spinner" role="status" aria-label="Chargement en cours" data-i18n-aria-label="common.loading"></div>
         <p id="loading-message" aria-live="polite" data-i18n="loading.loading_streets">Chargement de CityMaster...</p>
       </div>
     </div>

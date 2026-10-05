@@ -58,7 +58,8 @@ html, body {
   top: 0.875rem;
   opacity: 1;
   pointer-events: auto;
-  outline: none !important;
+  outline: 3px solid var(--primary) !important;
+  outline-offset: 2px !important;
 }
 
 img {

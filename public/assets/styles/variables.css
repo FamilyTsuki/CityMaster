@@ -8,10 +8,10 @@
   --bg-glass: rgba(255, 255, 255, 0.88);
   --glass-border: rgba(214, 184, 148, 0.35);
 
-  --primary: #ea580c;
-  --primary-hover: #c2410c;
-  --primary-light: rgba(234, 88, 12, 0.08);
-  --primary-glow: rgba(234, 88, 12, 0.22);
+  --primary: #c2410c;
+  --primary-hover: #9a3412;
+  --primary-light: rgba(194, 65, 12, 0.08);
+  --primary-glow: rgba(194, 65, 12, 0.22);
 
   --secondary: #f5ede1;
   --secondary-hover: #ebdccf;
@@ -23,7 +23,7 @@
 
   --success: #15803d;
   --success-hover: #166534;
-  --warning: #d97706;
+  --warning: #b45309;
   --danger: #dc2626;
   --danger-hover: #b91c1c;
 
@@ -34,7 +34,7 @@
   --shadow-sm: 0 1px 3px rgba(50, 35, 20, 0.04), 0 1px 2px rgba(50, 35, 20, 0.06);
   --shadow-md: 0 4px 14px -2px rgba(50, 35, 20, 0.06), 0 2px 6px -1px rgba(50, 35, 20, 0.04);
   --shadow-lg: 0 12px 30px -4px rgba(50, 35, 20, 0.08), 0 4px 10px -2px rgba(50, 35, 20, 0.03);
-  --shadow-glow: 0 12px 32px -4px rgba(234, 88, 12, 0.16);
+  --shadow-glow: 0 12px 32px -4px rgba(194, 65, 12, 0.16);
 
   --landing-bg-gradient: radial-gradient(circle at 12% 18%, rgba(254, 240, 138, 0.35) 0%, transparent 45%), radial-gradient(circle at 88% 82%, rgba(253, 186, 116, 0.3) 0%, transparent 50%), linear-gradient(150deg, #fefbf6 0%, #fbf5eb 40%, #f6edd9 100%);
   --landing-card-bg: #ffffff;
@@ -46,9 +46,9 @@
   --landing-tape-border: transparent;
   --notebook-line: transparent;
 
-  --paper-primary-bg: #ea580c;
-  --paper-primary-hover: #c2410c;
-  --paper-primary-depth: #9a3412;
+  --paper-primary-bg: #c2410c;
+  --paper-primary-hover: #9a3412;
+  --paper-primary-depth: #7c2d12;
 
   --paper-secondary-bg: #f8efe4;
   --paper-secondary-hover: #f1e2d0;
@@ -56,7 +56,7 @@
 
   --paper-badge-bg: #fef3c7;
   --paper-badge-text: #92400e;
-  --hero-highlight-color: #ea580c;
+  --hero-highlight-color: #c2410c;
 
   /* Modern rem-based Border Radius Scale */
   --border-radius-xs: 0.375rem;

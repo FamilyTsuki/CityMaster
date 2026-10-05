@@ -373,7 +373,13 @@ export class GameController {
     const bbox = city.bbox;
     const cityCenter = city.center;
 
-    this.#gameView.showLoading("Restauration de votre partie...");
+    this.#gameView.showLoading(
+      I18nService.getInstance().t(
+        "loading.restoring",
+        {},
+        "Restauration de votre partie...",
+      ),
+    );
 
     const hideLabels = this.#session.currentMode === "target";
     const mapReadyPromise = this.#mapView.initMap(
@@ -508,7 +514,11 @@ export class GameController {
       const safeStreetName =
         prompt && prompt.streetName && typeof prompt.streetName === "string"
           ? prompt.streetName.trim()
-          : "Rue sans nom";
+          : I18nService.getInstance().t(
+              "common.unnamed_street",
+              {},
+              "Rue sans nom",
+            );
       const promptText = I18nService.getInstance().t("feedback.prompt_target", {
         name: safeStreetName,
       });
@@ -785,7 +795,13 @@ export class GameController {
     if (this.roomCode) {
       const roomCode = this.roomCode;
       this.roomCode = null;
-      this.#gameView.showLoading("Calcul du classement du salon...");
+      this.#gameView.showLoading(
+        I18nService.getInstance().t(
+          "loading.calculating_room_results",
+          {},
+          "Calcul du classement du salon...",
+        ),
+      );
       await this.#submitRoomScore(roomCode, score);
       this.#clearState();
       this.#router.navigate(`/room/${roomCode}`);
@@ -888,7 +904,11 @@ export class GameController {
   #handleReportRequest() {
     this.#pauseRoundTimer();
 
-    let targetStreet = "Inconnue";
+    let targetStreet = I18nService.getInstance().t(
+      "common.unknown",
+      {},
+      "Inconnue",
+    );
 
     if (this.#lastFeedback && this.#lastFeedback.correctName) {
       targetStreet = this.#lastFeedback.correctName;
@@ -902,7 +922,11 @@ export class GameController {
         } else if (typeof prompt === "string") {
           targetStreet = prompt;
         } else if (this.#session?.currentMode === "identify") {
-          targetStreet = "Rue à identifier";
+          targetStreet = I18nService.getInstance().t(
+            "game.street_to_identify",
+            {},
+            "Rue à identifier",
+          );
         }
       }
     }
@@ -911,8 +935,11 @@ export class GameController {
       username:
         localStorage.getItem("username") ||
         this.#session?.playerName ||
-        "Anonyme",
-      cityKey: this.#session?.city?.key || this.#session?.cityKey || "Inconnu",
+        I18nService.getInstance().t("common.anonymous", {}, "Anonyme"),
+      cityKey:
+        this.#session?.city?.key ||
+        this.#session?.cityKey ||
+        I18nService.getInstance().t("common.unknown", {}, "Inconnu"),
       targetStreet,
       clickedStreet: this.#lastClickedStreetName || null,
       gameMode: this.#session?.currentMode || "target",

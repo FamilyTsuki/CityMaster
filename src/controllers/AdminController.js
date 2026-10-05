@@ -1,4 +1,5 @@
 import { ApiService } from "../services/ApiService.js";
+import { I18nService } from "../services/I18nService.js";
 import {
   RouteDifficultyService,
   MINOR_WAY_KEYWORDS,
@@ -224,8 +225,16 @@ export class AdminController {
             this.updateVerifyButtonState();
             this.#adminView.showToast(
               updatedCity.isVerified
-                ? "✓ Commune marquée comme validée avec succès !"
-                : "Validation retirée pour cette commune.",
+                ? I18nService.getInstance().t(
+                    "admin.city_verified_success",
+                    {},
+                    "✓ Commune marquée comme validée avec succès !",
+                  )
+                : I18nService.getInstance().t(
+                    "admin.city_verification_removed",
+                    {},
+                    "Validation retirée pour cette commune.",
+                  ),
               updatedCity.isVerified ? "success" : "error",
             );
           }
@@ -244,7 +253,11 @@ export class AdminController {
       addBtn.addEventListener("click", () => {
         if (!this.#selectedCity) {
           this.#adminView.showToast(
-            "Veuillez d'abord sélectionner une commune.",
+            I18nService.getInstance().t(
+              "admin.select_city_first",
+              {},
+              "Veuillez d'abord sélectionner une commune.",
+            ),
           );
           return;
         }
@@ -264,7 +277,11 @@ export class AdminController {
         const payload = this.#adminView.getActiveDistrictPayload();
         if (!payload) {
           this.#adminView.showToast(
-            "Veuillez saisir un nom et placer au moins 3 points sur la carte.",
+            I18nService.getInstance().t(
+              "admin.district_draw_error",
+              {},
+              "Veuillez saisir un nom et placer au moins 3 points sur la carte.",
+            ),
           );
           return;
         }
@@ -518,12 +535,18 @@ export class AdminController {
     verifyBtn.classList.remove("hidden");
     if (this.#selectedCity.isVerified) {
       verifyBtn.classList.add("verified");
-      verifyBtn.title =
-        "Commune validée (clean). Cliquer pour retirer la validation";
+      verifyBtn.title = I18nService.getInstance().t(
+        "admin.unvalidate_city_title",
+        {},
+        "Commune validée. Cliquer pour retirer la validation",
+      );
     } else {
       verifyBtn.classList.remove("verified");
-      verifyBtn.title =
-        "Cliquer pour valider la qualité des rues de cette commune";
+      verifyBtn.title = I18nService.getInstance().t(
+        "admin.validate_city_title",
+        {},
+        "Cliquer pour valider la qualité des rues de cette commune",
+      );
     }
   }
 
@@ -849,7 +872,14 @@ export class AdminController {
 
   async #saveRoute(routePayload) {
     if (!this.#selectedCity) {
-      this.#adminView.showToast("Veuillez sélectionner une commune.", "error");
+      this.#adminView.showToast(
+        I18nService.getInstance().t(
+          "admin.select_city_first",
+          {},
+          "Veuillez d'abord sélectionner une commune.",
+        ),
+        "error",
+      );
       return;
     }
 
@@ -869,7 +899,14 @@ export class AdminController {
 
       this.#adminView.clearActiveRouteDrawing();
       await this.loadRoutes();
-      this.#adminView.showToast("Route sauvegardée avec succès !", "success");
+      this.#adminView.showToast(
+        I18nService.getInstance().t(
+          "admin.route_saved_success",
+          {},
+          "Route sauvegardée avec succès !",
+        ),
+        "success",
+      );
     } catch (err) {
       console.error("Failed to save route:", err);
       this.#adminView.showToast(err.message, "error");
@@ -1038,7 +1075,13 @@ export class AdminController {
 
       this.#renderReportsList(res.data);
     } catch (err) {
-      this.#adminView.showToast("Erreur lors du chargement des signalements.");
+      this.#adminView.showToast(
+        I18nService.getInstance().t(
+          "admin.reports_load_error",
+          {},
+          "Erreur lors du chargement des signalements.",
+        ),
+      );
     }
   }
 
@@ -1073,7 +1116,13 @@ export class AdminController {
       (textToCopy) => {
         if (navigator.clipboard) {
           navigator.clipboard.writeText(textToCopy).then(() => {
-            this.#adminView.showToast(`Nom "${textToCopy}" copié !`);
+            this.#adminView.showToast(
+              I18nService.getInstance().t(
+                "admin.copied_name",
+                { name: textToCopy },
+                `Nom "${textToCopy}" copié !`,
+              ),
+            );
           });
         }
       },

@@ -1,10 +1,13 @@
 <div id="setup-screen" class="screen">
-  <div class="card setup-card" role="region" aria-label="Configuration du jeu">
+  <div class="card setup-card" role="region" aria-label="Configuration du jeu" data-i18n-aria-label="setup.region_label">
     <div class="setup-card-header">
       <button
         id="welcome-back-btn"
         class="btn-back-round"
         title="Retour à l'accueil"
+        data-i18n-title="common.back_home"
+        aria-label="Retour à l'accueil"
+        data-i18n-aria-label="common.back_home"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -15,6 +18,7 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           class="action-icon"
+          aria-hidden="true"
         >
           <line x1="19" y1="12" x2="5" y2="12"></line>
           <polyline points="12 19 5 12 12 5"></polyline>
@@ -45,6 +49,7 @@
             class="dropdown-list hidden"
             role="listbox"
             aria-label="Liste des villes disponibles"
+            data-i18n-aria-label="setup.cities_list"
           ></ul>
         </div>
 
@@ -58,6 +63,7 @@
             readonly
             class="setup-cursor-pointer input-premium"
             role="combobox"
+            aria-haspopup="listbox"
             aria-expanded="false"
             aria-controls="mode-dropdown-list"
             data-value="target"
@@ -67,6 +73,7 @@
             class="dropdown-list hidden"
             role="listbox"
             aria-label="Modes de jeu"
+            data-i18n-aria-label="setup.game_modes"
           >
             <li data-value="target" role="option">
               <svg
@@ -140,6 +147,7 @@
             readonly
             class="setup-cursor-pointer input-premium"
             role="combobox"
+            aria-haspopup="listbox"
             aria-expanded="false"
             aria-controls="difficulty-dropdown-list"
             data-value="hard"
@@ -149,6 +157,7 @@
             class="dropdown-list hidden"
             role="listbox"
             aria-label="Niveaux et types de recherche"
+            data-i18n-aria-label="setup.difficulty_filters"
           >
             <li data-value="easy" role="option">
               <svg
@@ -260,13 +269,14 @@
             stroke-linecap="round"
             stroke-linejoin="round"
             class="action-icon"
+            aria-hidden="true"
           >
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
             <circle cx="9" cy="7" r="4"></circle>
             <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
             <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
           </svg>
-          <span>Salons de Compétition en Équipe</span>
+          <span data-i18n="setup.team_rooms">Salons de Compétition en Équipe</span>
         </button>
       </div>
 
@@ -277,6 +287,7 @@
           class="leaderboard-section"
           role="region"
           aria-label="Classement des joueurs"
+          data-i18n-aria-label="setup.leaderboard_region"
         >
           <h2>
             <svg
@@ -302,9 +313,12 @@
             </svg>
             <span data-i18n="welcome.leaderboard">Classement (Top 10)</span>
           </h2>
-          <div class="leaderboard-tabs setup-leaderboard-tabs">
+          <div class="leaderboard-tabs setup-leaderboard-tabs" role="tablist" aria-label="Période du classement" data-i18n-aria-label="setup.leaderboard_period">
             <button
               id="tab-monthly"
+              role="tab"
+              aria-selected="true"
+              aria-controls="leaderboard-table"
               class="btn secondary active setup-leaderboard-tab-btn"
               data-i18n="welcome.leaderboard_monthly"
             >
@@ -312,6 +326,9 @@
             </button>
             <button
               id="tab-alltime"
+              role="tab"
+              aria-selected="false"
+              aria-controls="leaderboard-table"
               class="btn secondary setup-leaderboard-tab-btn"
               data-i18n="welcome.leaderboard_alltime"
             >
@@ -323,6 +340,7 @@
               id="leaderboard-table"
               class="leaderboard-table"
               aria-label="Tableau des meilleurs scores"
+              data-i18n-aria-label="setup.leaderboard_table"
             >
               <thead>
                 <tr>

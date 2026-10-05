@@ -1,6 +1,6 @@
 <div id="auth-screen" class="screen">
   <div class="auth-wrapper">
-    <div class="auth-illustration">
+    <div class="auth-illustration" aria-hidden="true">
       <div class="auth-illustration-content">
         <div id="auth-mascots-container" class="auth-mascots-container">
           <div class="mascots-row">
@@ -128,8 +128,11 @@
             type="text" 
             id="auth-username" 
             name="username"
-            placeholder="Ex: Dupont" 
+            placeholder="Ex: Dupont"
+            data-i18n-placeholder="auth.username_placeholder"
             autocomplete="username"
+            required
+            aria-required="true"
             maxlength="30"
             class="input-premium"
           />
@@ -145,13 +148,16 @@
               type="password" 
               id="auth-password" 
               name="password"
-              placeholder="••••••••" 
+              placeholder="••••••••"
+              data-i18n-placeholder="auth.password_placeholder"
               autocomplete="current-password"
+              required
+              aria-required="true"
               maxlength="72"
               class="input-premium"
             />
-            <button type="button" id="toggle-password-btn" class="toggle-password-btn" title="Afficher/Masquer le mot de passe" aria-label="Afficher le mot de passe">
-              <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-svg"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <button type="button" id="toggle-password-btn" class="toggle-password-btn" title="Afficher/Masquer le mot de passe" data-i18n-title="auth.toggle_password" aria-label="Afficher le mot de passe" data-i18n-aria-label="auth.show_password" aria-pressed="false">
+              <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye-svg" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             </button>
           </div>
         </div>

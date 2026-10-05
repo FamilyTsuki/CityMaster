@@ -57,7 +57,11 @@ export class CertificateView {
     if (this.#certRankComparison && this.#certPercentileText) {
       if (numericScore > 0) {
         const topPercent = this.#calculatePercentile(numericScore, mode);
-        this.#certPercentileText.textContent = `Top ${topPercent}% des joueurs`;
+        this.#certPercentileText.textContent = I18nService.getInstance().t(
+          "certificate.top_percentile",
+          { percent: topPercent },
+          `Top ${topPercent}% des joueurs`,
+        );
         this.#certRankComparison.classList.remove("hidden");
       } else {
         this.#certRankComparison.classList.add("hidden");
@@ -103,14 +107,22 @@ export class CertificateView {
 
     if (testContainer && testBody && testTitle) {
       if (testNumber) {
-        testTitle.textContent = `Classement du Test n°${testNumber}`;
+        testTitle.textContent = I18nService.getInstance().t(
+          "certificate.test_leaderboard_num",
+          { number: testNumber },
+          `Classement du Test n°${testNumber}`,
+        );
         testContainer.classList.remove("hidden");
 
         const loadingTr = document.createElement("tr");
         const loadingTd = document.createElement("td");
         loadingTd.colSpan = 3;
         loadingTd.className = "text-center";
-        loadingTd.textContent = "Chargement...";
+        loadingTd.textContent = I18nService.getInstance().t(
+          "common.loading",
+          {},
+          "Chargement...",
+        );
         loadingTr.appendChild(loadingTd);
         testBody.replaceChildren(loadingTr);
 
@@ -123,7 +135,11 @@ export class CertificateView {
               const emptyTd = document.createElement("td");
               emptyTd.colSpan = 3;
               emptyTd.className = "text-center";
-              emptyTd.textContent = "Aucun score pour ce test.";
+              emptyTd.textContent = I18nService.getInstance().t(
+                "certificate.no_scores",
+                {},
+                "Aucun score pour ce test.",
+              );
               emptyTr.appendChild(emptyTd);
               testBody.replaceChildren(emptyTr);
               return;
@@ -162,7 +178,12 @@ export class CertificateView {
               numericScore > 0
             ) {
               const rankNumber = userRankIndex + 1;
-              this.#certPercentileText.textContent = `Rang #${rankNumber} sur ${data.length} joueurs`;
+              this.#certPercentileText.textContent =
+                I18nService.getInstance().t(
+                  "certificate.rank_comparison",
+                  { rank: rankNumber, total: data.length },
+                  `Rang #${rankNumber} sur ${data.length} joueurs`,
+                );
               this.#certRankComparison.classList.remove("hidden");
             }
           })
@@ -171,7 +192,11 @@ export class CertificateView {
             const errTd = document.createElement("td");
             errTd.colSpan = 3;
             errTd.className = "text-center";
-            errTd.textContent = "Erreur de chargement.";
+            errTd.textContent = I18nService.getInstance().t(
+              "errors.loading_error",
+              {},
+              "Erreur de chargement.",
+            );
             errTr.appendChild(errTd);
             testBody.replaceChildren(errTr);
           });

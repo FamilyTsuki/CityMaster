@@ -1,4 +1,5 @@
 import { ApiService } from "../services/ApiService.js";
+import { I18nService } from "../services/I18nService.js";
 
 export class RoomController {
   #router;
@@ -91,7 +92,12 @@ export class RoomController {
 
       if (!joinRes.ok) {
         const errorMsg =
-          joinRes.data?.error || "Impossible de rejoindre ce salon.";
+          joinRes.data?.error ||
+          I18nService.getInstance().t(
+            "room.cannot_join",
+            {},
+            "Impossible de rejoindre ce salon.",
+          );
         if (!this.#hasAccount()) {
           this.#roomView.showStep("guest");
           this.#roomView.showGuestError(errorMsg);
@@ -106,12 +112,13 @@ export class RoomController {
       this.#startPolling(code);
     } catch (error) {
       console.error("Error entering room:", error);
+      const netError = I18nService.getInstance().t("errors.network_error");
       if (!this.#hasAccount()) {
         this.#roomView.showStep("guest");
-        this.#roomView.showGuestError("Erreur de connexion au serveur.");
+        this.#roomView.showGuestError(netError);
       } else {
         this.#roomView.showStep("setup");
-        this.#roomView.showJoinError("Erreur de connexion au serveur.");
+        this.#roomView.showJoinError(netError);
         this.#router.navigate("/room");
       }
     }
@@ -131,7 +138,11 @@ export class RoomController {
 
       if (!codeToJoin) {
         this.#roomView.showGuestError(
-          "Veuillez saisir le code du salon à rejoindre.",
+          I18nService.getInstance().t(
+            "room.enter_room_code",
+            {},
+            "Veuillez saisir le code du salon à rejoindre.",
+          ),
         );
         return;
       }
@@ -144,7 +155,12 @@ export class RoomController {
 
       if (!res.ok) {
         this.#roomView.showGuestError(
-          res.data?.error || "Erreur lors de la connexion invité.",
+          res.data?.error ||
+            I18nService.getInstance().t(
+              "room.guest_login_error",
+              {},
+              "Erreur lors de la connexion invité.",
+            ),
         );
         return;
       }
@@ -161,7 +177,9 @@ export class RoomController {
       this.initRoom({ code: codeToJoin });
     } catch (error) {
       console.error("Guest Login Error:", error);
-      this.#roomView.showGuestError("Erreur de connexion au serveur.");
+      this.#roomView.showGuestError(
+        I18nService.getInstance().t("errors.network_error"),
+      );
     }
   }
 
@@ -171,7 +189,11 @@ export class RoomController {
       const config = this.#roomView.getSetupConfig();
       if (!config.cityKey) {
         this.#roomView.showJoinError(
-          "Veuillez sélectionner une ville pour créer le salon.",
+          I18nService.getInstance().t(
+            "room.select_city_error",
+            {},
+            "Veuillez sélectionner une ville pour créer le salon.",
+          ),
         );
         return;
       }
@@ -186,7 +208,12 @@ export class RoomController {
 
       if (!res.ok) {
         this.#roomView.showJoinError(
-          res.data?.error || "Impossible de créer la room.",
+          res.data?.error ||
+            I18nService.getInstance().t(
+              "room.cannot_create",
+              {},
+              "Impossible de créer la room.",
+            ),
         );
         return;
       }
@@ -196,7 +223,7 @@ export class RoomController {
     } catch (error) {
       console.error("Create Room UI Error:", error);
       this.#roomView.showJoinError(
-        "Erreur réseau lors de la création du salon.",
+        I18nService.getInstance().t("errors.network_error"),
       );
     }
   }
@@ -204,7 +231,13 @@ export class RoomController {
   async #handleJoinRoom() {
     const code = this.#roomView.getCodeInputValue();
     if (!code || code.length < 3) {
-      this.#roomView.showJoinError("Veuillez entrer un code de salon valide.");
+      this.#roomView.showJoinError(
+        I18nService.getInstance().t(
+          "room.invalid_code_error",
+          {},
+          "Veuillez entrer un code de salon valide.",
+        ),
+      );
       return;
     }
     this.#router.navigate(`/room/${code}`);
@@ -213,14 +246,25 @@ export class RoomController {
   async #handleStartGame() {
     if (!this.#currentRoomCode) return;
     try {
-      this.#gameView.showLoading("Lancement du test multijoueurs...");
+      this.#gameView.showLoading(
+        I18nService.getInstance().t(
+          "loading.launching_multiplayer",
+          {},
+          "Lancement du test multijoueurs...",
+        ),
+      );
       const res = await ApiService.post(
         `/rooms/${this.#currentRoomCode}/start`,
       );
       if (!res.ok) {
         await this.#roomView.showAlertModal(
-          "Erreur",
-          res.data?.error || "Erreur lors du lancement de la partie.",
+          I18nService.getInstance().t("common.error", {}, "Erreur"),
+          res.data?.error ||
+            I18nService.getInstance().t(
+              "room.start_error",
+              {},
+              "Erreur lors du lancement de la partie.",
+            ),
         );
         this.#roomView.showScreen();
       }
@@ -234,15 +278,26 @@ export class RoomController {
     if (!this.#currentRoomCode) return;
 
     try {
-      this.#gameView.showLoading("Réinitialisation du salon...");
+      this.#gameView.showLoading(
+        I18nService.getInstance().t(
+          "loading.resetting_room",
+          {},
+          "Réinitialisation du salon...",
+        ),
+      );
       const res = await ApiService.post(
         `/rooms/${this.#currentRoomCode}/reset`,
       );
 
       if (!res.ok) {
         await this.#roomView.showAlertModal(
-          "Erreur",
-          res.data?.error || "Erreur lors de la réinitialisation du salon.",
+          I18nService.getInstance().t("common.error", {}, "Erreur"),
+          res.data?.error ||
+            I18nService.getInstance().t(
+              "room.reset_error",
+              {},
+              "Erreur lors de la réinitialisation du salon.",
+            ),
         );
         this.#roomView.showScreen();
         return;
@@ -288,8 +343,17 @@ export class RoomController {
         if (res.status === 404 || res.status === 410) {
           this.stopPolling();
           await this.#roomView.showAlertModal(
-            "Salon indisponible",
-            res.data?.error || "Ce salon a expiré ou n'existe plus.",
+            I18nService.getInstance().t(
+              "room.unavailable_title",
+              {},
+              "Salon indisponible",
+            ),
+            res.data?.error ||
+              I18nService.getInstance().t(
+                "room.unavailable_desc",
+                {},
+                "Ce salon a expiré ou n'existe plus.",
+              ),
           );
           this.#router.navigate("/room");
         }
@@ -319,7 +383,13 @@ export class RoomController {
           this.#isTransitioning = true;
 
           const mode = roomData.mode || "target";
-          this.#gameView.showLoading("Chargement de la partie...");
+          this.#gameView.showLoading(
+            I18nService.getInstance().t(
+              "loading.init_session",
+              {},
+              "Chargement de la partie...",
+            ),
+          );
 
           this.#gameController.startRoomGame(
             currentUsername,

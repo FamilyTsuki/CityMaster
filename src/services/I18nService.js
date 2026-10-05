@@ -33,6 +33,9 @@ export class I18nService {
 
   async init() {
     await this.#loadDictionary(this.#currentLang);
+    if (typeof document !== "undefined" && document.documentElement) {
+      document.documentElement.lang = this.#currentLang;
+    }
     this.translateDOM();
   }
 
@@ -123,7 +126,11 @@ export class I18nService {
       return this.t("errors.not_enough_streets_difficulty");
     }
     if (lower.includes("overpass")) {
-      return "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.";
+      return this.t(
+        "errors.overpass_busy",
+        {},
+        "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.",
+      );
     }
 
     if (
@@ -143,6 +150,13 @@ export class I18nService {
   }
 
   translateDOM() {
+    if (typeof document === "undefined") return;
+
+    const metaTitle = this.t("meta.title");
+    if (metaTitle && metaTitle !== "meta.title") {
+      document.title = metaTitle;
+    }
+
     const elements = document.querySelectorAll("[data-i18n]");
     elements.forEach((el) => {
       const key = el.getAttribute("data-i18n");
@@ -174,12 +188,21 @@ export class I18nService {
       }
     });
 
-    const arias = document.querySelectorAll("[data-i18n-aria]");
+    const arias = document.querySelectorAll("[data-i18n-aria], [data-i18n-aria-label]");
     arias.forEach((el) => {
-      const key = el.getAttribute("data-i18n-aria");
+      const key = el.getAttribute("data-i18n-aria") || el.getAttribute("data-i18n-aria-label");
       const translated = this.t(key);
       if (translated && translated !== key) {
         el.setAttribute("aria-label", translated);
+      }
+    });
+
+    const alts = document.querySelectorAll("[data-i18n-alt]");
+    alts.forEach((el) => {
+      const key = el.getAttribute("data-i18n-alt");
+      const translated = this.t(key);
+      if (translated && translated !== key) {
+        el.setAttribute("alt", translated);
       }
     });
   }

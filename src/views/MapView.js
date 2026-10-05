@@ -1,3 +1,5 @@
+import { I18nService } from '../services/I18nService.js';
+
 export class MapView {
   #map;
   #streetLayer;
@@ -136,7 +138,7 @@ export class MapView {
       if (this.#tileLayer) {
         this.#tileLayer.setUrl(tileUrl);
       }
-      this.showMapLoader('Chargement de la carte...', true);
+      this.showMapLoader(null, true);
       this.#map.setView(centerCoordinates, zoom);
       if (bboxString) {
         const parts = bboxString.split(',').map(Number);
@@ -207,7 +209,7 @@ export class MapView {
       maxNativeZoom: 18
     }).addTo(this.#map);
 
-    this.showMapLoader('Chargement de la carte...', true);
+    this.showMapLoader(null, true);
 
     this.#streetLayer = L.geoJSON(null, {
       style: (feature) => {
@@ -415,13 +417,19 @@ export class MapView {
     }
   }
 
-  showMapLoader(message = 'Chargement...', autoHide = false) {
+  showMapLoader(message = null, autoHide = false) {
     const mapLoader = document.getElementById('map-loader');
     const mapLoaderMessage = document.getElementById('map-loader-message');
     if (!mapLoader) return;
 
     if (mapLoaderMessage) {
-      mapLoaderMessage.textContent = message;
+      mapLoaderMessage.textContent =
+        message ||
+        I18nService.getInstance().t(
+          'game.loading_geo',
+          {},
+          'Chargement des données géographiques...',
+        );
     }
     mapLoader.classList.remove('hidden');
 

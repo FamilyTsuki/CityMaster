@@ -1,5 +1,6 @@
 import { escapeHTML } from "../utils/security.js";
 import { ApiService } from "../services/ApiService.js";
+import { I18nService } from "../services/I18nService.js";
 
 export class RoomView {
   #screens;
@@ -122,7 +123,7 @@ export class RoomView {
     }
 
     if (this.#lobbyCodeBadge) {
-      this.#lobbyCodeBadge.addEventListener("click", () => {
+      const copyCode = () => {
         const code = this.#lobbyCodeBadge.textContent;
         if (code && code !== "------") {
           navigator.clipboard
@@ -136,6 +137,14 @@ export class RoomView {
               }
             })
             .catch(() => {});
+        }
+      };
+
+      this.#lobbyCodeBadge.addEventListener("click", copyCode);
+      this.#lobbyCodeBadge.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          copyCode();
         }
       });
     }
@@ -220,7 +229,11 @@ export class RoomView {
           if (city.isVerified) {
             const badge = document.createElement("span");
             badge.className = "city-verified-badge";
-            badge.textContent = "✓ Validée";
+            badge.textContent = I18nService.getInstance().t(
+              "common.verified_badge",
+              {},
+              "✓ Validée",
+            );
             li.appendChild(badge);
           }
           li.addEventListener("click", () => {
@@ -536,16 +549,16 @@ export class RoomView {
       this.#lobbyCreatorName.textContent = roomData.createdBy;
     if (this.#lobbyDiffLevel) {
       const difficulties = {
-        easy: "Facile",
-        medium: "Moyen",
-        hard: "Difficile",
+        easy: I18nService.getInstance().t("admin.filter_easy", {}, "Facile"),
+        medium: I18nService.getInstance().t("admin.filter_medium", {}, "Moyen"),
+        hard: I18nService.getInstance().t("admin.filter_hard", {}, "Difficile"),
       };
       this.#lobbyDiffLevel.textContent =
         difficulties[roomData.difficulty] || roomData.difficulty;
     }
 
     if (this.#lobbySeriesCount) {
-      this.#lobbySeriesCount.textContent = `${roomData.seriesCount || 10} Rues`;
+      this.#lobbySeriesCount.textContent = `${roomData.seriesCount || 10} ${I18nService.getInstance().t("common.streets", {}, "Rues")}`;
     }
 
     if (this.#lobbyCityName) {
@@ -559,7 +572,9 @@ export class RoomView {
     if (this.#lobbyExpiresAt) {
       if (roomData.expiresAt) {
         const exp = new Date(roomData.expiresAt);
-        this.#lobbyExpiresAt.textContent = exp.toLocaleString("fr-FR", {
+        const lang =
+          I18nService.getInstance().currentLang === "en" ? "en-US" : "fr-FR";
+        this.#lobbyExpiresAt.textContent = exp.toLocaleString(lang, {
           day: "2-digit",
           month: "2-digit",
           hour: "2-digit",
@@ -627,7 +642,7 @@ export class RoomView {
           nameSpan.textContent = p.username + " ";
           if (p.username === currentUsername) {
             const youStrong = document.createElement("strong");
-            youStrong.textContent = "(Vous)";
+            youStrong.textContent = ` (${I18nService.getInstance().t("room.you", {}, "Vous")})`;
             nameSpan.appendChild(youStrong);
           }
 
@@ -636,19 +651,27 @@ export class RoomView {
           if (isHost) {
             const hostBadge = document.createElement("span");
             hostBadge.className = "player-badge-host";
-            hostBadge.textContent = "Hôte";
+            hostBadge.textContent = I18nService.getInstance().t(
+              "room.host_badge",
+              {},
+              "Hôte",
+            );
             li.appendChild(hostBadge);
           }
 
           if (p.finished) {
             const readyBadge = document.createElement("span");
             readyBadge.className = "player-badge-ready";
-            readyBadge.textContent = `Score: ${p.score} pts`;
+            readyBadge.textContent = `${I18nService.getInstance().t("game.score", {}, "Score")}: ${p.score} pts`;
             li.appendChild(readyBadge);
           } else if (roomData.status === "playing") {
             const playingBadge = document.createElement("span");
             playingBadge.className = "player-badge-host player-badge-playing";
-            playingBadge.textContent = "Joue...";
+            playingBadge.textContent = I18nService.getInstance().t(
+              "room.playing_badge",
+              {},
+              "Joue...",
+            );
             li.appendChild(playingBadge);
           }
 
@@ -662,11 +685,19 @@ export class RoomView {
 
     if (roomData.status === "playing") {
       if (this.#lobbyStatusText)
-        this.#lobbyStatusText.textContent = "Partie en cours !";
+        this.#lobbyStatusText.textContent = I18nService.getInstance().t(
+          "room.game_in_progress",
+          {},
+          "Partie en cours !",
+        );
       if (pulseInd) pulseInd.className = "pulse-indicator active";
     } else {
       if (this.#lobbyStatusText)
-        this.#lobbyStatusText.textContent = "En attente du lancement...";
+        this.#lobbyStatusText.textContent = I18nService.getInstance().t(
+          "room.waiting_launch",
+          {},
+          "En attente du lancement...",
+        );
       if (pulseInd) pulseInd.className = "pulse-indicator";
     }
 
@@ -722,7 +753,11 @@ export class RoomView {
       } else {
         const span = document.createElement("span");
         span.className = "text-muted";
-        span.textContent = "En cours...";
+        span.textContent = I18nService.getInstance().t(
+          "room.in_progress",
+          {},
+          "En cours...",
+        );
         scoreTd.appendChild(span);
       }
 
@@ -731,10 +766,18 @@ export class RoomView {
       const statusSpan = document.createElement("span");
       if (p.finished) {
         statusSpan.className = "player-badge-ready";
-        statusSpan.textContent = "Terminé";
+        statusSpan.textContent = I18nService.getInstance().t(
+          "room.finished",
+          {},
+          "Terminé",
+        );
       } else {
         statusSpan.className = "player-badge-host player-badge-playing";
-        statusSpan.textContent = "En cours...";
+        statusSpan.textContent = I18nService.getInstance().t(
+          "room.in_progress",
+          {},
+          "En cours...",
+        );
       }
       statusTd.appendChild(statusSpan);
 

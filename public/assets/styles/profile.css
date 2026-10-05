@@ -425,7 +425,6 @@ input:checked + .slider::before {
   padding: 0.5rem 1rem;
   background: transparent;
   border: none !important;
-  outline: none !important;
   box-shadow: none !important;
   transition: all 0.15s ease;
 }

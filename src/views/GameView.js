@@ -163,7 +163,11 @@ export class GameView {
           if (city.isVerified) {
             const badge = document.createElement("span");
             badge.className = "city-verified-badge";
-            badge.textContent = "✓ Validée";
+            badge.textContent = I18nService.getInstance().t(
+              "common.verified_badge",
+              {},
+              "✓ Validée",
+            );
             li.appendChild(badge);
           }
 
@@ -740,10 +744,16 @@ export class GameView {
     }
   }
 
-  showLoading(message = "Chargement...") {
+  showLoading(message = null) {
     const loadingMessage = document.getElementById("loading-message");
     if (loadingMessage) {
-      loadingMessage.textContent = message;
+      loadingMessage.textContent =
+        message ||
+        I18nService.getInstance().t(
+          "loading.loading_streets",
+          {},
+          "Chargement des données cartographiques...",
+        );
     }
     this.showScreen("loading");
   }
@@ -1282,9 +1292,13 @@ export class GameView {
     const descInput = document.getElementById("report-description");
 
     if (userDisplay)
-      userDisplay.textContent = contextData.username || "Anonyme";
+      userDisplay.textContent =
+        contextData.username ||
+        I18nService.getInstance().t("common.anonymous", {}, "Anonyme");
     if (targetDisplay)
-      targetDisplay.textContent = contextData.targetStreet || "Inconnue";
+      targetDisplay.textContent =
+        contextData.targetStreet ||
+        I18nService.getInstance().t("common.unknown", {}, "Inconnue");
 
     if (contextData.clickedStreet) {
       if (clickedDisplay)
@@ -1341,7 +1355,11 @@ export class GameView {
 
     if (!description) {
       if (errorDiv) {
-        errorDiv.textContent = "Veuillez décrire le problème rencontré.";
+        errorDiv.textContent = I18nService.getInstance().t(
+          "game.report_desc_required",
+          {},
+          "Veuillez décrire le problème rencontré.",
+        );
         errorDiv.classList.remove("hidden");
       }
       return;
@@ -1356,29 +1374,50 @@ export class GameView {
     try {
       if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.textContent = "Envoi en cours...";
+        submitBtn.textContent = I18nService.getInstance().t(
+          "game.report_sending",
+          {},
+          "Envoi en cours...",
+        );
       }
       const res = await ApiService.post("/reports", payload);
 
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Envoyer le signalement";
+        submitBtn.textContent = I18nService.getInstance().t(
+          "game.report_submit",
+          {},
+          "Envoyer le signalement",
+        );
       }
 
       if (!res.ok) {
         throw new Error(
-          res.data?.error || "Erreur lors de l’envoi du signalement.",
+          res.data?.error ||
+            I18nService.getInstance().t(
+              "game.report_error",
+              {},
+              "Erreur lors de l’envoi du signalement.",
+            ),
         );
       }
 
       this.closeReportModal();
       this.#showToastNotification(
-        "Signalement envoyé avec succès ! Merci pour votre aide.",
+        I18nService.getInstance().t(
+          "game.report_success",
+          {},
+          "Signalement envoyé avec succès ! Merci pour votre aide.",
+        ),
       );
     } catch (err) {
       if (submitBtn) {
         submitBtn.disabled = false;
-        submitBtn.textContent = "Envoyer le signalement";
+        submitBtn.textContent = I18nService.getInstance().t(
+          "game.report_submit",
+          {},
+          "Envoyer le signalement",
+        );
       }
       if (errorDiv) {
         errorDiv.textContent = err.message;

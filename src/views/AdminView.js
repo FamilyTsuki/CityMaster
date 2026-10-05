@@ -1,3 +1,5 @@
+import { I18nService } from "../services/I18nService.js";
+
 export class AdminView {
   #map;
   #tileLayer;
@@ -376,7 +378,12 @@ export class AdminView {
         districtFeature.properties.originalName ||
         districtFeature.properties.name ||
         null;
-      if (titleEl) titleEl.textContent = "Éditer le Quartier";
+      if (titleEl)
+        titleEl.textContent = I18nService.getInstance().t(
+          "admin.edit_district",
+          {},
+          "Éditer le Quartier",
+        );
       if (nameInput) nameInput.value = districtFeature.properties.name || "";
       if (districtFeature.properties.color) {
         this.#activeColor = districtFeature.properties.color;
@@ -400,7 +407,12 @@ export class AdminView {
     } else {
       this.#editingDistrictId = null;
       this.#originalDistrictName = null;
-      if (titleEl) titleEl.textContent = "Nouveau Quartier";
+      if (titleEl)
+        titleEl.textContent = I18nService.getInstance().t(
+          "admin.new_district",
+          {},
+          "Nouveau Quartier",
+        );
       if (nameInput) nameInput.value = "";
     }
   }
@@ -534,7 +546,12 @@ export class AdminView {
         routeFeature.properties.originalName ||
         routeFeature.properties.name ||
         null;
-      if (titleEl) titleEl.textContent = "Éditer la Route";
+      if (titleEl)
+        titleEl.textContent = I18nService.getInstance().t(
+          "admin.edit_route",
+          {},
+          "Éditer la Route",
+        );
       if (nameInput) nameInput.value = routeFeature.properties.name || "";
 
       if (routeFeature.geometry) {
@@ -563,7 +580,12 @@ export class AdminView {
     } else {
       this.#editingRouteId = null;
       this.#originalRouteName = null;
-      if (titleEl) titleEl.textContent = "Nouvelle Route";
+      if (titleEl)
+        titleEl.textContent = I18nService.getInstance().t(
+          "admin.new_route",
+          {},
+          "Nouvelle Route",
+        );
       if (nameInput) nameInput.value = "";
     }
   }
@@ -699,7 +721,11 @@ export class AdminView {
     if (districts.length === 0) {
       const li = document.createElement("li");
       li.className = "district-list-empty";
-      li.textContent = "Aucun quartier défini.";
+      li.textContent = I18nService.getInstance().t(
+        "admin.no_districts",
+        {},
+        "Aucun quartier défini.",
+      );
       listEl.appendChild(li);
       return;
     }
@@ -727,13 +753,21 @@ export class AdminView {
       editBtn.className = "btn-edit-item btn-edit-district";
       editBtn.dataset.id = d.properties.id || d.properties.name;
       editBtn.dataset.name = d.properties.name;
-      editBtn.textContent = "Éditer";
+      editBtn.textContent = I18nService.getInstance().t(
+        "admin.edit",
+        {},
+        "Éditer",
+      );
 
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "btn-delete-item btn-delete-district";
       deleteBtn.dataset.id = d.properties.id || d.properties.name;
-      deleteBtn.textContent = "Supprimer";
+      deleteBtn.textContent = I18nService.getInstance().t(
+        "admin.delete",
+        {},
+        "Supprimer",
+      );
 
       actionsDiv.append(editBtn, deleteBtn);
       li.append(infoDiv, actionsDiv);
@@ -772,23 +806,23 @@ export class AdminView {
     );
 
     if (tabAll) {
-      tabAll.textContent = `Tous (${options.counts?.all ?? displayRoutes.length})`;
+      tabAll.textContent = `${I18nService.getInstance().t("admin.filter_all", {}, "Tous")} (${options.counts?.all ?? displayRoutes.length})`;
       tabAll.classList.toggle("active", currentFilter === "all");
     }
     if (tabEasy) {
-      tabEasy.textContent = `Facile (${options.counts?.easy ?? (groupedRoutes?.easy?.length || 0)})`;
+      tabEasy.textContent = `${I18nService.getInstance().t("admin.filter_easy", {}, "Facile")} (${options.counts?.easy ?? (groupedRoutes?.easy?.length || 0)})`;
       tabEasy.classList.toggle("active", currentFilter === "easy");
     }
     if (tabMedium) {
-      tabMedium.textContent = `Moyen (${options.counts?.medium ?? (groupedRoutes?.medium?.length || 0)})`;
+      tabMedium.textContent = `${I18nService.getInstance().t("admin.filter_medium", {}, "Moyen")} (${options.counts?.medium ?? (groupedRoutes?.medium?.length || 0)})`;
       tabMedium.classList.toggle("active", currentFilter === "medium");
     }
     if (tabHard) {
-      tabHard.textContent = `Difficile (${options.counts?.hard ?? (groupedRoutes?.hard?.length || 0)})`;
+      tabHard.textContent = `${I18nService.getInstance().t("admin.filter_hard", {}, "Difficile")} (${options.counts?.hard ?? (groupedRoutes?.hard?.length || 0)})`;
       tabHard.classList.toggle("active", currentFilter === "hard");
     }
     if (tabManual) {
-      tabManual.textContent = `Manuels (${options.counts?.manual ?? 0})`;
+      tabManual.textContent = `${I18nService.getInstance().t("admin.filter_manual", {}, "Manuels")} (${options.counts?.manual ?? 0})`;
       tabManual.classList.toggle("active", currentFilter === "manual");
     }
 
@@ -799,7 +833,11 @@ export class AdminView {
     if (displayRoutes.length === 0) {
       const li = document.createElement("li");
       li.className = "district-list-empty";
-      li.textContent = "Aucune route ne correspond.";
+      li.textContent = I18nService.getInstance().t(
+        "admin.no_routes",
+        {},
+        "Aucune route ne correspond.",
+      );
       listEl.appendChild(li);
       return;
     }
@@ -853,7 +891,11 @@ export class AdminView {
         if (isManual) {
           const badge = document.createElement("span");
           badge.className = "badge-manual-diff";
-          badge.textContent = "Manuel";
+          badge.textContent = I18nService.getInstance().t(
+            "admin.manual",
+            {},
+            "Manuel",
+          );
           infoDiv.appendChild(badge);
         }
 
@@ -865,13 +907,21 @@ export class AdminView {
         editBtn.className = "btn-edit-item btn-edit-route";
         editBtn.dataset.id = r.properties.id || r.properties.name;
         editBtn.dataset.name = r.properties.name;
-        editBtn.textContent = "Éditer";
+        editBtn.textContent = I18nService.getInstance().t(
+          "admin.edit",
+          {},
+          "Éditer",
+        );
 
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
         deleteBtn.className = "btn-delete-item btn-delete-route";
         deleteBtn.dataset.id = r.properties.id || r.properties.name;
-        deleteBtn.textContent = "Supprimer";
+        deleteBtn.textContent = I18nService.getInstance().t(
+          "admin.delete",
+          {},
+          "Supprimer",
+        );
 
         actionsDiv.append(editBtn, deleteBtn);
         li.append(infoDiv, actionsDiv);
@@ -879,18 +929,39 @@ export class AdminView {
       });
     };
 
+    const labelEasy = I18nService.getInstance().t(
+      "admin.filter_easy",
+      {},
+      "Facile",
+    );
+    const labelMedium = I18nService.getInstance().t(
+      "admin.filter_medium",
+      {},
+      "Moyen",
+    );
+    const labelHard = I18nService.getInstance().t(
+      "admin.filter_hard",
+      {},
+      "Difficile",
+    );
+    const labelManual = I18nService.getInstance().t(
+      "admin.filter_manual",
+      {},
+      "Manuels",
+    );
+
     if (currentFilter === "easy") {
-      renderGroup(groupedRoutes.easy, "Facile", "#10b981");
+      renderGroup(groupedRoutes.easy, labelEasy, "#10b981");
     } else if (currentFilter === "medium") {
-      renderGroup(groupedRoutes.medium, "Moyen", "#f59e0b");
+      renderGroup(groupedRoutes.medium, labelMedium, "#f59e0b");
     } else if (currentFilter === "hard") {
-      renderGroup(groupedRoutes.hard, "Difficile", "#ef4444");
+      renderGroup(groupedRoutes.hard, labelHard, "#ef4444");
     } else if (currentFilter === "manual") {
-      renderGroup(displayRoutes, "Manuels", "#8b5cf6");
+      renderGroup(displayRoutes, labelManual, "#8b5cf6");
     } else {
-      renderGroup(groupedRoutes.easy, "Facile", "#10b981");
-      renderGroup(groupedRoutes.medium, "Moyen", "#f59e0b");
-      renderGroup(groupedRoutes.hard, "Difficile", "#ef4444");
+      renderGroup(groupedRoutes.easy, labelEasy, "#10b981");
+      renderGroup(groupedRoutes.medium, labelMedium, "#f59e0b");
+      renderGroup(groupedRoutes.hard, labelHard, "#ef4444");
     }
   }
 
@@ -907,18 +978,20 @@ export class AdminView {
 
     if (emptyMsg) emptyMsg.classList.add("hidden");
 
+    const i18n = I18nService.getInstance();
     const categoryLabels = {
-      street_name: "Rue mal nommée",
-      difficulty: "Mauvaise difficulté",
-      map_error: "Erreur de tracé",
-      other: "Autre problème",
+      street_name: i18n.t("game.report_type_name", {}, "Rue mal nommée"),
+      difficulty: i18n.t("game.report_type_diff", {}, "Mauvaise difficulté"),
+      map_error: i18n.t("game.report_type_map", {}, "Erreur de tracé"),
+      other: i18n.t("game.report_type_other", {}, "Autre problème"),
     };
 
     reports.forEach((r) => {
       const card = document.createElement("div");
       card.className = "report-card";
 
-      const dateStr = new Date(r.created_at).toLocaleString("fr-FR", {
+      const lang = i18n.currentLang === "en" ? "en-US" : "fr-FR";
+      const dateStr = new Date(r.created_at).toLocaleString(lang, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -929,9 +1002,9 @@ export class AdminView {
       const categoryName = categoryLabels[r.category] || r.category;
       const statusClass = `status-${r.status || "pending"}`;
       const statusLabels = {
-        pending: "En attente",
-        resolved: "Résolu",
-        dismissed: "Ignoré",
+        pending: i18n.t("room.waiting", {}, "En attente"),
+        resolved: i18n.t("admin.resolved", {}, "Résolu"),
+        dismissed: i18n.t("admin.dismissed", {}, "Ignoré"),
       };
       const statusText = statusLabels[r.status] || r.status;
 
@@ -963,17 +1036,20 @@ export class AdminView {
 
       const dateSpan = document.createElement("span");
       const dateLabel = document.createElement("strong");
-      dateLabel.textContent = "Date : ";
+      dateLabel.textContent = i18n.t("admin.date_label", {}, "Date : ");
       dateSpan.append(dateLabel, dateStr);
 
       const userSpan = document.createElement("span");
       const userLabel = document.createElement("strong");
-      userLabel.textContent = "Joueur : ";
-      userSpan.append(userLabel, r.username || "Anonyme");
+      userLabel.textContent = i18n.t("admin.player_label", {}, "Joueur : ");
+      userSpan.append(
+        userLabel,
+        r.username || i18n.t("common.anonymous", {}, "Anonyme"),
+      );
 
       const citySpan = document.createElement("span");
       const cityLabel = document.createElement("strong");
-      cityLabel.textContent = "Commune : ";
+      cityLabel.textContent = i18n.t("admin.city_label", {}, "Commune : ");
       citySpan.append(
         cityLabel,
         `${r.city_key || "N/A"} (Mode: ${r.game_mode || "N/A"}, Diff: ${r.difficulty || "N/A"})`,
@@ -983,14 +1059,18 @@ export class AdminView {
 
       const targetSpan = document.createElement("span");
       const targetLabel = document.createElement("strong");
-      targetLabel.textContent = "Rue cible : ";
+      targetLabel.textContent = i18n.t(
+        "admin.target_street_label",
+        {},
+        "Rue cible : ",
+      );
       targetSpan.append(targetLabel, `${r.target_street || "N/A"} `);
 
       if (safeTarget) {
         const copyBtn = document.createElement("button");
         copyBtn.type = "button";
         copyBtn.className = "btn-copy-street";
-        copyBtn.textContent = "Copier";
+        copyBtn.textContent = i18n.t("admin.copy_btn", {}, "Copier");
         copyBtn.addEventListener("click", () => onCopy(safeTarget));
         targetSpan.appendChild(copyBtn);
       }
@@ -999,13 +1079,17 @@ export class AdminView {
       if (r.clicked_street) {
         const clickedSpan = document.createElement("span");
         const clickedLabel = document.createElement("strong");
-        clickedLabel.textContent = "Rue cliquée : ";
+        clickedLabel.textContent = i18n.t(
+          "admin.clicked_street_label",
+          {},
+          "Rue cliquée : ",
+        );
         clickedSpan.append(clickedLabel, `${r.clicked_street} `);
         if (safeClicked) {
           const copyBtn = document.createElement("button");
           copyBtn.type = "button";
           copyBtn.className = "btn-copy-street";
-          copyBtn.textContent = "Copier";
+          copyBtn.textContent = i18n.t("admin.copy_btn", {}, "Copier");
           copyBtn.addEventListener("click", () => onCopy(safeClicked));
           clickedSpan.appendChild(copyBtn);
         }
@@ -1023,7 +1107,11 @@ export class AdminView {
         const resolveBtn = document.createElement("button");
         resolveBtn.type = "button";
         resolveBtn.className = "btn btn-small btn-resolve-report";
-        resolveBtn.textContent = "Marquer résolu";
+        resolveBtn.textContent = i18n.t(
+          "admin.mark_resolved",
+          {},
+          "Marquer résolu",
+        );
         resolveBtn.addEventListener("click", () => onResolve(r.id));
         actionsDiv.appendChild(resolveBtn);
       }
@@ -1032,7 +1120,7 @@ export class AdminView {
         const dismissBtn = document.createElement("button");
         dismissBtn.type = "button";
         dismissBtn.className = "btn btn-small btn-secondary btn-dismiss-report";
-        dismissBtn.textContent = "Ignorer";
+        dismissBtn.textContent = i18n.t("admin.dismiss", {}, "Ignorer");
         dismissBtn.addEventListener("click", () => onDismiss(r.id));
         actionsDiv.appendChild(dismissBtn);
       }
@@ -1040,7 +1128,7 @@ export class AdminView {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "btn btn-small btn-delete-item btn-delete-report";
-      deleteBtn.textContent = "Supprimer";
+      deleteBtn.textContent = i18n.t("admin.delete", {}, "Supprimer");
       deleteBtn.addEventListener("click", () => onDelete(r.id));
       actionsDiv.appendChild(deleteBtn);
 

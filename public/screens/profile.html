@@ -1,18 +1,15 @@
 <div id="profile-screen" class="screen">
-  <div class="card profile-card" role="region" aria-label="Page de profil utilisateur">
+  <div class="card profile-card" role="region" aria-label="Page de profil utilisateur" data-i18n-aria-label="profile.region_label">
     <div class="profile-card-header">
-      <button id="profile-back-arrow-btn" class="btn-back-round" title="Retour à l'accueil">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      <button id="profile-back-arrow-btn" class="btn-back-round" title="Retour à l'accueil" data-i18n-title="common.back_home" aria-label="Retour à l'accueil" data-i18n-aria-label="common.back_home">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
       </button>
       <div class="profile-avatar-container">
-        <img id="profile-page-img" src="/assets/images/default-avatar.png" alt="Mon Avatar" class="profile-avatar" />
-        <label for="profile-upload" class="upload-btn" title="Changer d'avatar" data-i18n-title="profile.avatar_title" aria-label="Changer ma photo de profil">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon" aria-hidden="true">
-            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-            <circle cx="12" cy="13" r="4"></circle>
-          </svg>
+        <img id="profile-page-img" src="/assets/images/default-avatar.png" alt="Photo de profil" data-i18n-alt="profile.avatar_alt" class="profile-avatar" />
+        <label for="profile-upload" class="upload-btn" title="Changer d'avatar" data-i18n-title="profile.avatar_title" aria-label="Changer ma photo de profil" data-i18n-aria-label="profile.change_avatar">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="camera-icon" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
         </label>
-        <input type="file" id="profile-upload" class="hidden" accept="image/png, image/jpeg, image/webp" />
+        <input type="file" id="profile-upload" class="hidden" accept="image/png, image/jpeg, image/webp" aria-label="Téléverser un avatar" data-i18n-aria-label="profile.upload_avatar" />
       </div>
       <h1 id="profile-page-name">Joueur</h1>
     </div>
@@ -29,13 +26,13 @@
 
     <div class="profile-actions">
       <div class="theme-switch-container custom-dropdown-wrapper">
-        <span class="setting-label" data-i18n="profile.language">Langue / Language</span>
+        <span id="profile-lang-label" class="setting-label" data-i18n="profile.language">Langue / Language</span>
         <div class="custom-select-box">
-          <button type="button" id="profile-lang-trigger" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+          <button type="button" id="profile-lang-trigger" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="profile-lang-label profile-lang-current">
             <span id="profile-lang-current">Français (FR)</span>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="select-chevron" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
           </button>
-          <ul id="profile-lang-dropdown" class="custom-select-menu hidden" role="listbox">
+          <ul id="profile-lang-dropdown" class="custom-select-menu hidden" role="listbox" aria-labelledby="profile-lang-label">
             <li data-value="fr" role="option" class="custom-select-item selected">Français (FR)</li>
             <li data-value="en" role="option" class="custom-select-item">English (EN)</li>
           </ul>
@@ -44,18 +41,18 @@
       </div>
 
       <div class="theme-switch-container">
-        <span class="setting-label" data-i18n="profile.sound_effects">Effets Sonores</span>
-        <label class="switch">
-          <input type="checkbox" id="profile-sound-switch" />
-          <span class="slider round"></span>
+        <span id="profile-sound-label" class="setting-label" data-i18n="profile.sound_effects">Effets Sonores</span>
+        <label class="switch" for="profile-sound-switch">
+          <input type="checkbox" id="profile-sound-switch" aria-labelledby="profile-sound-label" />
+          <span class="slider round" aria-hidden="true"></span>
         </label>
       </div>
 
       <div class="theme-switch-container">
-        <span class="setting-label" data-i18n="profile.dark_mode">Mode Sombre</span>
-        <label class="switch">
-          <input type="checkbox" id="profile-theme-switch" />
-          <span class="slider round"></span>
+        <span id="profile-theme-label" class="setting-label" data-i18n="profile.dark_mode">Mode Sombre</span>
+        <label class="switch" for="profile-theme-switch">
+          <input type="checkbox" id="profile-theme-switch" aria-labelledby="profile-theme-label" />
+          <span class="slider round" aria-hidden="true"></span>
         </label>
       </div>
 
