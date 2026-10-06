@@ -143,13 +143,17 @@ export class AdminController {
       let debounceTimer = null;
 
       const searchCities = async (query = "") => {
+        const loader = input.parentElement.querySelector('.search-loader');
+        if (loader && query.length > 0) loader.classList.add("active");
         try {
           const res = await ApiService.get(
             `/cities?q=${encodeURIComponent(query)}`,
           );
+          if (loader) loader.classList.remove("active");
           if (!res.ok || !Array.isArray(res.data)) return [];
           return res.data;
         } catch (e) {
+          if (loader) loader.classList.remove("active");
           return [];
         }
       };

@@ -28,3 +28,48 @@
     transform: rotate(360deg);
   }
 }
+
+.search-loader {
+  position: absolute;
+  right: 1rem;
+  bottom: 0.8rem;
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-fast), visibility var(--transition-fast);
+}
+
+.search-loader.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.search-loader .dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  background-color: var(--primary);
+  border-radius: 50%;
+  animation: bounceDots 1.4s infinite ease-in-out both;
+}
+
+.search-loader .dot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.search-loader .dot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounceDots {
+  0%, 80%, 100% {
+    transform: translateY(0) scale(0.8);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-6px) scale(1.1);
+    opacity: 1;
+  }
+}

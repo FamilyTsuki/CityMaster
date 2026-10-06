@@ -489,3 +489,9 @@
     padding-top: 1rem;
   }
 }
+
+/* Leaderboard current user highlighting */
+.current-user-row {
+  background-color: var(--surface-hover);
+  font-weight: 700;
+}

@@ -212,6 +212,11 @@
             placeholder="Rechercher une commune..." data-i18n-placeholder="admin.search_city_placeholder"
             class="input admin-input-full"
           />
+          <div class="search-loader">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+          </div>
           <ul
             id="admin-city-dropdown"
             class="dropdown-list hidden"
@@ -370,12 +375,19 @@
             >Commune à modifier :</label
           >
           <div class="admin-city-verify-row">
-            <input
-              type="text"
-              id="admin-city-search-routes"
-              placeholder="Rechercher une commune..." data-i18n-placeholder="admin.search_city_placeholder"
-              class="input admin-input-full"
-            />
+            <div style="position: relative; flex: 1; min-width: 0;">
+              <input
+                type="text"
+                id="admin-city-search-routes"
+                placeholder="Rechercher une commune..." data-i18n-placeholder="admin.search_city_placeholder"
+                class="input admin-input-full"
+              />
+              <div class="search-loader" style="bottom: 50%; transform: translateY(50%);">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+              </div>
+            </div>
             <button
               id="admin-city-verify-btn"
               class="btn-verify-city-icon hidden"

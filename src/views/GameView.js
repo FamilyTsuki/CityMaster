@@ -124,10 +124,13 @@ export class GameView {
       let debounceTimer = null;
 
       const searchCities = async (query = "") => {
+        const loader = document.getElementById("city-search-loader");
+        if (loader && query.length > 0) loader.classList.add("active");
         try {
           const res = await ApiService.get(
             `/cities?q=${encodeURIComponent(query)}`,
           );
+          if (loader) loader.classList.remove("active");
           if (res.status === 401 || res.status === 403) {
             ApiService.clearToken();
             localStorage.removeItem("username");
@@ -138,6 +141,7 @@ export class GameView {
           if (!res.ok || !res.data) return [];
           return res.data;
         } catch (e) {
+          if (loader) loader.classList.remove("active");
           return [];
         }
       };
@@ -980,6 +984,11 @@ export class GameView {
     leaderboardData.forEach((scoreData, index) => {
       const tr = document.createElement("tr");
       const date = new Date(scoreData.created_at).toLocaleDateString("fr-FR");
+
+      const currentUser = localStorage.getItem("username");
+      if (currentUser && scoreData.username === currentUser) {
+        tr.classList.add("current-user-row");
+      }
 
       const tdRank = document.createElement("td");
       tdRank.textContent = `#${index + 1}`;

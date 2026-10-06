@@ -29,22 +29,26 @@ export class Score {
 
   static async getTopTestScores(testNumber, limit = 100) {
     try {
-      const query = 'SELECT id, player as username, score, difficulty, test_id, date as created_at FROM scores WHERE test_id = $1 ORDER BY score DESC LIMIT $2';
+      const query = 'SELECT player as username, MAX(score) as score, MAX(date) as created_at FROM scores WHERE test_id = $1 GROUP BY player ORDER BY score DESC LIMIT $2';
       const result = await pool.query(query, [testNumber, limit]);
       return result.rows;
     } catch (err) {
-      return [...memoryScores]
-        .filter(s => s.test_id === testNumber)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit);
+      const filteredTest = [...memoryScores].filter(s => s.test_id === testNumber);
+      const groupedTest = {};
+      for (const s of filteredTest) {
+        if (!groupedTest[s.player] || groupedTest[s.player].score < s.score) {
+          groupedTest[s.player] = s;
+        }
+      }
+      return Object.values(groupedTest).sort((a, b) => b.score - a.score).slice(0, limit);
     }
   }
 
   static async getTopScores(limit = 100, type = 'monthly', difficulty = 'hard') {
     try {
-      let query = 'SELECT id, player as username, score, difficulty, date as created_at FROM scores WHERE difficulty = $2 AND test_id IS NULL ORDER BY score DESC LIMIT $1';
+      let query = 'SELECT player as username, MAX(score) as score, MAX(date) as created_at FROM scores WHERE difficulty = $2 AND test_id IS NULL GROUP BY player ORDER BY score DESC LIMIT $1';
       if (type === 'monthly') {
-        query = 'SELECT id, player as username, score, difficulty, date as created_at FROM scores WHERE date >= date_trunc(\'month\', CURRENT_DATE) AND difficulty = $2 AND test_id IS NULL ORDER BY score DESC LIMIT $1';
+        query = 'SELECT player as username, MAX(score) as score, MAX(date) as created_at FROM scores WHERE date >= date_trunc(\'month\', CURRENT_DATE) AND difficulty = $2 AND test_id IS NULL GROUP BY player ORDER BY score DESC LIMIT $1';
       }
       
       const result = await pool.query(query, [limit, difficulty]);
@@ -55,19 +59,27 @@ export class Score {
         const currentMonth = now.getMonth();
         const currentYear = now.getFullYear();
         
-        return [...memoryScores]
-          .filter(s => {
+        const filtered = [...memoryScores].filter(s => {
             const scoreDate = new Date(s.date);
             return scoreDate.getMonth() === currentMonth && scoreDate.getFullYear() === currentYear && (s.difficulty === difficulty || (!s.difficulty && difficulty === 'hard')) && s.test_id == null;
-          })
-          .sort((a, b) => b.score - a.score)
-          .slice(0, limit);
+          });
+          const grouped = {};
+          for (const s of filtered) {
+            if (!grouped[s.player] || grouped[s.player].score < s.score) {
+              grouped[s.player] = s;
+            }
+          }
+          return Object.values(grouped).sort((a, b) => b.score - a.score).slice(0, limit);
       }
       
-      return [...memoryScores]
-        .filter(s => (s.difficulty === difficulty || (!s.difficulty && difficulty === 'hard')) && s.test_id == null)
-        .sort((a, b) => b.score - a.score)
-        .slice(0, limit);
+      const filteredAll = [...memoryScores].filter(s => (s.difficulty === difficulty || (!s.difficulty && difficulty === 'hard')) && s.test_id == null);
+      const groupedAll = {};
+      for (const s of filteredAll) {
+        if (!groupedAll[s.player] || groupedAll[s.player].score < s.score) {
+          groupedAll[s.player] = s;
+        }
+      }
+      return Object.values(groupedAll).sort((a, b) => b.score - a.score).slice(0, limit);
     }
   }
 
