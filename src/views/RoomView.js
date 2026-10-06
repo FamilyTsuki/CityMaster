@@ -199,7 +199,7 @@ export class RoomView {
       let debounceTimer = null;
 
       const searchCities = async (query = "") => {
-        const loader = cityInput.parentElement.querySelector(".search-loader");
+        const loader = cityInput.parentElement.querySelector('.search-loader');
         if (loader && query.length > 0) loader.classList.add("active");
         try {
           const res = await ApiService.get(
@@ -257,10 +257,9 @@ export class RoomView {
       });
 
       cityInput.addEventListener("input", () => {
-        const loader = cityInput.parentElement.querySelector(".search-loader");
-        if (loader && cityInput.value.trim().length > 0)
-          loader.classList.add("active");
-
+        const loader = cityInput.parentElement.querySelector('.search-loader');
+        if (loader && cityInput.value.trim().length > 0) loader.classList.add("active");
+        
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const query = cityInput.value.trim();

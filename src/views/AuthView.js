@@ -1661,24 +1661,10 @@ export class AuthView {
       const updateTogglePasswordLabel = () => {
         if (!this.#togglePasswordBtn || !this.#passwordInput) return;
         const isShown = this.#passwordInput.type === "text";
-        const hideLabel = I18nService.getInstance().t(
-          "auth.hide_password",
-          {},
-          "Masquer le mot de passe",
-        );
-        const showLabel = I18nService.getInstance().t(
-          "auth.show_password",
-          {},
-          "Afficher le mot de passe",
-        );
-        this.#togglePasswordBtn.setAttribute(
-          "aria-label",
-          isShown ? hideLabel : showLabel,
-        );
-        this.#togglePasswordBtn.setAttribute(
-          "aria-pressed",
-          isShown ? "true" : "false",
-        );
+        const hideLabel = I18nService.getInstance().t("auth.hide_password", {}, "Masquer le mot de passe");
+        const showLabel = I18nService.getInstance().t("auth.show_password", {}, "Afficher le mot de passe");
+        this.#togglePasswordBtn.setAttribute("aria-label", isShown ? hideLabel : showLabel);
+        this.#togglePasswordBtn.setAttribute("aria-pressed", isShown ? "true" : "false");
       };
 
       this.#togglePasswordBtn.addEventListener("click", (e) => {
@@ -1729,11 +1715,8 @@ export class AuthView {
           });
           targetBtn.replaceChildren();
           window.google.accounts.id.renderButton(targetBtn, {
-            theme:
-              document.documentElement.getAttribute("data-theme") === "dark"
-                ? "filled_black"
-                : "outline",
-            size: "medium",
+            theme: document.documentElement.getAttribute("data-theme") === "dark" ? "filled_black" : "outline",
+            size: "medium"
           });
           return true;
         }
