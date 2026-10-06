@@ -199,11 +199,14 @@ export class AdminController {
       });
 
       input.addEventListener("input", () => {
+        const loader = input.parentElement.querySelector('.search-loader');
+        if (loader && input.value.trim().length > 0) loader.classList.add("active");
+        
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const cities = await searchCities(input.value.trim());
           renderCityMatches(cities);
-        }, 200);
+        }, 400);
       });
     };
 

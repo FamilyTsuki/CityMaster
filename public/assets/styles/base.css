@@ -101,7 +101,8 @@ img {
 .screen.active {
   opacity: 1;
   visibility: visible;
-  transform: translate3d(0, 0, 0) scale(1);
+  transform: none;
+  will-change: auto;
   padding-bottom: 0 !important;
 }
 

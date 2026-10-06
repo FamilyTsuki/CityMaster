@@ -1715,7 +1715,7 @@ export class AuthView {
           });
           targetBtn.replaceChildren();
           window.google.accounts.id.renderButton(targetBtn, {
-            theme: "outline",
+            theme: document.documentElement.getAttribute("data-theme") === "dark" ? "filled_black" : "outline",
             size: "medium"
           });
           return true;

@@ -257,12 +257,15 @@ export class RoomView {
       });
 
       cityInput.addEventListener("input", () => {
+        const loader = cityInput.parentElement.querySelector('.search-loader');
+        if (loader && cityInput.value.trim().length > 0) loader.classList.add("active");
+        
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const query = cityInput.value.trim();
           const cities = await searchCities(query);
           renderCityMatches(cities);
-        }, 200);
+        }, 400);
       });
     }
 
