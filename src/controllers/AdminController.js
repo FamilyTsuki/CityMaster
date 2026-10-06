@@ -143,7 +143,7 @@ export class AdminController {
       let debounceTimer = null;
 
       const searchCities = async (query = "") => {
-        const loader = input.parentElement.querySelector('.search-loader');
+        const loader = input.parentElement.querySelector(".search-loader");
         if (loader && query.length > 0) loader.classList.add("active");
         try {
           const res = await ApiService.get(
@@ -199,9 +199,10 @@ export class AdminController {
       });
 
       input.addEventListener("input", () => {
-        const loader = input.parentElement.querySelector('.search-loader');
-        if (loader && input.value.trim().length > 0) loader.classList.add("active");
-        
+        const loader = input.parentElement.querySelector(".search-loader");
+        if (loader && input.value.trim().length > 0)
+          loader.classList.add("active");
+
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const cities = await searchCities(input.value.trim());
