@@ -39,6 +39,7 @@ export class ProfileController {
       const newTheme = isDark ? "dark" : "light";
       document.documentElement.setAttribute("data-theme", newTheme);
       localStorage.setItem("theme", newTheme);
+      localStorage.setItem("citymaster_theme", newTheme);
       this.#navbarView.setTheme(newTheme);
     });
 

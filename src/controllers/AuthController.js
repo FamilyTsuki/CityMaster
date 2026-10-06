@@ -35,7 +35,7 @@ export class AuthController {
   }
 
   #initTheme() {
-    const savedTheme = localStorage.getItem("theme");
+    const savedTheme = localStorage.getItem("theme") || localStorage.getItem("citymaster_theme");
     const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
       .matches
       ? "dark"
@@ -50,6 +50,7 @@ export class AuthController {
     const newTheme = currentTheme === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("theme", newTheme);
+    localStorage.setItem("citymaster_theme", newTheme);
     this.#navbarView.setTheme(newTheme);
   }
 

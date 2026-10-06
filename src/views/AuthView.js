@@ -272,6 +272,7 @@ export class AuthView {
   #greyEarTwitchTimeoutId = null;
   #continuousAnimFrameId = null;
   #mouseIdleTimeoutId = null;
+  #themeObserver = null;
 
   #tailPhase = 0;
   #tailSpeed = 0.0025;
@@ -1714,14 +1715,32 @@ export class AuthView {
             },
           });
           targetBtn.replaceChildren();
+          const isDark = document.documentElement.getAttribute("data-theme") === "dark";
           window.google.accounts.id.renderButton(targetBtn, {
-            theme: document.documentElement.getAttribute("data-theme") === "dark" ? "filled_black" : "outline",
-            size: "medium"
+            theme: isDark ? "filled_black" : "outline",
+            size: "medium",
+            text: "signin_with",
+            shape: "rectangular",
+            logo_alignment: "left"
           });
           return true;
         }
         return false;
       };
+
+      if (!this.#themeObserver) {
+        this.#themeObserver = new MutationObserver((mutations) => {
+          for (const m of mutations) {
+            if (m.attributeName === "data-theme") {
+              renderButton();
+            }
+          }
+        });
+        this.#themeObserver.observe(document.documentElement, {
+          attributes: true,
+          attributeFilter: ["data-theme"],
+        });
+      }
 
       if (!renderButton()) {
         let attempts = 0;
