@@ -256,6 +256,7 @@
 .google-auth-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-bottom: 0.25rem;
   width: 100%;
 }
@@ -623,4 +624,10 @@
 
 [data-theme="dark"] .auth-link:hover {
   color: var(--primary-hover);
+}
+
+#google-login-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
