@@ -1,5 +1,5 @@
 #auth-screen::before {
-  content: '';
+  content: "";
   position: fixed;
   top: 0;
   left: 0;
@@ -91,7 +91,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  transform: skewY(2.2deg);
 }
 
 .auth-mascots-container {
