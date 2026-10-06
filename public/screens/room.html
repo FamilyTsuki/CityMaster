@@ -1,123 +1,404 @@
 <div id="room-screen" class="screen">
   <div class="room-container">
-    
     <div id="room-guest-step" class="room-card hidden">
       <div class="room-card-header">
-        <button id="room-guest-back-btn" class="btn-back-round" title="Retour à l'accueil" data-i18n-title="common.back_home" aria-label="Retour à l'accueil" data-i18n-aria-label="common.back_home">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <button
+          id="room-guest-back-btn"
+          class="btn-back-round"
+          title="Retour à l'accueil"
+          data-i18n-title="common.back_home"
+          aria-label="Retour à l'accueil"
+          data-i18n-aria-label="common.back_home"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
         </button>
         <div>
-          <h2 class="room-title" data-i18n="room.join_title">Rejoindre un Salon</h2>
+          <h2 class="room-title" data-i18n="room.join_title">
+            Rejoindre un Salon
+          </h2>
         </div>
       </div>
-      
+
       <form id="room-guest-form" class="form-group">
         <div class="form-group">
-          <label for="room-guest-username" class="label" data-i18n="room.guest_username_label">Votre Nom / Pseudo</label>
-          <input type="text" id="room-guest-username" class="input input-premium" placeholder="Ex: Jean-Eudes" data-i18n-placeholder="room.guest_username_placeholder" required aria-required="true" minlength="3" maxlength="20" />
+          <label
+            for="room-guest-username"
+            class="label"
+            data-i18n="room.guest_username_label"
+            >Votre Nom / Pseudo</label
+          >
+          <input
+            type="text"
+            id="room-guest-username"
+            class="input input-premium"
+            placeholder="Ex: Jean-Eudes"
+            data-i18n-placeholder="room.guest_username_placeholder"
+            required
+            aria-required="true"
+            minlength="3"
+            maxlength="20"
+          />
         </div>
 
         <div class="form-group">
-          <label for="room-guest-code" class="label" data-i18n="room.code_label">Code de la Room</label>
-          <input type="text" id="room-guest-code" class="input code-input input-premium" placeholder="Ex: A87C04" data-i18n-placeholder="room.guest_code_placeholder" required aria-required="true" minlength="4" maxlength="6" style="text-transform: uppercase;" />
+          <label for="room-guest-code" class="label" data-i18n="room.code_label"
+            >Code de la Room</label
+          >
+          <input
+            type="text"
+            id="room-guest-code"
+            class="input code-input input-premium"
+            placeholder="Ex: A87C04"
+            data-i18n-placeholder="room.guest_code_placeholder"
+            required
+            aria-required="true"
+            minlength="4"
+            maxlength="6"
+            style="text-transform: uppercase"
+          />
         </div>
-        
-        <div id="room-guest-error" class="error-message hidden" role="alert" aria-live="polite"></div>
-        
+
+        <div
+          id="room-guest-error"
+          class="error-message hidden"
+          role="alert"
+          aria-live="polite"
+        ></div>
+
         <button type="submit" class="btn btn-primary room-btn-wide">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+            <polyline points="10 17 15 12 10 7"></polyline>
+            <line x1="15" y1="12" x2="3" y2="12"></line>
+          </svg>
           <span data-i18n="room.join_btn">Rejoindre la Room</span>
         </button>
       </form>
 
       <div class="room-card-footer room-guest-footer">
-        <p class="room-guest-prompt-text" data-i18n="room.create_prompt">Vous souhaitez créer votre propre salon ?</p>
-        <a href="#/login" id="room-login-link" class="link-secondary" data-i18n="room.login_or_register">Connectez-vous ou créez un compte</a>
+        <p class="room-guest-prompt-text" data-i18n="room.create_prompt">
+          Vous souhaitez créer votre propre salon ?
+        </p>
+        <a
+          href="#/login"
+          id="room-login-link"
+          class="link-secondary"
+          data-i18n="room.login_or_register"
+          >Connectez-vous ou créez un compte</a
+        >
       </div>
     </div>
 
     <div id="room-setup-step" class="room-card hidden">
       <div class="room-card-header">
-        <button id="room-back-btn" class="btn-back-round" title="Retour à l'accueil" data-i18n-title="common.back_home" aria-label="Retour à l'accueil" data-i18n-aria-label="common.back_home">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        <button
+          id="room-back-btn"
+          class="btn-back-round"
+          title="Retour à l'accueil"
+          data-i18n-title="common.back_home"
+          aria-label="Retour à l'accueil"
+          data-i18n-aria-label="common.back_home"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
         </button>
         <div>
-          <h2 class="room-title" data-i18n="room.team_title">Compétition en Équipe</h2>
-          <p class="room-subtitle" data-i18n="room.team_subtitle">Créez votre propre salon ou rejoignez une partie existante.</p>
+          <h2 class="room-title" data-i18n="room.team_title">
+            Compétition en Équipe
+          </h2>
+          <p class="room-subtitle" data-i18n="room.team_subtitle">
+            Créez votre propre salon ou rejoignez une partie existante.
+          </p>
         </div>
       </div>
-      
+
       <div class="room-grid">
-        
         <div class="room-col">
           <h3 data-i18n="room.create_title">Créer un Salon</h3>
-          <p class="room-col-desc" data-i18n="room.create_desc">Générez un code unique et invitez vos collaborateurs à jouer sur le même set de rues.</p>
-          
+          <p class="room-col-desc" data-i18n="room.create_desc">
+            Générez un code unique et invitez vos collaborateurs à jouer sur le
+            même set de rues.
+          </p>
+
           <div class="form-group custom-select-container">
-            <label for="room-city-search" class="label" data-i18n="room.select_city">Choix de la Ville</label>
-            <input type="text" id="room-city-search" placeholder="Rechercher une ville..." data-i18n-placeholder="room.search_city_placeholder" class="input input-premium" autocomplete="off" />
+            <label
+              for="room-city-search"
+              class="label"
+              data-i18n="room.select_city"
+              >Choix de la Ville</label
+            >
+            <input
+              type="text"
+              id="room-city-search"
+              placeholder="Rechercher une ville..."
+              data-i18n-placeholder="room.search_city_placeholder"
+              class="input input-premium"
+              autocomplete="off"
+            />
             <ul id="room-city-dropdown" class="dropdown-list hidden"></ul>
           </div>
-          
+
           <div class="form-group custom-select-container">
-            <label for="room-diff-search" class="label" data-i18n="room.difficulty">Difficulté</label>
-            <input type="text" id="room-diff-search" placeholder="Choisir la difficulté..." data-i18n-placeholder="room.choose_diff_placeholder" class="input cursor-pointer input-premium" readonly />
+            <label
+              for="room-diff-search"
+              class="label"
+              data-i18n="room.difficulty"
+              >Difficulté</label
+            >
+            <input
+              type="text"
+              id="room-diff-search"
+              placeholder="Choisir la difficulté..."
+              data-i18n-placeholder="room.choose_diff_placeholder"
+              class="input cursor-pointer input-premium"
+              readonly
+            />
             <ul id="room-diff-dropdown" class="dropdown-list hidden">
-              <li data-value="easy" class="dropdown-item" data-i18n="welcome.diff_easy">Facile</li>
-              <li data-value="medium" class="dropdown-item" data-i18n="welcome.diff_medium">Moyen</li>
-              <li data-value="hard" class="dropdown-item" data-i18n="welcome.diff_hard">Difficile</li>
+              <li
+                data-value="easy"
+                class="dropdown-item"
+                data-i18n="welcome.diff_easy"
+              >
+                Facile
+              </li>
+              <li
+                data-value="medium"
+                class="dropdown-item"
+                data-i18n="welcome.diff_medium"
+              >
+                Moyen
+              </li>
+              <li
+                data-value="hard"
+                class="dropdown-item"
+                data-i18n="welcome.diff_hard"
+              >
+                Difficile
+              </li>
             </ul>
           </div>
 
           <div class="form-group custom-select-container">
-            <label for="room-mode-search" class="label" data-i18n="room.game_mode">Mode de jeu</label>
-            <input type="text" id="room-mode-search" placeholder="Choisir le mode de jeu..." data-i18n-placeholder="room.choose_mode_placeholder" class="input cursor-pointer input-premium" readonly />
+            <label
+              for="room-mode-search"
+              class="label"
+              data-i18n="room.game_mode"
+              >Mode de jeu</label
+            >
+            <input
+              type="text"
+              id="room-mode-search"
+              placeholder="Choisir le mode de jeu..."
+              data-i18n-placeholder="room.choose_mode_placeholder"
+              class="input cursor-pointer input-premium"
+              readonly
+            />
             <ul id="room-mode-dropdown" class="dropdown-list hidden">
-              <li data-value="target" class="dropdown-item" data-i18n="room.mode_target">Trouver sur la carte</li>
-              <li data-value="identify" class="dropdown-item" data-i18n="room.mode_identify">Deviner le nom</li>
+              <li
+                data-value="target"
+                class="dropdown-item"
+                data-i18n="room.mode_target"
+              >
+                Trouver sur la carte
+              </li>
+              <li
+                data-value="identify"
+                class="dropdown-item"
+                data-i18n="room.mode_identify"
+              >
+                Deviner le nom
+              </li>
             </ul>
           </div>
 
           <div class="form-group">
-            <label for="room-series-input" class="label" data-i18n="room.series_count">Nombre de séries (Rues)</label>
+            <label
+              for="room-series-input"
+              class="label"
+              data-i18n="room.series_count"
+              >Nombre de séries (Rues)</label
+            >
             <div class="number-input-wrapper">
-              <button type="button" id="series-minus-btn" class="number-btn" aria-label="Diminuer le nombre de séries" data-i18n-aria-label="room.decrease_series">-</button>
-              <input type="number" id="room-series-input" class="input number-input" value="10" min="5" max="50" step="5" readonly />
-              <button type="button" id="series-plus-btn" class="number-btn" aria-label="Augmenter le nombre de séries" data-i18n-aria-label="room.increase_series">+</button>
+              <button
+                type="button"
+                id="series-minus-btn"
+                class="number-btn"
+                aria-label="Diminuer le nombre de séries"
+                data-i18n-aria-label="room.decrease_series"
+              >
+                -
+              </button>
+              <input
+                type="number"
+                id="room-series-input"
+                class="input number-input"
+                value="10"
+                min="5"
+                max="50"
+                step="5"
+                readonly
+              />
+              <button
+                type="button"
+                id="series-plus-btn"
+                class="number-btn"
+                aria-label="Augmenter le nombre de séries"
+                data-i18n-aria-label="room.increase_series"
+              >
+                +
+              </button>
             </div>
           </div>
-          
+
           <div class="form-group custom-select-container">
-            <label for="room-validity-search" class="label" data-i18n="room.validity">Durée de validité du Salon</label>
-            <input type="text" id="room-validity-search" placeholder="Choisir la durée..." data-i18n-placeholder="room.choose_duration_placeholder" class="input cursor-pointer input-premium" readonly data-value="24" value="24 heures (recommandé)" />
-            <ul id="room-validity-dropdown" class="dropdown-list hidden">
-              <li data-value="1" class="dropdown-item" data-i18n="room.duration_1h">1 heure (Session courte)</li>
-              <li data-value="24" class="dropdown-item" data-i18n="room.duration_24h">24 heures (Compétition d'un jour)</li>
-              <li data-value="168" class="dropdown-item" data-i18n="room.duration_7d">7 jours (Défi sur la semaine)</li>
+            <label
+              for="room-validity-search"
+              class="label"
+              data-i18n="room.validity"
+              >Durée de validité du Salon</label
+            >
+            <input
+              type="text"
+              id="room-validity-search"
+              placeholder="Choisir la durée..."
+              data-i18n-placeholder="room.choose_duration_placeholder"
+              class="input cursor-pointer input-premium"
+              readonly
+              data-value="24"
+              value="24 heures (recommandé)"
+            />
+            <ul
+              id="room-validity-dropdown"
+              class="dropdown-list dropdown-up hidden"
+            >
+              <li
+                data-value="1"
+                class="dropdown-item"
+                data-i18n="room.duration_1h"
+              >
+                1 heure (Session courte)
+              </li>
+              <li
+                data-value="24"
+                class="dropdown-item"
+                data-i18n="room.duration_24h"
+              >
+                24 heures (Compétition d'un jour)
+              </li>
+              <li
+                data-value="168"
+                class="dropdown-item"
+                data-i18n="room.duration_7d"
+              >
+                7 jours (Défi sur la semaine)
+              </li>
             </ul>
           </div>
-          
+
           <button id="room-create-btn" class="btn btn-primary room-btn-wide">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="action-icon"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="8" x2="12" y2="16"></line>
+              <line x1="8" y1="12" x2="16" y2="12"></line>
+            </svg>
             <span data-i18n="room.create_room_btn">Créer la Room</span>
           </button>
         </div>
-        
+
         <div class="room-divider-v"></div>
 
         <div class="room-col">
           <h3 data-i18n="room.join_room_heading">Rejoindre un Salon</h3>
-          <p class="room-col-desc" data-i18n="room.join_room_desc">Entrez le code de salon partagé par votre responsable pour commencer la partie.</p>
-          
+          <p class="room-col-desc" data-i18n="room.join_room_desc">
+            Entrez le code de salon partagé par votre responsable pour commencer
+            la partie.
+          </p>
+
           <div class="form-group">
-            <label for="room-code-input" class="label" data-i18n="room.code_label">Code de la Room</label>
-            <input type="text" id="room-code-input" class="input code-input input-premium" placeholder="CODE12" data-i18n-placeholder="room.code_placeholder" maxlength="6" />
+            <label
+              for="room-code-input"
+              class="label"
+              data-i18n="room.code_label"
+              >Code de la Room</label
+            >
+            <input
+              type="text"
+              id="room-code-input"
+              class="input code-input input-premium"
+              placeholder="CODE42"
+              data-i18n-placeholder="room.code_placeholder"
+              maxlength="6"
+            />
           </div>
-          
-          <div id="room-join-error" class="error-message hidden" role="alert" aria-live="polite"></div>
-          
+
+          <div
+            id="room-join-error"
+            class="error-message hidden"
+            role="alert"
+            aria-live="polite"
+          ></div>
+
           <button id="room-join-btn" class="btn btn-primary room-btn-wide">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="action-icon"
+              aria-hidden="true"
+            >
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
             <span data-i18n="room.join_btn_short">Rejoindre</span>
           </button>
         </div>
@@ -127,11 +408,38 @@
     <div id="room-lobby-step" class="room-step hidden">
       <div class="lobby-header">
         <div class="lobby-title-block">
-          <button id="lobby-leave-btn" class="btn-back-round" title="Quitter le salon" data-i18n-title="room.leave_room" aria-label="Quitter le salon" data-i18n-aria-label="room.leave_room">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <button
+            id="lobby-leave-btn"
+            class="btn-back-round"
+            title="Quitter le salon"
+            data-i18n-title="room.leave_room"
+            aria-label="Quitter le salon"
+            data-i18n-aria-label="room.leave_room"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="action-icon"
+              aria-hidden="true"
+            >
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
           </button>
-          <h2 class="room-title" data-i18n="room.lobby_title">Lobby de Compétition</h2>
-          <span class="room-status-badge status-waiting" id="lobby-status-badge" data-i18n="room.waiting">En attente</span>
+          <h2 class="room-title" data-i18n="room.lobby_title">
+            Lobby de Compétition
+          </h2>
+          <span
+            class="room-status-badge status-waiting"
+            id="lobby-status-badge"
+            data-i18n="room.waiting"
+            >En attente</span
+          >
         </div>
         <div class="lobby-host-info">
           <span class="host-label" data-i18n="room.host_label">Hôte :</span>
@@ -141,16 +449,57 @@
 
       <div class="lobby-share-row">
         <div class="share-box">
-          <span class="share-label" data-i18n="room.invite_link_label">Lien d'invitation (cliquer pour copier) :</span>
-          <input type="text" id="lobby-share-url" class="input share-input cursor-pointer" readonly value="" title="Cliquer pour copier le lien d'invitation" data-i18n-title="room.copy_link_title" aria-label="Lien d'invitation au salon" data-i18n-aria-label="room.invite_url" />
-          <span id="lobby-link-feedback" class="copy-feedback copy-feedback-left hidden" role="status" aria-live="polite" data-i18n="room.link_copied">Lien d'invitation copié !</span>
+          <span class="share-label" data-i18n="room.invite_link_label"
+            >Lien d'invitation (cliquer pour copier) :</span
+          >
+          <input
+            type="text"
+            id="lobby-share-url"
+            class="input share-input cursor-pointer"
+            readonly
+            value=""
+            title="Cliquer pour copier le lien d'invitation"
+            data-i18n-title="room.copy_link_title"
+            aria-label="Lien d'invitation au salon"
+            data-i18n-aria-label="room.invite_url"
+          />
+          <span
+            id="lobby-link-feedback"
+            class="copy-feedback copy-feedback-left hidden"
+            role="status"
+            aria-live="polite"
+            data-i18n="room.link_copied"
+            >Lien d'invitation copié !</span
+          >
         </div>
 
         <div class="code-box">
-          <span class="share-label share-label-right" data-i18n="room.code_label_click">Code du Salon (cliquer pour copier) :</span>
+          <span
+            class="share-label share-label-right"
+            data-i18n="room.code_label_click"
+            >Code du Salon (cliquer pour copier) :</span
+          >
           <div class="code-box-wrapper">
-            <div class="lobby-badge" id="lobby-code-badge" title="Cliquer pour copier le code" data-i18n-title="room.copy_code_title" role="button" tabindex="0" aria-label="Copier le code du salon" data-i18n-aria-label="room.copy_code">------</div>
-            <span id="lobby-code-feedback" class="copy-feedback copy-feedback-right hidden" role="status" aria-live="polite" data-i18n="room.code_copied">Code copié !</span>
+            <div
+              class="lobby-badge"
+              id="lobby-code-badge"
+              title="Cliquer pour copier le code"
+              data-i18n-title="room.copy_code_title"
+              role="button"
+              tabindex="0"
+              aria-label="Copier le code du salon"
+              data-i18n-aria-label="room.copy_code"
+            >
+              ------
+            </div>
+            <span
+              id="lobby-code-feedback"
+              class="copy-feedback copy-feedback-right hidden"
+              role="status"
+              aria-live="polite"
+              data-i18n="room.code_copied"
+              >Code copié !</span
+            >
           </div>
         </div>
       </div>
@@ -161,80 +510,144 @@
             <h3 data-i18n="room.players_present">Joueurs Présents</h3>
             <span class="players-count" id="lobby-players-count">0</span>
           </div>
-          <ul class="players-list" id="lobby-players-list">
-          </ul>
+          <ul class="players-list" id="lobby-players-list"></ul>
         </div>
-        
+
         <div class="lobby-controls-section">
           <h3 data-i18n="room.session_status">Statut de la Session</h3>
           <div class="status-indicator">
             <span class="pulse-indicator" aria-hidden="true"></span>
-            <span id="lobby-status-text" data-i18n="room.waiting_launch">En attente du lancement...</span>
+            <span id="lobby-status-text" data-i18n="room.waiting_launch"
+              >En attente du lancement...</span
+            >
           </div>
-          
+
           <div class="lobby-game-details">
             <div class="detail-row">
-              <span class="detail-label" data-i18n="room.city_label">Ville :</span>
+              <span class="detail-label" data-i18n="room.city_label"
+                >Ville :</span
+              >
               <strong id="lobby-city-name">---</strong>
             </div>
             <div class="detail-row">
-              <span class="detail-label" data-i18n="room.diff_label">Difficulté :</span>
+              <span class="detail-label" data-i18n="room.diff_label"
+                >Difficulté :</span
+              >
               <strong id="lobby-diff-level">---</strong>
             </div>
             <div class="detail-row">
-              <span class="detail-label" data-i18n="room.series_label">Nombre de séries :</span>
+              <span class="detail-label" data-i18n="room.series_label"
+                >Nombre de séries :</span
+              >
               <strong id="lobby-series-count">---</strong>
             </div>
             <div class="detail-row">
-              <span class="detail-label" data-i18n="room.expires_label">Expiration :</span>
+              <span class="detail-label" data-i18n="room.expires_label"
+                >Expiration :</span
+              >
               <strong id="lobby-expires-at">---</strong>
             </div>
           </div>
-          
+
           <div id="lobby-actions-container">
-            <button id="lobby-start-btn" class="btn btn-primary room-btn-wide hidden">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <button
+              id="lobby-start-btn"
+              class="btn btn-primary room-btn-wide hidden"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="action-icon"
+                aria-hidden="true"
+              >
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
               <span data-i18n="room.start_test">Démarrer le Test</span>
             </button>
-            <div id="lobby-waiting-message" class="lobby-waiting-info" role="status" aria-live="polite" data-i18n="room.waiting_host_launch">
+            <div
+              id="lobby-waiting-message"
+              class="lobby-waiting-info"
+              role="status"
+              aria-live="polite"
+              data-i18n="room.waiting_host_launch"
+            >
               L'organisateur va lancer le test sous peu. Préparez-vous !
             </div>
           </div>
         </div>
       </div>
-      
     </div>
 
     <div id="room-results-step" class="room-card hidden">
-      <h2 class="room-title" data-i18n="room.results_title">Classement Final du Salon</h2>
+      <h2 class="room-title" data-i18n="room.results_title">
+        Classement Final du Salon
+      </h2>
 
       <div class="results-table-wrapper">
         <table class="results-table">
           <thead>
             <tr>
-              <th scope="col" class="col-rank" data-i18n="welcome.rank">Rang</th>
+              <th scope="col" class="col-rank" data-i18n="welcome.rank">
+                Rang
+              </th>
               <th scope="col" data-i18n="welcome.player">Joueur</th>
-              <th scope="col" class="col-score" data-i18n="welcome.score">Score</th>
-              <th scope="col" class="col-status" data-i18n="room.status_col">Statut</th>
+              <th scope="col" class="col-score" data-i18n="welcome.score">
+                Score
+              </th>
+              <th scope="col" class="col-status" data-i18n="room.status_col">
+                Statut
+              </th>
             </tr>
           </thead>
-          <tbody id="results-table-body">
-          </tbody>
+          <tbody id="results-table-body"></tbody>
         </table>
       </div>
 
       <div class="room-results-actions">
         <button id="results-reset-btn" class="btn btn-warning hidden">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+          </svg>
           <span data-i18n="room.restart_room">Recommencer la Room</span>
         </button>
         <button id="results-leave-btn" class="btn btn-primary">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
           <span data-i18n="room.leave_btn">Quitter le Salon</span>
         </button>
         <button id="results-home-btn" class="btn btn-outline">
           <span data-i18n="room.home_btn">Accueil</span>
         </button>
       </div>
+    </div>
   </div>
 </div>
