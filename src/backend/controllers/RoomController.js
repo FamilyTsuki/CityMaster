@@ -3,6 +3,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import pool from '../config/database.js';
+import { City } from '../models/City.js';
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -161,9 +162,7 @@ export class RoomController {
         };
       } catch (err) {
         try {
-          const configCitiesPath = path.join(dirname, '..', '..', '..', 'config', 'cities.json');
-          const configContent = await fs.readFile(configCitiesPath, 'utf8');
-          const configCities = JSON.parse(configContent);
+          const configCities = await City.getAll();
           const found = configCities.find(c => c.key === room.city_key);
           if (found) {
             cityData = found;

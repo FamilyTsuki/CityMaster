@@ -414,11 +414,7 @@ export class CityController {
 
       if (cityKey && (!name || !osmId || !bbox)) {
         try {
-          const citiesData = await fs.promises.readFile(
-            path.join(process.cwd(), "config", "cities.json"),
-            "utf-8",
-          );
-          const cities = JSON.parse(citiesData);
+          const cities = await City.getAll();
           const localCity = cities.find((c) => c.key === cityKey);
           if (localCity) {
             if (!name) name = localCity.name;

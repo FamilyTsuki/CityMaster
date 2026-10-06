@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
 
-const filePath = path.join(process.cwd(), "config", "cities.json");
+const baseFilePath = path.join(process.cwd(), "config", "cities.json");
+const customFilePath = path.join(process.cwd(), "config", "custom_cities.json");
 
 const slugify = (text) =>
   text
@@ -13,15 +14,50 @@ const slugify = (text) =>
 
 export class City {
   static async getAll() {
+    let baseCities = [];
     try {
-      const data = await fs.readFile(filePath, "utf-8");
-      return JSON.parse(data);
+      const data = await fs.readFile(baseFilePath, "utf-8");
+      baseCities = JSON.parse(data);
     } catch (error) {
-      if (error.code === "ENOENT") {
-        return [];
-      }
-      throw error;
+      if (error.code !== "ENOENT") throw error;
     }
+
+    let customCities = [];
+    try {
+      const customData = await fs.readFile(customFilePath, "utf-8");
+      customCities = JSON.parse(customData);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+
+    const cityMap = new Map();
+    for (const city of baseCities) {
+      cityMap.set(city.key, city);
+    }
+    for (const city of customCities) {
+      cityMap.set(city.key, city);
+    }
+
+    return Array.from(cityMap.values());
+  }
+
+  static async saveCustomCity(city) {
+    let customCities = [];
+    try {
+      const customData = await fs.readFile(customFilePath, "utf-8");
+      customCities = JSON.parse(customData);
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+
+    const index = customCities.findIndex((c) => c.key === city.key);
+    if (index >= 0) {
+      customCities[index] = city;
+    } else {
+      customCities.push(city);
+    }
+
+    await fs.writeFile(customFilePath, JSON.stringify(customCities, null, 2), "utf-8");
   }
 
   static async search(query) {
@@ -70,7 +106,6 @@ export class City {
 
       if (response.ok) {
         const results = await response.json();
-        let addedNew = false;
 
         for (const result of results) {
           if (
@@ -128,16 +163,8 @@ export class City {
 
             cities.push(cityData);
             combinedResults.push(cityData);
-            addedNew = true;
+            await this.saveCustomCity(cityData);
           }
-        }
-
-        if (addedNew) {
-          await fs.writeFile(
-            filePath,
-            JSON.stringify(cities, null, 2),
-            "utf-8",
-          );
         }
       }
     } catch (error) {
@@ -166,7 +193,7 @@ export class City {
         "public",
         "assets",
         "data",
-        `${key}.json`,
+        `${key}.json`
       );
       try {
         await fs.access(dataFile);
@@ -179,14 +206,13 @@ export class City {
           name,
           isVerified: false,
         };
-        cities.push(city);
-      } catch (e) {}
+      } catch (e) {
+        throw new Error(`City with key "${key}" not found.`);
+      }
     }
-    if (!city) {
-      throw new Error(`City with key "${key}" not found.`);
-    }
+    
     city.isVerified = !city.isVerified;
-    await fs.writeFile(filePath, JSON.stringify(cities, null, 2), "utf-8");
+    await this.saveCustomCity(city);
     return city;
   }
 }
