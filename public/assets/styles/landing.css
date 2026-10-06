@@ -346,7 +346,7 @@
   justify-content: center;
   margin-bottom: 1rem;
   flex-shrink: 0;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--neu-flat);
   opacity: 1;
 }
 

@@ -31,10 +31,18 @@
   --text-muted: #6e5e52;
   --border-color: rgba(214, 184, 148, 0.32);
 
-  --shadow-sm: 0 1px 3px rgba(50, 35, 20, 0.04), 0 1px 2px rgba(50, 35, 20, 0.06);
-  --shadow-md: 0 4px 14px -2px rgba(50, 35, 20, 0.06), 0 2px 6px -1px rgba(50, 35, 20, 0.04);
-  --shadow-lg: 0 12px 30px -4px rgba(50, 35, 20, 0.08), 0 4px 10px -2px rgba(50, 35, 20, 0.03);
+  --shadow-sm: -2px -2px 6px rgba(255, 255, 255, 0.8), 2px 3px 8px rgba(50, 35, 20, 0.06);
+  --shadow-md: -4px -4px 12px rgba(255, 255, 255, 0.9), 4px 6px 16px rgba(50, 35, 20, 0.08);
+  --shadow-lg: -6px -6px 18px rgba(255, 255, 255, 0.95), 8px 12px 28px rgba(50, 35, 20, 0.1);
   --shadow-glow: 0 12px 32px -4px rgba(194, 65, 12, 0.16);
+
+  /* Neumorphic Soft UI Tokens - Light */
+  --neu-flat: -3px -3px 8px rgba(255, 255, 255, 0.85), 3px 3px 10px rgba(50, 35, 20, 0.07);
+  --neu-raised: -5px -5px 14px rgba(255, 255, 255, 0.95), 5px 6px 16px rgba(50, 35, 20, 0.09);
+  --neu-floating: -8px -8px 22px rgba(255, 255, 255, 0.95), 8px 14px 30px rgba(50, 35, 20, 0.11);
+  --neu-inset: inset 2px 2px 5px rgba(50, 35, 20, 0.07), inset -2px -2px 5px rgba(255, 255, 255, 0.85);
+  --neu-inset-deep: inset 3px 3px 7px rgba(50, 35, 20, 0.1), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
+  --neu-pressed: inset 2px 2px 5px rgba(50, 35, 20, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
 
   --landing-bg-gradient: radial-gradient(circle at 12% 18%, rgba(254, 240, 138, 0.35) 0%, transparent 45%), radial-gradient(circle at 88% 82%, rgba(253, 186, 116, 0.3) 0%, transparent 50%), linear-gradient(150deg, #fefbf6 0%, #fbf5eb 40%, #f6edd9 100%);
   --landing-card-bg: #ffffff;
@@ -136,10 +144,18 @@
   --text-muted: #94a3b8;
   --border-color: rgba(255, 255, 255, 0.1);
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 16px -2px rgba(0, 0, 0, 0.45), 0 2px 6px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.55), 0 4px 12px -2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: -2px -2px 6px rgba(255, 255, 255, 0.035), 2px 3px 8px rgba(0, 0, 0, 0.45);
+  --shadow-md: -4px -4px 12px rgba(255, 255, 255, 0.045), 4px 6px 16px rgba(0, 0, 0, 0.55);
+  --shadow-lg: -6px -6px 18px rgba(255, 255, 255, 0.05), 8px 12px 30px rgba(0, 0, 0, 0.65);
   --shadow-glow: 0 12px 32px -4px rgba(249, 115, 22, 0.25);
+
+  /* Neumorphic Soft UI Tokens - Dark */
+  --neu-flat: -3px -3px 8px rgba(255, 255, 255, 0.04), 3px 3px 10px rgba(0, 0, 0, 0.45);
+  --neu-raised: -5px -5px 14px rgba(255, 255, 255, 0.05), 5px 6px 16px rgba(0, 0, 0, 0.55);
+  --neu-floating: -8px -8px 22px rgba(255, 255, 255, 0.055), 8px 14px 30px rgba(0, 0, 0, 0.7);
+  --neu-inset: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.04);
+  --neu-inset-deep: inset 3px 3px 7px rgba(0, 0, 0, 0.65), inset -3px -3px 7px rgba(255, 255, 255, 0.05);
+  --neu-pressed: inset 2px 2px 5px rgba(0, 0, 0, 0.65), inset -2px -2px 5px rgba(255, 255, 255, 0.035);
 
   --landing-bg-gradient: radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.1) 0%, transparent 40%), radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 45%), linear-gradient(155deg, #0e1118 0%, #151923 50%, #1c2230 100%);
   --landing-card-bg: #1a1f2c;

@@ -92,7 +92,7 @@
   color: var(--text-main) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-sm) !important;
-  box-shadow: none !important;
+  box-shadow: var(--neu-inset) !important;
   min-height: 2.75rem;
   height: auto;
 }
@@ -399,7 +399,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   padding: 0.625rem 0.875rem;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--neu-flat);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -495,7 +495,7 @@
   font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-main);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--neu-flat);
 }
 
 .player-avatar {
