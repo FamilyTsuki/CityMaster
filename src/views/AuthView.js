@@ -1716,8 +1716,7 @@ export class AuthView {
           targetBtn.replaceChildren();
           window.google.accounts.id.renderButton(targetBtn, {
             theme: "outline",
-            size: "large",
-            width: 250,
+            size: "large"
           });
           return true;
         }
