@@ -21,7 +21,6 @@ const STATIC_ASSETS = [
   '/assets/styles/components.css',
   '/assets/styles/landing.css',
   '/assets/styles/auth.css',
-  '/assets/styles/welcome.css',
   '/assets/styles/game.css',
   '/assets/styles/certificate.css',
   '/assets/styles/profile.css',

@@ -15,7 +15,7 @@
 #setup-screen .setup-card,
 .setup-card.card {
   position: relative;
-  background-color: var(--bg-card, rgba(255, 255, 255, 0.94));
+  background-color: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color) !important;
@@ -118,7 +118,7 @@
   height: auto;
   padding: 0.5rem 0.875rem;
   box-sizing: border-box;
-  background: var(--bg-card-solid, #ffffff);
+  background: var(--bg-card-solid);
   color: var(--text-main);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -145,7 +145,7 @@
   top: calc(100% + 0.25rem);
   left: 0;
   right: 0;
-  background: var(--bg-card-solid, #ffffff);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-lg);
@@ -192,9 +192,9 @@
 }
 
 .setup-col .error-msg {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger, #ef4444);
-  border: 1px solid var(--danger, #ef4444);
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
   border-radius: var(--border-radius-xs);
   padding: 0.5rem 0.75rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -214,8 +214,8 @@
   height: auto;
   padding: 0.5rem 1rem;
   margin-top: 0.5rem;
-  background: var(--primary, #ea580c);
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--white);
   border: 1px solid transparent;
   border-radius: var(--border-radius-sm);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -228,7 +228,7 @@
 }
 
 #start-btn:hover {
-  background: var(--primary-hover, #c2410c);
+  background: var(--primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -315,7 +315,7 @@
 .leaderboard-section h2 .title-icon {
   width: 1.375rem;
   height: 1.375rem;
-  stroke: var(--warning, #d97706);
+  stroke: var(--warning);
 }
 
 .setup-leaderboard-tabs {
@@ -349,7 +349,7 @@
 .setup-leaderboard-tab-btn.active,
 .btn.secondary.active.setup-leaderboard-tab-btn {
   background: var(--primary) !important;
-  color: #ffffff !important;
+  color: var(--white) !important;
   border-color: var(--primary) !important;
   box-shadow: var(--neu-pressed) !important;
   font-weight: 800 !important;
@@ -361,7 +361,7 @@
   overflow-y: auto;
   scrollbar-gutter: stable;
   border-radius: var(--border-radius-sm);
-  background: var(--bg-card-solid, #ffffff);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-color);
   box-shadow: var(--neu-inset);
   -webkit-overflow-scrolling: touch;
@@ -417,21 +417,21 @@
 }
 
 .rank-gold {
-  background: #fef08a;
-  color: #854d0e;
-  border-color: #facc15;
+  background: var(--warning);
+  color: var(--warning);
+  border-color: var(--warning);
 }
 
 .rank-silver {
-  background: #f1f5f9;
-  color: #334155;
-  border-color: #cbd5e1;
+  background: var(--bg-card-solid);
+  color: var(--text-main);
+  border-color: var(--border-color);
 }
 
 .rank-bronze {
-  background: #ffedd5;
-  color: #9a3412;
-  border-color: #fdba74;
+  background: var(--secondary);
+  color: var(--primary-hover);
+  border-color: var(--warning);
 }
 
 .rank-neutral {

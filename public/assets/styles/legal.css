@@ -19,7 +19,7 @@
 #legal-screen .legal-card,
 .legal-card.card {
   position: relative;
-  background-color: var(--bg-card, rgba(255, 255, 255, 0.94));
+  background-color: var(--bg-card);
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg) !important;

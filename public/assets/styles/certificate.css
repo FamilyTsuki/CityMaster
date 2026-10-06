@@ -22,7 +22,7 @@
   max-width: 100%;
   margin: auto;
   padding: var(--card-compact-y) var(--card-compact-x);
-  background-color: var(--bg-card, rgba(255, 255, 255, 0.94));
+  background-color: var(--bg-card);
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg) !important;
@@ -71,7 +71,7 @@
   height: 3.5rem;
   border-radius: 50%;
   background: var(--surface);
-  color: var(--warning, #d97706);
+  color: var(--warning);
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
   margin-bottom: 0.625rem;
@@ -165,7 +165,7 @@
 #cert-score {
   font-family: 'Lilita One', 'Plus Jakarta Sans', cursive, sans-serif;
   font-size: clamp(2rem, 7vw, 2.7rem);
-  color: var(--primary, #ea580c);
+  color: var(--primary);
   margin: 0;
   line-height: 1;
 }
@@ -185,7 +185,7 @@
   justify-content: center;
   padding: 0.375rem 1.125rem;
   background: var(--surface);
-  color: var(--primary, #ea580c);
+  color: var(--primary);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-pill);
   box-shadow: var(--shadow-xs);
@@ -283,8 +283,8 @@
   font-size: 0.95rem;
   font-weight: 800;
   letter-spacing: 0.01em;
-  color: #ffffff !important;
-  background-color: var(--primary, #ea580c) !important;
+  color: var(--white) !important;
+  background-color: var(--primary) !important;
   background-image: none !important;
   border: 1px solid transparent !important;
   border-radius: var(--border-radius-sm);
@@ -295,7 +295,7 @@
 }
 
 .btn-paper-primary:hover {
-  background-color: var(--primary-hover, #c2410c) !important;
+  background-color: var(--primary-hover) !important;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -351,7 +351,7 @@
 
 /* Dark Mode */
 [data-theme="dark"] .btn-paper-primary {
-  color: #ffffff;
+  color: var(--white);
 }
 
 [data-theme="dark"] .btn-paper-secondary {

@@ -27,7 +27,7 @@
 #room-screen .room-card,
 #room-lobby-step {
   position: relative;
-  background-color: var(--bg-card, rgba(255, 255, 255, 0.94)) !important;
+  background-color: var(--bg-card) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg) !important;
   box-shadow: var(--shadow-lg) !important;
@@ -88,7 +88,7 @@
   font-weight: 900;
   letter-spacing: 0.25rem;
   text-transform: uppercase;
-  background: var(--bg-card-solid, #ffffff) !important;
+  background: var(--bg-card-solid) !important;
   color: var(--text-main) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-sm) !important;
@@ -178,7 +178,7 @@
 .number-input-wrapper {
   display: flex;
   align-items: center;
-  background-color: var(--bg-card-solid, #ffffff);
+  background-color: var(--bg-card-solid);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   overflow: hidden;
@@ -252,8 +252,8 @@
 #room-create-btn,
 #lobby-start-btn,
 #room-guest-form button[type="submit"] {
-  background: var(--primary, #ea580c);
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--white);
   border: 1px solid transparent;
   border-radius: var(--border-radius-sm);
   box-shadow: var(--shadow-sm);
@@ -264,7 +264,7 @@
 #room-create-btn:hover,
 #lobby-start-btn:hover,
 #room-guest-form button[type="submit"]:hover {
-  background: var(--primary-hover, #c2410c);
+  background: var(--primary-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -316,9 +316,9 @@
 }
 
 .error-message {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger, #ef4444);
-  border: 1px solid var(--danger, #ef4444);
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
   border-radius: var(--border-radius-xs);
   padding: 0.5rem 0.75rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -359,8 +359,8 @@
 
 .status-waiting {
   background: var(--surface);
-  color: var(--warning, #d97706);
-  border-color: var(--warning, #d97706);
+  color: var(--warning);
+  border-color: var(--warning);
 }
 
 .lobby-host-info {
@@ -420,8 +420,8 @@
 }
 
 .lobby-badge {
-  background: var(--bg-card-solid, #ffffff);
-  color: var(--primary, #ea580c);
+  background: var(--bg-card-solid);
+  color: var(--primary);
   font-size: 1.35rem;
   font-weight: 900;
   font-family: 'Lilita One', 'Courier New', monospace;
@@ -488,7 +488,7 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.4375rem 0.75rem;
-  background: var(--bg-card-solid, #ffffff);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-xs);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
@@ -502,7 +502,7 @@
   width: 1.875rem;
   height: 1.875rem;
   border-radius: 50%;
-  background: var(--primary-light, rgba(234, 88, 12, 0.15));
+  background: var(--primary-light);
   border: 1px solid var(--primary);
   color: var(--primary);
   display: flex;
@@ -546,7 +546,7 @@
 }
 
 .results-table-wrapper {
-  background: var(--bg-card-solid, #ffffff);
+  background: var(--bg-card-solid);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
   margin-bottom: 1rem;
@@ -614,8 +614,8 @@
 }
 
 #results-home-btn {
-  background: var(--primary, #ea580c);
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--white);
   border-color: transparent;
 }
 
@@ -651,7 +651,7 @@
 
 #room-confirm-modal .modal-card {
   position: relative !important;
-  background-color: var(--bg-card-solid, #ffffff) !important;
+  background-color: var(--bg-card-solid) !important;
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg) !important;
   box-shadow: var(--shadow-xl) !important;

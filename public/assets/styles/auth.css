@@ -24,7 +24,7 @@
   width: 100%;
   max-width: var(--container-lg);
   min-height: clamp(24rem, 58vh, 28rem);
-  background-color: var(--bg-card, rgba(255, 255, 255, 0.94));
+  background-color: var(--bg-card);
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg) !important;
@@ -174,7 +174,7 @@
   right: 12px;
   background: transparent;
   border: none;
-  color: var(--landing-ink, #26190f);
+  color: var(--landing-ink);
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -222,7 +222,7 @@
   font-weight: 900;
   margin-top: 0;
   margin-bottom: 0.125rem;
-  color: var(--landing-ink, #26190f);
+  color: var(--landing-ink);
   letter-spacing: -0.01em;
 }
 
@@ -230,7 +230,7 @@
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.92rem;
   font-weight: 700;
-  color: var(--landing-ink-muted, #594230);
+  color: var(--landing-ink-muted);
   margin-bottom: 0.875rem;
 }
 
@@ -306,7 +306,7 @@
   height: auto;
   padding: 0.5rem 0.875rem;
   box-sizing: border-box;
-  background-color: var(--bg-card-solid, #ffffff);
+  background-color: var(--bg-card-solid);
   color: var(--text-main);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-sm);
@@ -330,9 +330,9 @@
 }
 
 .auth-form-container .error-msg {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger, #ef4444);
-  border: 1px solid var(--danger, #ef4444);
+  background-color: var(--danger-light);
+  color: var(--danger);
+  border: 1px solid var(--danger);
   border-radius: var(--border-radius-xs);
   padding: 0.5rem 0.75rem;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
@@ -354,8 +354,8 @@
   width: 100%;
   min-height: 2.75rem;
   height: auto;
-  background: var(--primary, #ea580c);
-  color: #ffffff !important;
+  background: var(--primary);
+  color: var(--white) !important;
   border: 1px solid transparent !important;
   border-radius: var(--border-radius-sm);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
@@ -368,8 +368,8 @@
 }
 
 #auth-main-btn:hover {
-  background: var(--primary-hover, #c2410c);
-  color: #ffffff !important;
+  background: var(--primary-hover);
+  color: var(--white) !important;
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
@@ -393,12 +393,12 @@
   font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
   font-size: 0.88rem !important;
   font-weight: 800 !important;
-  color: var(--landing-ink-muted, #594230);
+  color: var(--landing-ink-muted);
 }
 
 .input-error-shake {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 3.5px rgba(239, 68, 68, 0.25) !important;
+  border-color: var(--danger) !important;
+  box-shadow: 0 0 0 3.5px var(--danger-light) !important;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -409,7 +409,7 @@
   font-size: 0.92rem !important;
   font-weight: 900 !important;
   letter-spacing: 0.01em;
-  color: var(--landing-ink, #26190f);
+  color: var(--landing-ink);
   text-decoration: underline;
   text-underline-offset: 0.1875rem;
   background: transparent;
@@ -422,7 +422,7 @@
 }
 
 .auth-link:hover {
-  color: var(--paper-primary-hover, #d97706);
+  color: var(--paper-primary-hover);
   transform: translateY(-1px);
 }
 
@@ -560,7 +560,7 @@
   background:
     radial-gradient(
       circle at 20% 20%,
-      rgba(245, 158, 11, 0.15),
+      var(--warning-light),
       transparent 50%
     ),
     radial-gradient(circle at 80% 80%, rgba(124, 45, 18, 0.25), transparent 50%);

@@ -35,8 +35,8 @@ html, body {
   position: absolute;
   top: -7.5rem;
   left: 1rem;
-  background-color: var(--paper-badge-bg, #fef3c7);
-  color: var(--landing-ink, #2b2118);
+  background-color: var(--paper-badge-bg);
+  color: var(--landing-ink);
   padding: 0.5rem 1.125rem;
   border: 1.5px solid var(--border-color);
   border-radius: var(--border-radius-sm);

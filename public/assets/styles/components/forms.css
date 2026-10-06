@@ -118,11 +118,11 @@ select:focus {
 
 .dropdown-list li.selected {
   background-color: var(--primary);
-  color: #ffffff;
+  color: var(--white);
 }
 
 .dropdown-list li.selected .select-icon {
-  stroke: #ffffff;
+  stroke: var(--white);
 }
 
 .dropdown-list::-webkit-scrollbar-thumb:hover {
@@ -144,8 +144,8 @@ select:focus {
 
 [data-theme="dark"] .dropdown-list li:hover,
 [data-theme="dark"] .dropdown-item:hover {
-  background-color: rgba(99, 102, 241, 0.25);
-  color: #a5b4fc;
+  background-color: var(--accent-light);
+  color: var(--accent);
 }
 
 .form-help-text {
@@ -199,7 +199,7 @@ input:checked + .slider {
 
 input:checked + .slider:before {
   transform: translateX(1.25rem);
-  background-color: #ffffff;
+  background-color: var(--white);
 }
 
 .slider.round {

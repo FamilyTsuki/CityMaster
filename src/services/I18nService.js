@@ -175,7 +175,7 @@ export class I18nService {
       const key = el.getAttribute("data-i18n-placeholder");
       const translated = this.t(key);
       if (translated && translated !== key) {
-        el.placeholder = translated;
+        el.setAttribute("placeholder", translated);
       }
     });
 

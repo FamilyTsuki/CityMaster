@@ -229,5 +229,5 @@
 }
 
 [data-theme="dark"] .leaflet-container {
-  background: var(--bg-main, #141721) !important;
+  background: var(--bg-main) !important;
 }
