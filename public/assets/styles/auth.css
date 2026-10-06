@@ -256,13 +256,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
   width: 100%;
 }
 
 .google-auth-container iframe,
 .google-auth-container div {
-  border-radius: var(--border-radius-xs);
+  background-color: transparent !important;
 }
 
 .auth-separator {
@@ -528,11 +528,11 @@
   }
 
   .google-auth-container {
-    margin-bottom: 2px;
+    margin-bottom: 0.5rem;
   }
 
   .auth-separator {
-    margin-bottom: 4px;
+    margin-bottom: 0.5rem;
   }
 
   #auth-form {
@@ -629,4 +629,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
 }
+
+#google-login-btn > div {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
