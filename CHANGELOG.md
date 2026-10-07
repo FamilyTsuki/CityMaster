@@ -1,6 +1,7 @@
 # Changelog - CityMaster
 
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
+Ce fichier est crée et acctualiser par ia.
 
 ## [2.4.0] - 2026-10-07
 
