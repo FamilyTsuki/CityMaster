@@ -11,6 +11,8 @@ export class RoomController {
   #pendingRoomCode;
   #isTransitioning;
   #verifiedAdmin;
+  #lastRoomVersion;
+  #sseSource;
 
   constructor(router, roomView, gameView, gameController) {
     this.#router = router;
@@ -19,10 +21,12 @@ export class RoomController {
     this.#gameController = gameController;
 
     this.#pollingInterval = null;
+    this.#sseSource = null;
     this.#currentRoomCode = null;
     this.#pendingRoomCode = null;
     this.#isTransitioning = false;
     this.#verifiedAdmin = undefined;
+    this.#lastRoomVersion = null;
 
     this.#initEvents();
   }
@@ -70,6 +74,7 @@ export class RoomController {
     this.stopPolling();
     this.#isTransitioning = false;
     this.#verifiedAdmin = undefined;
+    this.#lastRoomVersion = null;
     const code = params.code ? params.code.trim().toUpperCase() : null;
 
     if (!code) {
@@ -320,21 +325,124 @@ export class RoomController {
     this.stopPolling();
     this.#currentRoomCode = null;
     this.#verifiedAdmin = undefined;
+    this.#lastRoomVersion = null;
     this.#router.navigate("/room");
   }
 
   #startPolling(code) {
     this.stopPolling();
     this.#fetchRoomDetails();
+
+    const token = ApiService.getToken();
+    if (typeof EventSource !== "undefined" && token) {
+      try {
+        const sseUrl = `/api/rooms/${code}/stream?token=${encodeURIComponent(token)}`;
+        this.#sseSource = new EventSource(sseUrl);
+
+        this.#sseSource.onmessage = async (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data && data.changed !== false) {
+              await this.#processRoomData(data);
+            }
+          } catch (e) {}
+        };
+
+        this.#sseSource.onerror = () => {
+          if (this.#sseSource) {
+            this.#sseSource.close();
+            this.#sseSource = null;
+          }
+          if (!this.#pollingInterval) {
+            this.#pollingInterval = setInterval(() => {
+              this.#fetchRoomDetails();
+            }, 2500);
+          }
+        };
+        return;
+      } catch (e) {}
+    }
+
     this.#pollingInterval = setInterval(() => {
       this.#fetchRoomDetails();
     }, 2000);
   }
 
   stopPolling() {
+    if (this.#sseSource) {
+      this.#sseSource.close();
+      this.#sseSource = null;
+    }
     if (this.#pollingInterval) {
       clearInterval(this.#pollingInterval);
       this.#pollingInterval = null;
+    }
+  }
+
+  async #processRoomData(roomData) {
+    if (roomData.version) {
+      this.#lastRoomVersion = roomData.version;
+    }
+    const currentUsername = localStorage.getItem("username");
+    const isCreator =
+      (currentUsername || "").trim().toLowerCase() ===
+      (roomData?.createdBy || "").trim().toLowerCase();
+
+    let isAdmin = false;
+    if (!isCreator && localStorage.getItem("is_admin") === "true") {
+      if (this.#verifiedAdmin === undefined) {
+        try {
+          const profileRes = await ApiService.get("/profile");
+          this.#verifiedAdmin = Boolean(
+            profileRes.ok && profileRes.data?.isAdmin,
+          );
+          if (!this.#verifiedAdmin) {
+            localStorage.removeItem("is_admin");
+          }
+        } catch {
+          this.#verifiedAdmin = false;
+        }
+      }
+      isAdmin = this.#verifiedAdmin;
+    }
+    const isHost = isCreator || isAdmin;
+
+    this.#roomView.updateLobby(roomData, currentUsername);
+
+    if (roomData.status === "playing" || roomData.status === "finished") {
+      const me = roomData.participants.find(
+        (p) =>
+          p.username.toLowerCase() === (currentUsername || "").toLowerCase(),
+      );
+      if (me && me.finished) {
+        this.#roomView.showStep("results");
+        this.#roomView.updateResults(roomData.participants, isHost);
+      } else {
+        this.stopPolling();
+        if (this.#isTransitioning) return;
+        this.#isTransitioning = true;
+
+        const mode = roomData.mode || "target";
+        this.#gameView.showLoading(
+          I18nService.getInstance().t(
+            "loading.init_session",
+            {},
+            "Chargement de la partie...",
+          ),
+        );
+
+        this.#gameController.startRoomGame(
+          currentUsername,
+          roomData.cityData,
+          mode,
+          roomData.difficulty,
+          roomData.testId,
+          roomData.roomCode,
+          roomData.seriesCount,
+        );
+      }
+    } else {
+      this.#roomView.showStep("lobby");
     }
   }
 
@@ -342,7 +450,10 @@ export class RoomController {
     if (!this.#currentRoomCode) return;
     try {
       const code = this.#currentRoomCode;
-      const res = await ApiService.get(`/rooms/${code}`);
+      const url = this.#lastRoomVersion
+        ? `/rooms/${code}?v=${this.#lastRoomVersion}`
+        : `/rooms/${code}`;
+      const res = await ApiService.get(url);
       if (!res.ok) {
         if (res.status === 404 || res.status === 410) {
           this.stopPolling();
@@ -364,68 +475,11 @@ export class RoomController {
         return;
       }
 
-      const roomData = res.data;
-      const currentUsername = localStorage.getItem("username");
-      const isCreator =
-        (currentUsername || "").trim().toLowerCase() ===
-        (roomData?.createdBy || "").trim().toLowerCase();
-
-      let isAdmin = false;
-      if (!isCreator && localStorage.getItem("is_admin") === "true") {
-        if (this.#verifiedAdmin === undefined) {
-          try {
-            const profileRes = await ApiService.get("/profile");
-            this.#verifiedAdmin = Boolean(
-              profileRes.ok && profileRes.data?.isAdmin,
-            );
-            if (!this.#verifiedAdmin) {
-              localStorage.removeItem("is_admin");
-            }
-          } catch {
-            this.#verifiedAdmin = false;
-          }
-        }
-        isAdmin = this.#verifiedAdmin;
+      if (res.data?.changed === false) {
+        return;
       }
-      const isHost = isCreator || isAdmin;
 
-      this.#roomView.updateLobby(roomData, currentUsername);
-
-      if (roomData.status === "playing" || roomData.status === "finished") {
-        const me = roomData.participants.find(
-          (p) =>
-            p.username.toLowerCase() === (currentUsername || "").toLowerCase(),
-        );
-        if (me && me.finished) {
-          this.#roomView.showStep("results");
-          this.#roomView.updateResults(roomData.participants, isHost);
-        } else {
-          this.stopPolling();
-          if (this.#isTransitioning) return;
-          this.#isTransitioning = true;
-
-          const mode = roomData.mode || "target";
-          this.#gameView.showLoading(
-            I18nService.getInstance().t(
-              "loading.init_session",
-              {},
-              "Chargement de la partie...",
-            ),
-          );
-
-          this.#gameController.startRoomGame(
-            currentUsername,
-            roomData.cityData,
-            mode,
-            roomData.difficulty,
-            roomData.testId,
-            roomData.roomCode,
-            roomData.seriesCount,
-          );
-        }
-      } else {
-        this.#roomView.showStep("lobby");
-      }
+      await this.#processRoomData(res.data);
     } catch (error) {
       console.error("Error fetching room details:", error);
     }

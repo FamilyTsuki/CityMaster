@@ -111,6 +111,8 @@ export class RoomController {
         [upperCode, username]
       );
 
+      RoomController.notifyRoomSubscribers(upperCode);
+
       return res.json({
         roomCode: room.code,
         cityKey: room.city_key,
@@ -128,6 +130,147 @@ export class RoomController {
     }
   }
 
+  static #subscribers = new Map();
+
+  static async #buildRoomPayload(upperCode) {
+    const roomRes = await pool.query('SELECT * FROM rooms WHERE code = $1', [upperCode]);
+    if (roomRes.rows.length === 0) {
+      return null;
+    }
+
+    const room = roomRes.rows[0];
+
+    if (room.expires_at && new Date() > new Date(room.expires_at)) {
+      return { expired: true };
+    }
+
+    let cityData = await City.getByKey(room.city_key);
+    if (!cityData) {
+      cityData = {
+        key: room.city_key,
+        name: room.city_key,
+        bbox: null,
+        center: null,
+        osmId: null
+      };
+    }
+
+    const participantsRes = await pool.query(
+      `SELECT rp.username, rp.score, rp.finished, rp.joined_at, u.profile_image_url
+       FROM room_participants rp
+       LEFT JOIN users u ON LOWER(u.username) = LOWER(rp.username)
+       WHERE rp.room_code = $1 
+       ORDER BY rp.joined_at ASC`,
+      [upperCode]
+    );
+
+    const uniqueMap = new Map();
+    for (const p of participantsRes.rows) {
+      const key = p.username.toLowerCase();
+      const existing = uniqueMap.get(key);
+      if (!existing || (!existing.avatarUrl && p.profile_image_url)) {
+        uniqueMap.set(key, {
+          username: p.username,
+          score: p.score,
+          finished: p.finished,
+          joinedAt: p.joined_at,
+          avatarUrl: p.profile_image_url || null
+        });
+      }
+    }
+    const participants = Array.from(uniqueMap.values());
+
+    const stateSignature = `${room.status}_${room.city_key}_${participants.length}_${room.series_count}_` +
+      participants.map((p) => `${p.username}:${p.score}:${p.finished}:${p.avatarUrl}`).join("|");
+    const version = crypto.createHash("md5").update(stateSignature).digest("hex");
+
+    const lightCityData = {
+      key: cityData.key,
+      name: cityData.name,
+      bbox: cityData.bbox,
+      center: cityData.center,
+      osmId: cityData.osmId,
+    };
+
+    return {
+      changed: true,
+      version,
+      roomCode: room.code,
+      cityKey: room.city_key,
+      difficulty: room.difficulty,
+      mode: room.mode,
+      testId: room.test_id,
+      createdBy: room.created_by,
+      status: room.status,
+      participants,
+      cityData: lightCityData,
+      seriesCount: room.series_count,
+      expiresAt: room.expires_at,
+    };
+  }
+
+  static async notifyRoomSubscribers(roomCode) {
+    const upperCode = (roomCode || '').trim().toUpperCase();
+    const clientSet = RoomController.#subscribers.get(upperCode);
+    if (!clientSet || clientSet.size === 0) return;
+
+    try {
+      const payload = await RoomController.#buildRoomPayload(upperCode);
+      if (!payload) return;
+      const dataStr = `data: ${JSON.stringify(payload)}\n\n`;
+      for (const client of clientSet) {
+        try {
+          client.write(dataStr);
+        } catch (e) {
+          clientSet.delete(client);
+        }
+      }
+    } catch (e) {
+      console.error('Error notifying room subscribers:', e);
+    }
+  }
+
+  static async streamRoom(req, res) {
+    try {
+      const { code } = req.params;
+      if (!code) {
+        return res.status(400).json({ error: 'Room code is required' });
+      }
+      const upperCode = code.trim().toUpperCase();
+
+      const initialPayload = await RoomController.#buildRoomPayload(upperCode);
+      if (!initialPayload) {
+        return res.status(404).json({ error: 'Room not found' });
+      }
+      if (initialPayload.expired) {
+        return res.status(410).json({ error: 'Ce salon a expiré (durée de validité dépassée).' });
+      }
+
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      if (res.flushHeaders) res.flushHeaders();
+
+      if (!RoomController.#subscribers.has(upperCode)) {
+        RoomController.#subscribers.set(upperCode, new Set());
+      }
+      const clientSet = RoomController.#subscribers.get(upperCode);
+      clientSet.add(res);
+
+      res.write(`data: ${JSON.stringify(initialPayload)}\n\n`);
+
+      req.on('close', () => {
+        clientSet.delete(res);
+        if (clientSet.size === 0) {
+          RoomController.#subscribers.delete(upperCode);
+        }
+      });
+    } catch (error) {
+      console.error('Stream Room Error:', error);
+      return res.status(500).json({ error: 'Internal server error streaming room' });
+    }
+  }
+
   static async getRoom(req, res) {
     try {
       const { code } = req.params;
@@ -136,67 +279,20 @@ export class RoomController {
       }
 
       const upperCode = code.trim().toUpperCase();
-
-      const roomRes = await pool.query('SELECT * FROM rooms WHERE code = $1', [upperCode]);
-      if (roomRes.rows.length === 0) {
+      const payload = await RoomController.#buildRoomPayload(upperCode);
+      if (!payload) {
         return res.status(404).json({ error: 'Room not found' });
       }
-
-      const room = roomRes.rows[0];
-
-      if (room.expires_at && new Date() > new Date(room.expires_at)) {
+      if (payload.expired) {
         return res.status(410).json({ error: 'Ce salon a expiré (durée de validité dépassée).' });
       }
 
-      let cityData = await City.getByKey(room.city_key);
-      if (!cityData) {
-        cityData = {
-          key: room.city_key,
-          name: room.city_key,
-          bbox: null,
-          center: null,
-          osmId: null
-        };
+      const clientVersion = req.query.v || req.headers["if-none-match"];
+      if (clientVersion && clientVersion === payload.version) {
+        return res.json({ changed: false, version: payload.version });
       }
 
-      const participantsRes = await pool.query(
-        `SELECT rp.username, rp.score, rp.finished, rp.joined_at, u.profile_image_url
-         FROM room_participants rp
-         LEFT JOIN users u ON LOWER(u.username) = LOWER(rp.username)
-         WHERE rp.room_code = $1 
-         ORDER BY rp.joined_at ASC`,
-        [upperCode]
-      );
-
-      const uniqueMap = new Map();
-      for (const p of participantsRes.rows) {
-        const key = p.username.toLowerCase();
-        const existing = uniqueMap.get(key);
-        if (!existing || (!existing.avatarUrl && p.profile_image_url)) {
-          uniqueMap.set(key, {
-            username: p.username,
-            score: p.score,
-            finished: p.finished,
-            joinedAt: p.joined_at,
-            avatarUrl: p.profile_image_url || null
-          });
-        }
-      }
-      const participants = Array.from(uniqueMap.values());
-
-      return res.json({
-        roomCode: room.code,
-        cityKey: room.city_key,
-        difficulty: room.difficulty,
-        mode: room.mode,
-        testId: room.test_id,
-        createdBy: room.created_by,
-        status: room.status,
-        participants,
-        cityData,
-        seriesCount: room.series_count,
-        expiresAt: room.expires_at
-      });
+      return res.json(payload);
     } catch (error) {
       console.error('Get Room Error:', error);
       return res.status(500).json({ error: 'Internal server error fetching room details' });
@@ -229,6 +325,8 @@ export class RoomController {
         "UPDATE rooms SET status = 'playing' WHERE code = $1",
         [upperCode]
       );
+
+      RoomController.notifyRoomSubscribers(upperCode);
 
       return res.json({ message: 'Game started successfully' });
     } catch (error) {
@@ -274,6 +372,8 @@ export class RoomController {
         );
       }
 
+      RoomController.notifyRoomSubscribers(upperCode);
+
       return res.json({ message: 'Score submitted successfully', participant: result.rows[0] });
     } catch (error) {
       console.error('Submit Room Score Error:', error);
@@ -313,6 +413,8 @@ export class RoomController {
         'UPDATE room_participants SET finished = false, score = 0 WHERE room_code = $1',
         [upperCode]
       );
+
+      RoomController.notifyRoomSubscribers(upperCode);
 
       return res.json({ message: 'Room reset successfully with same test streets' });
     } catch (error) {

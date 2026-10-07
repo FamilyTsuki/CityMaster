@@ -16,6 +16,10 @@ let cachedCities = null;
 let lastCacheTime = 0;
 const CACHE_TTL_MS = 60 * 1000;
 
+const nominatimCache = new Map();
+const NOMINATIM_CACHE_TTL_MS = 60 * 60 * 1000; // 1 heure
+const NOMINATIM_CACHE_MAX_ENTRIES = 500;
+
 export class City {
   static async getAll() {
     const now = Date.now();
@@ -120,22 +124,38 @@ export class City {
 
     const combinedResults = [...localMatches];
 
-    try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(normalizedQuery)}&format=json&countrycodes=fr&limit=10&addressdetails=1&extratags=1`,
-        {
-          headers: {
-            "User-Agent": "CityMaster/1.0 (Interactive Map Game)",
+    let results = null;
+    const cachedNominatim = nominatimCache.get(normalizedQuery);
+    if (cachedNominatim && Date.now() - cachedNominatim.timestamp < NOMINATIM_CACHE_TTL_MS) {
+      results = cachedNominatim.results;
+    } else {
+      try {
+        const response = await fetch(
+          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(normalizedQuery)}&format=json&countrycodes=fr&limit=10&addressdetails=1&extratags=1`,
+          {
+            headers: {
+              "User-Agent": "CityMaster/1.0 (Interactive Map Game)",
+            },
           },
-        },
-      );
+        );
 
-      if (response.ok) {
-        const results = await response.json();
+        if (response.ok) {
+          results = await response.json();
+          if (nominatimCache.size >= NOMINATIM_CACHE_MAX_ENTRIES) {
+            const oldestKey = nominatimCache.keys().next().value;
+            nominatimCache.delete(oldestKey);
+          }
+          nominatimCache.set(normalizedQuery, { results, timestamp: Date.now() });
+        }
+      } catch (error) {
+        console.error("Nominatim dynamic query error:", error);
+      }
+    }
 
-        const newCitiesToSave = [];
+    if (results && Array.isArray(results)) {
+      const newCitiesToSave = [];
 
-        for (const result of results) {
+      for (const result of results) {
           if (
             !result.osm_id ||
             !result.boundingbox ||
@@ -199,9 +219,6 @@ export class City {
           await this.saveCustomCities(newCitiesToSave);
         }
       }
-    } catch (error) {
-      console.error("Nominatim dynamic query error:", error);
-    }
 
     combinedResults.sort((a, b) => {
       const aExact =

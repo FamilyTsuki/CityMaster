@@ -163,7 +163,11 @@ class App {
     this.#adminController.setRouter(this.#router);
 
     if (this.#authController.isAuthenticated()) {
-      this.#gameView.setPlayerName(localStorage.getItem("username"));
+      const username = localStorage.getItem("username");
+      const cachedAvatar = localStorage.getItem("citymaster_profile_image");
+      const isAdmin = localStorage.getItem("is_admin") === "true";
+      this.#gameView.setPlayerName(username);
+      this.#navbarView.setLoggedIn(username, cachedAvatar, isAdmin);
       this.#profileController.fetchNavAvatar();
     }
 
@@ -232,17 +236,25 @@ class App {
 
   static init() {
     document.addEventListener("DOMContentLoaded", async () => {
+      const renderVersionTag = (v) => {
+        const logoBrand = document.getElementById("logo-brand");
+        if (logoBrand && logoBrand.parentElement && !logoBrand.parentElement.querySelector(".version-tag")) {
+          const vSpan = document.createElement("small");
+          vSpan.className = "version-tag";
+          vSpan.textContent = `v${v}`;
+          logoBrand.parentElement.appendChild(vSpan);
+        }
+      };
+
+      const cachedVer = sessionStorage.getItem("app_version");
+      if (cachedVer) renderVersionTag(cachedVer);
+
       fetch("/api/version")
         .then((res) => res.json())
         .then((data) => {
           if (data.version && data.version !== "unknown") {
-            const logoBrand = document.getElementById("logo-brand");
-            if (logoBrand && logoBrand.parentElement) {
-              const vSpan = document.createElement("small");
-              vSpan.className = "version-tag";
-              vSpan.textContent = `v${data.version}`;
-              logoBrand.parentElement.appendChild(vSpan);
-            }
+            sessionStorage.setItem("app_version", data.version);
+            renderVersionTag(data.version);
           }
         })
         .catch(() => {});

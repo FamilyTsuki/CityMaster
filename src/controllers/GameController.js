@@ -443,7 +443,7 @@ export class GameController {
   async #fetchCustomDistricts(cityKey) {
     try {
       const res = await ApiService.get(
-        `/assets/data/custom_districts.json?t=${Date.now()}`,
+        `/assets/data/custom_districts.json`,
       );
       if (res.ok && res.data) {
         return res.data[cityKey] || [];
@@ -457,7 +457,7 @@ export class GameController {
   async #fetchCustomRoutes(cityKey) {
     try {
       const res = await ApiService.get(
-        `/assets/data/custom_routes.json?t=${Date.now()}`,
+        `/assets/data/custom_routes.json`,
       );
       if (res.ok && res.data) {
         return res.data[cityKey] || [];

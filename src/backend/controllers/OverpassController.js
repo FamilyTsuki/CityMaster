@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+
 const OVERPASS_SERVERS = [
   'https://overpass.kumi.systems/api/interpreter',
   'https://overpass-api.de/api/interpreter',
@@ -5,13 +7,23 @@ const OVERPASS_SERVERS = [
   'https://z.overpass-api.de/api/interpreter'
 ];
 
+const overpassCache = new Map();
+const OVERPASS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 heures
+const OVERPASS_CACHE_MAX_ENTRIES = 200;
+
 export class OverpassController {
   static async proxyQuery(req, res) {
     try {
       const { query } = req.body;
       
-      if (!query) {
+      if (!query || typeof query !== 'string') {
         return res.status(400).json({ error: 'Query is required' });
+      }
+
+      const queryHash = crypto.createHash('sha256').update(query.trim()).digest('hex');
+      const cached = overpassCache.get(queryHash);
+      if (cached && Date.now() - cached.timestamp < OVERPASS_CACHE_TTL_MS) {
+        return res.json(cached.data);
       }
 
       let lastError = null;
@@ -38,6 +50,12 @@ export class OverpassController {
 
           if (response.ok) {
             const data = await response.json();
+            if (overpassCache.size >= OVERPASS_CACHE_MAX_ENTRIES) {
+              const oldestKey = overpassCache.keys().next().value;
+              overpassCache.delete(oldestKey);
+            }
+            overpassCache.set(queryHash, { data, timestamp: Date.now() });
+
             return res.json(data);
           } else {
             const text = await response.text();

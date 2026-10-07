@@ -61,6 +61,7 @@ const STATIC_ASSETS = [
   '/src/services/OverpassService.js',
   '/src/services/RouteDifficultyService.js',
   '/src/services/SpatialService.js',
+  '/src/services/StorageService.js',
   '/src/views/AdminView.js',
   '/src/views/AuthView.js',
   '/src/views/CertificateView.js',

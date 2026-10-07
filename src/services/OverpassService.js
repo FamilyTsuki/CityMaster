@@ -1,5 +1,6 @@
 import { ApiService } from './ApiService.js';
 import { I18nService } from './I18nService.js';
+import { StorageService } from './StorageService.js';
 
 export class OverpassService {
   #apiUrl;
@@ -11,8 +12,16 @@ export class OverpassService {
   async fetchStreets(bbox, cityKey = null) {
     if (cityKey) {
       try {
-        const res = await ApiService.get(`/assets/data/${cityKey}.json?t=${Date.now()}`, { includeAuth: false });
+        const cachedData = await StorageService.getCity(cityKey);
+        if (cachedData && cachedData.features && cachedData.features.length > 0) {
+          return cachedData;
+        }
+      } catch (e) {}
+
+      try {
+        const res = await ApiService.get(`/assets/data/${cityKey}.json`, { includeAuth: false });
         if (res.ok && res.data) {
+          StorageService.setCity(cityKey, res.data).catch(() => {});
           return res.data;
         }
       } catch (err) {

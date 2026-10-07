@@ -141,8 +141,13 @@ export class AdminController {
       }
 
       let debounceTimer = null;
+      const citySearchCache = new Map();
 
       const searchCities = async (query = "") => {
+        const cleanQuery = query.trim().toLowerCase();
+        if (citySearchCache.has(cleanQuery)) {
+          return citySearchCache.get(cleanQuery);
+        }
         const loader = input.parentElement.querySelector('.search-loader');
         if (loader && query.length > 0) loader.classList.add("active");
         try {
@@ -151,6 +156,7 @@ export class AdminController {
           );
           if (loader) loader.classList.remove("active");
           if (!res.ok || !Array.isArray(res.data)) return [];
+          citySearchCache.set(cleanQuery, res.data);
           return res.data;
         } catch (e) {
           if (loader) loader.classList.remove("active");

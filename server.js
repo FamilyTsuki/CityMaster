@@ -57,6 +57,14 @@ app.use(
           "no-store, no-cache, must-revalidate, proxy-revalidate",
         );
       } else if (
+        (filepath.includes(path.join("assets", "data")) || filepath.includes("/assets/data/")) &&
+        filepath.endsWith(".json")
+      ) {
+        res.setHeader(
+          "Cache-Control",
+          "public, max-age=86400, stale-while-revalidate=604800",
+        );
+      } else if (
         filepath.endsWith(".css") ||
         filepath.endsWith(".js") ||
         filepath.endsWith(".json")

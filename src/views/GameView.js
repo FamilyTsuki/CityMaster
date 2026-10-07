@@ -122,8 +122,13 @@ export class GameView {
 
     if (cityInput && cityDropdown) {
       let debounceTimer = null;
+      const citySearchCache = new Map();
 
       const searchCities = async (query = "") => {
+        const cleanQuery = query.trim().toLowerCase();
+        if (citySearchCache.has(cleanQuery)) {
+          return citySearchCache.get(cleanQuery);
+        }
         const loader = document.getElementById("city-search-loader");
         if (loader && query.length > 0) loader.classList.add("active");
         try {
@@ -139,6 +144,7 @@ export class GameView {
             return [];
           }
           if (!res.ok || !res.data) return [];
+          citySearchCache.set(cleanQuery, res.data);
           return res.data;
         } catch (e) {
           if (loader) loader.classList.remove("active");
@@ -340,7 +346,7 @@ export class GameView {
       let districts = [];
       try {
         const resDist = await ApiService.get(
-          `/assets/data/custom_districts.json?t=${Date.now()}`,
+          `/assets/data/custom_districts.json`,
           { includeAuth: false },
         );
         if (resDist.ok && resDist.data) {
