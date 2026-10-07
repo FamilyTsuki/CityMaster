@@ -2,38 +2,67 @@
 
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 
-## [2.1.1] - 2026-10-07
+## [2.4.0] - 2026-10-07
 
-### Authentification Google, Stabilité UI & Nettoyage Projet
-- **Bouton Google Sign-In Dynamique & Thématique** : Prise en charge réactive du mode sombre et clair via un `MutationObserver` (`theme: "filled_black"` en mode sombre, `theme: "outline"` avec bordure nette et texte foncé en mode clair).
-- **Suppression des Conflits de Rendu Google** : Élimination du cadre blanc artificiel grâce à `color-scheme: light` et suppression des règles CSS intrusives qui retiraient les bordures et l'arrière-plan du bouton.
-- **Espacement et Superposition Corrigés** : Ajustement des marges entre le bouton Google et le séparateur "OU / OR" sur mobile et desktop pour éliminer tout chevauchement.
-- **Feedback Immédiat de Recherche de Ville** : Affichage instantané dès la saisie de l'animation à trois points pulsants (`.search-loader`) dans les barres de recherche de communes (Salons, Jeu et Administration).
-- **Prévention des Conflits Git sur les Communes** : Séparation des communes ajoutées dynamiquement dans `config/custom_cities.json` (ignoré par Git) pour éviter les erreurs de fusion lors des `git pull` sur les serveurs de production.
-- **Fiabilisation du Classement (Leaderboard)** : Regroupement strict des scores par joueur (`MAX(score)`), mise en avant visuelle de l'utilisateur actif (`.current-user-row`) et correction du fallback mémoire.
-- **Fluidité du Fond d'Écran d'Authentification** : Suppression du `transform` résiduel sur `.screen.active` permettant au dégradé d'arrière-plan de s'étendre naturellement sous la barre de navigation transparente.
-- **Nettoyage et Standardisation de la Racine** : Suppression de tous les scripts de patch et fichiers temporaires à la racine du projet, et correction de `.gitignore`.
+### Authentification Google GIS, UX Salons & Architecture Modèle
+- **Bouton Google Sign-In Dynamique & Thématique** : Intégration complète de Google Identity Services avec gestion réactive du mode sombre et clair via un `MutationObserver` (`theme: "filled_black"` en mode sombre, `theme: "outline"` avec bordure nette et texte foncé en mode clair).
+- **Suppression des Conflits de Rendu Google** : Élimination du cadre blanc artificiel grâce à `color-scheme: light` et suppression des styles CSS intrusifs altérant l'aspect natif du composant Google.
+- **Espacement & Ergonomie des Formulaires** : Ajustement des marges entre le bouton Google et le séparateur "OU / OR", élimination des chevauchements d'éléments sur mobile et bureau.
+- **Feedback Immédiat de Recherche de Ville** : Affichage instantané dès la première frappe de l'animation à trois points pulsants (`.search-loader`) dans les barres de recherche de communes (Salons, Jeu et Administration) avec debounce optimisé à 400ms.
+- **Feedback Visuel de Copie de Salon** : Animation et infobulle de confirmation (`.copy-feedback`) lors de la copie du code de salon ou du lien d'invitation (`.share-box`, `.code-box`).
+- **Bouton d'Action Primaire dans les Salons** : Promotion du bouton "Rejoindre" en style primaire (`btn-primary`) pour maximiser la visibilité et l'ergonomie.
+- **Modèle de Données City & Isolation Git** : Création du modèle asynchrone `City` (`City.getAll()`, `City.findBySlug()`) et déport des communes dynamiques dans `config/custom_cities.json` (ignoré par Git) afin d'éviter tout conflit de fusion (`git pull`) lors des déploiements.
+- **Dédoublonnage & Mise en Valeur du Classement** : Agrégation stricte des scores par joueur via `MAX(score)`, mise en surbrillance de l'utilisateur actif (`.current-user-row`) et fiabilisation du stockage mémoire de secours.
+- **Fluidité de Transition d'Écran** : Remplacement de la transformation résiduelle sur `.screen.active` par `transform: none` pour permettre au dégradé d'arrière-plan de s'étendre naturellement sous la barre de navigation transparente.
+- **Balises Meta Theme-Color Dynamiques** : Synchronisation de la couleur de la barre d'état du navigateur mobile (`theme-color`) avec le mode clair/sombre.
+- **Nettoyage et Standardisation de la Racine** : Suppression de tous les scripts de patch et fichiers temporaires à la racine du projet, et mise à jour stricte du fichier `.gitignore`.
 - **Mise à Jour du Cache PWA** : Incrément de la version du Service Worker (`citymaster-v10`) et synchronisation cohérente du thème dans le `localStorage`.
+
+---
+
+## [2.3.0] - 2026-10-05
+
+### Refonte Stylistique Neumorphique, Tokens CSS & Internationalisation Globale (i18n)
+- **Éradication des Couleurs Brutes & Tokens Sémantiques** : Remplacement systématique de l'ensemble des couleurs hexadécimales par des variables CSS (`var(--color-...)`), introduction des teintes dérivées claires (`--color-danger-light`, `--color-success-light`, `--color-warning-light`, `--color-accent-light`) pour un contraste optimal en thème sombre et clair.
+- **Harmonisation Neumorphique Globale** : Uniformisation des ombres portées, bordures et effets de relief (`box-shadow`, `inset`) sur l'ensemble des composants (boutons, cartes, badges, formulaires, messages flash, navigation et profil).
+- **Généralisation de l'i18n sur Toutes les Vues** : Traduction intégrale (FR/EN) intégrée dans `AdminView`, `MapView`, `RoomView`, `GameView`, `CertificateView`, `AuthView` et `FlashMessageService`.
+- **Attributs Placeholder Traduisibles** : Support dynamique de la traduction des placeholders de saisie via l'attribut `data-i18n-placeholder` dans `I18nService`.
+- **Suite Complète de Tests Automatisés i18n (`tests/i18n.test.js`)** :
+  - Vérification automatisée de la parité stricte clé par clé entre `fr.json` et `en.json`.
+  - Contrôle systématique que tous les attributs `data-i18n*` des fichiers HTML existent dans les dictionnaires.
+  - Détection automatique d'éventuelles clés orphelines ou manquantes appelées dans le code JavaScript (`t(...)`).
+- **Responsive Layout & Grilles de Configuration** : Révision complète de la grille de sélection des paramètres de jeu (`setup.html` / `setup.css`) et adaptation tactile sur petits écrans.
+
+---
+
+## [2.2.0] - 2026-09-27
+
+### Moteur de Difficulté des Voies, Couche API Centralisée & Sécurité Administrateur
+- **Calcul Dynamique de la Difficulté des Voies (`RouteDifficultyService`)** : Algorithme d'analyse géographique basé sur la longueur cumulée et la typologie OpenStreetMap des voies (`primary`, `secondary`, `residential`, `living_street`, etc.) par rapport au centroïde de la commune pour classifier chaque voie en *Facile, Moyen ou Difficile*.
+- **Surcharge des Difficultés dans l'Administration** : Interface et routes dédiées (`/api/admin/cities/:slug/difficulty`) permettant de personnaliser le niveau de difficulté attribué à chaque voie.
+- **Centralisation des Requêtes HTTP (`ApiService`)** : Service unifié gérant les verbes HTTP (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`), l'injection transparente du token JWT et la gestion centralisée des erreurs de session.
+- **Renforcement de la Persistance Administrateur** : Middleware `requireAdmin` sécurisé avec vérification croisée du JWT et de la persistance en base PostgreSQL (`User.setAdminStatus`, `User.findByUsername`).
+- **Script d'Attribution de Rôle (`scripts/make-admin.js`)** : Outil CLI pour attribuer les privilèges administrateur de manière sécurisée et scriptable.
+- **Suite de Tests d'Intégration** : Validation automatisée de la persistance des droits administrateurs (`tests/admin_persistence.test.js`) avec le runner natif `node:test`.
 
 ---
 
 ## [2.1.0] - 2026-09-17
 
-### Architecture API, Difficulté des Voies & Automatisation des Tests
-- **Gestion Dynamique des Difficultés de Voies** : Implémentation du service `RouteDifficultyService` analysant automatiquement la longueur et la typologie des voies OSM pour proposer les niveaux adaptés (*Facile, Moyen, Difficile*).
-- **Centralisation des Appels avec ApiService** : Unification des requêtes HTTP (authentification, headers, injection automatique du token JWT et gestion centralisée des erreurs de session).
-- **Suite Complète de Tests Unitaires & d'Intégration** : Intégration de tests avec le runner natif `node:test` couvrant la fusion des routes, le cycle de vie des sessions de jeu, la persistance des droits administrateurs et la parité des dictionnaires i18n.
-- **Sécurisation & Persistance des Rôles Admin** : Middleware `requireAdmin` renforcé et synchronisation robuste avec la table PostgreSQL.
+### Fusion des Tronçons de Voies & Cycle des Sessions de Jeu
+- **Tests Automatisés de Fusion Spatiale (`tests/city_modifications.test.js`)** : Tests validant la fusion Turf.js des tronçons de rues OSM, la gestion des renommages, l'ajout de voies personnalisées et la suppression sans doublons.
+- **Cycle de Vie et Sérialisation des Sessions (`GameSession.js`)** : Préservation du prompt courant et de l'index de manche lors des phases de feedback (`nextPrompt`), sérialisation rétrocompatible et tests unitaires (`tests/game_session.test.js`).
+- **Refactoring & Optimisation de MapView** : Simplification des méthodes de rendu cartographique, suppression des redondances et meilleure gestion des couches de tracés.
 
 ---
 
 ## [2.0.0] - 2026-09-13
 
-### Refonte Graphique, PWA & Support Bilingue (i18n)
+### Refonte Graphique Majeure, PWA & Support Bilingue (i18n)
 - **Nouvelle Identité Visuelle Neumorphique** : Refonte stylistique complète avec tokens CSS unifiés, ombres douces, cartes flottantes et prise en charge native du thème sombre/clair.
 - **Écran d'Authentification Interactif & Mascottes** : Introduction des mascottes vectorielles interactives (Kiko et le chat gris) dotées d'une animation physique de queue dynamique et réagissant aux interactions de l'utilisateur.
-- **Internationalisation Complète (i18n)** : Prise en charge native du français et de l'anglais avec système de traduction dynamique (`I18nService`), persistance du choix et bascule instantanée.
-- **Application Web Progressive (PWA)** : Support hors-ligne complet via Service Worker, mise en cache des actifs statiques et dialogue d'installation sur mobile et bureau.
+- **Internationalisation Initiale (i18n)** : Architecture bilingue français/anglais avec système de chargement dynamique des dictionnaires (`I18nService`), persistance du choix et bascule instantanée.
+- **Application Web Progressive (PWA)** : Support hors-ligne via Service Worker, mise en cache des actifs statiques et dialogue d'installation sur mobile et bureau.
 - **Refonte des Menus et Navigation** : Barre de navigation réactive (`NavbarView`) avec menu burger mobile, indicateur de version et actions contextuelles adaptées à l'état de connexion.
 
 ---
