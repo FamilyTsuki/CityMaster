@@ -1,6 +1,6 @@
 {
   "name": "citymaster",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "description": "Geographic serious game using OpenStreetMap and Turf.js",
   "type": "module",
   "main": "server.js",
@@ -8,7 +8,8 @@
     "start": "node server.js",
     "dev": "node --watch server.js",
     "test": "node --test tests/*.test.js",
-    "make-admin": "node scripts/make-admin.js"
+    "make-admin": "node scripts/make-admin.js",
+    "version:bump": "node scripts/bump-version.js"
   },
   "dependencies": {
     "@turf/turf": "^6.5.0",

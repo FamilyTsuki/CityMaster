@@ -3,6 +3,14 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.5.1] - 2026-10-07
+
+### Automatisation du Versioning & Directives de Release Agent
+- **Automatisation Workspace (`GEMINI.md`, `AGENTS.md`, `.agents/rules/versioning.md`)** : Configuration des règles impératives guidant l'assistant IA pour imposer l'incrément SemVer systématique, la mise à jour des en-têtes d'assets (`public/index.html`, `public/sw.js`), la complétion du journal `CHANGELOG.md` et l'exécution des tests unitaires (`npm test`) à chaque intervention.
+- **Script Automatisé d'Incrément (`scripts/bump-version.js` & `npm run version:bump`)** : Utilitaire Node.js permettant de mettre à jour de manière synchronisée et atomique `package.json`, le cache Service Worker (`public/sw.js`), les versions d'icônes/manifeste (`public/index.html`), le badge `README.md` et d'initialiser la section correspondante dans `CHANGELOG.md`.
+
+---
+
 ## [2.5.0] - 2026-10-07
 
 ### Performance Réseau, Optimisations API & Architecture Sécurisée
