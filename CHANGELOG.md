@@ -3,6 +3,42 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.5.0] - 2026-10-07
+
+### Performance Réseau, Optimisations API & Architecture Sécurisée
+- **Cache Local Haute Performance (IndexedDB & `StorageService`)** : Introduction de la persistance locale IndexedDB sans contrainte de quota de 5 Mo pour les fichiers GeoJSON de communes. Les parties rejouées démarrent instantanément (0 ms de latence réseau, 0 octet consommé).
+- **Suppression du Cache-Busting & En-têtes HTTP de Longue Durée** : Retrait du paramètre systématique `?t=${Date.now()}` sur le chargement des communes et des fichiers de personnalisation. Configuration d'en-têtes HTTP `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` sur `/assets/data/*.json`.
+- **Synchronisation Salons Temps Réel (Server-Sent Events & Polling Conditionnel ETag)** :
+  - Endpoint persistant SSE `/api/rooms/:code/stream` pour la diffusion immédiate (< 50 ms) des événements de salon (connexion, démarrage, score, reset) sans polling continu.
+  - Bascule transparente côté client vers un polling conditionnel léger : calcul d'un hash MD5 de l'état du salon renvoyant `{ changed: false }` (~30 octets) au lieu de répéter la charge utile complète toutes les 2 secondes.
+  - Authentification JWT supportée via query string pour les flux `EventSource`.
+- **Protection des Quotas & Caches Serveur OpenStreetMap** :
+  - **Overpass LRU Cache** : Cache mémoire de 24h basé sur une empreinte SHA-256 des requêtes avec éviction LRU (max 200 entrées) pour soulager les serveurs publics OSM.
+  - **Nominatim Server Cache** : Cache mémoire d'une heure sur les requêtes de géocodage évitant tout bannissement d'IP pour dépassement du quota de 1 req/sec.
+  - **Mémoïsation Client** : Cache dictionnaire local (`Map`) sur les saisies d'autocomplétion des communes dans l'administration, la création de salons et le jeu.
+- **Sécurisation & Cloisonnement Backend** :
+  - Verrouillage de l'accès public au répertoire `/src/backend` dans `server.js`.
+  - Migration sécurisée de `users.json` hors du dossier public statique vers `config/users.json`.
+  - Élagage des erreurs 500 et suppression des logs d'authentification bloquants dans `/tmp`.
+- **Refonte des I/O & Mémoire Serveur** :
+  - Remplacement des lectures de fichiers bloquantes synchrones (`readFileSync`) par `fs/promises`.
+  - Suppression de la lecture lourde des GeoJSON (347 Mo pour Lyon) dans le contrôleur de salons en exploitant les métadonnées légères de `City.getAll()`.
+  - Mise en cache mémoire de la liste des communes avec invalidation dynamique.
+  - Rehaussement du rate limiter global pour les connexions simultanées en réseau local.
+- **Améliorations PWA & Expérience Hors-Ligne** :
+  - Page de repli hors-ligne (`offline.html`) avec interface soignée et détection en temps réel du retour de la connectivité.
+  - Bouton d'installation PWA contextuel dans la barre de navigation (`#pwa-install-btn`).
+  - Cache Service Worker incrémenté en `citymaster-v12`.
+- **Nettoyage "Clean Code" Intégral** :
+  - Éradication de tous les imports inutilisés et variables mortes dans `RoomController`, `GameController`, `GameView`, `AdminController`, `scores.routes.js`, `User.js` et `RoomView`.
+  - Factorisation de la navigation et harmonisation uniforme du style des chaînes (`'`).
+- **Suite de Tests d'Intégration Étendue (24/24 tests validés)** :
+  - Tests complets pour `AuthController` (politique de mot de passe, format des pseudos, validation JWT).
+  - Tests complets pour `RoomController` (génération aléatoire cryptographique 6 caractères, PRNG mulberry32, expiration automatique 1h/24h/7j).
+  - Tests complets pour `ScoreController` (déduplication MAX score, validation et rejet des scores invalides).
+
+---
+
 ## [2.4.0] - 2026-10-07
 
 ### Authentification Google GIS, UX Salons & Architecture Modèle
