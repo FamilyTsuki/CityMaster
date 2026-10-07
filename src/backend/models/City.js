@@ -82,11 +82,7 @@ export class City {
       }
     }
 
-    await fs.writeFile(
-      customFilePath,
-      JSON.stringify(customCities, null, 2),
-      "utf-8",
-    );
+    await fs.writeFile(customFilePath, JSON.stringify(customCities, null, 2), "utf-8");
     cachedCities = null;
   }
 
@@ -130,10 +126,7 @@ export class City {
 
     let results = null;
     const cachedNominatim = nominatimCache.get(normalizedQuery);
-    if (
-      cachedNominatim &&
-      Date.now() - cachedNominatim.timestamp < NOMINATIM_CACHE_TTL_MS
-    ) {
+    if (cachedNominatim && Date.now() - cachedNominatim.timestamp < NOMINATIM_CACHE_TTL_MS) {
       results = cachedNominatim.results;
     } else {
       try {
@@ -152,10 +145,7 @@ export class City {
             const oldestKey = nominatimCache.keys().next().value;
             nominatimCache.delete(oldestKey);
           }
-          nominatimCache.set(normalizedQuery, {
-            results,
-            timestamp: Date.now(),
-          });
+          nominatimCache.set(normalizedQuery, { results, timestamp: Date.now() });
         }
       } catch (error) {
         console.error("Nominatim dynamic query error:", error);
@@ -166,67 +156,69 @@ export class City {
       const newCitiesToSave = [];
 
       for (const result of results) {
-        if (
-          !result.osm_id ||
-          !result.boundingbox ||
-          result.boundingbox.length < 4
-        ) {
-          continue;
+          if (
+            !result.osm_id ||
+            !result.boundingbox ||
+            result.boundingbox.length < 4
+          ) {
+            continue;
+          }
+
+          const south = parseFloat(result.boundingbox[0]);
+          const north = parseFloat(result.boundingbox[1]);
+          const west = parseFloat(result.boundingbox[2]);
+          const east = parseFloat(result.boundingbox[3]);
+
+          const latDiff = Math.abs(north - south);
+          const lngDiff = Math.abs(east - west);
+          if (latDiff < 0.005 || lngDiff < 0.005) {
+            continue;
+          }
+
+          const isSettlement =
+            result.class === "boundary" ||
+            result.type === "administrative" ||
+            ["city", "town", "village", "municipality", "commune"].includes(
+              result.type,
+            ) ||
+            ["city", "town", "village", "municipality", "commune"].includes(
+              result.addresstype,
+            );
+
+          if (!isSettlement) {
+            continue;
+          }
+
+          const name = (
+            result.name || result.display_name.split(",")[0]
+          ).trim();
+          const key = slugify(name);
+
+          if (
+            !cities.some((c) => c.key === key) &&
+            !combinedResults.some((c) => c.key === key)
+          ) {
+            const centerLat = (south + north) / 2;
+            const centerLng = (west + east) / 2;
+
+            const cityData = {
+              key,
+              name,
+              osmId: parseInt(result.osm_id, 10),
+              bbox: `${south},${west},${north},${east}`,
+              center: [centerLat, centerLng],
+            };
+
+            cities.push(cityData);
+            combinedResults.push(cityData);
+            newCitiesToSave.push(cityData);
+          }
         }
 
-        const south = parseFloat(result.boundingbox[0]);
-        const north = parseFloat(result.boundingbox[1]);
-        const west = parseFloat(result.boundingbox[2]);
-        const east = parseFloat(result.boundingbox[3]);
-
-        const latDiff = Math.abs(north - south);
-        const lngDiff = Math.abs(east - west);
-        if (latDiff < 0.005 || lngDiff < 0.005) {
-          continue;
-        }
-
-        const isSettlement =
-          result.class === "boundary" ||
-          result.type === "administrative" ||
-          ["city", "town", "village", "municipality", "commune"].includes(
-            result.type,
-          ) ||
-          ["city", "town", "village", "municipality", "commune"].includes(
-            result.addresstype,
-          );
-
-        if (!isSettlement) {
-          continue;
-        }
-
-        const name = (result.name || result.display_name.split(",")[0]).trim();
-        const key = slugify(name);
-
-        if (
-          !cities.some((c) => c.key === key) &&
-          !combinedResults.some((c) => c.key === key)
-        ) {
-          const centerLat = (south + north) / 2;
-          const centerLng = (west + east) / 2;
-
-          const cityData = {
-            key,
-            name,
-            osmId: parseInt(result.osm_id, 10),
-            bbox: `${south},${west},${north},${east}`,
-            center: [centerLat, centerLng],
-          };
-
-          cities.push(cityData);
-          combinedResults.push(cityData);
-          newCitiesToSave.push(cityData);
+        if (newCitiesToSave.length > 0) {
+          await this.saveCustomCities(newCitiesToSave);
         }
       }
-
-      if (newCitiesToSave.length > 0) {
-        await this.saveCustomCities(newCitiesToSave);
-      }
-    }
 
     combinedResults.sort((a, b) => {
       const aExact =
@@ -250,7 +242,7 @@ export class City {
         "public",
         "assets",
         "data",
-        `${key}.json`,
+        `${key}.json`
       );
       try {
         await fs.access(dataFile);
@@ -267,7 +259,7 @@ export class City {
         throw new Error(`City with key "${key}" not found.`);
       }
     }
-
+    
     city.isVerified = !city.isVerified;
     await this.saveCustomCity(city);
     return city;
