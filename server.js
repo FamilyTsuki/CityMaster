@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import compression from "compression";
 import { initDB } from "./src/backend/config/database.js";
@@ -94,7 +95,6 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/rooms", roomRoutes);
 app.use("/api/reports", reportsRoutes);
 
-import fs from "fs";
 app.get("/api/version", (req, res) => {
   try {
     const pkg = JSON.parse(
@@ -106,7 +106,11 @@ app.get("/api/version", (req, res) => {
   }
 });
 
-app.get("*", (req, res) => {
+app.use("/api", (req, res) => {
+  res.status(404).json({ error: "API route not found" });
+});
+
+app.get(/^(?!\/api).*/, (req, res) => {
   res.sendFile(path.join(dirname, "public", "index.html"));
 });
 initDB().then(() => {

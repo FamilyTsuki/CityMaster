@@ -10,6 +10,7 @@ export class RoomController {
   #currentRoomCode;
   #pendingRoomCode;
   #isTransitioning;
+  #verifiedAdmin;
 
   constructor(router, roomView, gameView, gameController) {
     this.#router = router;
@@ -21,6 +22,7 @@ export class RoomController {
     this.#currentRoomCode = null;
     this.#pendingRoomCode = null;
     this.#isTransitioning = false;
+    this.#verifiedAdmin = undefined;
 
     this.#initEvents();
   }
@@ -67,6 +69,7 @@ export class RoomController {
   async initRoom(params) {
     this.stopPolling();
     this.#isTransitioning = false;
+    this.#verifiedAdmin = undefined;
     const code = params.code ? params.code.trim().toUpperCase() : null;
 
     if (!code) {
@@ -316,6 +319,7 @@ export class RoomController {
   #handleLeaveRoom() {
     this.stopPolling();
     this.#currentRoomCode = null;
+    this.#verifiedAdmin = undefined;
     this.#router.navigate("/room");
   }
 
@@ -362,10 +366,28 @@ export class RoomController {
 
       const roomData = res.data;
       const currentUsername = localStorage.getItem("username");
-      const isHost =
+      const isCreator =
         (currentUsername || "").trim().toLowerCase() ===
-          (roomData?.createdBy || "").trim().toLowerCase() ||
-        localStorage.getItem("is_admin") === "true";
+        (roomData?.createdBy || "").trim().toLowerCase();
+
+      let isAdmin = false;
+      if (!isCreator && localStorage.getItem("is_admin") === "true") {
+        if (this.#verifiedAdmin === undefined) {
+          try {
+            const profileRes = await ApiService.get("/profile");
+            this.#verifiedAdmin = Boolean(
+              profileRes.ok && profileRes.data?.isAdmin,
+            );
+            if (!this.#verifiedAdmin) {
+              localStorage.removeItem("is_admin");
+            }
+          } catch {
+            this.#verifiedAdmin = false;
+          }
+        }
+        isAdmin = this.#verifiedAdmin;
+      }
+      const isHost = isCreator || isAdmin;
 
       this.#roomView.updateLobby(roomData, currentUsername);
 

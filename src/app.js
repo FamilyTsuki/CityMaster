@@ -98,20 +98,16 @@ class App {
 
     this.#router = new Router({
       "/": () => {
-        this.#roomController?.stopPolling();
         this.#gameView.showScreen("landing");
       },
       "/setup": () => {
-        this.#roomController?.stopPolling();
         this.#showSetup();
       },
       "/login": () => {
-        this.#roomController?.stopPolling();
         this.#authController.setMode(true);
         this.#gameView.showScreen("auth");
       },
       "/register": () => {
-        this.#roomController?.stopPolling();
         this.#authController.setMode(false);
         this.#gameView.showScreen("auth");
       },
@@ -120,43 +116,44 @@ class App {
       "/room/:code/play": () => this.#showPlay(),
       "/room/:code": (params) => this.#roomController.initRoom(params),
       "/certificate": () => {
-        this.#roomController?.stopPolling();
         this.#gameView.showScreen("certificate");
         ConfettiService.launch();
         this.#audioService.playFanfare();
       },
       "/profile": () => {
-        this.#roomController?.stopPolling();
         this.#profileController.loadProfile();
       },
       "/admin": async () => {
-        this.#roomController?.stopPolling();
-        if (localStorage.getItem("is_admin") === "true") {
-          this.#showAdmin();
-        } else {
-          const token = localStorage.getItem("token");
-          if (token) {
-            try {
-              const res = await fetch("/api/profile", {
-                headers: { Authorization: `Bearer ${token}` },
-              });
-              if (res.ok) {
-                const data = await res.json();
-                if (data.isAdmin) {
-                  localStorage.setItem("is_admin", "true");
-                  this.#showAdmin();
-                  return;
-                }
+        const token = localStorage.getItem("token");
+        if (token) {
+          try {
+            const res = await fetch("/api/profile", {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+              const data = await res.json();
+              if (data && data.isAdmin) {
+                localStorage.setItem("is_admin", "true");
+                this.#showAdmin();
+                return;
               }
-            } catch (e) {}
+            }
+          } catch (e) {
+            console.error("Admin verification error:", e);
           }
-          this.#router.navigate("/");
         }
+        localStorage.removeItem("is_admin");
+        this.#router.navigate("/");
       },
       "/legal": () => {
-        this.#roomController?.stopPolling();
         this.#gameView.showScreen("legal");
       },
+    });
+
+    this.#router.beforeEach((toPath) => {
+      if (!toPath.startsWith("/room/")) {
+        this.#roomController?.stopPolling();
+      }
     });
 
     this.#authController.setRouter(this.#router);

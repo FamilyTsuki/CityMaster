@@ -78,22 +78,22 @@ Ce document répertorie l'ensemble des axes d'amélioration identifiés lors de 
 
 ## 🏛️ Phase 4 : Architecture & Clean Code
 
-- [ ] **4.1 Centraliser le nettoyage de fin de route dans le Router SPA**
+- [x] **4.1 Centraliser le nettoyage de fin de route dans le Router SPA**
   - **Fichiers** : [`src/Router.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/Router.js), [`src/app.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/app.js#L101-L157)
   - **Problème** : `this.#roomController?.stopPolling()` est dupliqué à la main dans 8 gestionnaires de routes différents.
   - **Action** : Implémenter un hook global `router.beforeEach()` ou un cycle de vie standardisé `destroy()`/`cleanup()` sur chaque contrôleur.
 
-- [ ] **4.2 Isoler la route Catch-All des requêtes API dans `server.js`**
+- [x] **4.2 Isoler la route Catch-All des requêtes API dans `server.js`**
   - **Fichier** : [`server.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/server.js#L100-L102)
   - **Problème** : `app.get("*", ...)` renvoie `index.html` avec le code HTTP 200 pour toute URL inconnue, y compris `/api/*`.
   - **Action** : Restreindre le catch-all aux routes web `app.get(/^(?!\/api).*/, ...)` et ajouter un middleware 404 JSON dédié pour l'API.
 
-- [ ] **4.3 Reclasser les imports en haut de `server.js`**
+- [x] **4.3 Reclasser les imports en haut de `server.js`**
   - **Fichier** : [`server.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/server.js#L88)
   - **Problème** : `import fs from "fs";` est déclaré en plein milieu des routes.
   - **Action** : Déplacer l'import au sommet du fichier.
 
-- [ ] **4.4 Sécuriser les contrôles d'accès côté client**
+- [x] **4.4 Sécuriser les contrôles d'accès côté client**
   - **Fichiers** : [`src/app.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/app.js#L134), [`RoomController.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/controllers/RoomController.js#L368)
   - **Problème** : Se baser sur `localStorage.getItem("is_admin")` est facilement falsifiable dans la console développeur.
   - **Action** : Toujours valider l'état du token auprès de l'API (`/api/profile`) avant d'accorder l'accès aux interfaces privilégiées.

@@ -1,19 +1,18 @@
 export class Router {
   #routes;
   #currentPath;
+  #beforeEachHooks = [];
 
   constructor(routes) {
     this.#routes = routes;
     this.#currentPath = this.#getPath();
 
     window.addEventListener('popstate', () => {
-      this.#currentPath = this.#getPath();
-      this.#handleRoute(this.#currentPath);
+      this.#handleRoute(this.#getPath());
     });
 
     window.addEventListener('hashchange', () => {
-      this.#currentPath = this.#getPath();
-      this.#handleRoute(this.#currentPath);
+      this.#handleRoute(this.#getPath());
     });
 
     document.addEventListener('click', (e) => {
@@ -48,24 +47,41 @@ export class Router {
     return window.location.pathname;
   }
 
+  beforeEach(hook) {
+    if (typeof hook === 'function') {
+      this.#beforeEachHooks.push(hook);
+    }
+    return this;
+  }
+
   init() {
     this.#handleRoute(this.#currentPath);
   }
 
-  navigate(path, force = false) {
+  async navigate(path, force = false) {
     if (this.#currentPath === path && !force) {
-      this.#handleRoute(path);
+      await this.#handleRoute(path);
       return;
     }
-    this.#currentPath = path;
     window.history.pushState({}, '', path);
-    this.#handleRoute(path);
+    await this.#handleRoute(path);
   }
 
-  #handleRoute(path) {
+  async #handleRoute(path) {
+    const fromPath = this.#currentPath;
+    for (const hook of this.#beforeEachHooks) {
+      try {
+        const canContinue = await hook(path, fromPath);
+        if (canContinue === false) return;
+      } catch (err) {
+        console.error('Error in router beforeEach hook:', err);
+      }
+    }
+    this.#currentPath = path;
+
     let matchedRoute = this.#routes[path];
     if (matchedRoute) {
-      matchedRoute({});
+      await matchedRoute({});
       return;
     }
 
@@ -80,7 +96,7 @@ export class Router {
             params[name] = match[idx + 1];
           });
           
-          this.#routes[routePattern](params);
+          await this.#routes[routePattern](params);
           return;
         }
       }
@@ -88,7 +104,7 @@ export class Router {
 
     matchedRoute = this.#routes['/'];
     if (matchedRoute) {
-      matchedRoute({});
+      await matchedRoute({});
     }
   }
 }
