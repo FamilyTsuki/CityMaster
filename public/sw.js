@@ -1,14 +1,16 @@
-const CACHE_NAME = 'citymaster-v10';
+const CACHE_NAME = 'citymaster-v11';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/favicon.png',
+  '/favicon.ico',
   '/assets/images/icon-192.png',
   '/assets/images/icon-512.png',
   '/assets/images/maskable-icon-512.png',
   '/assets/images/apple-touch-icon.png',
   '/assets/images/icon.svg',
+  '/assets/images/default-avatar.png',
   '/assets/styles/variables.css',
   '/assets/styles/base.css',
   '/assets/styles/navbar.css',
@@ -29,9 +31,44 @@ const STATIC_ASSETS = [
   '/assets/styles/room.css',
   '/assets/styles/admin.css',
   '/assets/styles/style.css',
+  '/screens/landing.html',
+  '/screens/setup.html',
+  '/screens/game.html',
+  '/screens/certificate.html',
+  '/screens/auth.html',
+  '/screens/profile.html',
+  '/screens/admin.html',
+  '/screens/room.html',
   '/screens/legal.html',
   '/assets/i18n/fr.json',
-  '/assets/i18n/en.json'
+  '/assets/i18n/en.json',
+  '/src/app.js',
+  '/src/Router.js',
+  '/src/models/GameSession.js',
+  '/src/utils/security.js',
+  '/src/controllers/AdminController.js',
+  '/src/controllers/AuthController.js',
+  '/src/controllers/GameController.js',
+  '/src/controllers/ProfileController.js',
+  '/src/controllers/RoomController.js',
+  '/src/controllers/ScoreController.js',
+  '/src/services/ApiService.js',
+  '/src/services/AudioService.js',
+  '/src/services/ConfettiService.js',
+  '/src/services/CustomLotissementService.js',
+  '/src/services/FlashMessageService.js',
+  '/src/services/I18nService.js',
+  '/src/services/OverpassService.js',
+  '/src/services/RouteDifficultyService.js',
+  '/src/services/SpatialService.js',
+  '/src/views/AdminView.js',
+  '/src/views/AuthView.js',
+  '/src/views/CertificateView.js',
+  '/src/views/GameView.js',
+  '/src/views/MapView.js',
+  '/src/views/NavbarView.js',
+  '/src/views/ProfileView.js',
+  '/src/views/RoomView.js'
 ];
 
 self.addEventListener('install', (event) => {
@@ -73,15 +110,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  const isAllowedCdn = (
+    url.hostname === 'unpkg.com' ||
+    url.hostname.endsWith('.unpkg.com') ||
+    url.hostname === 'cdn.jsdelivr.net' ||
+    url.hostname.endsWith('.jsdelivr.net')
+  );
+
   event.respondWith(
     fetch(event.request).then((networkResponse) => {
-      if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+      const isCacheable = networkResponse && networkResponse.status === 200 && (
+        networkResponse.type === 'basic' ||
+        (networkResponse.type === 'cors' && isAllowedCdn)
+      );
+
+      if (isCacheable) {
         const responseToCache = networkResponse.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
       }
       return networkResponse;
-    }).catch(() => {
-      return caches.match(event.request);
+    }).catch(async () => {
+      const cached = await caches.match(event.request, { ignoreSearch: true });
+      if (cached) return cached;
+      if (event.request.mode === 'navigate') {
+        const indexPage = await caches.match('/index.html');
+        if (indexPage) return indexPage;
+      }
+      return caches.match(url.pathname);
     })
   );
 });

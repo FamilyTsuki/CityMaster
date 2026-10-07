@@ -59,17 +59,17 @@ Ce document répertorie l'ensemble des axes d'amélioration identifiés lors de 
 
 ## 📱 Phase 3 : PWA & Mode Hors-Ligne
 
-- [ ] **3.1 Mettre en cache les fichiers JavaScript applicatifs dans le Service Worker**
+- [x] **3.1 Mettre en cache les fichiers JavaScript applicatifs dans le Service Worker**
   - **Fichier** : [`public/sw.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/public/sw.js#L2-L35)
   - **Problème** : `STATIC_ASSETS` ne liste que les CSS et icônes, mais aucun script JS (`/src/app.js`, contrôleurs, vues). En mode hors-ligne initial, l'application ne peut pas démarrer.
   - **Action** : Ajouter les scripts nécessaires à la liste `STATIC_ASSETS`.
 
-- [ ] **3.2 Autoriser la mise en cache des bibliothèques cartographiques CDN (CORS)**
+- [x] **3.2 Autoriser la mise en cache des bibliothèques cartographiques CDN (CORS)**
   - **Fichier** : [`public/sw.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/public/sw.js#L78)
   - **Problème** : La condition `networkResponse.type === 'basic'` ignore délibérément les requêtes cross-origin (`cors`), empêchant la mise en cache de Leaflet et de Turf.js.
   - **Action** : Autoriser le cache pour les réponses de type `'cors'` provenant de `unpkg.com` et `jsdelivr.net`.
 
-- [ ] **3.3 Supprimer le cache-busting dynamique sur le favicon**
+- [x] **3.3 Supprimer le cache-busting dynamique sur le favicon**
   - **Fichier** : [`public/index.html`](file:///home/tsuki/Documents/perso/Projects/CityMaster/public/index.html#L34)
   - **Problème** : `fav.href = '/favicon.png?v=' + Date.now()` force le re-téléchargement à chaque rechargement de page.
   - **Action** : Utiliser un identifiant de version fixe (ex: `?v=2.4.0`).
