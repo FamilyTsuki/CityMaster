@@ -1,10 +1,10 @@
-import crypto from 'crypto';
+import crypto from "crypto";
 
 const OVERPASS_SERVERS = [
-  'https://overpass.kumi.systems/api/interpreter',
-  'https://overpass-api.de/api/interpreter',
-  'https://lz4.overpass-api.de/api/interpreter',
-  'https://z.overpass-api.de/api/interpreter'
+  "https://overpass.kumi.systems/api/interpreter",
+  "https://overpass-api.de/api/interpreter",
+  "https://lz4.overpass-api.de/api/interpreter",
+  "https://z.overpass-api.de/api/interpreter",
 ];
 
 const overpassCache = new Map();
@@ -15,12 +15,15 @@ export class OverpassController {
   static async proxyQuery(req, res) {
     try {
       const { query } = req.body;
-      
-      if (!query || typeof query !== 'string') {
-        return res.status(400).json({ error: 'Query is required' });
+
+      if (!query || typeof query !== "string") {
+        return res.status(400).json({ error: "Query is required" });
       }
 
-      const queryHash = crypto.createHash('sha256').update(query.trim()).digest('hex');
+      const queryHash = crypto
+        .createHash("sha256")
+        .update(query.trim())
+        .digest("hex");
       const cached = overpassCache.get(queryHash);
       if (cached && Date.now() - cached.timestamp < OVERPASS_CACHE_TTL_MS) {
         return res.json(cached.data);
@@ -31,19 +34,19 @@ export class OverpassController {
       for (const server of OVERPASS_SERVERS) {
         try {
           console.log(`Querying Overpass on: ${server}`);
-          
+
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 20000);
 
           const response = await fetch(server, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-              'Accept': 'application/json, text/plain, */*',
-              'User-Agent': 'CityMaster/1.0 (Game Backend Node.js)'
+              "Content-Type": "application/x-www-form-urlencoded",
+              Accept: "application/json, text/plain, */*",
+              "User-Agent": "CityMaster/1.0 (Game Backend Node.js)",
             },
             body: `data=${encodeURIComponent(query)}`,
-            signal: controller.signal
+            signal: controller.signal,
           });
 
           clearTimeout(timeoutId);
@@ -68,11 +71,16 @@ export class OverpassController {
         }
       }
 
-      console.error('All Overpass servers failed:', lastError);
-      res.status(504).json({ error: 'Overpass servers timed out or returned errors. Please try again.' });
+      console.error("All Overpass servers failed:", lastError);
+      res
+        .status(504)
+        .json({
+          error:
+            "Overpass servers timed out or returned errors. Please try again.",
+        });
     } catch (error) {
-      console.error('Proxy Overpass error:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      console.error("Proxy Overpass error:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 }
