@@ -2,6 +2,42 @@
 
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 
+## [2.1.1] - 2026-10-07
+
+### Authentification Google, Stabilité UI & Nettoyage Projet
+- **Bouton Google Sign-In Dynamique & Thématique** : Prise en charge réactive du mode sombre et clair via un `MutationObserver` (`theme: "filled_black"` en mode sombre, `theme: "outline"` avec bordure nette et texte foncé en mode clair).
+- **Suppression des Conflits de Rendu Google** : Élimination du cadre blanc artificiel grâce à `color-scheme: light` et suppression des règles CSS intrusives qui retiraient les bordures et l'arrière-plan du bouton.
+- **Espacement et Superposition Corrigés** : Ajustement des marges entre le bouton Google et le séparateur "OU / OR" sur mobile et desktop pour éliminer tout chevauchement.
+- **Feedback Immédiat de Recherche de Ville** : Affichage instantané dès la saisie de l'animation à trois points pulsants (`.search-loader`) dans les barres de recherche de communes (Salons, Jeu et Administration).
+- **Prévention des Conflits Git sur les Communes** : Séparation des communes ajoutées dynamiquement dans `config/custom_cities.json` (ignoré par Git) pour éviter les erreurs de fusion lors des `git pull` sur les serveurs de production.
+- **Fiabilisation du Classement (Leaderboard)** : Regroupement strict des scores par joueur (`MAX(score)`), mise en avant visuelle de l'utilisateur actif (`.current-user-row`) et correction du fallback mémoire.
+- **Fluidité du Fond d'Écran d'Authentification** : Suppression du `transform` résiduel sur `.screen.active` permettant au dégradé d'arrière-plan de s'étendre naturellement sous la barre de navigation transparente.
+- **Nettoyage et Standardisation de la Racine** : Suppression de tous les scripts de patch et fichiers temporaires à la racine du projet, et correction de `.gitignore`.
+- **Mise à Jour du Cache PWA** : Incrément de la version du Service Worker (`citymaster-v10`) et synchronisation cohérente du thème dans le `localStorage`.
+
+---
+
+## [2.1.0] - 2026-09-17
+
+### Architecture API, Difficulté des Voies & Automatisation des Tests
+- **Gestion Dynamique des Difficultés de Voies** : Implémentation du service `RouteDifficultyService` analysant automatiquement la longueur et la typologie des voies OSM pour proposer les niveaux adaptés (*Facile, Moyen, Difficile*).
+- **Centralisation des Appels avec ApiService** : Unification des requêtes HTTP (authentification, headers, injection automatique du token JWT et gestion centralisée des erreurs de session).
+- **Suite Complète de Tests Unitaires & d'Intégration** : Intégration de tests avec le runner natif `node:test` couvrant la fusion des routes, le cycle de vie des sessions de jeu, la persistance des droits administrateurs et la parité des dictionnaires i18n.
+- **Sécurisation & Persistance des Rôles Admin** : Middleware `requireAdmin` renforcé et synchronisation robuste avec la table PostgreSQL.
+
+---
+
+## [2.0.0] - 2026-09-13
+
+### Refonte Graphique, PWA & Support Bilingue (i18n)
+- **Nouvelle Identité Visuelle Neumorphique** : Refonte stylistique complète avec tokens CSS unifiés, ombres douces, cartes flottantes et prise en charge native du thème sombre/clair.
+- **Écran d'Authentification Interactif & Mascottes** : Introduction des mascottes vectorielles interactives (Kiko et le chat gris) dotées d'une animation physique de queue dynamique et réagissant aux interactions de l'utilisateur.
+- **Internationalisation Complète (i18n)** : Prise en charge native du français et de l'anglais avec système de traduction dynamique (`I18nService`), persistance du choix et bascule instantanée.
+- **Application Web Progressive (PWA)** : Support hors-ligne complet via Service Worker, mise en cache des actifs statiques et dialogue d'installation sur mobile et bureau.
+- **Refonte des Menus et Navigation** : Barre de navigation réactive (`NavbarView`) avec menu burger mobile, indicateur de version et actions contextuelles adaptées à l'état de connexion.
+
+---
+
 ## [1.9.1] - 2026-08-28
 
 ### Ergonomie Administration & Inspection des Voies
