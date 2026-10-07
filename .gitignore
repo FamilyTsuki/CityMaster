@@ -5,4 +5,5 @@ dist/
 .agents/
 public/assets/data/
 TODO.md
-a_fair.mdconfig/custom_cities.json
+a_fair.md
+config/custom_cities.json
