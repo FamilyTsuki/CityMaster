@@ -54,7 +54,7 @@ export class OverpassController {
       res.status(504).json({ error: 'Overpass servers timed out or returned errors. Please try again.' });
     } catch (error) {
       console.error('Proxy Overpass error:', error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 }

@@ -24,7 +24,7 @@ export class CityController {
       res.json(cities);
     } catch (error) {
       console.error("Error fetching cities:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 
@@ -35,7 +35,7 @@ export class CityController {
       res.json(updatedCity);
     } catch (error) {
       console.error("Error toggling city verification:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 
@@ -400,7 +400,7 @@ export class CityController {
       res.json(available);
     } catch (error) {
       console.error("Error in getDifficulties:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 
@@ -585,7 +585,7 @@ export class CityController {
       });
     } catch (error) {
       console.error("Error generating city:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: "Internal server error" });
     }
   }
 }

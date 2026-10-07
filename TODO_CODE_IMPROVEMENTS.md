@@ -6,22 +6,22 @@ Ce document répertorie l'ensemble des axes d'amélioration identifiés lors de 
 
 ## 🔴 Phase 1 : Sécurité Critique & Confidentialité
 
-- [ ] **1.1 Bloquer l'accès public au code source serveur (`/src/backend`)**
+- [x] **1.1 Bloquer l'accès public au code source serveur (`/src/backend`)**
   - **Fichier** : [`server.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/server.js#L70)
   - **Problème** : `app.use("/src", express.static(...))` expose en clair tout le code backend (middlewares de sécurité, requêtes SQL, logique d'auth).
   - **Action** : Restreindre l'exposition statique aux seuls dossiers frontend nécessaires (`src/controllers`, `src/views`, `src/services`, `src/models`, `src/utils`, `src/app.js`, `src/Router.js`) et bloquer tout accès HTTP à `/src/backend`.
 
-- [ ] **1.2 Déplacer `users.json` hors du répertoire public statique**
+- [x] **1.2 Déplacer `users.json` hors du répertoire public statique**
   - **Fichier** : [`src/backend/models/User.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/models/User.js#L8-L17)
   - **Problème** : `users.json` est situé dans `public/assets/data/users.json`, le rendant téléchargeable publiquement via le navigateur sans authentification.
   - **Action** : Déplacer le fichier de stockage de secours vers `config/users.json` ou un dossier `data/` situé hors de la racine web `public/`.
 
-- [ ] **1.3 Supprimer les écritures de log synchrones dans `/tmp`**
+- [x] **1.3 Supprimer les écritures de log synchrones dans `/tmp`**
   - **Fichier** : [`src/backend/middleware/auth.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/middleware/auth.js#L31-L37) et [L61-L67](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/middleware/auth.js#L61-L67)
   - **Problème** : `fs.appendFileSync("/tmp/auth_debug.log", ...)` écrit de manière bloquante à chaque tentative admin rejetée et logue des données utilisateur.
   - **Action** : Supprimer ces traces de débogage temporaires ou utiliser un logger asynchrone non bloquant.
 
-- [ ] **1.4 Masquer les messages d'erreur internes (Status 500)**
+- [x] **1.4 Masquer les messages d'erreur internes (Status 500)**
   - **Fichiers** : [`ScoreController.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/controllers/ScoreController.js#L11), [`CityController.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/controllers/CityController.js#L27)
   - **Problème** : `res.status(500).json({ error: error.message })` divulgue les erreurs brutes de base de données aux clients.
   - **Action** : Remplacer par un message générique sécurisé (`error: "Une erreur interne est survenue"`) tout en conservant le log serveur (`console.error`).
@@ -115,3 +115,4 @@ Ce document répertorie l'ensemble des axes d'amélioration identifiés lors de 
 - [ ] **5.3 Tests unitaires pour `ScoreController`**
   - Tester le rejet des scores négatifs ou non entiers.
   - Tester la déduplication `MAX(score)` du classement.
+

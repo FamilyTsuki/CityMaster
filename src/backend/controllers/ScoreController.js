@@ -8,7 +8,8 @@ export class ScoreController {
       const scores = await Score.getTopScores(100, type, difficulty);
       res.json(scores);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('ScoreController getLeaderboard error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 
@@ -21,7 +22,8 @@ export class ScoreController {
       const scores = await Score.getTopTestScores(testNumber, 100);
       res.json(scores);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('ScoreController getTestLeaderboard error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 
@@ -41,7 +43,8 @@ export class ScoreController {
       const newScore = await Score.create(username, parsedScore, difficulty || 'hard');
       res.status(201).json(newScore);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('ScoreController postScore error:', error);
+      res.status(500).json({ error: 'Internal server error' });
     }
   }
 }

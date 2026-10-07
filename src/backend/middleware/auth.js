@@ -28,13 +28,6 @@ export const authenticateToken = (req, res, next) => {
 export const requireAdmin = (req, res, next) => {
   authenticateToken(req, res, async () => {
     if (!req.user) {
-      try {
-        const fs = await import("fs");
-        fs.appendFileSync(
-          "/tmp/auth_debug.log",
-          `[${new Date().toISOString()}] REJECT NO_USER: ${req.method} ${req.originalUrl}\n`,
-        );
-      } catch (e) {}
       return res.status(403).json({ error: "Admin access required" });
     }
     if (isUserAdmin(req.user)) {
@@ -58,13 +51,6 @@ export const requireAdmin = (req, res, next) => {
         console.error("Error checking admin status in User model:", err);
       }
     }
-    try {
-      const fs = await import("fs");
-      fs.appendFileSync(
-        "/tmp/auth_debug.log",
-        `[${new Date().toISOString()}] REJECT NOT_ADMIN: ${req.method} ${req.originalUrl} user=${JSON.stringify(req.user)}\n`,
-      );
-    } catch (e) {}
     return res.status(403).json({ error: "Admin access required" });
   });
 };

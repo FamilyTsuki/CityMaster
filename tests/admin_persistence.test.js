@@ -39,13 +39,7 @@ test("User.setAdminStatus persists admin and findByUsername retrieves it", async
   try {
     const fs = await import("fs/promises");
     const path = await import("path");
-    const usersPath = path.join(
-      process.cwd(),
-      "public",
-      "assets",
-      "data",
-      "users.json",
-    );
+    const usersPath = path.join(process.cwd(), "config", "users.json");
     const content = JSON.parse(await fs.readFile(usersPath, "utf8"));
     const filtered = content.filter(
       (u) => !u.username.startsWith("admin_test_"),

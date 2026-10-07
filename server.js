@@ -67,7 +67,16 @@ app.use(
     },
   }),
 );
-app.use("/src", express.static(path.join(dirname, "src")));
+app.use(
+  "/src",
+  (req, res, next) => {
+    if (req.path.startsWith("/backend") || req.path.includes("..")) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+    next();
+  },
+  express.static(path.join(dirname, "src")),
+);
 app.use(
   "/uploads",
   express.static(path.join(dirname, "uploads"), {

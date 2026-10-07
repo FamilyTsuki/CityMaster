@@ -27,7 +27,8 @@ export class ProfileController {
         isAdmin: user.is_admin || false,
       });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error("ProfileController getProfile error:", error);
+      res.status(500).json({ error: "Erreur interne du serveur" });
     }
   }
 

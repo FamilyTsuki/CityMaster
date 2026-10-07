@@ -5,16 +5,7 @@ import pool from "../config/database.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const usersFilePath = path.join(
-  __dirname,
-  "..",
-  "..",
-  "..",
-  "public",
-  "assets",
-  "data",
-  "users.json",
-);
+const usersFilePath = path.join(process.cwd(), "config", "users.json");
 
 const memoryUsers = new Map();
 

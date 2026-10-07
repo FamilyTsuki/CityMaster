@@ -100,3 +100,4 @@ Ce document regroupe les actions concrètes pour réduire drastiquement la conso
 - [ ] **5.2 Fusionner les vérifications au démarrage dans `app.js`**
   - Au chargement initial, l'application fait séparément un appel pour `/api/version` et `/api/profile`.
   - Possibilité de combiner ou de rendre asynchrone non-bloquant pour un temps de premier rendu (FCP) encore plus rapide.
+
