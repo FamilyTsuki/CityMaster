@@ -4,13 +4,13 @@
  * sans saturation du quota restreint de 5 Mo de localStorage.
  */
 export class StorageService {
-  static #DB_NAME = "citymaster_storage";
+  static #DB_NAME = 'citymaster_storage';
   static #DB_VERSION = 1;
-  static #STORE_CITIES = "cached_cities";
+  static #STORE_CITIES = 'cached_cities';
   static #dbInstance = null;
 
   static async #getDB() {
-    if (typeof indexedDB === "undefined") {
+    if (typeof indexedDB === 'undefined') {
       return null;
     }
 
@@ -25,7 +25,7 @@ export class StorageService {
         request.onupgradeneeded = (event) => {
           const db = event.target.result;
           if (!db.objectStoreNames.contains(this.#STORE_CITIES)) {
-            db.createObjectStore(this.#STORE_CITIES, { keyPath: "key" });
+            db.createObjectStore(this.#STORE_CITIES, { keyPath: 'key' });
           }
         };
 
@@ -35,11 +35,11 @@ export class StorageService {
         };
 
         request.onerror = (err) => {
-          console.warn("IndexedDB access error:", err);
+          console.warn('IndexedDB access error:', err);
           resolve(null);
         };
       } catch (err) {
-        console.warn("IndexedDB initialization error:", err);
+        console.warn('IndexedDB initialization error:', err);
         resolve(null);
       }
     });
@@ -57,7 +57,7 @@ export class StorageService {
 
     return new Promise((resolve) => {
       try {
-        const tx = db.transaction([this.#STORE_CITIES], "readonly");
+        const tx = db.transaction([this.#STORE_CITIES], 'readonly');
         const store = tx.objectStore(this.#STORE_CITIES);
         const req = store.get(cityKey);
 
@@ -89,7 +89,7 @@ export class StorageService {
 
     return new Promise((resolve) => {
       try {
-        const tx = db.transaction([this.#STORE_CITIES], "readwrite");
+        const tx = db.transaction([this.#STORE_CITIES], 'readwrite');
         const store = tx.objectStore(this.#STORE_CITIES);
         const req = store.put({
           key: cityKey,
@@ -128,13 +128,13 @@ export class StorageService {
 
     return new Promise((resolve) => {
       try {
-        const tx = db.transaction([this.#STORE_CITIES], "readwrite");
+        const tx = db.transaction([this.#STORE_CITIES], 'readwrite');
         const store = tx.objectStore(this.#STORE_CITIES);
         const req = store.delete(cityKey);
 
         req.onsuccess = () => resolve(true);
         req.onerror = () => resolve(false);
-      } catch (err) {
+      } catch {
         resolve(false);
       }
     });
@@ -150,13 +150,13 @@ export class StorageService {
 
     return new Promise((resolve) => {
       try {
-        const tx = db.transaction([this.#STORE_CITIES], "readwrite");
+        const tx = db.transaction([this.#STORE_CITIES], 'readwrite');
         const store = tx.objectStore(this.#STORE_CITIES);
         const req = store.clear();
 
         req.onsuccess = () => resolve(true);
         req.onerror = () => resolve(false);
-      } catch (err) {
+      } catch {
         resolve(false);
       }
     });

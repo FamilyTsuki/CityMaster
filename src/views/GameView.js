@@ -1,4 +1,3 @@
-import { CustomLotissementService } from "../services/CustomLotissementService.js";
 import { I18nService } from "../services/I18nService.js";
 import { ApiService } from "../services/ApiService.js";
 
@@ -610,12 +609,6 @@ export class GameView {
     this.#leaderboardCallback = callback;
     const tabMonthly = document.getElementById("tab-monthly");
     const tabAllTime = document.getElementById("tab-alltime");
-
-    const getActiveType = () => {
-      if (tabAllTime && tabAllTime.classList.contains("active"))
-        return "all_time";
-      return "monthly";
-    };
 
     const getActiveDiff = () => {
       const difficultyInput = document.getElementById("difficulty-search");

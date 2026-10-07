@@ -71,8 +71,6 @@ export class OverpassService {
         const name = element.tags.name || element.tags.ref;
         if (!name) continue;
 
-        const isLotissement = false;
-
         if (element.type === 'way' && element.geometry) {
           if (!itemGroups[name]) {
             itemGroups[name] = { coords: [], isLotissement: false, highway: element.tags.highway };
@@ -94,7 +92,7 @@ export class OverpassService {
           type: 'Feature',
           id: index,
           properties: {
-            name: name,
+            name,
             isLotissement: group.isLotissement,
             itemType: group.isLotissement ? 'lotissement' : 'street',
             highway: group.highway || 'unclassified'
@@ -109,7 +107,7 @@ export class OverpassService {
           type: 'Feature',
           id: index,
           properties: {
-            name: name,
+            name,
             isLotissement: true,
             itemType: 'lotissement'
           },
@@ -124,7 +122,7 @@ export class OverpassService {
 
     return {
       type: 'FeatureCollection',
-      features: features
+      features
     };
   }
 }

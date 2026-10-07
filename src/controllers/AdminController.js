@@ -1,7 +1,6 @@
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
 import {
-  RouteDifficultyService,
   MINOR_WAY_KEYWORDS,
   MAJOR_WAY_TYPES,
 } from "../services/RouteDifficultyService.js";

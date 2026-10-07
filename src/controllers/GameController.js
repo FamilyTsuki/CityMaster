@@ -6,7 +6,6 @@ import {
 } from "../services/SpatialService.js";
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
-import { CustomLotissementService } from "../services/CustomLotissementService.js";
 
 export class GameController {
   #gameView;

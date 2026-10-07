@@ -1,4 +1,3 @@
-import { escapeHTML } from "../utils/security.js";
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
 

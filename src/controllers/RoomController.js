@@ -43,17 +43,15 @@ export class RoomController {
     this.#roomView.bindJoinRoom(() => this.#handleJoinRoom());
     this.#roomView.bindStartGame(() => this.#handleStartGame());
     this.#roomView.bindLeaveRoom(() => this.#handleLeaveRoom());
-    this.#roomView.bindBackClick(() => {
-      this.stopPolling();
-      this.#router.navigate("/");
-    });
-
-    this.#roomView.bindHomeClick(() => {
-      this.stopPolling();
-      this.#router.navigate("/");
-    });
+    this.#roomView.bindBackClick(() => this.#handleNavigateHome());
+    this.#roomView.bindHomeClick(() => this.#handleNavigateHome());
     this.#roomView.bindRefreshScores(() => this.#fetchRoomDetails());
     this.#roomView.bindResetRoom(() => this.#handleResetRoom());
+  }
+
+  #handleNavigateHome() {
+    this.stopPolling();
+    this.#router.navigate("/");
   }
 
   showSetup() {

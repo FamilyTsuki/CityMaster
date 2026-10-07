@@ -1,12 +1,6 @@
 import crypto from 'crypto';
-import fs from 'fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import pool from '../config/database.js';
 import { City } from '../models/City.js';
-
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
 
 export class RoomController {
   static async createRoom(req, res) {
