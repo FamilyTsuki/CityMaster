@@ -102,17 +102,17 @@ Ce document répertorie l'ensemble des axes d'amélioration identifiés lors de 
 
 ## 🧪 Phase 5 : Tests & Qualité Logicielle
 
-- [ ] **5.1 Tests unitaires pour `AuthController`**
+- [x] **5.1 Tests unitaires pour `AuthController`**
   - Valider le format des pseudos (alphanumériques, longueur 3-30).
   - Valider la politique de mot de passe (min 6 caractères).
   - Vérifier la génération correcte du token JWT et le hachage bcrypt.
 
-- [ ] **5.2 Tests unitaires pour `RoomController`**
+- [x] **5.2 Tests unitaires pour `RoomController`**
   - Tester la génération de code de salon unique (6 caractères hexadécimaux).
   - Tester le rejet des salons expirés (1h, 24h, 7 jours).
   - Tester le mélange déterministe des rues via `test_id`.
 
-- [ ] **5.3 Tests unitaires pour `ScoreController`**
+- [x] **5.3 Tests unitaires pour `ScoreController`**
   - Tester le rejet des scores négatifs ou non entiers.
   - Tester la déduplication `MAX(score)` du classement.
 
