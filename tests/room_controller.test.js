@@ -183,3 +183,4 @@ test("RoomController: mélange déterministe des rues via test_id (mulberry32 PR
   assert.equal(run1.length, sampleStreets.length);
   assert.deepEqual([...run1].sort(), [...sampleStreets].sort());
 });
+

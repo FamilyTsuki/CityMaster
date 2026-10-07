@@ -122,3 +122,4 @@ test("ScoreController & Score: déduplication MAX(score) et classement par joueu
   assert.ok(Array.isArray(resOkTest.body));
   assert.equal(resOkTest.body.length >= 3, true);
 });
+

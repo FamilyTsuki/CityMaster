@@ -132,3 +132,4 @@ test("AuthController: hachage bcrypt sécurisé et génération de token JWT val
 
   await cleanupTestUsers();
 });
+
