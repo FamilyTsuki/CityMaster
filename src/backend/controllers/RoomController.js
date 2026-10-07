@@ -148,28 +148,7 @@ export class RoomController {
         return res.status(410).json({ error: 'Ce salon a expiré (durée de validité dépassée).' });
       }
 
-      let cityData = null;
-      try {
-        const cityPath = path.join(dirname, '..', '..', '..', 'public', 'assets', 'data', `${room.city_key}.json`);
-        const fileContent = await fs.readFile(cityPath, 'utf8');
-        const cityJson = JSON.parse(fileContent);
-        cityData = {
-          key: room.city_key,
-          name: cityJson.name || room.city_key,
-          bbox: cityJson.bbox,
-          center: cityJson.center,
-          osmId: cityJson.osmId
-        };
-      } catch (err) {
-        try {
-          const configCities = await City.getAll();
-          const found = configCities.find(c => c.key === room.city_key);
-          if (found) {
-            cityData = found;
-          }
-        } catch (e) {}
-      }
-
+      let cityData = await City.getByKey(room.city_key);
       if (!cityData) {
         cityData = {
           key: room.city_key,

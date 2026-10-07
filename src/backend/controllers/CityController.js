@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import * as turf from "@turf/turf";
@@ -155,11 +155,12 @@ export class CityController {
         `${key}.json`,
       );
 
-      if (!fs.existsSync(filePath)) {
+      let fileContent = null;
+      try {
+        fileContent = await fs.readFile(filePath, "utf8");
+      } catch (err) {
         return res.json(["easy", "medium", "hard"]);
       }
-
-      const fileContent = fs.readFileSync(filePath, "utf8");
       const geojson = JSON.parse(fileContent);
 
       let customDistricts = [];
@@ -171,7 +172,7 @@ export class CityController {
           "data",
           "custom_districts.json",
         );
-        const content = fs.readFileSync(districtsFilePath, "utf8");
+        const content = await fs.readFile(districtsFilePath, "utf8");
         const customDistrictsObj = JSON.parse(content);
         customDistricts = customDistrictsObj[key] || [];
       } catch (err) {}
@@ -185,7 +186,7 @@ export class CityController {
           "data",
           "custom_routes.json",
         );
-        const routesContent = fs.readFileSync(routesFilePath, "utf8");
+        const routesContent = await fs.readFile(routesFilePath, "utf8");
         const customRoutesObj = JSON.parse(routesContent);
         customRoutes = customRoutesObj[key] || [];
       } catch (err) {}
@@ -474,31 +475,24 @@ export class CityController {
         "assets",
         "data",
       );
-      if (!fs.existsSync(publicDataDir)) {
-        fs.mkdirSync(publicDataDir, { recursive: true });
-      }
+      try {
+        await fs.mkdir(publicDataDir, { recursive: true });
+      } catch (e) {}
 
       const outputPath = path.join(publicDataDir, `${cityKey}.json`);
 
-      if (fs.existsSync(outputPath)) {
-        try {
-          const stats = fs.statSync(outputPath);
-          if (stats.size > 150) {
-            console.log(`City ${cityKey} is already generated.`);
-            return res.json({ success: true, cached: true });
-          } else {
-            console.warn(
-              `City ${cityKey} file is empty or corrupted, regenerating...`,
-            );
-            fs.unlinkSync(outputPath);
-          }
-        } catch (e) {
-          console.error(
-            `Error checking/unlinking empty city file ${cityKey}:`,
-            e,
+      try {
+        const stats = await fs.stat(outputPath);
+        if (stats.size > 150) {
+          console.log(`City ${cityKey} is already generated.`);
+          return res.json({ success: true, cached: true });
+        } else {
+          console.warn(
+            `City ${cityKey} file is empty or corrupted, regenerating...`,
           );
+          await fs.unlink(outputPath);
         }
-      }
+      } catch (e) {}
 
       console.log(
         `Generating data for ${name} (OSM ID: ${parsedOsmId}) -> ${cityKey}.json`,
@@ -574,7 +568,7 @@ export class CityController {
         });
       }
 
-      fs.writeFileSync(outputPath, JSON.stringify(geojson, null, 2), "utf8");
+      await fs.writeFile(outputPath, JSON.stringify(geojson, null, 2), "utf8");
       console.log(
         `Saved ${geojson.features.length} streets and lotissements to ${outputPath}`,
       );

@@ -30,27 +30,27 @@ Ce document répertorie l'ensemble des axes d'amélioration identifiés lors de 
 
 ## ⚡ Phase 2 : Performance & Scalabilité Serveur
 
-- [ ] **2.1 Éliminer la lecture du fichier GeoJSON géant (347 Mo) dans `RoomController`**
+- [x] **2.1 Éliminer la lecture du fichier GeoJSON géant (347 Mo) dans `RoomController`**
   - **Fichier** : [`src/backend/controllers/RoomController.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/controllers/RoomController.js#L153-L162)
   - **Problème** : À chaque polling de salon (toutes les 2 secondes par joueur), le serveur relit et parse `${room.city_key}.json` sur le disque pour extraire simplement `bbox` et `center`. Pour Lyon, le fichier pèse 347 Mo !
   - **Action** : Récupérer directement les métadonnées depuis `City.getAll()` ou `cities.json` qui les contiennent déjà sous forme légère (quelques Ko).
 
-- [ ] **2.2 Remplacer les I/O synchrones bloquantes (`fs.readFileSync`)**
+- [x] **2.2 Remplacer les I/O synchrones bloquantes (`fs.readFileSync`)**
   - **Fichier** : [`src/backend/controllers/CityController.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/controllers/CityController.js#L158-L175)
   - **Problème** : `fs.readFileSync` et `fs.existsSync` bloquent l'Event Loop de Node.js sur les gros fichiers de rues.
   - **Action** : Migrer vers `fs/promises` (`await fs.readFile`).
 
-- [ ] **2.3 Mettre en cache mémoire RAM le référentiel des communes**
+- [x] **2.3 Mettre en cache mémoire RAM le référentiel des communes**
   - **Fichier** : [`src/backend/models/City.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/models/City.js#L16-L42)
   - **Problème** : `City.getAll()` relit les fichiers `cities.json` et `custom_cities.json` à chaque recherche ou affichage.
   - **Action** : Garder la liste fusionnée en mémoire avec réinvalidation lors d'un appel à `saveCustomCity()`.
 
-- [ ] **2.4 Regrouper les écritures disques dans `City.search()`**
+- [x] **2.4 Regrouper les écritures disques dans `City.search()`**
   - **Fichier** : [`src/backend/models/City.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/models/City.js#L164-L167)
   - **Problème** : `this.saveCustomCity()` est appelé dans une boucle `for` pour chaque commune trouvée par Nominatim, déclenchant plusieurs écritures consécutives du même fichier.
   - **Action** : Accumuler les nouvelles communes et effectuer une unique sauvegarde groupée en sortie de boucle.
 
-- [ ] **2.5 Adapter le quota du Rate Limiter global pour les salons multijoueurs**
+- [x] **2.5 Adapter le quota du Rate Limiter global pour les salons multijoueurs**
   - **Fichier** : [`src/backend/middleware/security.js`](file:///home/tsuki/Documents/perso/Projects/CityMaster/src/backend/middleware/security.js#L36-L42)
   - **Problème** : Le quota de 1000 requêtes / 15 min par IP bloque les utilisateurs connectés sur le même réseau local (ex: même Wi-Fi) en raison du polling (450 requêtes par joueur en 15 min).
   - **Action** : Rehausser la limite pour les routes authentifiées ou exclure le polling de ce compteur global strict.

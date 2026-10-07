@@ -35,8 +35,17 @@ export const loginRateLimiter = rateLimit({
 
 export const globalRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 1000,
+  max: 2500,
   standardHeaders: true,
   legacyHeaders: false,
+  skip: (req) => req.originalUrl?.startsWith('/api/rooms'),
   message: { error: 'Rate limit exceeded. Please slow down your requests.' }
+});
+
+export const roomRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 6000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Room request limit exceeded. Please slow down.' }
 });

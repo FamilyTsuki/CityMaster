@@ -12,8 +12,17 @@ const slugify = (text) =>
     .replace(/[^a-z0-9]+/g, "_")
     .replace(/(^_+|_+$)/g, "");
 
+let cachedCities = null;
+let lastCacheTime = 0;
+const CACHE_TTL_MS = 60 * 1000;
+
 export class City {
   static async getAll() {
+    const now = Date.now();
+    if (cachedCities && now - lastCacheTime < CACHE_TTL_MS) {
+      return [...cachedCities];
+    }
+
     let baseCities = [];
     try {
       const data = await fs.readFile(baseFilePath, "utf-8");
@@ -38,10 +47,20 @@ export class City {
       cityMap.set(city.key, city);
     }
 
-    return Array.from(cityMap.values());
+    cachedCities = Array.from(cityMap.values());
+    lastCacheTime = now;
+    return [...cachedCities];
   }
 
-  static async saveCustomCity(city) {
+  static async getByKey(key) {
+    if (!key) return null;
+    const cities = await this.getAll();
+    return cities.find((c) => c.key === key) || null;
+  }
+
+  static async saveCustomCities(citiesToSave) {
+    if (!Array.isArray(citiesToSave) || citiesToSave.length === 0) return;
+
     let customCities = [];
     try {
       const customData = await fs.readFile(customFilePath, "utf-8");
@@ -50,14 +69,21 @@ export class City {
       if (error.code !== "ENOENT") throw error;
     }
 
-    const index = customCities.findIndex((c) => c.key === city.key);
-    if (index >= 0) {
-      customCities[index] = city;
-    } else {
-      customCities.push(city);
+    for (const city of citiesToSave) {
+      const index = customCities.findIndex((c) => c.key === city.key);
+      if (index >= 0) {
+        customCities[index] = city;
+      } else {
+        customCities.push(city);
+      }
     }
 
     await fs.writeFile(customFilePath, JSON.stringify(customCities, null, 2), "utf-8");
+    cachedCities = null;
+  }
+
+  static async saveCustomCity(city) {
+    await this.saveCustomCities([city]);
   }
 
   static async search(query) {
@@ -106,6 +132,8 @@ export class City {
 
       if (response.ok) {
         const results = await response.json();
+
+        const newCitiesToSave = [];
 
         for (const result of results) {
           if (
@@ -163,8 +191,12 @@ export class City {
 
             cities.push(cityData);
             combinedResults.push(cityData);
-            await this.saveCustomCity(cityData);
+            newCitiesToSave.push(cityData);
           }
+        }
+
+        if (newCitiesToSave.length > 0) {
+          await this.saveCustomCities(newCitiesToSave);
         }
       }
     } catch (error) {

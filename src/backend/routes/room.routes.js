@@ -1,9 +1,11 @@
 import express from 'express';
 import { RoomController } from '../controllers/RoomController.js';
 import { authenticateToken } from '../middleware/auth.js';
+import { roomRateLimiter } from '../middleware/security.js';
 
 const router = express.Router();
 
+router.use(roomRateLimiter);
 router.use(authenticateToken);
 
 router.post('/', RoomController.createRoom);
