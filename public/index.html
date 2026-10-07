@@ -1,147 +1,396 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="description" content="CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !">
-  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbf7f0" />
-  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141721" />
-  <meta name="color-scheme" content="light dark" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="CityMaster" />
-  <title>CityMaster - Jeu Géographique Interactif</title>
-  
-  <link rel="manifest" href="/manifest.json?v=2.5.1" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=2.5.1" id="dynamic-favicon" />
-  <link rel="icon" type="image/svg+xml" href="/assets/images/icon.svg?v=2.5.1" />
-  <link rel="icon" type="image/png" sizes="192x192" href="/assets/images/icon-192.png?v=2.5.1" />
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.5.1" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/assets/images/apple-touch-icon.png?v=2.5.1" />
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#fbf7f0"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#141721"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="CityMaster" />
+    <title>CityMaster - Jeu Géographique Interactif</title>
 
-  <script>
-    (function() {
-      const savedTheme = localStorage.getItem('theme');
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
+    <link rel="manifest" href="/manifest.json?v=2.5.0" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/favicon.png?v=2.5.0"
+      id="dynamic-favicon"
+    />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/assets/images/icon.svg?v=2.5.0"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="192x192"
+      href="/assets/images/icon-192.png?v=2.5.0"
+    />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.5.0" />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="/assets/images/apple-touch-icon.png?v=2.5.0"
+    />
 
-      const fav = document.getElementById('dynamic-favicon');
-      if (fav) {
-        fav.href = '/favicon.png?v=2.5.1';
-      }
-    })();
-  </script>
+    <script>
+      (function () {
+        const savedTheme = localStorage.getItem("theme");
+        if (
+          savedTheme === "dark" ||
+          (!savedTheme &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        } else {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap">
-  <link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <link rel="stylesheet" href="/assets/styles/style.css">
-</head>
-<body>
-  <a href="#app" class="skip-link" data-i18n="nav.skip_link">Aller au contenu principal</a>
+        const fav = document.getElementById("dynamic-favicon");
+        if (fav) {
+          fav.href = "/favicon.png?v=2.5.0";
+        }
+      })();
+    </script>
 
-  <svg style="position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none;" aria-hidden="true">
-    <defs>
-      <filter id="paper-wobbly-line" x="-10%" y="-10%" width="120%" height="120%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.025" numOctaves="2" result="noise" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-      <filter id="paper-wobbly-line-strong" x="-20%" y="-20%" width="140%" height="140%">
-        <feTurbulence type="fractalNoise" baseFrequency="0.028" numOctaves="2" result="noise" />
-        <feDisplacementMap in="SourceGraphic" in2="noise" scale="5.5" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </defs>
-  </svg>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      crossorigin=""
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Titan+One&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="/assets/styles/style.css" />
+  </head>
+  <body>
+    <a href="#app" class="skip-link" data-i18n="nav.skip_link"
+      >Aller au contenu principal</a
+    >
 
-  <nav id="main-nav" class="navbar" role="navigation" aria-label="Navigation principale" data-i18n-aria-label="nav.main_nav">
-    <div class="navbar-brand">
-      <span id="logo-brand" class="logo-text cursor-pointer" tabindex="0" role="button" aria-label="CityMaster Accueil" data-i18n-aria-label="nav.home">CityMaster</span>
-    </div>
-    <button id="nav-burger-btn" class="icon-btn burger-btn" aria-label="Ouvrir le menu principal" data-i18n-aria-label="nav.burger_menu" aria-expanded="false">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="burger-icon-svg" aria-hidden="true">
-        <line x1="3" y1="6" x2="21" y2="6" class="burger-line line-top"></line>
-        <line x1="3" y1="12" x2="21" y2="12" class="burger-line line-middle"></line>
-        <line x1="3" y1="18" x2="21" y2="18" class="burger-line line-bottom"></line>
-      </svg>
-    </button>
-    <div id="navbar-actions" class="navbar-actions">
-      <button id="nav-admin-link" class="nav-admin-link hidden" aria-label="Administration des Quartiers" data-i18n-aria-label="nav.admin_label">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-        <span data-i18n="nav.admin">Admin Quartiers</span>
-      </button>
-      <button id="pwa-install-btn" class="btn secondary hidden pwa-install-btn-style" title="Installer l'application sur votre appareil" data-i18n-title="nav.install_title" aria-label="Installer l'application sur votre appareil" data-i18n-aria-label="nav.install_label">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-small" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-        <span class="pwa-btn-text" data-i18n="nav.install">Installer</span>
-      </button>
-      <button id="theme-toggle" class="icon-btn" title="Changer de thème" data-i18n-title="nav.theme_title" aria-label="Basculer le thème clair ou sombre" data-i18n-aria-label="nav.theme_toggle">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon-svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
-      </button>
-      <div id="nav-auth-logged-out">
-        <button id="nav-login-btn" class="btn secondary" data-i18n="nav.login">Se connecter</button>
+    <svg
+      style="
+        position: absolute;
+        width: 0;
+        height: 0;
+        overflow: hidden;
+        pointer-events: none;
+      "
+      aria-hidden="true"
+    >
+      <defs>
+        <filter
+          id="paper-wobbly-line"
+          x="-10%"
+          y="-10%"
+          width="120%"
+          height="120%"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.025"
+            numOctaves="2"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="2.5"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+        <filter
+          id="paper-wobbly-line-strong"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="140%"
+        >
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.028"
+            numOctaves="2"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="5.5"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+        </filter>
+      </defs>
+    </svg>
+
+    <nav
+      id="main-nav"
+      class="navbar"
+      role="navigation"
+      aria-label="Navigation principale"
+      data-i18n-aria-label="nav.main_nav"
+    >
+      <div class="navbar-brand">
+        <span
+          id="logo-brand"
+          class="logo-text cursor-pointer"
+          tabindex="0"
+          role="button"
+          aria-label="CityMaster Accueil"
+          data-i18n-aria-label="nav.home"
+          >CityMaster</span
+        >
       </div>
-      <div id="nav-auth-logged-in" class="hidden">
-        <button id="nav-profile-link" class="profile-link" title="Mon Profil" data-i18n-title="profile.title" aria-label="Voir mon profil" data-i18n-aria-label="profile.view_profile">
-          <img id="nav-profile-img" src="/assets/images/default-avatar.png" alt="" class="nav-avatar hidden" aria-hidden="true" />
-          <span id="nav-profile-name" class="profile-name"></span>
+      <button
+        id="nav-burger-btn"
+        class="icon-btn burger-btn"
+        aria-label="Ouvrir le menu principal"
+        data-i18n-aria-label="nav.burger_menu"
+        aria-expanded="false"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="burger-icon-svg"
+          aria-hidden="true"
+        >
+          <line
+            x1="3"
+            y1="6"
+            x2="21"
+            y2="6"
+            class="burger-line line-top"
+          ></line>
+          <line
+            x1="3"
+            y1="12"
+            x2="21"
+            y2="12"
+            class="burger-line line-middle"
+          ></line>
+          <line
+            x1="3"
+            y1="18"
+            x2="21"
+            y2="18"
+            class="burger-line line-bottom"
+          ></line>
+        </svg>
+      </button>
+      <div id="navbar-actions" class="navbar-actions">
+        <button
+          id="nav-admin-link"
+          class="nav-admin-link hidden"
+          aria-label="Administration des Quartiers"
+          data-i18n-aria-label="nav.admin_label"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon-small"
+            aria-hidden="true"
+          >
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
+            ></path>
+          </svg>
+          <span data-i18n="nav.admin">Admin Quartiers</span>
         </button>
-        <button id="nav-logout-btn" class="logout-link" data-i18n="nav.logout">Se déconnecter</button>
+        <button
+          id="pwa-install-btn"
+          class="btn secondary hidden pwa-install-btn-style"
+          title="Installer l'application sur votre appareil"
+          data-i18n-title="nav.install_title"
+          aria-label="Installer l'application sur votre appareil"
+          data-i18n-aria-label="nav.install_label"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon-small"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="pwa-btn-text" data-i18n="nav.install">Installer</span>
+        </button>
+        <button
+          id="theme-toggle"
+          class="icon-btn"
+          title="Changer de thème"
+          data-i18n-title="nav.theme_title"
+          aria-label="Basculer le thème clair ou sombre"
+          data-i18n-aria-label="nav.theme_toggle"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="theme-icon-svg"
+            aria-hidden="true"
+          >
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+        <div id="nav-auth-logged-out">
+          <button
+            id="nav-login-btn"
+            class="btn secondary"
+            data-i18n="nav.login"
+          >
+            Se connecter
+          </button>
+        </div>
+        <div id="nav-auth-logged-in" class="hidden">
+          <button
+            id="nav-profile-link"
+            class="profile-link"
+            title="Mon Profil"
+            data-i18n-title="profile.title"
+            aria-label="Voir mon profil"
+            data-i18n-aria-label="profile.view_profile"
+          >
+            <img
+              id="nav-profile-img"
+              src="/assets/images/default-avatar.png"
+              alt=""
+              class="nav-avatar hidden"
+              aria-hidden="true"
+            />
+            <span id="nav-profile-name" class="profile-name"></span>
+          </button>
+          <button
+            id="nav-logout-btn"
+            class="logout-link"
+            data-i18n="nav.logout"
+          >
+            Se déconnecter
+          </button>
+        </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <main id="app" role="main" tabindex="-1">
-    <div id="loading-screen" class="screen active">
-      <div class="loader-container">
-        <div class="loader-spinner" role="status" aria-label="Chargement en cours" data-i18n-aria-label="common.loading"></div>
-        <p id="loading-message" aria-live="polite" data-i18n="loading.loading_streets">Chargement de CityMaster...</p>
+    <main id="app" role="main" tabindex="-1">
+      <div id="loading-screen" class="screen active">
+        <div class="loader-container">
+          <div
+            class="loader-spinner"
+            role="status"
+            aria-label="Chargement en cours"
+            data-i18n-aria-label="common.loading"
+          ></div>
+          <p
+            id="loading-message"
+            aria-live="polite"
+            data-i18n="loading.loading_streets"
+          >
+            Chargement de CityMaster...
+          </p>
+        </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js" crossorigin=""></script>
-  <script type="module" src="/src/app.js"></script>
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      crossorigin=""
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"
+      crossorigin=""
+    ></script>
+    <script type="module" src="/src/app.js"></script>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js').then((reg) => {
-          reg.update();
-        }).catch(err => {
-          console.error('ServiceWorker registration failed:', err);
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/sw.js")
+            .then((reg) => {
+              reg.update();
+            })
+            .catch((err) => {
+              console.error("ServiceWorker registration failed:", err);
+            });
         });
+      }
+
+      let deferredPrompt;
+      window.addEventListener("beforeinstallprompt", (e) => {
+        deferredPrompt = e;
+        const installBtn = document.getElementById("pwa-install-btn");
+        if (installBtn) {
+          installBtn.classList.remove("hidden");
+          installBtn.onclick = () => {
+            installBtn.classList.add("hidden");
+            if (deferredPrompt) {
+              deferredPrompt.prompt();
+              deferredPrompt = null;
+            }
+          };
+        }
       });
-    }
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      deferredPrompt = e;
-      const installBtn = document.getElementById('pwa-install-btn');
-      if (installBtn) {
-        installBtn.classList.remove('hidden');
-        installBtn.onclick = () => {
-          installBtn.classList.add('hidden');
-          if (deferredPrompt) {
-            deferredPrompt.prompt();
-            deferredPrompt = null;
-          }
-        };
-      }
-    });
-
-    window.addEventListener('appinstalled', () => {
-      const installBtn = document.getElementById('pwa-install-btn');
-      if (installBtn) {
-        installBtn.classList.add('hidden');
-      }
-    });
-  </script>
-</body>
+      window.addEventListener("appinstalled", () => {
+        const installBtn = document.getElementById("pwa-install-btn");
+        if (installBtn) {
+          installBtn.classList.add("hidden");
+        }
+      });
+    </script>
+  </body>
 </html>

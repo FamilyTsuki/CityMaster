@@ -1,7 +1,7 @@
 # 🌍 CityMaster
 
 [![Play Online](https://img.shields.io/badge/Play%20Online-citymaster.tsuki--dev.fr-4f46e5?style=for-the-badge&logo=google-chrome&logoColor=white)](https://citymaster.tsuki-dev.fr)
-[![Version](https://img.shields.io/badge/version-2.5.1-emerald?style=for-the-badge)](https://github.com/FamilyTsuki/CityMaster/releases)
+[![Version](https://img.shields.io/badge/version-2.5.0-emerald?style=for-the-badge)](https://github.com/FamilyTsuki/CityMaster/releases)
 [![PWA Ready](https://img.shields.io/badge/PWA-installable%20%26%20offline-blue?style=for-the-badge&logo=pwa&logoColor=white)](https://citymaster.tsuki-dev.fr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
@@ -67,7 +67,7 @@ CityMaster/
 │   ├── services/        # Centralized ApiService, OverpassService, RouteDifficultyService
 │   └── views/           # Client MVC views (Admin, Game, Map, Room, Certificate)
 ├── server.js            # Node.js Express server entry point
-├── CHANGELOG.md         # Full release changelog (v2.0.0 through v2.5.1)
+├── CHANGELOG.md         # Full release changelog (v2.0.0 through v2.5.0)
 └── package.json         # Project metadata and dependencies
 ```
 
