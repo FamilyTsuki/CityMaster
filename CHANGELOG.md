@@ -3,6 +3,23 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.5.2] - 2026-10-08
+
+### Ergonomie, Taille & Haute Visibilité du Bouton Google Sign-In
+- **Mise à l'Échelle & Alignement Réactif (`AuthView.js`)** :
+  - Rehaussement de la taille du bouton Google Identity Services (`renderButton`) de `"medium"` (32px) vers `"large"` (40px), s'harmonisant avec la hauteur standardisée des champs de saisie et du bouton de soumission.
+  - Calcul dynamique et adaptatif de la largeur (`width`) calé sur la largeur effective du conteneur parent (`clientWidth`, borné entre 200px et 400px), assurant un alignement parfait avec le formulaire sur desktop comme sur mobile.
+  - Ajout d'un observateur de redimensionnement de fenêtre (`window.resize` avec debounce 150 ms) pour recalculer la largeur du bouton lors d'un changement de taille d'écran ou d'orientation mobile.
+- **Haute Visibilité & Contraste Mode Sombre (`auth.css` & `AuthView.js`)** :
+  - Abandon du thème `"filled_black"` (qui se fondait sans bordure dans l'arrière-plan de carte sombre `#1a1f2c`) au profit du thème officiel haute visibilité `"outline"` recommandé par les directives de style Google sur les arrière-plans sombres.
+  - Retrait du forçage `color-scheme: light;` sur `.google-auth-container` pour respecter l'héritage du thème de l'application.
+  - Stylisation avancée de l'iframe Google : coins arrondis (`border-radius: 8px`), ombre portée en mode sombre (`box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5)`), micro-liseré lumineux (`0 0 0 1px rgba(255, 255, 255, 0.18)`) et illumination au survol.
+- **Cache & Cycle de Vie PWA** :
+  - Incrémentation du cache Service Worker en `citymaster-v13` (`public/sw.js`) pour forcer le rafraîchissement des assets chez les clients.
+  - Mise à jour des chaînes de cache-busting `?v=2.5.2` dans `public/index.html` et synchronisation du badge de version dans `README.md`.
+
+---
+
 ## [2.5.1] - 2026-10-07
 
 ### Automatisation du Versioning & Directives de Release Agent

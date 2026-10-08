@@ -1715,13 +1715,19 @@ export class AuthView {
             },
           });
           targetBtn.replaceChildren();
-          const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+          const containerWidth = targetBtn.parentElement
+            ? Math.floor(targetBtn.parentElement.clientWidth)
+            : 380;
+          const btnWidth = Math.min(Math.max(containerWidth || 360, 200), 400);
+
           window.google.accounts.id.renderButton(targetBtn, {
-            theme: isDark ? "filled_black" : "outline",
-            size: "medium",
+            theme: "outline",
+            size: "large",
             text: "signin_with",
             shape: "rectangular",
-            logo_alignment: "left"
+            logo_alignment: "left",
+            width: btnWidth,
           });
           return true;
         }
@@ -1739,6 +1745,14 @@ export class AuthView {
         this.#themeObserver.observe(document.documentElement, {
           attributes: true,
           attributeFilter: ["data-theme"],
+        });
+
+        let resizeTimer = null;
+        window.addEventListener("resize", () => {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(() => {
+            renderButton();
+          }, 150);
         });
       }
 

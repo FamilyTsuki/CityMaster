@@ -259,8 +259,7 @@
   margin-top: 0.25rem;
   margin-bottom: 0.875rem;
   width: 100%;
-  min-height: 42px;
-  color-scheme: light;
+  min-height: 44px;
 }
 
 .auth-separator {
@@ -528,7 +527,7 @@
   .google-auth-container {
     margin-top: 0.25rem;
     margin-bottom: 0.75rem;
-    min-height: 40px;
+    min-height: 44px;
   }
 
   .auth-separator {
@@ -630,6 +629,25 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  min-height: 40px;
+  min-height: 44px;
 }
+
+#google-login-btn iframe {
+  border-radius: 8px !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+#google-login-btn:hover iframe {
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
+}
+
+[data-theme="dark"] #google-login-btn iframe {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.18) !important;
+}
+
+[data-theme="dark"] #google-login-btn:hover iframe {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.35) !important;
+}
+
 
