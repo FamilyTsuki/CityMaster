@@ -58,7 +58,8 @@
     "feature_1_title": "Données en Temps Réel",
     "feature_1_desc": "Explorez n'importe quelle commune grâce aux données géographiques d'OpenStreetMap.",
     "feature_3_title": "Multi-Plateforme & App Mobile",
-    "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur avec application PWA installable et mode hors-ligne.",
+    "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur : installable en 1 clic sans passer par les stores et jouable hors-ligne.",
+    "install_guide_btn": "Comment l'installer ?",
     "feature_4_title": "Salons Équipes & Classement",
     "feature_4_desc": "Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement."
   },

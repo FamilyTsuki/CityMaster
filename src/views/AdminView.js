@@ -11,7 +11,7 @@ export class AdminView {
   #activeLineLayer;
   #vertexMarkers;
   #activePoints;
-  #activeRoutePoints;
+  #activeRouteSegments;
   #activeColor;
   #editingDistrictId;
   #originalDistrictName;
@@ -30,7 +30,7 @@ export class AdminView {
     this.#activeLineLayer = null;
     this.#vertexMarkers = [];
     this.#activePoints = [];
-    this.#activeRoutePoints = [];
+    this.#activeRouteSegments = [];
     this.#activeColor = "#f59e0b";
     this.#editingDistrictId = null;
     this.#originalDistrictName = null;
@@ -537,6 +537,10 @@ export class AdminView {
     if (editor) editor.classList.remove("hidden");
     if (diffSelect) diffSelect.value = currentDifficulty || "auto";
 
+    if (this.#map) {
+      this.#map.getContainer().classList.add("admin-editing-route");
+    }
+
     if (routeFeature) {
       this.#editingRouteId =
         routeFeature.properties.id ||
@@ -554,25 +558,59 @@ export class AdminView {
         );
       if (nameInput) nameInput.value = routeFeature.properties.name || "";
 
-      if (routeFeature.geometry) {
-        let line = [];
-        if (routeFeature.geometry.type === "LineString") {
-          line = routeFeature.geometry.coordinates || [];
-        } else if (routeFeature.geometry.type === "MultiLineString") {
-          const coordsArr = routeFeature.geometry.coordinates || [];
-          line = coordsArr.flat();
-        } else if (routeFeature.geometry.type === "Point") {
-          line = [routeFeature.geometry.coordinates];
-        }
-        line.forEach((coord) => {
-          if (Array.isArray(coord) && coord.length >= 2) {
-            this.#addRouteVertex([coord[1], coord[0]]);
+      // Hide tooltip of the currently edited route so it does not block vertex editing
+      if (this.#routesLayer) {
+        this.#routesLayer.eachLayer((layer) => {
+          if (
+            layer.feature &&
+            layer.getTooltip &&
+            (layer.feature.properties?.name === this.#originalRouteName ||
+              layer.feature.properties?.id === this.#editingRouteId)
+          ) {
+            const tooltip = layer.getTooltip();
+            if (tooltip && tooltip._container) {
+              tooltip._container.classList.add("editing-route-hidden");
+            }
           }
         });
       }
 
-      if (this.#activeRoutePoints.length > 0 && this.#map) {
-        const bounds = L.latLngBounds(this.#activeRoutePoints);
+      this.#activeRouteSegments = [];
+      if (routeFeature.geometry) {
+        if (routeFeature.geometry.type === "LineString") {
+          const coords = routeFeature.geometry.coordinates || [];
+          const seg = coords
+            .filter((c) => Array.isArray(c) && c.length >= 2)
+            .map((c) => [c[1], c[0]]);
+          if (seg.length > 0) this.#activeRouteSegments.push(seg);
+        } else if (routeFeature.geometry.type === "MultiLineString") {
+          const multi = routeFeature.geometry.coordinates || [];
+          multi.forEach((segment) => {
+            const seg = (segment || [])
+              .filter((c) => Array.isArray(c) && c.length >= 2)
+              .map((c) => [c[1], c[0]]);
+            if (seg.length > 0) {
+              this.#activeRouteSegments.push(seg);
+            }
+          });
+        } else if (routeFeature.geometry.type === "Point") {
+          const c = routeFeature.geometry.coordinates;
+          if (Array.isArray(c) && c.length >= 2) {
+            this.#activeRouteSegments.push([[c[1], c[0]]]);
+          }
+        }
+      }
+
+      if (this.#activeRouteSegments.length === 0) {
+        this.#activeRouteSegments = [[]];
+      }
+
+      this.#updateRouteLine();
+      this.#renderRouteVertexMarkers();
+
+      const allPoints = this.#activeRouteSegments.flat();
+      if (allPoints.length > 0 && this.#map) {
+        const bounds = L.latLngBounds(allPoints);
         if (bounds.isValid()) {
           this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
         }
@@ -580,6 +618,7 @@ export class AdminView {
     } else {
       this.#editingRouteId = null;
       this.#originalRouteName = null;
+      this.#activeRouteSegments = [[]];
       if (titleEl)
         titleEl.textContent = I18nService.getInstance().t(
           "admin.new_route",
@@ -590,19 +629,68 @@ export class AdminView {
     }
   }
 
+  addNewRouteSegment() {
+    if (this.#activeRouteSegments.length === 0) {
+      this.#activeRouteSegments = [[]];
+    } else {
+      const lastSeg =
+        this.#activeRouteSegments[this.#activeRouteSegments.length - 1];
+      if (lastSeg.length === 0) {
+        this.showToast(
+          "Le tronçon actuel est encore vide. Cliquez sur la carte pour tracer.",
+          "info",
+        );
+        return;
+      }
+      this.#activeRouteSegments.push([]);
+    }
+    this.showToast(
+      "Nouveau tronçon ajouté. Cliquez sur la carte pour continuer le tracé.",
+      "info",
+    );
+  }
+
+  toggleRouteLabels() {
+    if (!this.#map) return;
+    const container = this.#map.getContainer();
+    const isHidden = container.classList.toggle("hide-route-names");
+    const btn = document.getElementById("admin-toggle-route-labels-btn");
+    if (btn) {
+      const textSpan = btn.querySelector(".map-toggle-text");
+      if (textSpan) {
+        textSpan.textContent = isHidden
+          ? "Afficher les noms"
+          : "Masquer les noms";
+      }
+      btn.classList.toggle("active", isHidden);
+    }
+  }
+
   #addRouteVertex(latlng) {
-    this.#activeRoutePoints.push(latlng);
+    if (this.#activeRouteSegments.length === 0) {
+      this.#activeRouteSegments.push([latlng]);
+    } else {
+      const targetSeg =
+        this.#activeRouteSegments[this.#activeRouteSegments.length - 1];
+      targetSeg.push(latlng);
+    }
     this.#updateRouteLine();
     this.#renderRouteVertexMarkers();
   }
 
   #updateRouteLine() {
+    const validSegments = this.#activeRouteSegments.filter(
+      (seg) => seg && seg.length > 0,
+    );
     if (this.#activeLineLayer) {
-      this.#activeLineLayer.setLatLngs(this.#activeRoutePoints);
+      this.#activeLineLayer.setLatLngs(validSegments);
     } else {
-      this.#activeLineLayer = L.polyline(this.#activeRoutePoints, {
+      this.#activeLineLayer = L.polyline(validSegments, {
         color: "#f43f5e",
-        weight: 5,
+        weight: 6,
+        opacity: 0.95,
+        lineCap: "round",
+        lineJoin: "round",
         fill: false,
       }).addTo(this.#map);
     }
@@ -612,58 +700,74 @@ export class AdminView {
     this.#vertexMarkers.forEach((m) => m.remove());
     this.#vertexMarkers = [];
 
-    this.#activeRoutePoints.forEach((latlng, idx) => {
-      const icon = L.divIcon({
-        className: "vertex-handle-icon",
-        html: `<div class="admin-marker" style="background: #f43f5e;"></div>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-      });
+    this.#activeRouteSegments.forEach((segment, sIdx) => {
+      segment.forEach((latlng, pIdx) => {
+        const icon = L.divIcon({
+          className: "vertex-handle-icon",
+          html: `<div class="admin-marker" style="background: #f43f5e;" title="Tronçon ${sIdx + 1}, Point ${pIdx + 1}"></div>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8],
+        });
 
-      const marker = L.marker(latlng, { icon, draggable: true }).addTo(
-        this.#map,
-      );
+        const marker = L.marker(latlng, { icon, draggable: true }).addTo(
+          this.#map,
+        );
 
-      marker.on("drag", (e) => {
-        const newPos = e.target.getLatLng();
-        this.#activeRoutePoints[idx] = [newPos.lat, newPos.lng];
-        this.#updateRouteLine();
-      });
+        marker.on("drag", (e) => {
+          const newPos = e.target.getLatLng();
+          this.#activeRouteSegments[sIdx][pIdx] = [newPos.lat, newPos.lng];
+          this.#updateRouteLine();
+        });
 
-      marker.on("contextmenu", (e) => {
-        L.DomEvent.stopPropagation(e);
-        if (this.#activeRoutePoints.length > 2) {
-          this.#activeRoutePoints.splice(idx, 1);
+        const removeVertex = () => {
+          this.#activeRouteSegments[sIdx].splice(pIdx, 1);
+          if (
+            this.#activeRouteSegments[sIdx].length === 0 &&
+            this.#activeRouteSegments.length > 1
+          ) {
+            this.#activeRouteSegments.splice(sIdx, 1);
+          }
           this.#updateRouteLine();
           this.#renderRouteVertexMarkers();
-        }
-      });
+        };
 
-      marker.on("click", (e) => {
-        L.DomEvent.stopPropagation(e);
-      });
+        marker.on("contextmenu", (e) => {
+          L.DomEvent.stopPropagation(e);
+          removeVertex();
+        });
 
-      this.#vertexMarkers.push(marker);
+        marker.on("click", (e) => {
+          L.DomEvent.stopPropagation(e);
+          removeVertex();
+        });
+
+        this.#vertexMarkers.push(marker);
+      });
     });
   }
 
   undoRoute() {
-    if (this.#activeRoutePoints.length > 0) {
-      this.#activeRoutePoints.pop();
-      if (this.#activeRoutePoints.length === 0) {
-        if (this.#activeLineLayer) {
-          this.#activeLineLayer.remove();
-          this.#activeLineLayer = null;
-        }
-      } else {
-        this.#updateRouteLine();
+    if (this.#activeRouteSegments.length > 0) {
+      let lastSeg =
+        this.#activeRouteSegments[this.#activeRouteSegments.length - 1];
+      if (lastSeg.length === 0 && this.#activeRouteSegments.length > 1) {
+        this.#activeRouteSegments.pop();
+        lastSeg =
+          this.#activeRouteSegments[this.#activeRouteSegments.length - 1];
       }
+      if (lastSeg.length > 0) {
+        lastSeg.pop();
+      }
+      if (lastSeg.length === 0 && this.#activeRouteSegments.length > 1) {
+        this.#activeRouteSegments.pop();
+      }
+      this.#updateRouteLine();
       this.#renderRouteVertexMarkers();
     }
   }
 
   clearActiveRouteDrawing() {
-    this.#activeRoutePoints = [];
+    this.#activeRouteSegments = [];
     this.#vertexMarkers.forEach((m) => m.remove());
     this.#vertexMarkers = [];
     if (this.#activeLineLayer) {
@@ -672,6 +776,21 @@ export class AdminView {
     }
     this.#editingRouteId = null;
     this.#originalRouteName = null;
+
+    if (this.#map) {
+      this.#map.getContainer().classList.remove("admin-editing-route");
+    }
+
+    if (this.#routesLayer) {
+      this.#routesLayer.eachLayer((layer) => {
+        if (layer.getTooltip) {
+          const tooltip = layer.getTooltip();
+          if (tooltip && tooltip._container) {
+            tooltip._container.classList.remove("editing-route-hidden");
+          }
+        }
+      });
+    }
 
     const editor = document.getElementById("admin-route-editor");
     if (editor) editor.classList.add("hidden");
@@ -683,18 +802,44 @@ export class AdminView {
     const diffSelect = document.getElementById("admin-route-difficulty");
     const difficulty = diffSelect ? diffSelect.value : "auto";
 
-    if (!name || this.#activeRoutePoints.length < 2) {
+    const validSegments = this.#activeRouteSegments
+      .map((seg) => seg.filter((pt) => Array.isArray(pt) && pt.length >= 2))
+      .filter((seg) => seg.length > 0);
+
+    const totalPoints = validSegments.reduce(
+      (acc, seg) => acc + seg.length,
+      0,
+    );
+
+    if (!name || totalPoints < 2) {
       return null;
     }
 
-    const line = this.#activeRoutePoints.map((pt) => [pt[1], pt[0]]);
+    let geometry;
+    if (validSegments.length === 1) {
+      geometry = {
+        type: "LineString",
+        coordinates: validSegments[0].map((pt) => [pt[1], pt[0]]),
+      };
+    } else {
+      geometry = {
+        type: "MultiLineString",
+        coordinates: validSegments.map((seg) =>
+          seg.map((pt) => [pt[1], pt[0]]),
+        ),
+      };
+    }
 
     return {
       id: this.#editingRouteId,
       originalName: this.#originalRouteName,
       name,
       difficulty,
-      coordinates: line,
+      geometry,
+      coordinates:
+        geometry.type === "LineString"
+          ? geometry.coordinates
+          : geometry.coordinates[0],
     };
   }
 

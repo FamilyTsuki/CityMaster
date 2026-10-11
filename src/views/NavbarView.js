@@ -12,9 +12,13 @@ export class NavbarView {
   #navAdminLink;
   #navBurgerBtn;
   #navbarActions;
+  #menuThemeToggle;
+  #menuThemeText;
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
+    this.#menuThemeToggle = document.getElementById('menu-theme-toggle');
+    this.#menuThemeText = document.getElementById('menu-theme-text');
     this.#langToggle = document.getElementById('lang-toggle');
     this.#langFlag = document.getElementById('lang-flag');
     this.#navAuthLoggedOut = document.getElementById('nav-auth-logged-out');
@@ -72,20 +76,31 @@ export class NavbarView {
   }
 
   onThemeToggle(callback) {
-    if (this.#themeToggle) {
-      this.#themeToggle.addEventListener('click', (e) => {
-        const isBurgerVisible = this.#navBurgerBtn && window.getComputedStyle(this.#navBurgerBtn).display !== 'none';
-        if (!isBurgerVisible) {
-          this.#themeToggle.classList.remove('rotate-spin');
-          void this.#themeToggle.offsetWidth;
-          this.#themeToggle.classList.add('rotate-spin');
-          setTimeout(() => {
-            callback(e);
-          }, 250);
-        } else {
+    const handleToggle = (btn, e) => {
+      const isBurgerVisible =
+        this.#navBurgerBtn &&
+        window.getComputedStyle(this.#navBurgerBtn).display !== 'none';
+      if (!isBurgerVisible && btn) {
+        btn.classList.remove('rotate-spin');
+        void btn.offsetWidth;
+        btn.classList.add('rotate-spin');
+        setTimeout(() => {
           callback(e);
-        }
-      });
+        }, 250);
+      } else {
+        callback(e);
+      }
+    };
+
+    if (this.#themeToggle) {
+      this.#themeToggle.addEventListener('click', (e) =>
+        handleToggle(this.#themeToggle, e),
+      );
+    }
+    if (this.#menuThemeToggle) {
+      this.#menuThemeToggle.addEventListener('click', (e) =>
+        handleToggle(this.#menuThemeToggle, e),
+      );
     }
   }
 
@@ -185,47 +200,71 @@ export class NavbarView {
   }
 
   setTheme(theme) {
-    if (!this.#themeToggle) return;
+    const createThemeSvg = () => {
+      const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '2');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      svg.setAttribute('class', 'theme-icon-svg');
 
-    this.#themeToggle.replaceChildren();
+      if (theme === 'dark') {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '12');
+        circle.setAttribute('cy', '12');
+        circle.setAttribute('r', '5');
+        svg.appendChild(circle);
 
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('viewBox', '0 0 24 24');
-    svg.setAttribute('fill', 'none');
-    svg.setAttribute('stroke', 'currentColor');
-    svg.setAttribute('stroke-width', '2');
-    svg.setAttribute('stroke-linecap', 'round');
-    svg.setAttribute('stroke-linejoin', 'round');
-    svg.setAttribute('class', 'theme-icon-svg');
+        const linesCoords = [
+          [12, 1, 12, 3],
+          [12, 21, 12, 23],
+          [4.22, 4.22, 5.64, 5.64],
+          [18.36, 18.36, 19.78, 19.78],
+          [1, 12, 3, 12],
+          [21, 12, 23, 12],
+          [4.22, 19.78, 5.64, 18.36],
+          [18.36, 5.64, 19.78, 4.22],
+        ];
 
-    if (theme === 'dark') {
-      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-      circle.setAttribute('cx', '12');
-      circle.setAttribute('cy', '12');
-      circle.setAttribute('r', '5');
-      svg.appendChild(circle);
+        linesCoords.forEach(([x1, y1, x2, y2]) => {
+          const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', x1);
+          line.setAttribute('y1', y1);
+          line.setAttribute('x2', x2);
+          line.setAttribute('y2', y2);
+          svg.appendChild(line);
+        });
+      } else {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z');
+        svg.appendChild(path);
+      }
+      return svg;
+    };
 
-      const linesCoords = [
-        [12, 1, 12, 3], [12, 21, 12, 23],
-        [4.22, 4.22, 5.64, 5.64], [18.36, 18.36, 19.78, 19.78],
-        [1, 12, 3, 12], [21, 12, 23, 12],
-        [4.22, 19.78, 5.64, 18.36], [18.36, 5.64, 19.78, 4.22]
-      ];
+    const label =
+      theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre';
 
-      linesCoords.forEach(([x1, y1, x2, y2]) => {
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', x1);
-        line.setAttribute('y1', y1);
-        line.setAttribute('x2', x2);
-        line.setAttribute('y2', y2);
-        svg.appendChild(line);
-      });
-    } else {
-      const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', 'M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z');
-      svg.appendChild(path);
+    if (this.#themeToggle) {
+      this.#themeToggle.replaceChildren(createThemeSvg());
+      this.#themeToggle.setAttribute('title', label);
+      this.#themeToggle.setAttribute('aria-label', label);
     }
 
-    this.#themeToggle.appendChild(svg);
+    if (this.#menuThemeToggle) {
+      this.#menuThemeToggle.replaceChildren();
+      this.#menuThemeToggle.appendChild(createThemeSvg());
+      const labelText = document.createElement('span');
+      labelText.id = 'menu-theme-text';
+      labelText.className = 'menu-theme-text';
+      labelText.textContent =
+        theme === 'dark' ? 'Mode clair' : 'Mode sombre';
+      this.#menuThemeToggle.appendChild(labelText);
+      this.#menuThemeText = labelText;
+      this.#menuThemeToggle.setAttribute('title', label);
+      this.#menuThemeToggle.setAttribute('aria-label', label);
+    }
   }
 }

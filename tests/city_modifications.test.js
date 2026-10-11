@@ -270,8 +270,8 @@ test("GameController.startGame respects difficulty override from difficulty_over
     const session = JSON.parse(
       decrypt(responseData.gameToken, process.env.JWT_SECRET),
     );
-    const gobson = session.streets.find((s) =>
-      s.name.toLowerCase().includes("gobson"),
+    const gobson = session.streets.find(
+      (s) => s.name.toLowerCase().trim() === "chemin de gobson",
     );
     assert.ok(
       gobson,
@@ -286,4 +286,86 @@ test("GameController.startGame respects difficulty override from difficulty_over
     await fs.writeFile(diffFilePath, origContent, "utf8");
   }
 });
+
+test("AdminController.saveRoute correctly preserves MultiLineString geometry for disconnected streets", async () => {
+  const { AdminController } = await import(
+    "../src/backend/controllers/AdminController.js"
+  );
+  const fs = await import("fs/promises");
+  const path = await import("path");
+
+  const routesFilePath = path.join(
+    process.cwd(),
+    "public",
+    "assets",
+    "data",
+    "custom_routes.json",
+  );
+  let origRoutes = "{}";
+  try {
+    origRoutes = await fs.readFile(routesFilePath, "utf8");
+  } catch (e) {}
+
+  try {
+    let responseData = null;
+    const multiSegmentRoute = {
+      name: "Avenue de Paris",
+      difficulty: "easy",
+      geometry: {
+        type: "MultiLineString",
+        coordinates: [
+          [
+            [1.9, 47.76],
+            [1.91, 47.75],
+          ],
+          [
+            [1.92, 47.74],
+            [1.93, 47.73],
+          ],
+        ],
+      },
+    };
+
+    const req = {
+      body: {
+        cityKey: "la_ferte_saint_aubin",
+        route: multiSegmentRoute,
+      },
+    };
+    const res = {
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(data) {
+        responseData = data;
+        return this;
+      },
+    };
+
+    await AdminController.saveRoute(req, res);
+    assert.ok(responseData, "saveRoute should return a response");
+    assert.ok(responseData.feature, "saveRoute should return saved feature");
+    assert.equal(responseData.feature.geometry.type, "MultiLineString");
+    assert.equal(responseData.feature.geometry.coordinates.length, 2);
+    assert.deepEqual(responseData.feature.geometry.coordinates[0], [
+      [1.9, 47.76],
+      [1.91, 47.75],
+    ]);
+
+    // Verify it persists in custom_routes.json
+    const savedFile = JSON.parse(await fs.readFile(routesFilePath, "utf8"));
+    const savedInCity = savedFile["la_ferte_saint_aubin"];
+    assert.ok(Array.isArray(savedInCity));
+    const savedItem = savedInCity.find(
+      (r) => r.properties.name === "Avenue de Paris",
+    );
+    assert.ok(savedItem);
+    assert.equal(savedItem.geometry.type, "MultiLineString");
+    assert.equal(savedItem.geometry.coordinates.length, 2);
+  } finally {
+    await fs.writeFile(routesFilePath, origRoutes, "utf8");
+  }
+});
+
 

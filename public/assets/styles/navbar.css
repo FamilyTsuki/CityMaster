@@ -52,6 +52,16 @@
   opacity: 0.9;
 }
 
+.navbar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.menu-theme-btn {
+  display: none !important;
+}
+
 .burger-btn {
   display: none !important;
 }
@@ -382,11 +392,26 @@
     box-sizing: border-box;
   }
 
+  .navbar-header-actions #theme-toggle {
+    display: flex !important;
+    width: 2.35rem !important;
+    height: 2.35rem !important;
+    min-width: 2.35rem !important;
+    max-width: 2.35rem !important;
+    min-height: 2.35rem !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: var(--surface) !important;
+    border: 1px solid var(--border-color) !important;
+  }
+
   .navbar-actions.open #nav-login-btn,
   .navbar-actions.open .pwa-install-btn-style,
   .navbar-actions.open .nav-admin-link,
   .navbar-actions.open .profile-link,
-  .navbar-actions.open #theme-toggle {
+  .navbar-actions.open .menu-theme-btn {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 100% !important;
@@ -442,7 +467,7 @@
 
   .navbar-actions.open .pwa-install-btn-style svg,
   .navbar-actions.open .nav-admin-link svg,
-  .navbar-actions.open #theme-toggle svg {
+  .navbar-actions.open .menu-theme-btn svg {
     color: var(--text-main) !important;
     stroke: var(--text-main) !important;
   }
@@ -468,7 +493,7 @@
 
   .navbar-actions.open .pwa-install-btn-style:hover,
   .navbar-actions.open .nav-admin-link:hover,
-  .navbar-actions.open #theme-toggle:hover,
+  .navbar-actions.open .menu-theme-btn:hover,
   .navbar-actions.open .profile-link:hover {
     background: var(--surface-hover) !important;
     color: var(--primary) !important;
@@ -486,7 +511,7 @@
   .navbar-actions.open #nav-login-btn:active,
   .navbar-actions.open .pwa-install-btn-style:active,
   .navbar-actions.open .nav-admin-link:active,
-  .navbar-actions.open #theme-toggle:active,
+  .navbar-actions.open .menu-theme-btn:active,
   .navbar-actions.open .profile-link:active {
     transform: translateY(0);
     box-shadow: var(--shadow-xs) !important;

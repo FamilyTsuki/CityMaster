@@ -369,40 +369,42 @@ export class GameController {
             .json({ error: "not_enough_streets_difficulty" });
         }
       } else {
-        const filteredStreets = uniqueStreetsList.filter((s) => {
+        const matchingStreets = uniqueStreetsList.filter((s) => {
           if (difficulty === "lotissement")
             return s.properties.isCustom && s.properties.isLotissement;
           return s.computedDifficulty === difficulty;
         });
 
-        if (filteredStreets.length < targetSeries) {
-          const remainingStreets = uniqueStreetsList.filter(
-            (s) => !filteredStreets.includes(s),
-          );
-          for (let i = remainingStreets.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [remainingStreets[i], remainingStreets[j]] = [
-              remainingStreets[j],
-              remainingStreets[i],
-            ];
-          }
-          filteredStreets.push(...remainingStreets);
+        const fallbackStreets = uniqueStreetsList.filter(
+          (s) => !matchingStreets.includes(s),
+        );
+
+        for (let i = matchingStreets.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [matchingStreets[i], matchingStreets[j]] = [
+            matchingStreets[j],
+            matchingStreets[i],
+          ];
         }
 
-        if (filteredStreets.length < targetSeries) {
+        for (let i = fallbackStreets.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [fallbackStreets[i], fallbackStreets[j]] = [
+            fallbackStreets[j],
+            fallbackStreets[i],
+          ];
+        }
+
+        selectedStreets = [...matchingStreets, ...fallbackStreets].slice(
+          0,
+          targetSeries,
+        );
+
+        if (selectedStreets.length < targetSeries) {
           return res
             .status(400)
             .json({ error: "not_enough_streets_difficulty" });
         }
-
-        for (let i = filteredStreets.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [filteredStreets[i], filteredStreets[j]] = [
-            filteredStreets[j],
-            filteredStreets[i],
-          ];
-        }
-        selectedStreets = filteredStreets.slice(0, targetSeries);
       }
 
       const session = {

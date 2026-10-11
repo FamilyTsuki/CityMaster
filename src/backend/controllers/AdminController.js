@@ -317,12 +317,17 @@ export class AdminController {
   static async saveRoute(req, res) {
     try {
       const { cityKey, route } = req.body;
+      const hasGeometry =
+        route.geometry &&
+        ["LineString", "MultiLineString"].includes(route.geometry.type) &&
+        Array.isArray(route.geometry.coordinates);
+      const hasCoordinates = Array.isArray(route.coordinates);
+
       if (
         !cityKey ||
         !route ||
         !route.name ||
-        !route.coordinates ||
-        !Array.isArray(route.coordinates)
+        (!hasGeometry && !hasCoordinates)
       ) {
         return res
           .status(400)
@@ -346,10 +351,12 @@ export class AdminController {
           isCustom: true,
           itemType: "route",
         },
-        geometry: {
-          type: "LineString",
-          coordinates: route.coordinates,
-        },
+        geometry: hasGeometry
+          ? route.geometry
+          : {
+              type: "LineString",
+              coordinates: route.coordinates,
+            },
       };
 
       if (route.difficulty !== undefined) {

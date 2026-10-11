@@ -447,6 +447,17 @@
             </select>
           </div>
 
+          <div class="form-group" style="margin-top: 8px; margin-bottom: 8px;">
+            <button
+              type="button"
+              id="admin-add-route-segment-btn"
+              class="btn btn-secondary"
+              style="width: 100%; font-size: 0.85rem; padding: 6px 10px;"
+            >
+              ➕ Ajouter un tronçon séparé
+            </button>
+          </div>
+
           <div class="admin-help-box">
             <strong>Outil ligne :</strong><br />
             • Clic sur la carte = ajouter un point.<br />
@@ -561,7 +572,30 @@
         </div>
       </aside>
 
-      <main class="admin-map-area admin-map-main">
+      <main class="admin-map-area admin-map-main" style="position: relative;">
+        <button
+          id="admin-toggle-route-labels-btn"
+          type="button"
+          class="btn-floating-map-toggle"
+          title="Afficher ou masquer les noms des rues sur la carte"
+          aria-label="Afficher ou masquer les noms des rues"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            style="width: 15px; height: 15px;"
+            aria-hidden="true"
+          >
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <span class="map-toggle-text">Noms des rues</span>
+        </button>
         <div id="admin-map-container-routes" class="admin-map-element"></div>
       </main>
     </div>

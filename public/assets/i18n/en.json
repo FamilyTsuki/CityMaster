@@ -58,7 +58,8 @@
     "feature_1_title": "Real-Time Data",
     "feature_1_desc": "Explore any municipality using live OpenStreetMap geographical data.",
     "feature_3_title": "Cross-Platform & Mobile App",
-    "feature_3_desc": "Play on smartphone, tablet, or desktop with installable PWA app and offline support.",
+    "feature_3_desc": "Play on smartphone, tablet, or desktop: installable in 1 tap without app stores and works offline.",
+    "install_guide_btn": "How to install?",
     "feature_4_title": "Team Rooms & Leaderboard",
     "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard."
   },

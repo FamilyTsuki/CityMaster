@@ -3,6 +3,41 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.6.0] - 2026-10-11
+
+### Nouveautés & Ergonomie
+- **Support complet des tronçons multiples (MultiLineString) dans l'édition cartographique (`AdminView.js`, `AdminController.js`)** :
+  - Résolution définitive du problème de tracé sur les rues fractionnées en plusieurs segments disjoints (ex: *Avenue de Paris* / RD 2020) où les tronçons étaient auparavant aplatis en une seule ligne continue, créant des diagonales géantes à travers toute la ville.
+  - L'éditeur gère désormais nativement des tableaux de segments indépendants (`#activeRouteSegments`). Chaque tronçon est représenté distinctement sur la carte sans liaison intempestive.
+  - Ajout d'un bouton d'action « + Ajouter un tronçon » permettant d'étendre une rue avec des segments disjoints supplémentaires.
+  - Sauvegarde et persistance au format standard GeoJSON `MultiLineString` (ou `LineString` si tronçon unique).
+- **Gestion de la visibilité des noms de rues lors de l'édition (`admin.css`, `AdminView.js`, `AdminController.js`)** :
+  - Amélioration de l'ergonomie des étiquettes permanentes de rues (`.route-tooltip`), qui masquaient le tracé et les poignées de manipulation sur les petites rues denses (ex: *Rue de l'Écureuil du Bois-Bourru*).
+  - Ajout d'un bouton flottant d'action sur la carte permettant de masquer ou réafficher toutes les étiquettes de rues en un clic (`toggleRouteLabels()`).
+  - En mode édition active, l'étiquette de la rue en cours d'édition est automatiquement masquée pour dégager la vue, et les autres étiquettes s'estompent à 35% d'opacité avec `pointer-events: none` pour ne pas gêner les clics.
+- **Accès direct au mode clair / sombre sur smartphone (`index.html`, `navbar.css`, `NavbarView.js`)** :
+  - Déplacement du bouton de bascule de thème dans la barre supérieure visible en permanence (`.navbar-header-actions`), à côté du bouton de menu burger, permettant aux utilisateurs mobiles (notamment ceux dont le téléphone est configuré en mode sombre par défaut) de passer en mode clair en 1 seul tap.
+  - Ajout d'un bouton explicite avec texte dynamique (« Mode clair » / « Mode sombre ») dans le tiroir du menu mobile pour une clarté totale.
+- **Guide d'installation cross-plateforme et démystification du terme PWA (`index.html`, `style.css`, `landing.html`, `fr.json`, `en.json`)** :
+  - Remplacement du jargon technique « PWA » par des explications claires et directes : « application installable sans passer par les stores ».
+  - Ajout d'une modale d'aide interactive (`#install-modal`) détaillant les étapes pas-à-pas pour iPhone / iPad (Safari : Partager ⎋ > Sur l'écran d'accueil 📲), Android (Chrome : Menu ⋮ > Installer l'application) et Ordinateur.
+  - Intégration d'un bouton d'accès au guide sur la page d'accueil dans la section Multi-Plateforme.
+
+### Corrections de bugs & Refactoring
+- **Filtrage de difficulté solo (`GameController.js`)** : Priorisation des rues correspondant exactement à la difficulté demandée en mode solo avant de compléter avec les rues de secours, alignant le comportement solo sur les salons multijoueurs.
+- **Nettoyage du balisage HTML (`index.html`)** : Suppression de blocs scripts redondants avant la modale d'installation.
+
+### Tests unitaires & Non-régression
+- **Nouveau test MultiLineString (`tests/city_modifications.test.js`)** : Validation de la persistance et de l'intégrité des géométries `MultiLineString` dans `AdminController.saveRoute`.
+- **Validation i18n** : Maintien de la parité stricte des dictionnaires i18n (`fr.json` et `en.json`) pour les nouvelles clés.
+- **Suite de tests** : 27 tests validés avec succès (27/27).
+
+### Cache & Cycle de vie
+- Incrémentation du cache Service Worker en `citymaster-v15` dans `public/sw.js`.
+- Mise à jour des chaînes de cache-busting `?v=2.6.0` dans `public/index.html` et synchronisation du badge de version dans `README.md`.
+
+---
+
 ## [2.5.3] - 2026-10-11
 
 ### Corrections de bugs & Prise en compte de la difficulté des routes dans le jeu

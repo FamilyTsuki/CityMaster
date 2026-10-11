@@ -376,6 +376,24 @@ export class AdminController {
       });
     }
 
+    const addSegmentBtn = document.getElementById(
+      "admin-add-route-segment-btn",
+    );
+    if (addSegmentBtn) {
+      addSegmentBtn.addEventListener("click", () => {
+        this.#adminView.addNewRouteSegment();
+      });
+    }
+
+    const toggleLabelsBtn = document.getElementById(
+      "admin-toggle-route-labels-btn",
+    );
+    if (toggleLabelsBtn) {
+      toggleLabelsBtn.addEventListener("click", () => {
+        this.#adminView.toggleRouteLabels();
+      });
+    }
+
     if (routeList) {
       routeList.addEventListener("click", (e) => {
         const editBtn = e.target.closest(".btn-edit-route");
