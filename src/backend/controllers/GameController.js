@@ -10,6 +10,7 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 
 import * as turf from "@turf/turf";
+import { readDifficultyOverridesFile } from "./AdminController.js";
 
 export class GameController {
   static async startGame(req, res) {
@@ -148,13 +149,37 @@ export class GameController {
         });
       }
 
-      const getStreetDifficulty = (f, diffMode, index) => {
-        if (f.properties.isCustom && f.properties.isLotissement)
-          return "lotissement";
-        if (f.geometry.type === "Point") return "hard";
+      let difficultyOverrides = {};
+      try {
+        const allDiffData = await readDifficultyOverridesFile(cityKey);
+        difficultyOverrides = allDiffData[cityKey] || {};
+      } catch (e) {}
 
-        const name = f.properties.name || "";
+      const getStreetDifficulty = (f, diffMode, index) => {
+        if (
+          (f.properties?.isCustom && f.properties?.isLotissement) ||
+          f.properties?.difficulty === "lotissement" ||
+          f.properties?.itemType === "lotissement"
+        ) {
+          return "lotissement";
+        }
+        if (f.geometry?.type === "Point") return "hard";
+
+        const name = f.properties?.name || "";
         const nameLower = name.toLowerCase().trim();
+        const origNameLower = (f.properties?.originalName || "")
+          .toLowerCase()
+          .trim();
+
+        const manualDiff =
+          difficultyOverrides[nameLower] ||
+          (origNameLower ? difficultyOverrides[origNameLower] : null) ||
+          f.properties?.difficulty;
+
+        if (manualDiff && ["easy", "medium", "hard"].includes(manualDiff)) {
+          return manualDiff;
+        }
+
         const MINOR_KEYWORDS = [
           "chemin",
           "chemins",
@@ -256,6 +281,22 @@ export class GameController {
             index,
           );
           uniqueStreetsMap.set(nameKey, street);
+        } else {
+          const existing = uniqueStreetsMap.get(nameKey);
+          const origNameLower = (street.properties?.originalName || "")
+            .toLowerCase()
+            .trim();
+          const hasOverride =
+            difficultyOverrides[nameKey] ||
+            (origNameLower ? difficultyOverrides[origNameLower] : null);
+          if (
+            !hasOverride &&
+            street.properties?.difficulty &&
+            ["easy", "medium", "hard"].includes(street.properties.difficulty) &&
+            existing.computedDifficulty !== street.properties.difficulty
+          ) {
+            existing.computedDifficulty = street.properties.difficulty;
+          }
         }
       });
       const uniqueStreetsList = Array.from(uniqueStreetsMap.values());

@@ -394,8 +394,15 @@ export class AdminController {
             const nameLower = (route.properties.name || "")
               .toLowerCase()
               .trim();
+            const origNameLower = (route.properties.originalName || "")
+              .toLowerCase()
+              .trim();
             const currentDiff =
-              this.#routeDifficultyOverrides[nameLower] || "auto";
+              this.#routeDifficultyOverrides[nameLower] ||
+              (origNameLower &&
+                this.#routeDifficultyOverrides[origNameLower]) ||
+              route.properties?.difficulty ||
+              "auto";
             this.#adminView.startEditingRoute(route, currentDiff);
           }
         } else if (deleteBtn) {
@@ -706,11 +713,26 @@ export class AdminController {
   #getRouteDifficulty(route) {
     const name = route.properties?.name || "";
     const nameLower = name.toLowerCase().trim();
+    const origNameLower = (route.properties?.originalName || "")
+      .toLowerCase()
+      .trim();
+
     if (
       this.#routeDifficultyOverrides &&
-      this.#routeDifficultyOverrides[nameLower]
+      (this.#routeDifficultyOverrides[nameLower] ||
+        (origNameLower && this.#routeDifficultyOverrides[origNameLower]))
     ) {
-      return this.#routeDifficultyOverrides[nameLower];
+      return (
+        this.#routeDifficultyOverrides[nameLower] ||
+        this.#routeDifficultyOverrides[origNameLower]
+      );
+    }
+
+    if (
+      route.properties?.difficulty &&
+      ["easy", "medium", "hard"].includes(route.properties.difficulty)
+    ) {
+      return route.properties.difficulty;
     }
 
     const isMinorWay = MINOR_WAY_KEYWORDS.some((k) => nameLower.includes(k));
@@ -757,14 +779,23 @@ export class AdminController {
 
     allRoutes.forEach((r, i) => {
       const nameLower = (r.properties?.name || "").toLowerCase().trim();
-      const isManual = Boolean(
-        this.#routeDifficultyOverrides &&
-        this.#routeDifficultyOverrides[nameLower],
-      );
+      const origNameLower = (r.properties?.originalName || "")
+        .toLowerCase()
+        .trim();
+      const manualDiff =
+        (this.#routeDifficultyOverrides &&
+          (this.#routeDifficultyOverrides[nameLower] ||
+            (origNameLower &&
+              this.#routeDifficultyOverrides[origNameLower]))) ||
+        (r.properties?.difficulty &&
+        ["easy", "medium", "hard"].includes(r.properties.difficulty)
+          ? r.properties.difficulty
+          : null);
+      const isManual = Boolean(manualDiff);
       let diff = "hard";
 
       if (isManual) {
-        diff = this.#routeDifficultyOverrides[nameLower];
+        diff = manualDiff;
       } else if (this.#difficultyMode === "center") {
         const isMinorWay = MINOR_WAY_KEYWORDS.some((k) =>
           nameLower.includes(k),

@@ -47,6 +47,12 @@ export class RouteDifficultyService {
     if (!feature || !feature.geometry) return "medium";
 
     const props = feature.properties || {};
+    if (
+      props.difficulty &&
+      ["easy", "medium", "hard", "lotissement"].includes(props.difficulty)
+    ) {
+      return props.difficulty;
+    }
     const name = (props.name || "").toLowerCase().trim();
     const highway = (props.highway || "").toLowerCase();
 

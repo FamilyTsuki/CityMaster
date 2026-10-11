@@ -181,3 +181,109 @@ test("Merge streets removes original street when a renamed street is deleted", (
   assert.equal(merged.length, 1);
   assert.equal(merged[0].properties.name, "Rue Restante");
 });
+
+test("RouteDifficultyService respects route.properties.difficulty", async () => {
+  const { RouteDifficultyService } = await import(
+    "../src/services/RouteDifficultyService.js"
+  );
+  const customFeature = {
+    type: "Feature",
+    properties: {
+      id: "custom_1",
+      name: "Allée Secrète",
+      difficulty: "easy",
+    },
+    geometry: {
+      type: "LineString",
+      coordinates: [
+        [0, 0],
+        [0.001, 0.001],
+      ],
+    },
+  };
+  const diff = RouteDifficultyService.getRouteDifficulty(customFeature, 0, 0);
+  assert.equal(
+    diff,
+    "easy",
+    "Custom route with explicit difficulty should return easy despite minor keyword",
+  );
+});
+
+test("GameController.startGame respects difficulty override from difficulty_overrides.json", async () => {
+  const { GameController } = await import(
+    "../src/backend/controllers/GameController.js"
+  );
+  const { decrypt } = await import("../src/backend/utils/game.js");
+  const fs = await import("fs/promises");
+  const path = await import("path");
+
+  process.env.JWT_SECRET =
+    process.env.JWT_SECRET || "test_jwt_secret_citymaster_tests_123456789";
+
+  const diffFilePath = path.join(
+    process.cwd(),
+    "public",
+    "assets",
+    "data",
+    "difficulty_overrides.json",
+  );
+  let origContent = "{}";
+  try {
+    origContent = await fs.readFile(diffFilePath, "utf8");
+  } catch (e) {}
+
+  try {
+    let diffData = {};
+    try {
+      diffData = JSON.parse(origContent);
+    } catch (e) {}
+    diffData["saint_cyr"] = diffData["saint_cyr"] || {};
+    // "Chemin de Gobson" is normally hard (minor way keyword "chemin")
+    diffData["saint_cyr"]["chemin de gobson"] = "easy";
+    await fs.writeFile(diffFilePath, JSON.stringify(diffData, null, 2), "utf8");
+
+    let responseData = null;
+    const req = {
+      body: {
+        cityKey: "saint_cyr",
+        mode: "target",
+        difficulty: "easy",
+        seriesCount: 50,
+      },
+      user: { username: "tester" },
+    };
+    const res = {
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(data) {
+        responseData = data;
+        return this;
+      },
+    };
+
+    await GameController.startGame(req, res);
+    assert.ok(responseData, "startGame should return a response");
+    assert.ok(responseData.gameToken, "startGame should return gameToken");
+
+    const session = JSON.parse(
+      decrypt(responseData.gameToken, process.env.JWT_SECRET),
+    );
+    const gobson = session.streets.find((s) =>
+      s.name.toLowerCase().includes("gobson"),
+    );
+    assert.ok(
+      gobson,
+      "Chemin de Gobson should be present in easy session due to override",
+    );
+    assert.equal(
+      gobson.difficulty,
+      "easy",
+      "Difficulty should be overridden to easy",
+    );
+  } finally {
+    await fs.writeFile(diffFilePath, origContent, "utf8");
+  }
+});
+

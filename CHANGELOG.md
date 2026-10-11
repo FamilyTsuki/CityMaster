@@ -3,6 +3,27 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.5.3] - 2026-10-11
+
+### Corrections de bugs & Prise en compte de la difficulté des routes dans le jeu
+- **Prise en compte des surcharges de difficulté en jeu (`GameController.js`)** :
+  - Intégration de `readDifficultyOverridesFile(cityKey)` au sein de `GameController.startGame` afin de charger les modifications manuelles de difficulté (table PostgreSQL `route_difficulties` et fichier `difficulty_overrides.json`).
+  - Priorisation de la difficulté manuelle (`difficultyOverrides[nameLower]`, `difficultyOverrides[origNameLower]` ou `feature.properties.difficulty`) sur le calcul automatique géométrique/toponymique OSM dans la fonction `getStreetDifficulty`.
+  - Préservation stricte de la surcharge manuelle lors de la déduplication et de l'agrégation des tronçons de rue (`uniqueStreetsMap`).
+- **Synchronisation frontend & panneau d'administration (`AdminController.js`, `RouteDifficultyService.js`, `CityController.js`)** :
+  - Correction de la résolution de difficulté dans l'administration pour inspecter `originalName` et la propriété `feature.properties.difficulty` des routes personnalisées.
+  - Synchronisation de `CityController.getDifficulties` avec prise en charge du nom d'origine des routes renommées pour le comptage des difficultés disponibles.
+  - Prise en compte de `props.difficulty` dans `RouteDifficultyService.getRouteDifficulty`.
+- **Tests unitaires & Non-régression** :
+  - Ajout d'un test validant la prise en compte immédiate d'une surcharge de difficulté dans une session de jeu générée par `GameController.startGame`.
+  - Ajout d'un test validant `RouteDifficultyService.getRouteDifficulty` avec `feature.properties.difficulty`.
+  - Suite de tests passée à 26 tests (26/26 validés).
+- **Cycle de vie & Cache PWA** :
+  - Incrémentation du cache Service Worker en `citymaster-v14` (`public/sw.js`).
+  - Synchronisation des chaînes de cache-busting `?v=2.5.3` dans `public/index.html` et du badge de version dans `README.md`.
+
+---
+
 ## [2.5.2] - 2026-10-08
 
 ### Ergonomie, Taille & Haute Visibilité du Bouton Google Sign-In
