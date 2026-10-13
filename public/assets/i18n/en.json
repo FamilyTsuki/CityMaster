@@ -369,5 +369,26 @@
     "not_enough_streets_difficulty": "This municipality does not have enough compatible roads for this difficulty level (e.g. not enough major roads for Easy). Please choose another difficulty.",
     "overpass_busy": "The map server (Overpass API) is busy or unavailable. Please try again.",
     "loading_error": "Loading error."
+  },
+  "flight": {
+    "flight_title": "Flight to destination",
+    "flight_badge": "FLIGHT CM-742",
+    "takeoff": "Imminent takeoff...",
+    "cruising": "Cruising altitude...",
+    "step_1": "STAGE 1",
+    "step_2": "STAGE 2",
+    "step_3": "STAGE 3",
+    "monument_eiffel": "Eiffel Tower - Paris",
+    "monument_chambord": "Loire Castle",
+    "monument_mont": "Mont-Saint-Michel",
+    "turbulence": "Warning: severe turbulence!",
+    "crashed": "Unknown destination... Where are we?",
+    "mystery": "Where are we?",
+    "replay": "Replay",
+    "pause": "Pause",
+    "resume": "Resume",
+    "crash_now": "Crash now",
+    "progress_label": "Progress:",
+    "toggle_theme": "Toggle light or dark mode"
   }
 }

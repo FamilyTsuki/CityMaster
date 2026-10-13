@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v17';
+const CACHE_NAME = 'citymaster-v18';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -20,6 +20,7 @@ const STATIC_ASSETS = [
   "/assets/styles/components/badges.css",
   "/assets/styles/components/messages.css",
   "/assets/styles/components/loaders.css",
+  "/assets/styles/components/flight-loader.css",
   "/assets/styles/components.css",
   "/assets/styles/landing.css",
   "/assets/styles/auth.css",
@@ -71,6 +72,7 @@ const STATIC_ASSETS = [
   "/src/views/NavbarView.js",
   "/src/views/ProfileView.js",
   "/src/views/RoomView.js",
+  "/src/views/components/FlightLoader.js",
 ];
 
 self.addEventListener("install", (event) => {

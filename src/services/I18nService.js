@@ -10,8 +10,13 @@ export class I18nService {
     if (I18nService.#instance) {
       return I18nService.#instance;
     }
-    const saved = localStorage.getItem("lang");
-    const browser = (navigator.language || "").toLowerCase().startsWith("en")
+    let saved = null;
+    try {
+      if (typeof localStorage !== "undefined" && localStorage) {
+        saved = localStorage.getItem("lang");
+      }
+    } catch (_) {}
+    const browser = (typeof navigator !== "undefined" && navigator.language || "").toLowerCase().startsWith("en")
       ? "en"
       : "fr";
     this.#currentLang = saved || browser;

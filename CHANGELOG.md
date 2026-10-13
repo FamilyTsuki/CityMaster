@@ -3,6 +3,59 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.8.0] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Refonte Cartoon & Gamifiée de l'écran de chargement (`/load`)** :
+  - **Barre de progression & Avion volant (`public/screens/load.html`, `public/assets/styles/components/flight-loader.css`, `src/views/components/FlightLoader.js`)** :
+    - Intégration d'un avion cartoon stylisé en SVG (fuselage aérodynamique orange et blanc, cockpit vitré, aile balayée et hélice en rotation continue animée par `@keyframes propSpin`).
+    - L'avion traverse horizontalement le ciel le long d'une trajectoire en pointillés orange en synchronisation parfaite avec la barre de progression (de 0% à 100%).
+    - Mouvements subtils de tangage cartoon en vol de croisière (`@keyframes planeBob`).
+  - **Étapes avec apparition séquentielle de monuments emblématiques** :
+    - Étape 1 (~28%) : Apparition rebondissante de la **Tour Eiffel** (Paris) avec son badge informatif.
+    - Étape 2 (~56%) : Apparition du **Château de la Loire** (Chambord) avec ses tourelles et fanions.
+    - Étape 3 (~78%) : Apparition du **Mont-Saint-Michel** avec son abbaye gothique et vaguelettes.
+    - Animation cartoon d'apparition élastique (`@keyframes monumentPop`) et halo lumineux interactif dès que l'étape est franchie.
+  - **Séquence finale de turbulences, Crash & Point d'interrogation géant** :
+    - À l'approche de la destination (90-96%) : L'avion entre en zone de turbulences avec secousses cartoon (`@keyframes planeWobble`) et traînée de fumée.
+    - À l'arrivée (≥ 97%) : L'avion pique du nez vers le sol, s'encastre dans un cratère d'impact avec secousse de l'écran (`@keyframes skyShake`), explosion de bande dessinée ("💥 POUM !") et panaches de fumée animés.
+    - Émergence spectaculaire d'un **point d'interrogation géant cartoon (`?`)** avec texte 3D en relief, bordure orange contrastée, halo pulsant (`@keyframes questionPulse`) et macaron stylisé `"Où sommes-nous ?"` / `"Where are we?"`.
+  - **Panneau de contrôle et d'expérimentation interactif sur `/load`** :
+    - Bouton `Rejouer` (relance l'intégralité du vol).
+    - Bouton `Pause / Reprendre` (bascule instantanément l'animation).
+    - Bouton `Crash immédiat` (déclenche immédiatement la séquence d'impact).
+    - Curseur de scrubbing précis (`input[type="range"]`) pour balayer manuellement la progression de 0 à 100% et inspecter chaque état.
+    - Bouton d'inversion rapide du thème (Mode clair / Mode sombre).
+
+### Optimisations & Performances
+- **Positionnement absolu et fluidité 40 FPS (`FlightLoader.js`, `flight-loader.css`)** :
+  - Suppression des transitions CSS temporisées conflictuelles sur la position horizontale pour garantir une synchronisation instantanée et fluide à chaque frame sans décalage.
+  - Optimisation du contexte d'empilement (`z-index: 25` pour les monuments, `z-index: 15` pour l'aéronef) afin que le point d'interrogation et l'explosion émergent nettement au premier plan lors du crash.
+  - Structure vectorielle SVG légère ne nécessitant aucun téléchargement de texture bitmap additionnelle.
+
+### Sécurité & Architecture
+- **Composant autonome `FlightLoader` (`src/views/components/FlightLoader.js`)** :
+  - Architecture orientée objet avec encapsulation privée de l'état du vol et nettoyage systématique des timers et écouteurs (`destroy()`).
+  - Tolérance complète aux environnements headless et tests Node.js grâce à des gardes sécurisés sur `document`, `navigator` et `localStorage`.
+  - Connexion automatique au cycle de vie du routeur frontend dans `src/app.js` (démarrage automatique à l'entrée sur `/load`, arrêt propre lors de toute navigation sortante).
+
+### Internationalisation (i18n)
+- **Ajout des clés du module de vol dans `fr.json` et `en.json`** :
+  - Clés bilingues complètes : `flight.flight_title`, `flight.flight_badge`, `flight.takeoff`, `flight.cruising`, `flight.monument_eiffel`, `flight.monument_chambord`, `flight.monument_mont`, `flight.turbulence`, `flight.crashed`, `flight.mystery`, `flight.replay`, `flight.pause`, `flight.resume`, `flight.crash_now`, `flight.progress_label`, `flight.toggle_theme`.
+
+### Tests unitaires & Non-régression
+- **Extension de `tests/load_route.test.js`** :
+  - Validation de l'intégrité structurelle de tous les nouveaux éléments (`#airplane-carrier`, `.plane-propeller`, monuments 1, 2 et 3, site de crash, cratère, `#mystery-question-mark`, glyph, badge et contrôles).
+  - Test unitaire programmatique de la logique du contrôleur `FlightLoader` (initialisation à 0%, franchissement des seuils à 30%, 60%, 80%, turbulences à 92%, et déclenchement du crash à 100%).
+- **Exécution complète des tests** : 31 tests unitaires validés avec succès (31/31 passés, 0 échec).
+
+### Cache & Cycle de vie
+- Enregistrement de `public/assets/styles/components/flight-loader.css` et `src/views/components/FlightLoader.js` dans `STATIC_ASSETS` du Service Worker.
+- Incrémentation du cache Service Worker en `citymaster-v18` dans `public/sw.js`.
+- Mise à jour des balises de cache-busting `?v=2.8.0` dans `public/index.html` et synchronisation du badge dans `README.md`.
+
+---
+
 ## [2.7.1] - 2026-10-13
 
 ### Corrections de bugs & Affichage

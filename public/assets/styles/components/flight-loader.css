@@ -1,0 +1,751 @@
+/* ==========================================================================
+   CityMaster - Flight Loader (Avion, Monuments & Crash Cartoon)
+   ========================================================================== */
+
+.flight-loader-stage {
+  width: 100%;
+  max-width: 58rem;
+  margin: auto;
+  padding: clamp(1rem, 2.5dvh, 2rem) clamp(1rem, 3vw, 2.5rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  box-sizing: border-box;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Header & Flight Information */
+.flight-header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.flight-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 0.25rem 0.85rem;
+  border-radius: 9999px;
+  box-shadow: var(--shadow-sm);
+}
+
+.flight-radar-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+  animation: pulseRadar 1.5s infinite ease-in-out;
+}
+
+@keyframes pulseRadar {
+  0%, 100% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+}
+
+.flight-code {
+  font-family: 'Plus Jakarta Sans', monospace;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+.flight-title {
+  font-family: 'Lilita One', 'Titan One', cursive, sans-serif;
+  font-size: clamp(1.6rem, 3.5vw, 2.3rem);
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+}
+
+.flight-status-text {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--primary);
+  margin: 0;
+  min-height: 1.4rem;
+  transition: all 0.2s ease;
+}
+
+/* ==========================================================================
+   The Sky Container & Flight Track
+   ========================================================================== */
+
+.flight-sky {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(249, 115, 22, 0.08) 75%, var(--bg-card) 100%);
+  border: 2px solid var(--border-color);
+  border-radius: var(--border-radius-lg, 1.5rem);
+  box-shadow: var(--shadow-lg), var(--neu-inset);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .flight-sky {
+  background: linear-gradient(180deg, rgba(14, 165, 233, 0.08) 0%, rgba(249, 115, 22, 0.05) 75%, rgba(26, 31, 44, 0.95) 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Decorative Clouds */
+.sky-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cloud {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50px;
+  filter: blur(1px);
+  animation: floatCloud 20s infinite linear;
+}
+
+[data-theme="dark"] .cloud {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.cloud-1 {
+  width: 90px;
+  height: 26px;
+  top: 25px;
+  left: 10%;
+  animation-duration: 25s;
+}
+
+.cloud-2 {
+  width: 120px;
+  height: 32px;
+  top: 70px;
+  left: 55%;
+  animation-duration: 32s;
+}
+
+.cloud-3 {
+  width: 75px;
+  height: 22px;
+  top: 40px;
+  left: 85%;
+  animation-duration: 22s;
+}
+
+@keyframes floatCloud {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(25px); }
+  100% { transform: translateX(0); }
+}
+
+/* Dotted Flight Path */
+.flight-path-line {
+  position: absolute;
+  top: 95px;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  border-bottom: 2px dashed rgba(249, 115, 22, 0.45);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Progress Fill Track at bottom */
+.flight-progress-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: rgba(0, 0, 0, 0.12);
+  z-index: 10;
+}
+
+[data-theme="dark"] .flight-progress-track {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.flight-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #f97316 0%, #ea580c 70%, #dc2626 100%);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.6);
+  transition: width 0.15s linear;
+}
+
+.track-marker {
+  position: absolute;
+  top: -4px;
+  width: 3px;
+  height: 18px;
+  background: var(--border-color);
+  pointer-events: none;
+}
+.marker-0 { left: 5%; }
+.marker-25 { left: 28%; }
+.marker-55 { left: 56%; }
+.marker-80 { left: 78%; }
+.marker-100 { right: 5%; }
+
+/* ==========================================================================
+   Monuments Row & Popup Pins
+   ========================================================================== */
+
+.flight-monuments {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  height: 175px;
+  pointer-events: none;
+  z-index: 25;
+}
+
+.monument-item {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, 0);
+  opacity: 0.35;
+  filter: grayscale(0.5);
+  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#monument-1 { left: 28%; }
+#monument-2 { left: 56%; }
+#monument-3 { left: 78%; }
+
+.monument-item.revealed {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: translate(-50%, 0) scale(1) !important;
+  animation: monumentPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Site de crash dédié */
+.crash-destination {
+  position: absolute;
+  bottom: 0;
+  left: 93%;
+  width: 90px;
+  height: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, 0);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.crash-destination.crashed {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+@keyframes monumentPop {
+  0% { transform: translate(-50%, 25px) scale(0.6); opacity: 0; }
+  60% { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
+  80% { transform: translate(-50%, 3px) scale(0.95); }
+  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+
+.monument-popup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1.5px solid #ea580c;
+  border-radius: 9999px;
+  padding: 0.25rem 0.65rem;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .monument-popup {
+  background: #0f172a;
+  border-color: #f97316;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
+}
+
+.monument-item.revealed .monument-popup {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+.monument-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ea580c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.monument-name {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.monument-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.monument-icon {
+  width: 50px;
+  height: 60px;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+  transition: transform 0.2s ease;
+}
+
+.monument-item.revealed .monument-icon {
+  animation: monumentGlow 2s infinite ease-in-out;
+}
+
+@keyframes monumentGlow {
+  0%, 100% { filter: drop-shadow(0 4px 8px rgba(249, 115, 22, 0.3)); }
+  50% { filter: drop-shadow(0 6px 14px rgba(249, 115, 22, 0.65)); }
+}
+
+.monument-base-marker {
+  width: 10px;
+  height: 10px;
+  background: var(--border-color);
+  border-radius: 50%;
+  margin-top: 2px;
+  border: 2px solid var(--bg-main);
+}
+
+.monument-item.revealed .monument-base-marker {
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+}
+
+/* ==========================================================================
+   The Airplane Carrier & SVGs
+   ========================================================================== */
+
+.airplane-carrier {
+  position: absolute;
+  top: 55px;
+  left: 5%;
+  width: 75px;
+  height: 50px;
+  z-index: 15;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.plane-wrapper {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.15s ease;
+}
+
+.plane-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.35));
+}
+
+/* Propeller Spinning */
+.plane-propeller {
+  transform-origin: 90px 25px;
+  animation: propSpin 0.12s linear infinite;
+}
+
+@keyframes propSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Normal Gentle Bobbing Flight */
+.airplane-carrier.flying .plane-wrapper {
+  animation: planeBob 1.8s infinite ease-in-out;
+}
+
+@keyframes planeBob {
+  0%, 100% { transform: translateY(0) rotate(1deg); }
+  50% { transform: translateY(-7px) rotate(-1deg); }
+}
+
+/* Stall & Wobble (Turbulences before crash) */
+.airplane-carrier.wobbling .plane-wrapper {
+  animation: planeWobble 0.15s infinite ease-in-out;
+}
+
+@keyframes planeWobble {
+  0%, 100% { transform: translateY(-2px) rotate(8deg); }
+  50% { transform: translateY(2px) rotate(-12deg); }
+}
+
+/* Nose-Dive Crash */
+.airplane-carrier.diving {
+  top: 155px !important;
+}
+
+.airplane-carrier.diving .plane-wrapper {
+  transform: rotate(65deg) scale(0.95);
+}
+
+/* Crashed in Ground */
+.airplane-carrier.crashed {
+  top: 172px !important;
+}
+
+.airplane-carrier.crashed .plane-wrapper {
+  transform: rotate(85deg) scale(0.75) translateY(12px);
+  opacity: 0.85;
+  filter: grayscale(0.4) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+}
+
+.airplane-carrier.crashed .plane-propeller {
+  animation: none;
+}
+
+/* Little Smoke Puffs behind Plane */
+.plane-smoke-trail {
+  position: absolute;
+  top: 24px;
+  left: -12px;
+  width: 10px;
+  height: 10px;
+  pointer-events: none;
+}
+
+.airplane-carrier.wobbling .plane-smoke-trail::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  background: rgba(50, 50, 50, 0.55);
+  border-radius: 50%;
+  animation: puffSmoke 0.4s infinite linear;
+}
+
+@keyframes puffSmoke {
+  0% { transform: scale(0.5) translate(0, 0); opacity: 0.8; }
+  100% { transform: scale(2.2) translate(-25px, -10px); opacity: 0; }
+}
+
+/* ==========================================================================
+   Crash Site, Crater, Boom & Giant Question Mark
+   ========================================================================== */
+
+.crash-destination {
+  width: 70px;
+  height: 130px;
+}
+
+.crash-crater {
+  position: absolute;
+  bottom: 0;
+  width: 48px;
+  height: 12px;
+  background: rgba(30, 20, 10, 0.4);
+  border-radius: 50%;
+  border: 1px dashed rgba(249, 115, 22, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.crash-destination.crashed .crash-crater {
+  opacity: 1;
+}
+
+/* Explosion Burst (POUF ! 💥) */
+.crash-burst {
+  position: absolute;
+  bottom: 25px;
+  font-size: 2.5rem;
+  opacity: 0;
+  transform: scale(0) rotate(-20deg);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.crash-destination.crashed .crash-burst {
+  animation: burstAnim 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes burstAnim {
+  0% { opacity: 0; transform: scale(0.2) rotate(-30deg); }
+  30% { opacity: 1; transform: scale(1.6) rotate(15deg); }
+  70% { opacity: 1; transform: scale(1.2) rotate(-5deg); }
+  100% { opacity: 0; transform: scale(0.8) translateY(-20px); }
+}
+
+/* Crash Smoke Clouds */
+.crash-smoke {
+  position: absolute;
+  bottom: 10px;
+  width: 60px;
+  height: 60px;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.crash-destination.crashed .crash-smoke {
+  opacity: 1;
+}
+
+.smoke-puff {
+  position: absolute;
+  background: rgba(100, 116, 139, 0.55);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.crash-destination.crashed .smoke-puff.p1 {
+  width: 24px;
+  height: 24px;
+  bottom: 8px;
+  left: 10px;
+  animation: puffRise 1.6s infinite ease-out;
+}
+
+.crash-destination.crashed .smoke-puff.p2 {
+  width: 32px;
+  height: 32px;
+  bottom: 14px;
+  left: 22px;
+  animation: puffRise 2s infinite ease-out 0.2s;
+}
+
+.crash-destination.crashed .smoke-puff.p3 {
+  width: 20px;
+  height: 20px;
+  bottom: 20px;
+  left: 16px;
+  animation: puffRise 1.8s infinite ease-out 0.4s;
+}
+
+@keyframes puffRise {
+  0% { transform: scale(0.6) translateY(0); opacity: 0.8; }
+  60% { opacity: 0.5; }
+  100% { transform: scale(2) translateY(-40px); opacity: 0; }
+}
+
+/* GIANT CARTOON QUESTION MARK (?) */
+.mystery-question-mark {
+  position: absolute;
+  bottom: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0;
+  transform: scale(0) translateY(30px);
+  pointer-events: auto;
+  z-index: 40;
+}
+
+.crash-destination.crashed .mystery-question-mark {
+  opacity: 1 !important;
+  transform: scale(1) translateY(0) rotate(0deg) !important;
+  animation: questionPop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes questionPop {
+  0% { opacity: 0; transform: scale(0) translateY(40px) rotate(-25deg); }
+  50% { opacity: 1; transform: scale(1.35) translateY(-15px) rotate(10deg); }
+  75% { transform: scale(0.92) translateY(4px) rotate(-5deg); }
+  100% { opacity: 1; transform: scale(1) translateY(0) rotate(0deg); }
+}
+
+.question-mark-glyph {
+  font-family: 'Lilita One', 'Titan One', cursive, sans-serif;
+  font-size: clamp(4.2rem, 7.5vw, 5.5rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  -webkit-text-stroke: 4px #ea580c;
+  text-shadow:
+    0 4px 0 #9a3412,
+    0 8px 18px rgba(0, 0, 0, 0.7),
+    0 0 25px rgba(249, 115, 22, 0.9);
+  animation: questionPulse 2s infinite ease-in-out;
+}
+
+@keyframes questionPulse {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.08) rotate(3deg); }
+}
+
+.mystery-badge {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+  color: #ffffff;
+  font-family: 'Lilita One', cursive, sans-serif;
+  font-size: 0.88rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 10px rgba(249, 115, 22, 0.5);
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+  margin-top: -0.3rem;
+  border: 2px solid #ffffff;
+}
+
+/* Screen Shake on Impact */
+.flight-sky.shake {
+  animation: skyShake 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes skyShake {
+  10%, 90% { transform: translate3d(-3px, 2px, 0); }
+  20%, 80% { transform: translate3d(4px, -3px, 0); }
+  30%, 50%, 70% { transform: translate3d(-5px, 4px, 0); }
+  40%, 60% { transform: translate3d(5px, -4px, 0); }
+}
+
+/* ==========================================================================
+   Footer Info & Progress Text
+   ========================================================================== */
+
+.flight-footer-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flight-percentage-box {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1.25rem;
+  border-radius: var(--border-radius-pill, 9999px);
+  box-shadow: var(--shadow-sm);
+}
+
+.flight-percentage-val {
+  font-family: 'Lilita One', cursive, sans-serif;
+  font-size: 1.5rem;
+  color: var(--primary);
+  min-width: 3.2rem;
+  text-align: right;
+  line-height: 1;
+}
+
+.flight-destination-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Testing Controls Panel (Discreet & Responsive)
+   ========================================================================== */
+
+.flight-controls-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--border-radius-md, 1rem);
+}
+
+.ctrl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  background: var(--bg-card-solid);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-sm, 0.75rem);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: var(--shadow-xs, 0 1px 3px rgba(0,0,0,0.1));
+}
+
+.ctrl-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.ctrl-btn.alert-btn {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: rgba(220, 38, 38, 0.3);
+  color: #dc2626;
+}
+
+.ctrl-btn.alert-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.ctrl-btn.icon-only {
+  font-size: 1.1rem;
+  padding: 0.4rem 0.65rem;
+}
+
+.ctrl-slider-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.ctrl-range {
+  accent-color: var(--primary);
+  cursor: pointer;
+  width: 110px;
+}
+
+@media (max-width: 640px) {
+  .flight-sky {
+    height: 200px;
+  }
+  .monument-icon {
+    width: 38px;
+    height: 48px;
+  }
+  .airplane-carrier {
+    width: 60px;
+    height: 40px;
+  }
+  .question-mark-glyph {
+    font-size: 2.8rem;
+  }
+  .mystery-badge {
+    font-size: 0.72rem;
+  }
+  .flight-controls-panel {
+    gap: 0.5rem;
+  }
+}

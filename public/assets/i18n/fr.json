@@ -369,5 +369,26 @@
     "not_enough_streets_difficulty": "Cette commune ne possède pas assez de routes compatibles avec ce niveau de difficulté (ex: pas assez de grands axes pour Facile). Veuillez choisir une autre difficulté.",
     "overpass_busy": "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.",
     "loading_error": "Erreur de chargement."
+  },
+  "flight": {
+    "flight_title": "En vol vers la destination",
+    "flight_badge": "VOL CM-742",
+    "takeoff": "Décollage imminent...",
+    "cruising": "Vol de croisière...",
+    "step_1": "ÉTAPE 1",
+    "step_2": "ÉTAPE 2",
+    "step_3": "ÉTAPE 3",
+    "monument_eiffel": "Tour Eiffel - Paris",
+    "monument_chambord": "Château de la Loire",
+    "monument_mont": "Mont-Saint-Michel",
+    "turbulence": "Alerte : fortes turbulences !",
+    "crashed": "Destination inconnue... Où sommes-nous ?",
+    "mystery": "Où sommes-nous ?",
+    "replay": "Rejouer",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "crash_now": "Crash immédiat",
+    "progress_label": "Progression :",
+    "toggle_theme": "Basculer le mode clair ou sombre"
   }
 }

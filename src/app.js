@@ -15,6 +15,7 @@ import { AdminView } from "./views/AdminView.js";
 import { AdminController } from "./controllers/AdminController.js";
 import { RoomView } from "./views/RoomView.js";
 import { RoomController } from "./controllers/RoomController.js";
+import { FlightLoader } from "./views/components/FlightLoader.js";
 import { Router } from "./Router.js";
 
 class App {
@@ -33,6 +34,7 @@ class App {
   #adminController;
   #roomController;
   #audioService;
+  #flightLoader;
   #router;
 
   constructor() {
@@ -157,6 +159,9 @@ class App {
       if (!toPath.startsWith("/room/")) {
         this.#roomController?.stopPolling();
       }
+      if (toPath !== "/load" && toPath !== "/load/") {
+        this.#flightLoader?.stop();
+      }
       const nav = document.getElementById("main-nav");
       if (nav) {
         if (toPath === "/load" || toPath === "/load/") {
@@ -249,6 +254,10 @@ class App {
     const nav = document.getElementById("main-nav");
     if (nav) nav.classList.add("hidden");
     this.#gameView.showScreen("load");
+    if (!this.#flightLoader) {
+      this.#flightLoader = new FlightLoader();
+    }
+    this.#flightLoader.start();
   }
 
   static init() {
