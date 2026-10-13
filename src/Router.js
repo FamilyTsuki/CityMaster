@@ -51,8 +51,11 @@ export class Router {
 
   #getPath() {
     if (typeof window !== 'undefined') {
-      if (window.location.hash && window.location.hash.startsWith('#/')) {
-        return window.location.hash.replace(/^#/, '');
+      if (window.location.hash) {
+        const cleanHash = window.location.hash.replace(/^#\/?/, '/');
+        if (cleanHash && cleanHash !== '/') {
+          return cleanHash;
+        }
       }
       return window.location.pathname;
     }

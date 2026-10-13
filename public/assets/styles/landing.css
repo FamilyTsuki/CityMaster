@@ -1,4 +1,7 @@
-#landing-screen,
+#landing-screen:not(.active) {
+  display: none !important;
+}
+
 #landing-screen.active {
   position: relative;
   align-items: center;

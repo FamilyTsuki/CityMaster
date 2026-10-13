@@ -252,7 +252,7 @@ class App {
   }
 
   static init() {
-    document.addEventListener("DOMContentLoaded", async () => {
+    const startApp = async () => {
       const renderVersionTag = (v) => {
         const logoBrand = document.getElementById("logo-brand");
         if (logoBrand && logoBrand.parentElement && !logoBrand.parentElement.querySelector(".version-tag")) {
@@ -317,7 +317,15 @@ class App {
       } catch (error) {
         console.error("Failed to initialize CityMaster application:", error);
       }
-    });
+    };
+
+    if (typeof document !== "undefined") {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", startApp);
+      } else {
+        startApp();
+      }
+    }
   }
 }
 

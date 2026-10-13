@@ -3,6 +3,23 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.7.1] - 2026-10-13
+
+### Corrections de bugs & Affichage
+- **Positionnement et visibilité de l'écran de chargement (`loaders.css`, `landing.css`)** :
+  - Résolution du problème d'écran blanc où `#load-screen` était repoussé 500 px sous la ligne de flottaison à cause de l'héritage `position: relative` cumulé avec `#landing-screen`.
+  - Application stricte de `position: absolute !important; inset: 0 !important; z-index: 100 !important;` sur `.load-screen` pour garantir un affichage plein écran parfaitement centré au premier plan.
+  - Masquage explicite (`display: none !important;`) des écrans inactifs tels que `#landing-screen:not(.active)` pour éviter qu'ils n'occupent de la hauteur dans le flux vertical.
+- **Routage et tolérance d'URL (`Router.js`)** :
+  - Prise en charge universelle des hash routes : `#load`, `#/load`, `#/load/` sont désormais résolues automatiquement vers `/load`.
+  - Sécurisation de l'initialisation de l'application dans `app.js` avec vérification de `document.readyState` pour déclencher immédiatement `startApp` si le DOM est déjà chargé.
+
+### Cache & Cycle de vie
+- Incrémentation du cache Service Worker en `citymaster-v17` dans `public/sw.js`.
+- Synchronisation des chaînes de cache-busting `?v=2.7.1` dans `public/index.html` et mise à jour du badge `README.md`.
+
+---
+
 ## [2.7.0] - 2026-10-13
 
 ### Nouveautés & Nouvelles fonctionnalités
