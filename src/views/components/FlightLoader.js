@@ -234,7 +234,7 @@ export class FlightLoader {
       this.#airplane.style.top = `${p2.y}%`;
       const wrapper = this.#airplane.querySelector('.plane-wrapper');
       if (wrapper) {
-        wrapper.style.transform = 'rotate(82deg) scale(0.8)';
+        wrapper.style.transform = 'rotate(55deg) scale(0.85)';
       }
     }
 

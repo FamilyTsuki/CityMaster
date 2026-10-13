@@ -7,11 +7,11 @@
     </p>
   </div>
 
-  <!-- Plateau d'animation Cartoon du Vol, Trajectoire en Courbe & Crash -->
+  <!-- Plateau d'animation Minimaliste du Vol, Trajectoire en Courbe & Crash -->
   <div class="flight-loader-stage" role="main">
-    <!-- En-tête : Badge Radar & Titre -->
+    <!-- En-tête épuré : Titre moderne & Statut -->
     <header class="flight-header">
-      <div class="flight-badge">
+      <div class="flight-badge" style="display: none;">
         <span class="flight-radar-dot" aria-hidden="true"></span>
         <span class="flight-code" data-i18n="flight.flight_badge">VOL CM-742</span>
       </div>
@@ -21,39 +21,27 @@
       </p>
     </header>
 
-    <!-- Le Ciel & Trajectoire en courbe -->
+    <!-- Le Ciel & Trajectoire en courbe épurée -->
     <div id="flight-sky" class="flight-sky" aria-hidden="true">
-      <!-- Nuages d'ambiance -->
-      <div class="sky-clouds">
-        <div class="cloud cloud-1"></div>
-        <div class="cloud cloud-2"></div>
-        <div class="cloud cloud-3"></div>
-      </div>
-
-      <!-- Trajectoire de vol en courbe (Arc parabolique cartoon) -->
+      <!-- Trajectoire de vol en courbe (Arc parabolique fin et élégant) -->
       <svg class="flight-curve-svg" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
-        <path class="flight-curve-track" d="M 60 187 Q 500 47 920 213" fill="none" stroke="rgba(249, 115, 22, 0.45)" stroke-width="3.5" stroke-dasharray="10 8" stroke-linecap="round" />
+        <path class="flight-curve-track" d="M 60 187 Q 500 47 920 213" fill="none" stroke="rgba(249, 115, 22, 0.45)" stroke-width="2" stroke-dasharray="6 6" stroke-linecap="round" />
       </svg>
 
-      <!-- Monuments flottant AU-DESSUS du vol et Site du Crash -->
+      <!-- Monuments flottant AU-DESSUS du vol et Site du Crash (Design épuré) -->
       <div class="flight-monuments">
         <!-- Monument 1 : Tour Eiffel (Paris) à ~28%, visible UNIQUEMENT quand l'avion y arrive -->
         <div id="monument-1" class="monument-item monument-above">
           <div class="monument-card">
-            <svg class="monument-icon" viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M28 2 H32 V12 H28 Z" fill="#ea580c"/>
-              <circle cx="30" cy="3" r="3" fill="#fbbf24"/>
-              <path d="M25 12 H35 L38 28 H22 L25 12 Z" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
-              <rect x="20" y="28" width="20" height="4" rx="2" fill="#ea580c"/>
-              <path d="M22 32 L15 54 H45 L38 32 H22 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/>
-              <rect x="12" y="54" width="36" height="5" rx="2" fill="#ea580c"/>
-              <path d="M12 59 L8 68 H20 C20 60 40 60 40 68 H52 L48 59 H12 Z" fill="#64748b" stroke="#334155" stroke-width="1.5"/>
-              <path d="M22 68 C22 62 38 62 38 68" fill="none" stroke="#ea580c" stroke-width="2"/>
+            <svg class="monument-icon" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 2 H17 V6 H15 Z" fill="#f97316"/>
+              <path d="M14 6 L11 18 H21 L18 6 Z" fill="none" stroke="#64748b" stroke-width="1.5"/>
+              <line x1="9" y1="18" x2="23" y2="18" stroke="#f97316" stroke-width="1.5"/>
+              <path d="M11 18 L6 34 H12 C12 28 20 28 20 34 H26 L21 18" fill="none" stroke="#64748b" stroke-width="1.5"/>
+              <path d="M12 34 C12 29 20 29 20 34" fill="none" stroke="#f97316" stroke-width="1.5"/>
             </svg>
-            <div class="monument-info">
-              <span class="monument-tag" data-i18n="flight.step_1">ÉTAPE 1</span>
-              <span class="monument-name" data-i18n="flight.monument_eiffel">Tour Eiffel - Paris</span>
-            </div>
+            <span class="monument-tag" data-i18n="flight.step_1" style="display: none;">ÉTAPE 1</span>
+            <span class="monument-name" data-i18n="flight.monument_eiffel">Tour Eiffel - Paris</span>
           </div>
           <div class="monument-pointer" aria-hidden="true"></div>
         </div>
@@ -61,22 +49,18 @@
         <!-- Monument 2 : Château de la Loire (Chambord) à ~56%, au-dessus du vol -->
         <div id="monument-2" class="monument-item monument-above">
           <div class="monument-card">
-            <svg class="monument-icon" viewBox="0 0 70 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="25" y="25" width="20" height="38" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/>
-              <polygon points="35,6 23,25 47,25" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <circle cx="35" cy="5" r="2.5" fill="#fbbf24"/>
-              <rect x="10" y="32" width="14" height="31" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
-              <polygon points="17,16 8,32 26,32" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <rect x="46" y="32" width="14" height="31" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
-              <polygon points="53,16 44,32 62,32" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <path d="M30 63 V48 C30 45 40 45 40 48 V63 Z" fill="#ea580c"/>
-              <line x1="12" y1="36" x2="16" y2="36" stroke="#fbbf24" stroke-width="2"/>
-              <line x1="48" y1="36" x2="52" y2="36" stroke="#fbbf24" stroke-width="2"/>
+            <svg class="monument-icon" viewBox="0 0 36 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 2 L13 11 H23 Z" fill="#f97316"/>
+              <rect x="14" y="11" width="8" height="21" fill="none" stroke="#64748b" stroke-width="1.5"/>
+              <path d="M6 8 L3 14 H9 Z" fill="#f97316"/>
+              <rect x="4" y="14" width="4" height="18" fill="none" stroke="#64748b" stroke-width="1.2"/>
+              <path d="M30 8 L27 14 H33 Z" fill="#f97316"/>
+              <rect x="28" y="14" width="4" height="18" fill="none" stroke="#64748b" stroke-width="1.2"/>
+              <line x1="8" y1="20" x2="28" y2="20" stroke="#64748b" stroke-width="1.2"/>
+              <path d="M16 32 V26 C16 25 20 25 20 26 V32" fill="none" stroke="#f97316" stroke-width="1.5"/>
             </svg>
-            <div class="monument-info">
-              <span class="monument-tag" data-i18n="flight.step_2">ÉTAPE 2</span>
-              <span class="monument-name" data-i18n="flight.monument_chambord">Château de la Loire</span>
-            </div>
+            <span class="monument-tag" data-i18n="flight.step_2" style="display: none;">ÉTAPE 2</span>
+            <span class="monument-name" data-i18n="flight.monument_chambord">Château de la Loire</span>
           </div>
           <div class="monument-pointer" aria-hidden="true"></div>
         </div>
@@ -84,18 +68,15 @@
         <!-- Monument 3 : Mont-Saint-Michel à ~78%, au-dessus du vol -->
         <div id="monument-3" class="monument-item monument-above">
           <div class="monument-card">
-            <svg class="monument-icon" viewBox="0 0 70 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M8 63 Q20 48 35 45 Q50 48 62 63 Z" fill="#78716c" stroke="#57534e" stroke-width="1.5"/>
-              <rect x="22" y="30" width="26" height="18" fill="#e2e8f0" stroke="#475569" stroke-width="1.5"/>
-              <polygon points="35,8 26,30 44,30" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <line x1="35" y1="8" x2="35" y2="2" stroke="#ea580c" stroke-width="2"/>
-              <circle cx="35" cy="2" r="2.5" fill="#fbbf24"/>
-              <path d="M5 63 Q15 60 25 63 T45 63 T65 63" fill="none" stroke="#38bdf8" stroke-width="2"/>
+            <svg class="monument-icon" viewBox="0 0 36 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="18" y1="2" x2="18" y2="8" stroke="#f97316" stroke-width="1.5"/>
+              <polygon points="18,8 14,18 22,18" fill="#f97316"/>
+              <rect x="14" y="18" width="8" height="8" fill="none" stroke="#64748b" stroke-width="1.5"/>
+              <path d="M4 32 Q12 24 18 24 Q24 24 32 32 Z" fill="none" stroke="#64748b" stroke-width="1.5"/>
+              <line x1="2" y1="33" x2="34" y2="33" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="4 2"/>
             </svg>
-            <div class="monument-info">
-              <span class="monument-tag" data-i18n="flight.step_3">ÉTAPE 3</span>
-              <span class="monument-name" data-i18n="flight.monument_mont">Mont-Saint-Michel</span>
-            </div>
+            <span class="monument-tag" data-i18n="flight.step_3" style="display: none;">ÉTAPE 3</span>
+            <span class="monument-name" data-i18n="flight.monument_mont">Mont-Saint-Michel</span>
           </div>
           <div class="monument-pointer" aria-hidden="true"></div>
         </div>
@@ -103,13 +84,8 @@
         <!-- Site du Crash & Point d'interrogation mystère à ~92% (sol) -->
         <div id="crash-destination" class="crash-destination">
           <div class="crash-crater"></div>
-          <div class="crash-burst" aria-hidden="true">💥</div>
-          <div class="crash-smoke" aria-hidden="true">
-            <div class="smoke-puff p1"></div>
-            <div class="smoke-puff p2"></div>
-            <div class="smoke-puff p3"></div>
-          </div>
-          <!-- Le Point d'interrogation Géant Cartoon -->
+          <div class="crash-burst" aria-hidden="true"></div>
+          <!-- Le Point d'interrogation Minimaliste -->
           <div id="mystery-question-mark" class="mystery-question-mark">
             <div class="question-mark-glyph">?</div>
             <div class="mystery-badge" data-i18n="flight.mystery">Où sommes-nous ?</div>
@@ -117,55 +93,46 @@
         </div>
       </div>
 
-      <!-- Avion de Ville : Châssis volant et hélice animée -->
+      <!-- Avion Minimaliste : Silouhette aérodynamique moderne -->
       <div id="airplane-carrier" class="airplane-carrier flying">
         <div class="plane-smoke-trail"></div>
         <div class="plane-wrapper">
-          <svg class="plane-svg" viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- Aile inférieure -->
-            <path d="M42 34 L25 48 C23 49.5 20 48.5 21 46 L30 35 Z" fill="#c2410c" stroke="#9a3412" stroke-width="1.5"/>
-            <!-- Fuselage -->
-            <path d="M12 28 C12 22 18 18 30 18 L76 18 C85 18 92 24 92 28 C92 32 85 38 76 38 L30 38 C18 38 12 34 12 28 Z" fill="#f97316"/>
-            <!-- Ventre blanc / argenté -->
-            <path d="M14 30 C16 34 22 37 32 37 L74 37 C82 37 88 33 90 30 C86 34 80 37 72 37 L30 37 C20 37 15 33 14 30 Z" fill="#f8fafc"/>
-            <!-- Dérive / Queue de l'avion -->
-            <path d="M12 28 L4 10 C3 8 5.5 6 7.5 7.5 L24 20 Z" fill="#dc2626" stroke="#991b1b" stroke-width="1.5"/>
-            <!-- Pare-brise / Cockpit cartoon -->
-            <path d="M68 20 Q76 20 80 25 L65 25 Q64 20 68 20 Z" fill="#38bdf8" stroke="#0284c7" stroke-width="1.2"/>
-            <path d="M70 21 Q75 21 77 24" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round"/>
-            <!-- Hublots -->
-            <circle cx="56" cy="25" r="2.5" fill="#38bdf8" stroke="#0284c7" stroke-width="1"/>
-            <circle cx="46" cy="25" r="2.5" fill="#38bdf8" stroke="#0284c7" stroke-width="1"/>
-            <circle cx="36" cy="25" r="2.5" fill="#38bdf8" stroke="#0284c7" stroke-width="1"/>
-            <!-- Aile principale supérieure -->
-            <path d="M44 26 L22 8 C20 6.5 22.5 4 25 5 L58 24 Z" fill="#ea580c" stroke="#c2410c" stroke-width="1.5"/>
-            <path d="M26 8 L54 24" stroke="#fdba74" stroke-width="1.5" stroke-linecap="round"/>
-            <!-- Nez et Moyeu d'hélice -->
-            <path d="M90 24 C93 24 94 26 94 28 C94 30 93 32 90 32 Z" fill="#1e293b"/>
-            <!-- Hélice tournante -->
+          <svg class="plane-svg" viewBox="0 0 80 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Fuselage épuré -->
+            <path d="M8 20 C8 15 20 12 36 12 L66 12 C72 12 76 16 76 20 C76 24 72 28 66 28 L36 28 C20 28 8 25 8 20 Z" fill="#f97316"/>
+            <!-- Ventre / ombre subtile -->
+            <path d="M12 22 C22 25 38 26 64 26 L66 28 L36 28 C20 28 12 25 12 22 Z" fill="#ea580c"/>
+            <!-- Cockpit minimaliste -->
+            <path d="M50 14 L62 14 C65 14 67 16 65 19 L48 19 C48 16 49 14 50 14 Z" fill="#e0f2fe"/>
+            <!-- Dérive de queue -->
+            <path d="M10 20 L3 7 C2 5 4.5 4 6 5.5 L18 14 Z" fill="#ea580c"/>
+            <!-- Aile principale élégante -->
+            <path d="M34 18 L18 4 C16.5 2.5 18.5 1 20.5 2 L45 16 Z" fill="#f97316" stroke="#ea580c" stroke-width="1"/>
+            <!-- Hélice / Rotor minimaliste -->
             <g class="plane-propeller">
-              <ellipse cx="94" cy="28" rx="2" ry="16" fill="#cbd5e1" opacity="0.85" stroke="#475569" stroke-width="0.8"/>
-              <circle cx="94" cy="28" r="3.5" fill="#ea580c"/>
+              <line x1="77" y1="12" x2="77" y2="28" stroke="#cbd5e1" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="77" cy="20" r="2.5" fill="#ea580c"/>
             </g>
           </svg>
         </div>
       </div>
 
-      <!-- Barre de progression au sol épurée -->
+      <!-- Barre de progression au sol fine et épurée -->
       <div class="flight-progress-track">
         <div id="flight-progress-bar" class="flight-progress-bar" style="width: 0%;"></div>
       </div>
     </div>
 
-    <!-- Informations de vol inférieures : Pourcentage & Destination -->
+    <!-- Informations de vol épurées : Pourcentage & Destination intégrés -->
     <div class="flight-footer-info">
       <div class="flight-percentage-box">
         <span id="flight-percentage" class="flight-percentage-val">0%</span>
+        <span class="flight-info-dot" aria-hidden="true">•</span>
         <span id="flight-destination-label" class="flight-destination-label" data-i18n="flight.cruising">En vol de croisière...</span>
       </div>
     </div>
 
-    <!-- Barre d'actions et de tests du Loader -->
+    <!-- Barre d'actions et de tests du Loader (Discrète et minimaliste) -->
     <section class="flight-controls-panel" aria-label="Contrôles de test de l'animation">
       <button id="btn-flight-replay" class="ctrl-btn" type="button">
         <span aria-hidden="true">🔄</span>
@@ -179,7 +146,7 @@
 
       <button id="btn-flight-crash" class="ctrl-btn alert-btn" type="button">
         <span aria-hidden="true">💥</span>
-        <span data-i18n="flight.crash_now">Crash immédiat</span>
+        <span data-i18n="flight.crash_now">Crash</span>
       </button>
 
       <div class="ctrl-slider-group">

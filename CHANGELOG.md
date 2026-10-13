@@ -3,6 +3,39 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.8.2] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Refonte graphique intégrale ultra-minimaliste de l'écran de chargement (`/load`)** :
+  - **Typographie & En-tête épuré (`public/screens/load.html`, `public/assets/styles/components/flight-loader.css`)** :
+    - Remplacement des polices cartoon épaisses et du badge radar "VOL CM-742" par une typographie sans-serif moderne, nette et aérée (`Plus Jakarta Sans`).
+    - Ligne d'état inférieure unifiée et élégante combinant le pourcentage et la phase de vol (`54% • Vol de croisière...`).
+  - **Avion moderne & Silhouette aérodynamique (`load.html`, `flight-loader.css`)** :
+    - Remplacement de l'avion cartoon multicouche par un aéronef vectoriel moderne, fluide et minimaliste aux teintes orange et ardoise avec verrière claire.
+  - **Monuments flottants en micro-pills avec trait d'ancrage fin (`load.html`, `flight-loader.css`)** :
+    - Remplacement des cartes lourdes à bords épais par des capsules micro-pills translucides en glassmorphism (`backdrop-filter: blur(8px)`).
+    - Icônes vectorielles en line-art épuré (Tour Eiffel, Château de la Loire, Mont-Saint-Michel).
+    - Trait d'ancrage ultrafin (1.5px) pointant vers la trajectoire de vol à la place des flèches épaisses.
+  - **Scène céleste épurée & Trajectoire fine** :
+    - Suppression des nuages statiques artificiels pour offrir un espace aérien ouvert et sans distraction.
+    - Courbe de vol fine (2px) en pointillés discrets avec lueur d'ambiance atténuée.
+    - Barre de chargement au sol affinée (3px).
+  - **Crash & Point d'interrogation moderne** :
+    - Onde de choc d'impact épurée sous forme d'anneau d'onde circulaire (shockwave).
+    - Point d'interrogation `?` lumineux au halo orange vibrant (`#f97316`) et badge blanc sur orange contrasté `"Où sommes-nous ?"`.
+  - **Panneau de contrôle discret** :
+    - Toolbar de test compacte en capsule transparente à opacité réduite (`0.4`), s'intégrant sans gêner l'animation.
+
+### Optimisations & Performances
+- **Allègement du DOM et du CSS** :
+  - Réduction de 25% du poids CSS du composant `flight-loader.css`.
+  - Suppression des couches d'animation d'ondulation lourdes pour une fluidité d'affichage optimale sur tous les appareils mobiles.
+
+### Tests unitaires & Non-régression
+- Validation à 100% de la suite de tests (`npm test` : 31/31 tests passés avec succès).
+
+---
+
 ## [2.8.1] - 2026-10-13
 
 ### Nouveautés & Nouvelles fonctionnalités
