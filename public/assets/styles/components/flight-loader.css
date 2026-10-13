@@ -81,13 +81,13 @@
 }
 
 /* ==========================================================================
-   The Sky Container & Flight Track
+   The Sky Container & Curved Flight Track
    ========================================================================== */
 
 .flight-sky {
   position: relative;
   width: 100%;
-  height: 240px;
+  height: 260px;
   background: linear-gradient(180deg, rgba(56, 189, 248, 0.12) 0%, rgba(249, 115, 22, 0.08) 75%, var(--bg-card) 100%);
   border: 2px solid var(--border-color);
   border-radius: var(--border-radius-lg, 1.5rem);
@@ -132,7 +132,7 @@
 .cloud-2 {
   width: 120px;
   height: 32px;
-  top: 70px;
+  top: 60px;
   left: 55%;
   animation-duration: 32s;
 }
@@ -141,7 +141,7 @@
   width: 75px;
   height: 22px;
   top: 40px;
-  left: 85%;
+  left: 82%;
   animation-duration: 22s;
 }
 
@@ -151,25 +151,27 @@
   100% { transform: translateX(0); }
 }
 
-/* Dotted Flight Path */
-.flight-path-line {
+/* Curved Flight Path SVG */
+.flight-curve-svg {
   position: absolute;
-  top: 95px;
-  left: 5%;
-  right: 5%;
-  height: 2px;
-  border-bottom: 2px dashed rgba(249, 115, 22, 0.45);
+  inset: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   z-index: 2;
 }
 
-/* Progress Fill Track at bottom */
+.flight-curve-track {
+  filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.45));
+}
+
+/* Progress Fill Track at bottom (épuré) */
 .flight-progress-track {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 10px;
+  height: 8px;
   background: rgba(0, 0, 0, 0.12);
   z-index: 10;
 }
@@ -186,62 +188,131 @@
   transition: width 0.15s linear;
 }
 
-.track-marker {
-  position: absolute;
-  top: -4px;
-  width: 3px;
-  height: 18px;
-  background: var(--border-color);
-  pointer-events: none;
-}
-.marker-0 { left: 5%; }
-.marker-25 { left: 28%; }
-.marker-55 { left: 56%; }
-.marker-80 { left: 78%; }
-.marker-100 { right: 5%; }
-
 /* ==========================================================================
-   Monuments Row & Popup Pins
+   Monuments flottant AU-DESSUS du vol (Invisibles jusqu'à l'arrivée de l'avion)
    ========================================================================== */
 
 .flight-monuments {
   position: absolute;
-  bottom: 12px;
-  left: 0;
+  inset: 0;
   width: 100%;
-  height: 175px;
+  height: 100%;
   pointer-events: none;
   z-index: 25;
 }
 
+/* Totalement invisible par défaut jusqu'à ce que l'avion arrive */
 .monument-item {
   position: absolute;
-  bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translate(-50%, 0);
-  opacity: 0.35;
-  filter: grayscale(0.5);
-  transition: opacity 0.3s ease, filter 0.3s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: translate(-50%, 12px) scale(0.4);
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition: opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 30;
 }
 
-#monument-1 { left: 28%; }
-#monument-2 { left: 56%; }
-#monument-3 { left: 78%; }
+/* Emplacements au-dessus de la courbe de vol */
+#monument-1 {
+  left: 31%;
+  top: 18px;
+}
 
+#monument-2 {
+  left: 55%;
+  top: 10px;
+}
+
+#monument-3 {
+  left: 74%;
+  top: 22px;
+}
+
+/* Émergence dynamique et rebond dès que l'avion atteint l'étape */
 .monument-item.revealed {
   opacity: 1 !important;
-  filter: none !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
   transform: translate(-50%, 0) scale(1) !important;
-  animation: monumentPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: monumentBounceIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Site de crash dédié */
+@keyframes monumentBounceIn {
+  0% { opacity: 0; transform: translate(-50%, 15px) scale(0.4); }
+  60% { opacity: 1; transform: translate(-50%, -6px) scale(1.12); }
+  80% { transform: translate(-50%, 2px) scale(0.96); }
+  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+
+.monument-card {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: var(--bg-card);
+  border: 1.5px solid #ea580c;
+  padding: 0.3rem 0.8rem 0.3rem 0.5rem;
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 0 10px rgba(249, 115, 22, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+[data-theme="dark"] .monument-card {
+  background: #0f172a;
+  border-color: #f97316;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7), 0 0 14px rgba(249, 115, 22, 0.4);
+}
+
+.monument-icon {
+  width: 32px;
+  height: 36px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.35));
+}
+
+.monument-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.monument-tag {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #ea580c;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.monument-name {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--text-main);
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.monument-pointer {
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 7px solid #ea580c;
+  margin-top: -1px;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+}
+
+[data-theme="dark"] .monument-pointer {
+  border-top-color: #f97316;
+}
+
+/* Site de crash dédié au sol */
 .crash-destination {
   position: absolute;
-  bottom: 0;
-  left: 93%;
+  bottom: 8px;
+  left: 92%;
   width: 90px;
   height: 170px;
   display: flex;
@@ -255,92 +326,6 @@
 .crash-destination.crashed {
   opacity: 1 !important;
   filter: none !important;
-}
-
-@keyframes monumentPop {
-  0% { transform: translate(-50%, 25px) scale(0.6); opacity: 0; }
-  60% { transform: translate(-50%, -8px) scale(1.15); opacity: 1; }
-  80% { transform: translate(-50%, 3px) scale(0.95); }
-  100% { transform: translate(-50%, 0) scale(1); opacity: 1; }
-}
-
-.monument-popup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  border: 1.5px solid #ea580c;
-  border-radius: 9999px;
-  padding: 0.25rem 0.65rem;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-  margin-bottom: 0.3rem;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translateY(6px);
-  transition: all 0.3s ease;
-}
-
-[data-theme="dark"] .monument-popup {
-  background: #0f172a;
-  border-color: #f97316;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.7);
-}
-
-.monument-item.revealed .monument-popup {
-  opacity: 1 !important;
-  transform: translateY(0) !important;
-}
-
-.monument-tag {
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #ea580c;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  line-height: 1;
-}
-
-.monument-name {
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: var(--text-main);
-  line-height: 1.1;
-}
-
-.monument-pin {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.monument-icon {
-  width: 50px;
-  height: 60px;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
-  transition: transform 0.2s ease;
-}
-
-.monument-item.revealed .monument-icon {
-  animation: monumentGlow 2s infinite ease-in-out;
-}
-
-@keyframes monumentGlow {
-  0%, 100% { filter: drop-shadow(0 4px 8px rgba(249, 115, 22, 0.3)); }
-  50% { filter: drop-shadow(0 6px 14px rgba(249, 115, 22, 0.65)); }
-}
-
-.monument-base-marker {
-  width: 10px;
-  height: 10px;
-  background: var(--border-color);
-  border-radius: 50%;
-  margin-top: 2px;
-  border: 2px solid var(--bg-main);
-}
-
-.monument-item.revealed .monument-base-marker {
-  background: var(--primary);
-  box-shadow: 0 0 8px var(--primary);
 }
 
 /* ==========================================================================

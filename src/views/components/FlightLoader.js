@@ -100,6 +100,23 @@ export class FlightLoader {
     }
   }
 
+  // Définition de la courbe parabolique de vol (en pourcentages de l'espace aérien)
+  static #CURVE = {
+    p0: { x: 6, y: 72 },   // Décollage bas-gauche
+    p1: { x: 50, y: 18 },  // Apogée de l'arc haut-centre
+    p2: { x: 92, y: 82 },  // Sol / impact bas-droite
+  };
+
+  #getPointOnCurve(t) {
+    const u = 1 - t;
+    const { p0, p1, p2 } = FlightLoader.#CURVE;
+    const x = u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x;
+    const y = u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y;
+    const dx = 2 * u * (p1.x - p0.x) + 2 * t * (p2.x - p1.x);
+    const dy = 2 * u * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
+    return { x, y, dx, dy };
+  }
+
   /**
    * Définit précisément la progression du vol (de 0 à 100) et met à jour l'ensemble des éléments visuels.
    * @param {number} value - Pourcentage de 0 à 100
@@ -122,13 +139,24 @@ export class FlightLoader {
       this.#slider.value = String(Math.round(this.#progress));
     }
 
-    // 4. Calcul de la position horizontale de l'avion (de 5% à 93%)
-    const xPos = 5 + (this.#progress / 100) * 88;
+    // 4. Calcul de la position et de l'inclinaison le long de la courbe parabolique
+    const t = this.#progress / 100;
+    const pt = this.#getPointOnCurve(t);
+
     if (this.#airplane) {
-      this.#airplane.style.left = `${xPos}%`;
+      this.#airplane.style.left = `${pt.x}%`;
+      this.#airplane.style.top = `${pt.y}%`;
+
+      const wrapper = this.#airplane.querySelector('.plane-wrapper');
+      if (wrapper && this.#progress < 90) {
+        // En vol normal : tangage doux le long de la pente de la courbe
+        const pitch = Math.atan2(pt.dy * 0.7, pt.dx) * (180 / Math.PI);
+        const clampedPitch = Math.max(-28, Math.min(32, pitch));
+        wrapper.style.transform = `rotate(${clampedPitch}deg)`;
+      }
     }
 
-    // 5. Apparition séquentielle des monuments
+    // 5. Apparition séquentielle des monuments au-dessus du vol
     this.#monuments.forEach((monument) => {
       if (!monument.el) return;
       if (this.#progress >= monument.threshold) {
@@ -192,7 +220,6 @@ export class FlightLoader {
     if (!this.#airplane) return;
     this.#airplane.classList.remove('wobbling', 'diving', 'crashed');
     this.#airplane.classList.add('flying');
-    this.#airplane.style.top = '55px';
   }
 
   #executeCrashSequence() {
@@ -202,7 +229,13 @@ export class FlightLoader {
     if (this.#airplane) {
       this.#airplane.classList.remove('flying', 'wobbling');
       this.#airplane.classList.add('crashed');
-      this.#airplane.style.top = '170px';
+      const { p2 } = FlightLoader.#CURVE;
+      this.#airplane.style.left = `${p2.x}%`;
+      this.#airplane.style.top = `${p2.y}%`;
+      const wrapper = this.#airplane.querySelector('.plane-wrapper');
+      if (wrapper) {
+        wrapper.style.transform = 'rotate(82deg) scale(0.8)';
+      }
     }
 
     if (this.#crashDestination) {

@@ -7,7 +7,7 @@
     </p>
   </div>
 
-  <!-- Plateau d'animation Cartoon du Vol, Monuments & Crash -->
+  <!-- Plateau d'animation Cartoon du Vol, Trajectoire en Courbe & Crash -->
   <div class="flight-loader-stage" role="main">
     <!-- En-tête : Badge Radar & Titre -->
     <header class="flight-header">
@@ -21,95 +21,86 @@
       </p>
     </header>
 
-    <!-- Le Ciel & Trajectoire avec l'Avion et les Monuments -->
+    <!-- Le Ciel & Trajectoire en courbe -->
     <div id="flight-sky" class="flight-sky" aria-hidden="true">
-      <!-- Nuages d'arrière-plan -->
+      <!-- Nuages d'ambiance -->
       <div class="sky-clouds">
         <div class="cloud cloud-1"></div>
         <div class="cloud cloud-2"></div>
         <div class="cloud cloud-3"></div>
       </div>
 
-      <!-- Ligne pointillée de la trajectoire -->
-      <div class="flight-path-line"></div>
+      <!-- Trajectoire de vol en courbe (Arc parabolique cartoon) -->
+      <svg class="flight-curve-svg" viewBox="0 0 1000 260" preserveAspectRatio="none" aria-hidden="true">
+        <path class="flight-curve-track" d="M 60 187 Q 500 47 920 213" fill="none" stroke="rgba(249, 115, 22, 0.45)" stroke-width="3.5" stroke-dasharray="10 8" stroke-linecap="round" />
+      </svg>
 
-      <!-- Monuments et Site du Crash -->
+      <!-- Monuments flottant AU-DESSUS du vol et Site du Crash -->
       <div class="flight-monuments">
-        <!-- Monument 1 : Tour Eiffel (Paris) à ~28% -->
-        <div id="monument-1" class="monument-item">
-          <div class="monument-popup">
-            <span class="monument-tag" data-i18n="flight.step_1">ÉTAPE 1</span>
-            <span class="monument-name" data-i18n="flight.monument_eiffel">Tour Eiffel - Paris</span>
-          </div>
-          <div class="monument-pin">
+        <!-- Monument 1 : Tour Eiffel (Paris) à ~28%, visible UNIQUEMENT quand l'avion y arrive -->
+        <div id="monument-1" class="monument-item monument-above">
+          <div class="monument-card">
             <svg class="monument-icon" viewBox="0 0 60 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Tour Eiffel stylisée Cartoon -->
               <path d="M28 2 H32 V12 H28 Z" fill="#ea580c"/>
               <circle cx="30" cy="3" r="3" fill="#fbbf24"/>
               <path d="M25 12 H35 L38 28 H22 L25 12 Z" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
               <rect x="20" y="28" width="20" height="4" rx="2" fill="#ea580c"/>
               <path d="M22 32 L15 54 H45 L38 32 H22 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/>
               <rect x="12" y="54" width="36" height="5" rx="2" fill="#ea580c"/>
-              <!-- Arche inférieure -->
               <path d="M12 59 L8 68 H20 C20 60 40 60 40 68 H52 L48 59 H12 Z" fill="#64748b" stroke="#334155" stroke-width="1.5"/>
               <path d="M22 68 C22 62 38 62 38 68" fill="none" stroke="#ea580c" stroke-width="2"/>
             </svg>
-            <div class="monument-base-marker"></div>
+            <div class="monument-info">
+              <span class="monument-tag" data-i18n="flight.step_1">ÉTAPE 1</span>
+              <span class="monument-name" data-i18n="flight.monument_eiffel">Tour Eiffel - Paris</span>
+            </div>
           </div>
+          <div class="monument-pointer" aria-hidden="true"></div>
         </div>
 
-        <!-- Monument 2 : Château de la Loire (Chambord) à ~56% -->
-        <div id="monument-2" class="monument-item">
-          <div class="monument-popup">
-            <span class="monument-tag" data-i18n="flight.step_2">ÉTAPE 2</span>
-            <span class="monument-name" data-i18n="flight.monument_chambord">Château de la Loire</span>
-          </div>
-          <div class="monument-pin">
+        <!-- Monument 2 : Château de la Loire (Chambord) à ~56%, au-dessus du vol -->
+        <div id="monument-2" class="monument-item monument-above">
+          <div class="monument-card">
             <svg class="monument-icon" viewBox="0 0 70 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Château féerique Cartoon -->
-              <!-- Donjon central -->
               <rect x="25" y="25" width="20" height="38" fill="#cbd5e1" stroke="#475569" stroke-width="1.5"/>
               <polygon points="35,6 23,25 47,25" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
               <circle cx="35" cy="5" r="2.5" fill="#fbbf24"/>
-              <!-- Tour gauche -->
               <rect x="10" y="32" width="14" height="31" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
               <polygon points="17,16 8,32 26,32" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <!-- Tour droite -->
               <rect x="46" y="32" width="14" height="31" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
               <polygon points="53,16 44,32 62,32" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <!-- Porte & créneaux -->
               <path d="M30 63 V48 C30 45 40 45 40 48 V63 Z" fill="#ea580c"/>
               <line x1="12" y1="36" x2="16" y2="36" stroke="#fbbf24" stroke-width="2"/>
               <line x1="48" y1="36" x2="52" y2="36" stroke="#fbbf24" stroke-width="2"/>
             </svg>
-            <div class="monument-base-marker"></div>
+            <div class="monument-info">
+              <span class="monument-tag" data-i18n="flight.step_2">ÉTAPE 2</span>
+              <span class="monument-name" data-i18n="flight.monument_chambord">Château de la Loire</span>
+            </div>
           </div>
+          <div class="monument-pointer" aria-hidden="true"></div>
         </div>
 
-        <!-- Monument 3 : Mont-Saint-Michel à ~78% -->
-        <div id="monument-3" class="monument-item">
-          <div class="monument-popup">
-            <span class="monument-tag" data-i18n="flight.step_3">ÉTAPE 3</span>
-            <span class="monument-name" data-i18n="flight.monument_mont">Mont-Saint-Michel</span>
-          </div>
-          <div class="monument-pin">
+        <!-- Monument 3 : Mont-Saint-Michel à ~78%, au-dessus du vol -->
+        <div id="monument-3" class="monument-item monument-above">
+          <div class="monument-card">
             <svg class="monument-icon" viewBox="0 0 70 65" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Rocher du Mont -->
               <path d="M8 63 Q20 48 35 45 Q50 48 62 63 Z" fill="#78716c" stroke="#57534e" stroke-width="1.5"/>
-              <!-- Remparts & Abbaye -->
               <rect x="22" y="30" width="26" height="18" fill="#e2e8f0" stroke="#475569" stroke-width="1.5"/>
               <polygon points="35,8 26,30 44,30" fill="#0284c7" stroke="#0369a1" stroke-width="1.5"/>
-              <!-- Flèche et archange doré -->
               <line x1="35" y1="8" x2="35" y2="2" stroke="#ea580c" stroke-width="2"/>
               <circle cx="35" cy="2" r="2.5" fill="#fbbf24"/>
-              <!-- Vaguelettes d'eau -->
               <path d="M5 63 Q15 60 25 63 T45 63 T65 63" fill="none" stroke="#38bdf8" stroke-width="2"/>
             </svg>
-            <div class="monument-base-marker"></div>
+            <div class="monument-info">
+              <span class="monument-tag" data-i18n="flight.step_3">ÉTAPE 3</span>
+              <span class="monument-name" data-i18n="flight.monument_mont">Mont-Saint-Michel</span>
+            </div>
           </div>
+          <div class="monument-pointer" aria-hidden="true"></div>
         </div>
 
-        <!-- Site du Crash & Point d'interrogation mystère à ~93% -->
+        <!-- Site du Crash & Point d'interrogation mystère à ~92% (sol) -->
         <div id="crash-destination" class="crash-destination">
           <div class="crash-crater"></div>
           <div class="crash-burst" aria-hidden="true">💥</div>
@@ -123,7 +114,6 @@
             <div class="question-mark-glyph">?</div>
             <div class="mystery-badge" data-i18n="flight.mystery">Où sommes-nous ?</div>
           </div>
-          <div class="monument-base-marker"></div>
         </div>
       </div>
 
@@ -161,14 +151,9 @@
         </div>
       </div>
 
-      <!-- Barre de progression au sol & balises -->
+      <!-- Barre de progression au sol épurée -->
       <div class="flight-progress-track">
         <div id="flight-progress-bar" class="flight-progress-bar" style="width: 0%;"></div>
-        <span class="track-marker marker-0"></span>
-        <span class="track-marker marker-25"></span>
-        <span class="track-marker marker-55"></span>
-        <span class="track-marker marker-80"></span>
-        <span class="track-marker marker-100"></span>
       </div>
     </div>
 

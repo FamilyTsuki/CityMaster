@@ -3,6 +3,33 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.8.1] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Trajectoire de vol en courbe parabolique (`public/screens/load.html`, `src/views/components/FlightLoader.js`, `public/assets/styles/components/flight-loader.css`)** :
+  - Remplacement de la ligne horizontale plate par un arc de trajectoire en courbe parabolique (courbe de Bézier quadratique SVG `Q 500 47 920 213` stylisée en pointillés avec lueur atmosphérique).
+  - Calcul dynamique de la position $(X, Y)$ et de l'angle d'inclinaison/tangage de l'avion en temps réel le long de la tangente de la courbe (`FlightLoader.#getPointOnCurve(t)`), pour une animation de vol aérienne ultra-dynamique et naturelle.
+- **Affichage des monuments au-dessus du vol et masquage strict par défaut** :
+  - Les bâtiments/monuments sont désormais **strictement invisibles** (`opacity: 0; visibility: hidden; pointer-events: none`) jusqu'à ce que l'avion atteigne précisément leur étape de vol.
+  - Positionnement des monuments **flottant au-dessus de l'aéronef** (`.monument-above`) avec un pointeur directionnel cartoon (`.monument-pointer`) dirigé vers la ligne de vol.
+  - Dès qu'une étape est franchie par l'avion, la carte du monument surgit au-dessus de sa trajectoire avec une animation rebondissante fluide (`@keyframes monumentBounceIn`).
+- **Épuration graphique & Design cartoon simplifié** :
+  - Suppression des graduations et repères superflus au sol sur la barre de progression pour un rendu minimaliste, clair et lisible sur tous les formats d'écran.
+  - Séquence de crash final optimisée : l'avion plonge en piqué directement dans le cratère d'impact à la fin de la courbe descendante, déclenchant l'apparition du point d'interrogation géant.
+
+### Optimisations & Performances
+- **Formule de Bézier quadratique optimisée** :
+  - Évaluation analytique directe en $O(1)$ à chaque tick d'animation sans recalcul lourd du DOM.
+  - Fixation des repères de coordonnées en pourcentages relatifs pour un rendu parfaitement responsive et adaptable au redimensionnement de l'écran.
+
+### Tests unitaires & Non-régression
+- **Mise à jour des tests dans `tests/load_route.test.js`** :
+  - Intégration du sélecteur interne `.plane-wrapper` dans le mock pour la rotation du tangage.
+  - Validation des coordonnées initiales ($P_0$ à `left: 6%`, `top: 72%`) et du crash ($P_2$ à `left: 92%`, `top: 82%`).
+  - Suite de tests complète validée avec 100% de succès (31 tests passés, 0 échec).
+
+---
+
 ## [2.8.0] - 2026-10-13
 
 ### Nouveautés & Nouvelles fonctionnalités

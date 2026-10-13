@@ -52,6 +52,7 @@ test('FlightLoader updates milestones, turbulences and triggers crash properly',
       textContent: '',
       value: '',
       addEventListener: () => {},
+      querySelector: () => ({ style: {} }),
     };
   }
 
@@ -80,11 +81,12 @@ test('FlightLoader updates milestones, turbulences and triggers crash properly',
 
   const loader = new FlightLoader(mockContainer);
 
-  // 1. Initial State
+  // 1. Initial State (p0 de la courbe à 6% et 72%)
   loader.setProgress(0);
   assert.equal(loader.progress, 0);
   assert.equal(elements['#flight-progress-bar'].style.width, '0%');
-  assert.equal(elements['#airplane-carrier'].style.left, '5%');
+  assert.equal(elements['#airplane-carrier'].style.left, '6%');
+  assert.equal(elements['#airplane-carrier'].style.top, '72%');
   assert.equal(elements['#monument-1'].classList.contains('revealed'), false);
 
   // 2. Étape 1 : Tour Eiffel (>= 25%)
@@ -109,11 +111,12 @@ test('FlightLoader updates milestones, turbulences and triggers crash properly',
   assert.equal(elements['#airplane-carrier'].classList.contains('wobbling'), true);
   assert.equal(elements['#crash-destination'].classList.contains('crashed'), false);
 
-  // 6. Crash (>= 97%)
+  // 6. Crash (>= 97%) (p2 de la courbe à 92% et 82%)
   loader.setProgress(100);
   assert.equal(elements['#crash-destination'].classList.contains('crashed'), true);
   assert.equal(elements['#airplane-carrier'].classList.contains('crashed'), true);
-  assert.equal(elements['#airplane-carrier'].style.top, '170px');
+  assert.equal(elements['#airplane-carrier'].style.left, '92%');
+  assert.equal(elements['#airplane-carrier'].style.top, '82%');
 
   loader.destroy();
 });
