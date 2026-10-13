@@ -3,6 +3,36 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.7.0] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Création de la page et route dédiée `/load` (`public/screens/load.html`, `src/app.js`, `src/views/GameView.js`)** :
+  - Mise en place d'un écran de chargement dédié et isolé (`#load-screen`), conçu pour permettre le redesign et la mise au point visuelle du composant de chargement sans fermeture automatique.
+  - Enregistrement de la route `/load` (et `/#/load`) au sein du routeur frontend SPA.
+  - Accès strictement réservé par URL directe : aucun lien de navigation, menu burger ou bouton dans l'interface ne pointe vers cette route.
+  - Masquage automatique de la barre de navigation principale (`#main-nav`) lors de l'accès à `/load` pour offrir une vue plein écran 100% consacrée au chargement, et restauration immédiate de la barre lors du retour sur toute autre route.
+
+### Optimisations & Architecture
+- **Robustesse du routeur (`src/Router.js`)** :
+  - Normalisation des chemins avec tolérance pour les slashes finaux (ex: `/load/` pris en charge de manière identique à `/load`).
+  - Sécurisation des accès aux variables globales navigateur (`window`, `document`, `history`) avec des gardes `typeof` pour garantir une compatibilité totale dans les environnements de tests Node.js et SSR.
+- **Stylisation dédiée (`public/assets/styles/components/loaders.css`)** :
+  - Ajout des règles CSS pour `.load-screen` et `.loading-message` avec centrage complet dans la fenêtre d'affichage (100dvh) et support fluide des modes clair et sombre.
+
+### Tests unitaires & Non-régression
+- **Suite de tests pour la route `/load` (`tests/load_route.test.js`)** :
+  - Validation de l'existence et du balisage du template `load.html` (`#load-screen`, `.loader-container`, `.loader-spinner`, `#load-page-message`).
+  - Test du déclenchement du gestionnaire de route sur `/load` et `/load/`.
+  - Contrôle d'absence de liens publics résiduels vers `/load` dans `index.html` et les écrans existants.
+- **Validation globale** : 30 tests unitaires validés avec succès (30/30).
+
+### Cache & Cycle de vie
+- Ajout de `/screens/load.html` dans les assets statiques mis en cache par le Service Worker.
+- Incrémentation du cache Service Worker en `citymaster-v16` dans `public/sw.js`.
+- Mise à jour des chaînes de cache-busting `?v=2.7.0` dans `public/index.html` et synchronisation du badge de version dans `README.md`.
+
+---
+
 ## [2.6.0] - 2026-10-11
 
 ### Nouveautés & Ergonomie

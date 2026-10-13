@@ -148,11 +148,22 @@ class App {
       "/legal": () => {
         this.#gameView.showScreen("legal");
       },
+      "/load": () => {
+        this.#showLoad();
+      },
     });
 
     this.#router.beforeEach((toPath) => {
       if (!toPath.startsWith("/room/")) {
         this.#roomController?.stopPolling();
+      }
+      const nav = document.getElementById("main-nav");
+      if (nav) {
+        if (toPath === "/load" || toPath === "/load/") {
+          nav.classList.add("hidden");
+        } else {
+          nav.classList.remove("hidden");
+        }
       }
     });
 
@@ -234,6 +245,12 @@ class App {
     this.#adminController.showDashboard();
   }
 
+  #showLoad() {
+    const nav = document.getElementById("main-nav");
+    if (nav) nav.classList.add("hidden");
+    this.#gameView.showScreen("load");
+  }
+
   static init() {
     document.addEventListener("DOMContentLoaded", async () => {
       const renderVersionTag = (v) => {
@@ -273,6 +290,7 @@ class App {
           "legal",
           "admin",
           "room",
+          "load",
         ];
         const parser = new DOMParser();
         const appContainer = document.getElementById("app");

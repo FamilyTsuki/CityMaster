@@ -32,6 +32,7 @@ export class GameView {
       game: document.getElementById("game-screen"),
       certificate: document.getElementById("certificate-screen"),
       loading: document.getElementById("loading-screen"),
+      load: document.getElementById("load-screen"),
       profile: document.getElementById("profile-screen"),
       legal: document.getElementById("legal-screen"),
       admin: document.getElementById("admin-screen"),
