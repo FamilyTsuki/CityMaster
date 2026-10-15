@@ -30,30 +30,30 @@
     <meta name="apple-mobile-web-app-title" content="CityMaster" />
     <title>CityMaster - Jeu Géographique Interactif</title>
 
-    <link rel="manifest" href="/manifest.json?v=2.8.19" />
+    <link rel="manifest" href="/manifest.json?v=2.8.20" />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="/favicon.png?v=2.8.19"
+      href="/favicon.png?v=2.8.20"
       id="dynamic-favicon"
     />
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/assets/images/icon.svg?v=2.8.19"
+      href="/assets/images/icon.svg?v=2.8.20"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="192x192"
-      href="/assets/images/icon-192.png?v=2.8.19"
+      href="/assets/images/icon-192.png?v=2.8.20"
     />
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.8.19" />
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.8.20" />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/assets/images/apple-touch-icon.png?v=2.8.19"
+      href="/assets/images/apple-touch-icon.png?v=2.8.20"
     />
 
     <script>
@@ -71,7 +71,7 @@
 
         const fav = document.getElementById("dynamic-favicon");
         if (fav) {
-          fav.href = "/favicon.png?v=2.8.19";
+          fav.href = "/favicon.png?v=2.8.20";
         }
       })();
     </script>
@@ -176,6 +176,31 @@
       </div>
       <div class="navbar-header-actions">
         <button
+          id="pwa-install-btn"
+          class="btn pwa-install-btn-style"
+          title="Installer l'application sur votre appareil"
+          data-i18n-title="nav.install_title"
+          aria-label="Installer l'application sur votre appareil"
+          data-i18n-aria-label="nav.install_label"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="icon-small"
+            aria-hidden="true"
+          >
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="pwa-btn-text" data-i18n="nav.install">Installer</span>
+        </button>
+        <button
           id="theme-toggle"
           class="icon-btn"
           title="Changer de thème"
@@ -265,8 +290,8 @@
           <span data-i18n="nav.admin">Admin Quartiers</span>
         </button>
         <button
-          id="pwa-install-btn"
-          class="btn secondary pwa-install-btn-style"
+          id="menu-install-btn"
+          class="btn pwa-install-btn-style menu-install-btn open-install-modal"
           title="Installer l'application sur votre appareil"
           data-i18n-title="nav.install_title"
           aria-label="Installer l'application sur votre appareil"

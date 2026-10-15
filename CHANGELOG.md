@@ -3,6 +3,28 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.8.20] - 2026-10-15
+
+### Nouveautés & Expérience Utilisateur (PWA & Navbar)
+- **Visibilité permanente du bouton d'installation PWA (`#pwa-install-btn`)** :
+  - Déplacement du bouton d'installation dans `.navbar-header-actions` pour garantir sa visibilité continue dès le premier coup d'œil, sans nécessiter d'ouvrir le menu burger sur mobile.
+  - Sur mobile ($\le 768\text{px}$) : affichage sous forme de bouton d'action circulaire dédié ($2.35\text{rem}\times 2.35\text{rem}$) aux côtés de la bascule de thème et du menu burger, avec icône de téléchargement contrastée et info-bulle contextuelle accessible.
+  - Sur bureau ($> 768\text{px}$) : affichage du bouton complet avec icône et libellé d'action (*« Installer »* / *« Install »*), groupé élégamment avec les actions principales sur l'extrémité droite de la barre de navigation.
+  - Ajout du bouton d'installation secondaire `.menu-install-btn` dans le tiroir mobile déroulant (`.navbar-actions.open`) pour un accès immédiat sous toutes les modalités de navigation.
+
+### Corrections de bugs & Rendu Graphique
+- **Résolution du conflit de contraste et de masquage blanc sur blanc** :
+  - Correction de la collision CSS entre `.btn.secondary` et `.pwa-install-btn-style` qui forçait un fond blanc `#ffffff` avec texte blanc `#ffffff` et bordure transparente en mode clair (rendant le bouton invisible).
+  - Application d'un style contrasté à haute lisibilité en mode clair (`background: var(--primary-light)`, `color: var(--primary)`, bordure `1.5px solid var(--primary)`) et en mode sombre.
+  - Remplacement de la variable CSS indéfinie `var(--surface)` par `var(--bg-card-solid)`.
+  - Alignement automatique de la marque (`.navbar-brand { margin-right: auto; }`) éliminant le centrage isolé du bouton de thème sur grand écran.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`npm test`)** :
+  - 31 tests unitaires validés avec succès (0 échec, 0 régression).
+
+---
+
 ## [2.8.19] - 2026-10-14
 
 ### Nouveautés & Refonte Visuelle (Dézoomage & Panorama du Globe)
