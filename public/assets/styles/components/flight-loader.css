@@ -3,53 +3,29 @@
    ========================================================================== */
 
 .flight-loader-stage {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  max-width: 48rem;
-  margin: auto;
-  padding: clamp(1rem, 2.5dvh, 2rem) clamp(1rem, 3vw, 2rem);
+  height: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   box-sizing: border-box;
+  overflow: hidden;
   animation: fadeIn 0.3s ease-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Header & Flight Information (Épuré & Moderne) */
-.flight-header {
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.flight-badge {
-  display: none;
-}
-
-.flight-title {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: clamp(1.25rem, 2.8vw, 1.65rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.flight-status-text {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-muted);
-  margin: 0;
-  min-height: 1.2rem;
-  transition: color 0.2s ease;
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ==========================================================================
@@ -57,21 +33,58 @@
    ========================================================================== */
 
 .flight-sky {
-  position: relative;
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 220px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  border-radius: 1.25rem;
+  height: 100%;
+  border-radius: 0;
+  border: none;
   overflow: hidden;
-  box-sizing: border-box;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  background: radial-gradient(ellipse at 50% 120%, #baa877 0%, #aa9763 55%, #998754 100%);
+  box-shadow: inset 0 0 60px rgba(85, 72, 45, 0.25);
 }
 
 [data-theme="dark"] .flight-sky {
-  background: rgba(15, 23, 42, 0.65);
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.35);
+  background: radial-gradient(ellipse at 50% 120%, #2a3342 0%, #1a222f 60%, #111722 100%);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+  border: none;
+}
+
+/* Globe terrestre géant illustré non coupé (Dôme supérieur suivant la courbure) */
+.peek-earth-container {
+  pointer-events: none;
+}
+
+.peek-earth-img {
+  pointer-events: none;
+  filter: drop-shadow(0 -4px 18px rgba(110, 95, 75, 0.3));
+}
+
+[data-theme="dark"] .peek-earth-img {
+  filter: drop-shadow(0 -4px 22px rgba(0, 0, 0, 0.6));
+}
+
+/* Grille céleste concentrique de Peek */
+.peek-sky-grid {
+  pointer-events: none;
+}
+
+[data-theme="dark"] .peek-sky-grid {
+  opacity: 0.22;
+}
+
+/* Étoiles célestes réparties dans la voûte céleste */
+.peek-sky-stars {
+  pointer-events: none;
+}
+
+.peek-sky-stars polygon {
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.15));
+}
+
+[data-theme="dark"] .peek-sky-stars polygon {
+  filter: drop-shadow(0 0 4px rgba(255, 245, 215, 0.25));
 }
 
 /* Curved Flight Path SVG */
@@ -81,33 +94,54 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 2;
+  z-index: 3;
 }
 
-.flight-curve-track {
-  stroke: rgba(249, 115, 22, 0.4);
-  stroke-width: 2px;
-  stroke-dasharray: 6 6;
+/* Texte courbé 'Loading...Loading...Loading...Loading..' façon Peek (surélevé) */
+.peek-loading-curve-text {
+  fill: #ffffff;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: 0.06em;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  pointer-events: none;
+  user-select: none;
 }
 
-/* Progress Fill Track at bottom (Fine ligne 3px) */
+/* Trajectoire restante (ligne grise/brune Peek) */
+.flight-curve-track.peek-track-bg {
+  stroke: #6e6353;
+  stroke-width: 3px;
+  stroke-linecap: round;
+}
+
+/* Trajectoire active rouge traçant le vol Peek */
+.flight-curve-progress-line {
+  stroke: #e63946;
+  stroke-width: 3.5px;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.15s linear;
+}
+
+/* Progress Fill Track au sol */
 .flight-progress-track {
   position: absolute;
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 3px;
-  background: rgba(0, 0, 0, 0.04);
+  height: 4px;
+  background: rgba(80, 70, 50, 0.25);
   z-index: 10;
 }
 
 [data-theme="dark"] .flight-progress-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .flight-progress-bar {
   height: 100%;
-  background: #f97316;
+  background: #e63946;
   border-radius: 0 2px 2px 0;
   transition: width 0.15s linear;
 }
@@ -130,185 +164,160 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  transform: translate(-50%, 8px) scale(0.6);
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-  transition: opacity 0.3s ease, transform 0.3s ease;
-  z-index: 30;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(4px);
+  pointer-events: none;
+  transition:
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.55s cubic-bezier(0.34, 1.45, 0.64, 1),
+    filter 0.45s ease,
+    visibility 0.45s;
+  z-index: 12;
 }
 
-/* Emplacements au-dessus de la courbe de vol */
-#monument-1 {
-  left: 31%;
-  top: 22px;
-}
-
-#monument-2 {
-  left: 55%;
-  top: 12px;
-}
-
-#monument-3 {
-  left: 74%;
-  top: 24px;
-}
-
-/* Émergence dynamique et fluide dès que l'avion atteint l'étape */
 .monument-item.revealed {
   opacity: 1 !important;
   visibility: visible !important;
+  filter: blur(0px) !important;
   pointer-events: auto !important;
-  transform: translate(-50%, 0) scale(1) !important;
-  animation: monumentMinimalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes monumentMinimalIn {
-  0% { opacity: 0; transform: translate(-50%, 8px) scale(0.8); }
-  100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
-}
-
-.monument-card {
-  display: flex;
-  align-items: center;
-  gap: 0.45rem;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(249, 115, 22, 0.35);
-  padding: 0.25rem 0.65rem 0.25rem 0.45rem;
-  border-radius: 9999px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
-  backdrop-filter: blur(8px);
-}
-
-[data-theme="dark"] .monument-card {
-  background: rgba(15, 23, 42, 0.9);
-  border-color: rgba(249, 115, 22, 0.45);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
 }
 
 .monument-icon {
-  width: 20px;
-  height: 22px;
+  width: auto;
+  height: 32px;
+  max-width: 36px;
+  max-height: 32px;
+  object-fit: contain;
   flex-shrink: 0;
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.16));
+  transition: transform 0.3s ease;
 }
 
-.monument-name {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--text-main);
-  line-height: 1;
-  white-space: nowrap;
+[data-theme="dark"] .monument-icon {
+  filter: brightness(0) invert(0.9) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
 }
 
-.monument-pointer {
-  width: 1.5px;
-  height: 8px;
-  background: #ea580c;
-  opacity: 0.6;
-  margin-top: 1px;
-}
+/* ==========================================================================
+   Destination Cloud (Apparition réaliste et fluide par condensation vaporeuse)
+   ========================================================================== */
 
-/* Site de crash dédié au sol */
-.crash-destination {
+.destination-cloud {
   position: absolute;
-  bottom: 8px;
-  left: 92%;
-  width: 70px;
-  height: 140px;
+  left: 79.4%;
+  top: 65.5%;
+  width: 88px;
+  height: 50px;
+  transform: translate(-50%, -50%) rotate(var(--cloud-pitch, 16deg)) scale(0.35);
+  transform-origin: center center;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  transform: translate(-50%, 0);
+  justify-content: center;
   pointer-events: none;
-  z-index: 30;
+  z-index: 20;
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(10px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.85s cubic-bezier(0.34, 1.3, 0.64, 1),
+    filter 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    visibility 0.8s;
 }
 
-.crash-destination.crashed {
+.destination-cloud.revealed {
   opacity: 1 !important;
+  visibility: visible !important;
+  filter: blur(0px) !important;
+  transform: translate(-50%, -50%) rotate(var(--cloud-pitch, 16deg)) scale(1) !important;
+  pointer-events: auto !important;
 }
 
-.crash-crater {
-  position: absolute;
-  bottom: 0;
-  width: 34px;
-  height: 8px;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(249, 115, 22, 0.3) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
+.cloud-body {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.crash-destination.crashed .crash-crater {
-  opacity: 1;
+.cloud-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.08));
 }
 
-/* Onde de choc épurée (Shockwave) */
-.crash-burst {
-  position: absolute;
-  bottom: 0;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1.5px solid #f97316;
-  opacity: 0;
-  pointer-events: none;
+[data-theme="dark"] .cloud-svg {
+  filter: drop-shadow(0 4px 16px rgba(0, 0, 0, 0.45));
 }
 
-.crash-destination.crashed .crash-burst {
-  animation: shockwaveRipple 0.8s ease-out forwards;
-}
-
-@keyframes shockwaveRipple {
-  0% { transform: scale(0.4); opacity: 1; }
-  100% { transform: scale(3.5); opacity: 0; }
-}
-
-/* Point d'interrogation Minimaliste (?) */
+/* Point d'interrogation mystère émergeant au-dessus du nuage 0.5s après l'entrée de l'avion */
 .mystery-question-mark {
   position: absolute;
-  bottom: 48px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  top: -26px;
+  left: 50%;
+  transform: translate(-50%, 8px) rotate(calc(-1 * var(--cloud-pitch, 16deg))) scale(0.6);
   opacity: 0;
   pointer-events: none;
-  z-index: 40;
+  z-index: 25;
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 
-.crash-destination.crashed .mystery-question-mark {
+.destination-cloud.active .mystery-question-mark {
   opacity: 1 !important;
+  transform: translate(-50%, 0) rotate(calc(-1 * var(--cloud-pitch, 16deg))) scale(1) !important;
   pointer-events: auto !important;
-  animation: questionMinimalPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes questionMinimalPop {
-  0% { transform: scale(0.7) translateY(8px); opacity: 0; }
-  100% { transform: scale(1) translateY(0); opacity: 1; }
+  transition:
+    opacity 0.4s ease 0.5s,
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
 }
 
 .question-mark-glyph {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: clamp(3.2rem, 5.5vw, 4.4rem);
+  display: inline-flex;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 0;
+  line-height: 1;
+}
+
+/* Trio de points d'interrogation '???' emblématique de Peek */
+.peek-question-trio {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  user-select: none;
+}
+
+.peek-qm {
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   font-weight: 900;
   line-height: 1;
   color: #ffffff;
-  text-shadow: 0 0 16px #f97316, 0 0 32px rgba(249, 115, 22, 0.7);
-  letter-spacing: -0.04em;
-  margin: 0;
+  text-shadow:
+    0 2px 0 #564938,
+    0 3.5px 0 #564938,
+    0 5px 8px rgba(0, 0, 0, 0.35);
+  letter-spacing: -0.02em;
+  display: inline-block;
 }
 
-.mystery-badge {
-  background: #ea580c;
-  color: #ffffff;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);
-  white-space: nowrap;
-  margin-top: 0.15rem;
+.peek-qm.qm-left {
+  font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+  transform: rotate(-14deg) translateY(2px);
+}
+
+.peek-qm.qm-mid {
+  font-size: clamp(2.1rem, 3.8vw, 2.8rem);
+  transform: rotate(4deg);
+}
+
+.peek-qm.qm-right {
+  font-size: clamp(1.6rem, 2.8vw, 2.1rem);
+  transform: rotate(18deg) translateY(4px);
 }
 
 /* ==========================================================================
@@ -324,13 +333,17 @@
   z-index: 15;
   pointer-events: none;
   transform: translate(-50%, -50%);
+  transition:
+    opacity 0.4s ease,
+    filter 0.4s ease;
 }
 
 .plane-wrapper {
   width: 100%;
   height: 100%;
   position: relative;
-  transition: transform 0.15s ease;
+  transform-origin: center center;
+  transition: transform 0.1s linear;
 }
 
 .plane-svg {
@@ -347,63 +360,43 @@
 }
 
 @keyframes propSpin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-/* Normal Gentle Flight */
-.airplane-carrier.flying .plane-wrapper {
+/* Normal Flight - Tangage et flottement doux appliqués sur le SVG pour préserver la rotation de la trajectoire */
+.airplane-carrier.flying .plane-svg {
   animation: planeBob 2s infinite ease-in-out;
 }
 
 @keyframes planeBob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
 }
 
-/* Turbulences before crash */
-.airplane-carrier.wobbling .plane-wrapper {
-  animation: planeWobble 0.15s infinite ease-in-out;
-}
-
-@keyframes planeWobble {
-  0%, 100% { transform: translateY(-2px) rotate(6deg); }
-  50% { transform: translateY(2px) rotate(-8deg); }
-}
-
-/* Crashed in Ground */
-.airplane-carrier.crashed .plane-wrapper {
-  transform: rotate(55deg) scale(0.85);
-  opacity: 0.9;
-}
-
-.airplane-carrier.crashed .plane-propeller {
-  animation: none;
-}
-
-/* Traînée de fumée légère lors des turbulences */
-.plane-smoke-trail {
-  position: absolute;
-  top: 16px;
-  left: -8px;
-  width: 6px;
-  height: 6px;
+/* Disparition progressive et élégante de l'avion dans le nuage à partir de ~80% */
+.airplane-carrier.in-cloud {
+  opacity: 0 !important;
+  filter: blur(2px);
   pointer-events: none;
 }
 
-.airplane-carrier.wobbling .plane-smoke-trail::after {
-  content: '';
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: rgba(148, 163, 184, 0.4);
-  border-radius: 50%;
-  animation: puffSmoke 0.3s infinite linear;
+.airplane-carrier.in-cloud .plane-wrapper {
+  transform: scale(0.3) !important;
+  transition: transform 0.45s ease, opacity 0.45s ease;
 }
 
-@keyframes puffSmoke {
-  0% { transform: scale(0.5); opacity: 0.8; }
-  100% { transform: scale(2) translate(-15px, -6px); opacity: 0; }
+.airplane-carrier.in-cloud .plane-propeller {
+  animation-play-state: paused;
 }
 
 /* ==========================================================================
@@ -411,135 +404,48 @@
    ========================================================================== */
 
 .flight-footer-info {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: absolute;
+  bottom: 14px;
+  right: 20px;
+  left: auto;
+  transform: none;
+  z-index: 45;
+  pointer-events: none;
 }
 
 .flight-percentage-box {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
+  gap: 0.4rem;
+  padding: 0.28rem 0.8rem;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 9999px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme="dark"] .flight-percentage-box {
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 
 .flight-percentage-val {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 1.15rem;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-size: 1rem;
   font-weight: 800;
-  color: var(--primary);
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
   line-height: 1;
 }
 
-.flight-info-dot {
-  color: var(--text-muted);
-  opacity: 0.5;
-  font-size: 0.8rem;
-}
-
-.flight-destination-label {
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-/* ==========================================================================
-   Testing Controls Panel (Discret, compact & élégant)
-   ========================================================================== */
-
-.flight-controls-panel {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.4rem 0.85rem;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 9999px;
-  max-width: fit-content;
-  margin: 0.5rem auto 0;
-  opacity: 0.4;
-  transition: opacity 0.2s ease, border-color 0.2s ease;
-}
-
-.flight-controls-panel:hover,
-.flight-controls-panel:focus-within {
-  opacity: 0.95;
-  border-color: var(--primary);
-}
-
-.ctrl-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.25rem 0.65rem;
-  background: var(--bg-card);
-  color: var(--text-main);
-  border: 1px solid var(--border-color);
-  border-radius: 9999px;
-  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.ctrl-btn:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.ctrl-btn.alert-btn {
-  color: #ea580c;
-  border-color: rgba(234, 88, 12, 0.25);
-}
-
-.ctrl-btn.alert-btn:hover {
-  background: #ea580c;
-  color: #ffffff;
-}
-
-.ctrl-btn.icon-only {
-  padding: 0.25rem 0.45rem;
-  font-size: 0.85rem;
-}
-
-.ctrl-slider-group {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-muted);
-}
-
-.ctrl-range {
-  accent-color: var(--primary);
-  cursor: pointer;
-  width: 90px;
-}
-
 @media (max-width: 640px) {
-  .flight-sky {
-    height: 180px;
-  }
   .airplane-carrier {
     width: 44px;
     height: 26px;
   }
   .question-mark-glyph {
     font-size: 2.8rem;
-  }
-  .mystery-badge {
-    font-size: 0.68rem;
-  }
-  .flight-controls-panel {
-    gap: 0.35rem;
-    padding: 0.35rem 0.6rem;
   }
 }

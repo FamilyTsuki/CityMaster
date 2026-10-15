@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v20';
+const CACHE_NAME = 'citymaster-v37';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -11,6 +11,10 @@ const STATIC_ASSETS = [
   "/assets/images/apple-touch-icon.png",
   "/assets/images/icon.svg",
   "/assets/images/default-avatar.png",
+  "/assets/images/monuments/arc-triomphe.png",
+  "/assets/images/monuments/louvre-pyramid.png",
+  "/assets/images/monuments/eiffel-tower.png",
+  "/assets/images/earth.png",
   "/assets/styles/variables.css",
   "/assets/styles/base.css",
   "/assets/styles/navbar.css",

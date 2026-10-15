@@ -16,7 +16,12 @@ export class I18nService {
         saved = localStorage.getItem("lang");
       }
     } catch (_) {}
-    const browser = (typeof navigator !== "undefined" && navigator.language || "").toLowerCase().startsWith("en")
+    const browser = (
+      (typeof navigator !== "undefined" && navigator.language) ||
+      ""
+    )
+      .toLowerCase()
+      .startsWith("en")
       ? "en"
       : "fr";
     this.#currentLang = saved || browser;
@@ -193,9 +198,13 @@ export class I18nService {
       }
     });
 
-    const arias = document.querySelectorAll("[data-i18n-aria], [data-i18n-aria-label]");
+    const arias = document.querySelectorAll(
+      "[data-i18n-aria], [data-i18n-aria-label]",
+    );
     arias.forEach((el) => {
-      const key = el.getAttribute("data-i18n-aria") || el.getAttribute("data-i18n-aria-label");
+      const key =
+        el.getAttribute("data-i18n-aria") ||
+        el.getAttribute("data-i18n-aria-label");
       const translated = this.t(key);
       if (translated && translated !== key) {
         el.setAttribute("aria-label", translated);

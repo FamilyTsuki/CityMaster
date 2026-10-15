@@ -3,6 +3,360 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.8.19] - 2026-10-14
+
+### Nouveautés & Refonte Visuelle (Dézoomage & Panorama du Globe)
+- **Dézoomage équilibré du globe terrestre (`load.html`)** :
+  - Réduction de l'échelle d'affichage du globe de $2804\text{px}$ à $1400\times 1000\text{px}$ (`x="-245"`, `y="385"`), divisant le facteur de zoom par deux.
+  - Découverte panoramique des continents cartoon (continent central vert intense, masses continentales latérales et émergence des îles) qui étaient auparavant hors-champ.
+  - Ajustement géométrique de l'ellipse supérieure assurant que l'horizon terrestre épouse rigoureusement la courbure parabolique de vol de l'avion sur l'ensemble de la trajectoire.
+
+### Optimisations & Qualité Visuelle
+- **Harmonisation de l'espacement et dégagement de vol** :
+  - Espacement régulier et constant de ~38px entre l'arc de vol et la surface du globe de $X = 60$ à $X = 920$.
+  - Maintien d'un espace aéré pour l'avion et les monuments flottants (espacement de ~1cm au-dessus de la ligne sans interférence visuelle).
+  - Remplissage complet du bas de l'écran sans rupture angulaire ni bords vides.
+
+### Tests unitaires & Non-régression
+- **Validation de la suite de tests (`npm test`)** :
+  - Exécution et passage sans régression des 31 tests unitaires du projet.
+
+---
+
+## [2.8.18] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle (Illustration Cartoon de la Terre)
+- **Intégration de la nouvelle illustration cartoon du globe terrestre (`earth.png`, `load.html`)** :
+  - Remplacement de l'ancienne image par la nouvelle illustration cartoon fournie (océans bleu cyan vif, continents vert intense et nuages blancs).
+  - Traitement d'extraction du fond noir avec détourage morphologique et lissage sous-pixel (élimination totale des franges sombres et artefacts de compression JPEG).
+  - Redimensionnement haute fidélité en 1800×1800 Lanczos3 avec transparence alpha progressive sans effet de marche d'escalier.
+  - Conservation du dôme supérieur naturel non coupé épousant parfaitement la courbure parabolique de la trajectoire de vol.
+
+### Optimisations & Qualité de Rendu
+- **Suppression des bordures parasites et netteté maximale** :
+  - Lissage anti-crénelage anti-aliasing du contour circulaire pour une transition fluide sur le ciel étoilé.
+  - Suppression de tout résidu de détourage sur l'ensemble de l'horizon de vol.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`npm test`)** :
+  - Exécution et passage sans régression de l'ensemble des 31 tests unitaires.
+
+---
+
+## [2.8.17] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle (Horizon Terrestre Natif)
+- **Suppression du masque de découpe artificiel et intégration de l'illustration native (`load.html`, `flight-loader.css`)** :
+  - Élimination complète du `clipPath` tranchant, du rectangle de base et des traits de contour artificiels.
+  - Positionnement de l'illustration circulaire intégrale de la Terre (`earth.png`, 2804×2804) centrée à $(X=455, Y=1793)$ avec un rayon de 1402px.
+  - Le dôme circulaire supérieur de l'illustration forme naturellement la ligne d'horizon du globe terrestre, épousant la courbure de vol avec un espacement constant et harmonieux de 45px sur l'ensemble de la largeur de l'écran.
+  - Suréchantillonnage haute résolution de `earth.png` (2000×2000 Lanczos3 avec accentuation de netteté) pour un rendu net et texturé sur tous les écrans HD/Retina.
+  - Nettoyage du balisage SVG (`<defs>`) et des feuilles de styles CSS pour éliminer tout résidu de masquage obsolète.
+
+### Tests unitaires & Non-régression
+- **Validation de la suite de tests (`tests/*.test.js`)** :
+  - 31/31 tests unitaires validés avec succès (`npm test`).
+
+---
+
+## [2.8.16] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle (Ciel & Grille Céleste Peek)
+- **Harmonisation stricte de la courbure de `peek-sky-grid` (`load.html`, `flight-loader.css`)** :
+  - Remplacement des anciens arcs disparates par 6 parallèles paraboliques strictement concentriques suivant la même équation quadratique que la trajectoire de vol et l'horizon terrestre ($A = 0.0003645, B = -0.33045$).
+  - Espacement uniforme de 70px entre chaque arc de méridien sur toute la largeur du ciel ($X = -150$ à $X = 1150$).
+  - Méridiens radiaux modélisés par des rayons purs émanant du centre de courbure terrestre sous le globe, coupant les parallèles sous un angle rigoureusement orthogonal.
+- **Répartition spatiale naturelle et poétique des étoiles (`load.html`, `flight-loader.css`)** :
+  - Dispersion de 18 étoiles à 5 branches à travers l'ensemble de la voûte céleste (ciel supérieur, flancs latéraux, zones médianes au-dessus de la trajectoire).
+  - Variations d'échelles (rayons de 7px à 15px) et d'opacités subtiles (`0.25` à `0.45`) reproduisant l'effet de constellation et de scintillement cartoon fidèle à Peek.
+  - Ajout d'ombres et d'un halo céleste doux en thème sombre via `.peek-sky-stars polygon`.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/*.test.js`)** :
+  - 31/31 tests unitaires validés avec succès (`npm test`).
+
+---
+
+## [2.8.15] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle (Écran de Chargement Peek)
+- **Résolution du chevauchement Texte vs Monuments (`load.html`, `flight-loader.css`)** :
+  - Surélévation du chemin de texte courbé (`#flight-curve-text-path`, `d="M 40 299 Q 500 160 960 330"`) dans la partie haute du ciel céleste.
+  - Dégagement d'un espace libre constant d'environ 30px au-dessus des monuments (Arc de Triomphe, Pyramide du Louvre, Tour Eiffel), éliminant toute collision ou superposition visuelle.
+  - Caisse mixte et typographie cartoon fidèle à Peek : `Loading...Loading...Loading...Loading..` avec police arrondie 24px et ombrage doux.
+- **Horizon terrestre continu sans aucun vide ni coupure angulaire (`load.html`, `flight-loader.css`)** :
+  - Extension du `clipPath` et du tracé de l'horizon de $X = -200$ à $X = 1200$ (`d="M -200 547 Q 500 214 1200 595 L 1200 800 L -200 800 Z"`), garantissant une sortie fluide et propre au-delà des bordures d'écran sans aucun coin triangulaire vide.
+  - Ajout d'une base océanique continue sous l'horizon (`<rect class="peek-earth-ocean-base">`, dégradé `#12497e` vers `#071b33`) assurant une surface planétaire pleine et riche sur toutes les résolutions d'écran (16:9, mobile, ultra-large).
+  - Redimensionnement panoramique harmonieux de l'illustration de la Terre (`earth.png`, 1200×900) préservant l'aspect naturel des continents sans écrasement en galette.
+  - Ajout d'une aura atmosphérique discrète (`.peek-earth-atmosphere`) le long de l'horizon.
+- **Espace de coordonnées 16:9 sans déformation non-uniforme (`load.html`)** :
+  - Mise à jour du `viewBox` du SVG en `0 0 1000 560` (ratio 16:9 naturel), évitant tout étirement vertical excessif des caractères de texte, des étoiles et des grilles célestes.
+  - Recalcul de la trajectoire active de vol (`d="M 60 403 Q 500 280 920 426"`, longueur réelle 874px) synchronisée avec `FlightLoader.js`.
+- **Nuage de destination et question marks Peek éclatants (`flight-loader.css`)** :
+  - Conservation de l'esthétique cumulus crème/ivoire douce (`#fbf9ee` / `#eae0c8`) avec halo en thème sombre (suppression du filtre gris suie terne).
+  - Repositionnement du badge de pourcentage de vol (`.flight-footer-info`) en bas à droite de l'écran pour libérer complètement la vue sur le globe terrestre.
+
+### Corrections de bugs & Refactoring
+- **Suppression d'un caractère parasite (`load.html`)** :
+  - Nettoyage d'une chaîne résiduelle `É&É²` dans le balisage de l'écran de chargement.
+- **Synchronisation précise de la ligne de progression (`FlightLoader.js`)** :
+  - Mise à jour du calcul de `stroke-dashoffset` sur la longueur réelle de 874px avec mise à jour simultanée de la propriété de style et de l'attribut SVG.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/*.test.js`)** :
+  - Exécution réussie des 31 tests unitaires du projet (`npm test`).
+
+---
+
+## [2.8.14] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle
+- **Adoucissement réaliste de la courbure du vol et de la Terre (`load.html`, `FlightLoader.js`, `tests/load_route.test.js`)** :
+  - Remplacement de l'arc trop plongeant/pentu par une courbure douce et naturelle fidèle à Peek (flèche verticale de 12% au lieu de 54%) :
+    - Trajectoire de vol : `M 60 187 Q 500 130 920 198` (décollage à $Y=72\%$, apogée douce à $Y=62\%$, atterrissage à $Y=76\%$).
+    - Tangage de l'avion doux et organique : $-7.4^\circ$ au décollage, $0^\circ$ au zénith, $+6.6^\circ$ dans le nuage.
+    - Ligne d'horizon de la Terre parfaitement parallèle : `M -60 237 Q 517 140 1060 256` ($\Delta Y = 32\,\text{px}$).
+    - Texte courbé supérieur aligné : `M 50 168 Q 500 112 930 180`.
+  - Recalcul de la longueur exacte du tracé actif (`864px`) pour une progression fluide sans à-coup.
+  - Réajustement des positions de croisière des 3 monuments et du nuage de destination le long de la nouvelle trajectoire douce.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.13] - 2026-10-13
+
+### Nouveautés & Refonte Plein Écran (Style Peek)
+- **Affichage plein écran immersif sur toute la page (`flight-loader.css`)** :
+  - Suppression de la boîte centrale confinée (`max-width: 48rem`, marges, paddings et rayon de bordure) : la scène de vol et le ciel sépia recouvrent désormais l'intégralité du viewport (`100vw` × `100vh` / `100dvh`).
+  - La voûte céleste, la grille des méridiens et les constellations occupent tout l'espace d'affichage de manière immersive comme dans le jeu original Peek.
+  - La barre de progression fine rouge au sol est ancrée sur toute la largeur de l'écran en bas (`height: 6px`), avec le badge de pourcentage de chargement flottant au-dessus avec effet glassmorphism discret.
+- **Courbure strictement identique et parallèle entre la Terre et l'avion (`load.html`, `flight-loader.css`)** :
+  - Définition d'un clipPath d'horizon (`#peek-earth-horizon-clip`, `d="M -60 271 Q 517 34 1060 317 L 1060 450 L -60 450 Z"`) généré par la même fonction quadratique que la trajectoire de l'avion (`d="M 60 187 Q 500 47 920 213"`), avec un décalage vertical constant $\Delta Y = 40\,\text{px}$.
+  - La surface de la Terre et la ligne de vol de l'avion suivent une courbure parfaitement parallèle à chaque point de coordonnées $X$.
+  - Tracé au trait de la ligne d'horizon cartoon (`.peek-earth-horizon-stroke`, `#726652`) épousant cette même arche continue d'un bord à l'autre de l'horizon.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.12] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle
+- **Détourage intégral au trait de la planète Terre (`earth.png`)** :
+  - Découpage strict au ras du contour noir franc de la planète Terre ($R = 217.5px$), éliminant la totalité du fond d'espace sombre et des tourbillons sombres pour ne conserver que le globe illustré net et éclatant.
+  - Anti-aliasing sub-pixel soigné pour des bordures lisses et transparentes.
+  - Poids optimisé à 83 Ko (-88% par rapport à l'image d'origine).
+- **Déformation panoramique à l'horizon (`load.html`, `flight-loader.css`)** :
+  - Intégration directe du globe dans le SVG du vol avec `preserveAspectRatio="none"` et dimensions panoramiques étirées (`x="-100" y="150" width="1200" height="280"`).
+  - La Terre épouse désormais fidèlement la courbure panoramique de l'horizon de Peek d'un bout à l'autre de l'écran (de gauche à droite), formant un arc de cercle étendu sous la trajectoire de vol.
+  - L'avion décolle au ras de l'horizon à gauche, survole les continents étirés au zénith et plonge vers le nuage à droite.
+  - Unification du système de coordonnées SVG (1000x260) pour une synchronisation géométrique parfaite à chaque résolution.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.11] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle
+- **Intégration du globe terrestre illustré avec halo atmosphérique (`earth.png`, `load.html`, `flight-loader.css`)** :
+  - Intégration de la nouvelle illustration de la planète Terre (`public/assets/images/earth.png`) fournie par l'utilisateur.
+  - Découpage et détourage de haute précision avec suppression complète du fond d'espace sombre extérieur et préservation du halo bleu cyan atmosphérique en dégradé alpha fluide (sans contour parasite).
+  - Optimisation sans perte de la compression PNG réduisant la taille du fichier de 728 Ko à 141 Ko (-80%).
+  - Positionnement responsive du globe au bas de la scène de vol sous la trajectoire de croisière (`.peek-earth-container`, `top: 48%`, `width: clamp(480px, 76vw, 660px)`), garantissant un cercle parfait sans étirement ni déformation quel que soit le ratio d'écran.
+  - Séparation de l'architecture graphique en calques indépendants : arrière-plan céleste avec grille et étoiles (`z-index: 1`), globe terrestre illustré (`z-index: 2`), trajectoire de vol et texte courbé (`z-index: 3`), avion, nuage et monuments (`z-index: 15-25`).
+  - Ajout d'une ombre portée douce et d'une lueur atmosphérique subtile adaptée aux modes clair et sombre (`drop-shadow`).
+
+### PWA & Mise en cache hors-ligne
+- **Mise en cache du globe terrestre (`public/sw.js`)** :
+  - Ajout de `"/assets/images/earth.png"` dans la liste des assets statiques (`STATIC_ASSETS`) du Service Worker pour un affichage instantané et une disponibilité hors-ligne totale.
+
+### Tests unitaires & Non-régression
+- **Couverture des tests (`tests/load_route.test.js`)** :
+  - Ajout de tests de non-régression validant la présence du conteneur du globe terrestre `.peek-earth-container` et de sa ressource `/assets/images/earth.png` dans le template `load.html`.
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.10] - 2026-10-13
+
+### Nouveautés & Refonte Visuelle (Inspirée de Peek)
+- **Horizon terrestre et globe illustré (`load.html`, `flight-loader.css`)** :
+  - Intégration d'une courbure de globe terrestre en bas de l'écran avec océan turquoise/sauge (`#8cb5b3`), continents stylisés aux contours chauds (`#ded2af` / `#726652`) et nuages d'horizon décoratifs.
+- **Grille céleste et fond vintage (`load.html`, `flight-loader.css`)** :
+  - Ajout d'une voûte céleste aux dégradés chauds beige/sépia avec méridiens et parallèles courbes, parsemée de constellations d'étoiles illustrées discrètes.
+- **Double tracé de trajectoire avec progression dynamique (`load.html`, `flight-loader.css`, `FlightLoader.js`)** :
+  - Tracé de fond pointillé charbon sobre (`.peek-track-bg`) indiquant l'itinéraire à venir.
+  - Tracé dynamique rouge corail éclatant (`#flight-curve-progress-line`, `#e63946`) révélant en temps réel le chemin parcouru sous l'avion via calcul d'offset de stroke.
+- **Texte incurvé suivant la trajectoire de vol (`load.html`, `flight-loader.css`)** :
+  - Ajout du bandeau typographique dynamique `LOADING...LOADING...LOADING...LOADING..` épousant fidèlement la courbe SVG (`<textPath>`) au-dessus de l'avion.
+- **Nuage cumulus multi-lobé stylisé Peek (`load.html`)** :
+  - Silhouette de cumulus organique à double ton (`#f4ecd8` / `#e5d9bd`) avec ombre douce et trait chaud façon bande dessinée.
+- **Trio de points d'interrogation mystère '???' (`load.html`, `flight-loader.css`)** :
+  - Remplacement du glyphe unique par le trio emblématique de Peek (`???`) avec inclinaisons asymétriques (-14°, +4°, +18°), échelle progressive et ombre 3D chaude multicouche (`#564938`), émergeant 0.5s après l'entrée de l'avion dans le nuage.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.9] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Élévation des monuments à ~1cm de la trajectoire pointillée (`FlightLoader.js`, `flight-loader.css`)** :
+  - Décalage vertical des icônes de monuments de `32px` (~1cm) au-dessus de la ligne (`translate(-50%, calc(-100% - 32px))`) afin d'éviter tout contact direct ou chevauchement avec les pointillés du vol.
+  - Conservation de l'angle de tangage dynamique (`rotate(${pitch}deg)`) le long de la pente de la courbe.
+- **Animation fluide d'apparition pop-up pour les monuments (`FlightLoader.js`, `flight-loader.css`)** :
+  - Effet de surgissement élastique dynamique (`scale(0.6)` ➔ `scale(1)`) avec élévation ascendante depuis `calc(-100% - 14px)` jusqu'à `calc(-100% - 32px)`.
+  - Courbe de transition organique à ressort (`cubic-bezier(0.34, 1.45, 0.64, 1)`), combinée à un flou progressif doux (`filter: blur(4px)` ➔ `blur(0px)`) et une ombre portée douce (`drop-shadow(0 4px 8px rgba(0, 0, 0, 0.16))`).
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.8] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Apparition différée du point d'interrogation 0.5s après l'entrée de l'avion (`flight-loader.css`)** :
+  - Ajout d'un délai de transition de `0.5s` (`500ms`) sur `.mystery-question-mark` dès que le nuage devient actif (`.destination-cloud.active`).
+  - L'avion plonge et s'évapore complètement dans le nuage, puis 0.5s plus tard, le point d'interrogation mystère `?` émerge en douceur et s'élève au-dessus du nuage (`top: -24px`).
+  - Disparition instantanée sans délai lors d'une réinitialisation sous 80%.
+
+### Optimisations & Graphisme
+- **Stabilisation complète du nuage après son apparition (`flight-loader.css`)** :
+  - Suppression de toutes les animations d'ondulation ou de flottement continu (`cloudVaporFloat`, `cloudVaporActive`, mise à l'échelle de `.cloud-body`).
+  - Le nuage ne conserve que son animation d'apparition vaporeuse par condensation à 50%, et reste ensuite parfaitement net, stable et ancré sur sa trajectoire.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.7] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Animation réaliste et fluide d'apparition du nuage (`flight-loader.css`, `FlightLoader.js`)** :
+  - Effet de condensation vaporeuse réaliste : le nuage émerge de la brume avec un flou doux progressif (`filter: blur(10px)` ➔ `blur(0px)`) et un gonflement élastique fluide (`scale(0.35)` ➔ `scale(1)`).
+  - Courbe de bézier organique dédiée (`cubic-bezier(0.16, 1, 0.3, 1)` et `cubic-bezier(0.34, 1.3, 0.64, 1)`) pour un mouvement vaporeux et naturel.
+  - Flottement atmosphérique continu (`cloudVaporFloat`, cycle de `3.2s`) dès la révélation, avec réaction élastique dynamique (`cloudVaporActive`) lors de l'absorption de l'avion à 80%.
+
+### Optimisations & Graphisme
+- **Épuration visuelle des monuments (`load.html`, `flight-loader.css`)** :
+  - Suppression intégrale des traits de repère orphelins sous les monuments (`.monument-pointer`), allégeant l'interface.
+  - Ancrage direct et net de la base des icônes de monuments sur les pointillés de la trajectoire de vol.
+
+### Tests unitaires & Non-régression
+- **Validation complète des tests (`tests/load_route.test.js`)** :
+  - Validation du cycle d'apparition réaliste du nuage et de l'absence de régression visuelle sur les monuments.
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.6] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Apparition progressive du nuage de destination à 50% (`FlightLoader.js`, `flight-loader.css`)** :
+  - Le nuage reste invisible au décollage et n'apparaît qu'à partir de 50% de progression (`.destination-cloud.revealed`), lors du passage de l'apogée du vol.
+  - Transition douce en fondu (`opacity: 0` ➔ `1`) et effet de zoom dynamique (`scale(0.5)` ➔ `scale(1)`).
+- **Dimensionnement compact et proportions équilibrées (`flight-loader.css`)** :
+  - Réduction de la taille du nuage de ~40% (`88px × 50px` au lieu de `140px × 80px`) pour s'harmoniser parfaitement avec l'avion (`52px × 32px`) et les monuments.
+  - Ajustement proportionnel du glyphe du point d'interrogation `?` (`clamp(1.8rem, 3.2vw, 2.4rem)`).
+- **Orientation géométrique le long de la trajectoire (`FlightLoader.js`, `flight-loader.css`)** :
+  - Calcul dynamique de la tangente de descente à $t=0.85$ (~`+15.9°`) appliquée via variable CSS `--cloud-pitch` et rotation `rotate(var(--cloud-pitch))`.
+  - Redressement vertical automatique du point d'interrogation `?` (`rotate(calc(-1 * var(--cloud-pitch)))`) pour une lisibilité optimale au-dessus du nuage incliné.
+
+### Tests unitaires & Non-régression
+- **Validation complète des tests (`tests/load_route.test.js`)** :
+  - Vérification du masquage du nuage pour `progress < 50%` (`classList.contains('revealed') === false`).
+  - Vérification de l'apparition et de l'orientation à `progress = 50%` (`classList.contains('revealed') === true`, `scale(1)`, `rotate(15.9deg)`).
+  - Validation de l'absorption de l'avion et activation du nuage mystère à $\ge 80\%$.
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
+## [2.8.5] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Positionnement et rotation dynamiques des monuments sur la trajectoire (`FlightLoader.js`, `flight-loader.css`)** :
+  - Ancrage automatique de chaque monument (`Arc de Triomphe` à ~25%, `Pyramide du Louvre` à ~52%, `Tour Eiffel` à ~74%) directement sur la courbe Bézier pointillée de vol.
+  - Calcul en temps réel de la tangente géométrique de la trajectoire pour chaque monument : chaque repère s'incline harmonieusement selon la pente locale (`-8.3°` en montée, `+2.6°` près du sommet, `+11.5°` en descente).
+  - Ancrage du pointeur sur la courbe (`transform-origin: 50% 100%`) avec apparition dynamique en échelle (`scale(0.6)` à `scale(1)`) dès que l'avion atteint le seuil d'étape.
+- **Remplacement du crash par l'arrivée dans le nuage mystère à ~80% (`load.html`, `FlightLoader.js`, `flight-loader.css`)** :
+  - Suppression de l'ancienne séquence de crash au sol (cratère, ondes de choc, turbulences violentes en piqué).
+  - Dès ~80% de progression, l'avion plonge et disparaît avec élégance et douceur à l'intérieur du nuage de destination (`.in-cloud`, fondu d'opacité et réduction d'échelle).
+  - Activation douce du nuage (`.destination-cloud.active`) et émergence du point d'interrogation stylisé `?` invitant à deviner la ville mystère.
+
+### Optimisations, Nettoyage & Refactoring
+- **Suppression du code mort lié à l'ancien crash** :
+  - Élimination des sélecteurs CSS orphelins `.airplane-carrier.wobbling`, `.airplane-carrier.crashed`, `.plane-smoke-trail`, `@keyframes puffSmoke`, et des balises orphelines dans `load.html`.
+  - Nettoyage dans `FlightLoader.js` des méthodes de crash au profit de `#enterCloudSequence()` et `#resetPlaneFlight()`.
+  - Harmonisation des règles de transformation CSS et correction des doublons de propriétés dans `.question-mark-glyph`.
+
+### Tests unitaires & Non-régression
+- **Mise à jour et validation de la suite de tests (`tests/load_route.test.js`)** :
+  - Adaptation des tests pour vérifier la structure du nuage de destination (`#destination-cloud`, `.cloud-svg`, `#mystery-question-mark`).
+  - Validation du calcul de positionnement et de l'angle de rotation dynamique des monuments sur la courbe Bézier.
+  - Vérification de la disparition en douceur dans le nuage (`.in-cloud`, `.active`) à partir de 80% et jusqu'à 100%.
+  - Validation complète de la suite de 31 tests avec succès (`npm test`).
+
+---
+
+## [2.8.4] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Découpage & Intégration des icônes de monuments réels (`public/assets/images/monuments/`, `load.html`)** :
+  - Découpage précis et détourage avec transparence alpha des 50 monuments de la planche fournie par l'utilisateur (`public/assets/images/monuments/`).
+  - Intégration des nouvelles icônes dans les étapes de l'écran de chargement (`load.html`) :
+    - **Monument 1 (~28%)** : Arc de Triomphe (`arc-triomphe.png`).
+    - **Monument 2 (~56%)** : Pyramide du Louvre (`louvre-pyramid.png`).
+    - **Monument 3 (~78%)** : Tour Eiffel (`eiffel-tower.png`).
+  - Remplacement des anciens tracés SVG hardcodés par des éléments `<img>` optimisés avec `loading="lazy"` et dimensions adaptées.
+  - Gestion du thème sombre dans `flight-loader.css` : filtres de clarté et ombres portées douces pour un contraste impeccable en mode nuit.
+
+### Optimisations & PWA
+- **Service Worker (`public/sw.js`)** :
+  - Ajout des nouveaux assets de monuments au tableau `STATIC_ASSETS` et incrémentation du cache vers `citymaster-v22` pour un fonctionnement 100% hors-ligne.
+
+### Tests unitaires & Non-régression
+- **Validation des tests (`npm test`)** :
+  - Suite de 31 tests validée avec succès.
+
+---
+
+## [2.8.3] - 2026-10-13
+
+### Nouveautés & Nouvelles fonctionnalités
+- **Orientation continue le long de la trajectoire pointillée (`FlightLoader.js`, `flight-loader.css`)** :
+  - L'avion suit désormais précisément la pente géométrique et la tangente de la courbe parabolique en pointillés tout au long de sa traversée.
+  - Tangage dynamique calculé en temps réel selon le ratio d'aspect réel du conteneur : décollage ascendant (~ -17.7°), transition douce vers l'horizontale (0°) à l'apogée de l'arc (~46%), plongée progressive en descente (~ +14° à +19°), vibrations intenses lors des turbulences (90-96%) et piqué final à 55° lors de l'impact du crash.
+  - Découplage CSS : les animations de flottement doux (`planeBob`) et de secousses (`planeWobble`) ciblent désormais `.plane-svg`, préservant la rotation angulaire continue appliquée à `.plane-wrapper` sans aucun conflit de transformation CSS.
+
+### Optimisations, Nettoyage & Refactoring
+- **Suppression intégrale du code mort lié aux anciens contrôles de test** :
+  - Retrait des boutons et curseurs de prototypage de `load.html` (`btn-flight-replay`, `btn-flight-pause`, `btn-flight-crash`, `flight-slider`, `btn-flight-theme`).
+  - Élimination de toutes les méthodes et champs orphelins dans `FlightLoader.js` (`pause`, `resume`, `replay`, `triggerCrash`, `toggleTheme`, `#bindEvents`, `#setStatus`, `#setDestination`, `#updatePauseButton`, `#isPaused`, `#shakeTimeout`, et suppression de l'import mort `I18nService`).
+  - Suppression de toutes les classes CSS orphelines dans `flight-loader.css` (`.flight-header`, `.flight-badge`, `.flight-title`, `.flight-info-dot`, classes `.ctrl-*`).
+  - Rétablissement d'un conteneur minimaliste transparent `#flight-sky` sans bordure ni fond pour délimiter proprement la scène aérienne.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
+  - Suppression des assertions obsolètes sur les boutons de test.
+  - Ajout de vérifications sur le suivi angulaire de la rotation le long de la trajectoire aux étapes clés (décollage, apogée, descente, turbulences et crash).
+  - 31/31 tests passés avec succès (`npm test`).
+
+---
+
 ## [2.8.2] - 2026-10-13
 
 ### Nouveautés & Nouvelles fonctionnalités

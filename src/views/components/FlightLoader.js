@@ -1,46 +1,42 @@
-import { I18nService } from '../../services/I18nService.js';
-
 /**
  * Contrôleur interactif de l'écran de chargement en vol de CityMaster.
- * Gère l'animation de l'avion, la progression de vol, l'apparition des monuments,
- * la séquence de turbulences, le crash et l'apparition du point d'interrogation mystère.
+ * Gère l'animation de l'avion le long de la trajectoire pointillée,
+ * l'orientation/tangage dynamique, le positionnement et l'apparition des monuments,
+ * ainsi que la disparition douce dans le nuage mystère à destination.
  */
 export class FlightLoader {
   #container;
   #airplane;
   #progressBar;
   #percentageVal;
-  #statusText;
-  #destinationLabel;
   #sky;
   #monuments;
-  #crashDestination;
-  #slider;
-  #btnReplay;
-  #btnPause;
-  #btnPauseLabel;
-  #btnCrash;
-  #btnTheme;
+  #destinationCloud;
+  #curveProgressLine;
+  #cloudPitch = 16;
 
   #progress = 0;
   #isRunning = false;
-  #isPaused = false;
   #animationTimer = null;
-  #shakeTimeout = null;
-  #i18n = null;
+
+  // Définition de la courbe parabolique de vol (en pourcentages de l'espace aérien)
+  static #CURVE = {
+    p0: { x: 6, y: 72 }, // Décollage bas-gauche
+    p1: { x: 50, y: 50 }, // Apogée douce de l'arc haut-centre
+    p2: { x: 92, y: 76 }, // Fin de trajectoire bas-droite
+  };
 
   /**
    * @param {HTMLElement} [container] - Conteneur parent (#load-screen ou document)
    */
   constructor(container = null) {
-    this.#container = container || (typeof document !== 'undefined' ? document.getElementById('load-screen') : null) || document;
-    try {
-      this.#i18n = I18nService.getInstance();
-    } catch (_) {
-      this.#i18n = null;
-    }
+    this.#container =
+      container ||
+      (typeof document !== 'undefined'
+        ? document.getElementById('load-screen')
+        : null) ||
+      document;
     this.#initDOMElements();
-    this.#bindEvents();
   }
 
   #initDOMElements() {
@@ -49,63 +45,33 @@ export class FlightLoader {
     this.#airplane = this.#container.querySelector('#airplane-carrier');
     this.#progressBar = this.#container.querySelector('#flight-progress-bar');
     this.#percentageVal = this.#container.querySelector('#flight-percentage');
-    this.#statusText = this.#container.querySelector('#flight-status-text');
-    this.#destinationLabel = this.#container.querySelector('#flight-destination-label');
     this.#sky = this.#container.querySelector('#flight-sky');
-    this.#crashDestination = this.#container.querySelector('#crash-destination');
+    this.#curveProgressLine = this.#container.querySelector('#flight-curve-progress-line');
+    this.#destinationCloud =
+      this.#container.querySelector('#destination-cloud') ||
+      this.#container.querySelector('#crash-destination');
 
     this.#monuments = [
-      { id: 'monument-1', threshold: 25, el: this.#container.querySelector('#monument-1') },
-      { id: 'monument-2', threshold: 55, el: this.#container.querySelector('#monument-2') },
-      { id: 'monument-3', threshold: 78, el: this.#container.querySelector('#monument-3') },
+      {
+        id: 'monument-1',
+        threshold: 25,
+        el: this.#container.querySelector('#monument-1'),
+      },
+      {
+        id: 'monument-2',
+        threshold: 52,
+        el: this.#container.querySelector('#monument-2'),
+      },
+      {
+        id: 'monument-3',
+        threshold: 74,
+        el: this.#container.querySelector('#monument-3'),
+      },
     ];
 
-    this.#slider = this.#container.querySelector('#flight-slider');
-    this.#btnReplay = this.#container.querySelector('#btn-flight-replay');
-    this.#btnPause = this.#container.querySelector('#btn-flight-pause');
-    this.#btnPauseLabel = this.#container.querySelector('#btn-flight-pause-label');
-    this.#btnCrash = this.#container.querySelector('#btn-flight-crash');
-    this.#btnTheme = this.#container.querySelector('#btn-flight-theme');
+    this.#setupMonuments();
+    this.#setupDestinationCloud();
   }
-
-  #bindEvents() {
-    if (this.#btnReplay) {
-      this.#btnReplay.addEventListener('click', () => this.replay());
-    }
-
-    if (this.#btnPause) {
-      this.#btnPause.addEventListener('click', () => {
-        if (this.#isPaused) {
-          this.resume();
-        } else {
-          this.pause();
-        }
-      });
-    }
-
-    if (this.#btnCrash) {
-      this.#btnCrash.addEventListener('click', () => this.triggerCrash());
-    }
-
-    if (this.#slider) {
-      this.#slider.addEventListener('input', (e) => {
-        this.pause();
-        const val = parseFloat(e.target.value);
-        this.setProgress(val);
-      });
-    }
-
-    if (this.#btnTheme) {
-      this.#btnTheme.addEventListener('click', () => this.toggleTheme());
-    }
-  }
-
-  // Définition de la courbe parabolique de vol (en pourcentages de l'espace aérien)
-  static #CURVE = {
-    p0: { x: 6, y: 72 },   // Décollage bas-gauche
-    p1: { x: 50, y: 18 },  // Apogée de l'arc haut-centre
-    p2: { x: 92, y: 82 },  // Sol / impact bas-droite
-  };
 
   #getPointOnCurve(t) {
     const u = 1 - t;
@@ -115,6 +81,53 @@ export class FlightLoader {
     const dx = 2 * u * (p1.x - p0.x) + 2 * t * (p2.x - p1.x);
     const dy = 2 * u * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
     return { x, y, dx, dy };
+  }
+
+  #calculatePitch(pt) {
+    const skyRect = this.#sky?.getBoundingClientRect?.();
+    const aspect =
+      skyRect && skyRect.width > 0 && skyRect.height > 0
+        ? skyRect.height / skyRect.width
+        : this.#sky?.clientWidth > 0 && this.#sky?.clientHeight > 0
+          ? this.#sky.clientHeight / this.#sky.clientWidth
+          : 260 / 1000;
+    const angle = Math.atan2(pt.dy * aspect, pt.dx) * (180 / Math.PI);
+    return Math.round(angle * 10) / 10;
+  }
+
+  /**
+   * Positionne et oriente initialement les monuments directement sur la trajectoire pointillée.
+   */
+  #setupMonuments() {
+    this.#monuments.forEach((monument) => {
+      if (!monument.el) return;
+      const t = monument.threshold / 100;
+      const pt = this.#getPointOnCurve(t);
+      const pitch = this.#calculatePitch(pt);
+      monument.pitch = pitch;
+      const posX = Math.round(pt.x * 10) / 10;
+      const posY = Math.round(pt.y * 10) / 10;
+      monument.el.style.left = `${posX}%`;
+      monument.el.style.top = `${posY}%`;
+      monument.el.style.transform = `translate(-50%, calc(-100% - 14px)) rotate(${pitch}deg) scale(0.6)`;
+    });
+  }
+
+  /**
+   * Positionne et oriente initialement le nuage de destination sur la trajectoire pointillée.
+   */
+  #setupDestinationCloud() {
+    if (!this.#destinationCloud) return;
+    const t = 0.85;
+    const pt = this.#getPointOnCurve(t);
+    const pitch = this.#calculatePitch(pt);
+    this.#cloudPitch = pitch;
+    const posX = Math.round(pt.x * 10) / 10;
+    const posY = Math.round(pt.y * 10) / 10;
+    this.#destinationCloud.style.left = `${posX}%`;
+    this.#destinationCloud.style.top = `${posY}%`;
+    this.#destinationCloud.style.setProperty('--cloud-pitch', `${pitch}deg`);
+    this.#destinationCloud.style.transform = `translate(-50%, -50%) rotate(${pitch}deg) scale(0.35)`;
   }
 
   /**
@@ -129,17 +142,22 @@ export class FlightLoader {
       this.#progressBar.style.width = `${this.#progress}%`;
     }
 
+    // 1b. Trajectoire rouge Peek active le long de la courbe
+    if (this.#curveProgressLine) {
+      const len = 874;
+      const offset = Math.round(len * (1 - this.#progress / 100) * 10) / 10;
+      this.#curveProgressLine.style.strokeDashoffset = `${offset}`;
+      if (typeof this.#curveProgressLine.setAttribute === 'function') {
+        this.#curveProgressLine.setAttribute('stroke-dashoffset', offset);
+      }
+    }
+
     // 2. Chiffre du pourcentage
     if (this.#percentageVal) {
       this.#percentageVal.textContent = `${Math.round(this.#progress)}%`;
     }
 
-    // 3. Curseur slider
-    if (this.#slider && (typeof document === 'undefined' || document.activeElement !== this.#slider)) {
-      this.#slider.value = String(Math.round(this.#progress));
-    }
-
-    // 4. Calcul de la position et de l'inclinaison le long de la courbe parabolique
+    // 3. Position et inclinaison dynamique de l'avion sur la trajectoire
     const t = this.#progress / 100;
     const pt = this.#getPointOnCurve(t);
 
@@ -148,108 +166,61 @@ export class FlightLoader {
       this.#airplane.style.top = `${pt.y}%`;
 
       const wrapper = this.#airplane.querySelector('.plane-wrapper');
-      if (wrapper && this.#progress < 90) {
-        // En vol normal : tangage doux le long de la pente de la courbe
-        const pitch = Math.atan2(pt.dy * 0.7, pt.dx) * (180 / Math.PI);
-        const clampedPitch = Math.max(-28, Math.min(32, pitch));
-        wrapper.style.transform = `rotate(${clampedPitch}deg)`;
+      if (wrapper && this.#progress < 80) {
+        const pitch = this.#calculatePitch(pt);
+        wrapper.style.transform = `rotate(${pitch}deg)`;
       }
     }
 
-    // 5. Apparition séquentielle des monuments au-dessus du vol
+    // 4. Apparition des monuments le long de la trajectoire (à ~1cm au-dessus de la ligne)
     this.#monuments.forEach((monument) => {
       if (!monument.el) return;
       if (this.#progress >= monument.threshold) {
         monument.el.classList.add('revealed');
+        monument.el.style.transform = `translate(-50%, calc(-100% - 32px)) rotate(${monument.pitch}deg) scale(1)`;
       } else {
         monument.el.classList.remove('revealed');
+        monument.el.style.transform = `translate(-50%, calc(-100% - 14px)) rotate(${monument.pitch}deg) scale(0.6)`;
       }
     });
 
-    // 6. États de vol, messages et Crash
-    if (this.#progress < 20) {
-      this.#setStatus('flight.takeoff', 'Décollage imminent...');
-      this.#setDestination('flight.cruising', 'En vol de croisière...');
+    // 5. Apparition du nuage à 50% sur la trajectoire (orienté et plus petit)
+    if (this.#destinationCloud) {
+      if (this.#progress >= 50) {
+        this.#destinationCloud.classList.add('revealed');
+        this.#destinationCloud.style.transform = `translate(-50%, -50%) rotate(${this.#cloudPitch}deg) scale(1)`;
+      } else {
+        this.#destinationCloud.classList.remove('revealed');
+        this.#destinationCloud.style.transform = `translate(-50%, -50%) rotate(${this.#cloudPitch}deg) scale(0.35)`;
+      }
+    }
+
+    // 6. Gestion du vol et disparition dans le nuage à destination (~80%)
+    if (this.#progress < 80) {
       this.#resetPlaneFlight();
-      if (this.#crashDestination) {
-        this.#crashDestination.classList.remove('crashed');
-      }
-      if (this.#sky) {
-        this.#sky.classList.remove('shake');
-      }
-    } else if (this.#progress < 88) {
-      this.#setStatus('flight.cruising', 'Vol de croisière...');
-      this.#setDestination('flight.cruising', 'En vol de croisière...');
-      this.#resetPlaneFlight();
-      if (this.#crashDestination) {
-        this.#crashDestination.classList.remove('crashed');
-      }
-      if (this.#sky) {
-        this.#sky.classList.remove('shake');
-      }
-    } else if (this.#progress < 97) {
-      // Zone de turbulences intenses
-      this.#setStatus('flight.turbulence', 'Alerte : fortes turbulences !');
-      this.#setDestination('flight.turbulence', 'Alerte turbulences !');
-      if (this.#airplane) {
-        this.#airplane.classList.remove('flying', 'diving', 'crashed');
-        this.#airplane.classList.add('wobbling');
-      }
-      if (this.#crashDestination) {
-        this.#crashDestination.classList.remove('crashed');
+      if (this.#destinationCloud) {
+        this.#destinationCloud.classList.remove('active');
       }
     } else {
-      // Crash & Destination mystère
-      this.#executeCrashSequence();
+      // Disparition douce dans le nuage
+      this.#enterCloudSequence();
     }
-  }
-
-  #setStatus(i18nKey, fallback) {
-    if (!this.#statusText) return;
-    const txt = this.#i18n?.t(i18nKey) || fallback;
-    this.#statusText.textContent = txt;
-  }
-
-  #setDestination(i18nKey, fallback) {
-    if (!this.#destinationLabel) return;
-    const txt = this.#i18n?.t(i18nKey) || fallback;
-    this.#destinationLabel.textContent = txt;
   }
 
   #resetPlaneFlight() {
     if (!this.#airplane) return;
-    this.#airplane.classList.remove('wobbling', 'diving', 'crashed');
+    this.#airplane.classList.remove('in-cloud');
     this.#airplane.classList.add('flying');
   }
 
-  #executeCrashSequence() {
-    this.#setStatus('flight.crashed', 'Destination inconnue... Où sommes-nous ?');
-    this.#setDestination('flight.mystery', 'Où sommes-nous ?');
-
+  #enterCloudSequence() {
     if (this.#airplane) {
-      this.#airplane.classList.remove('flying', 'wobbling');
-      this.#airplane.classList.add('crashed');
-      const { p2 } = FlightLoader.#CURVE;
-      this.#airplane.style.left = `${p2.x}%`;
-      this.#airplane.style.top = `${p2.y}%`;
-      const wrapper = this.#airplane.querySelector('.plane-wrapper');
-      if (wrapper) {
-        wrapper.style.transform = 'rotate(55deg) scale(0.85)';
-      }
+      this.#airplane.classList.remove('flying');
+      this.#airplane.classList.add('in-cloud');
     }
 
-    if (this.#crashDestination) {
-      this.#crashDestination.classList.add('crashed');
-    }
-
-    if (this.#sky) {
-      this.#sky.classList.add('shake');
-      clearTimeout(this.#shakeTimeout);
-      this.#shakeTimeout = setTimeout(() => {
-        if (this.#sky) {
-          this.#sky.classList.remove('shake');
-        }
-      }, 450);
+    if (this.#destinationCloud) {
+      this.#destinationCloud.classList.add('active');
     }
   }
 
@@ -257,22 +228,17 @@ export class FlightLoader {
    * Lance l'animation de vol de manière fluide jusqu'à 100%.
    * @param {Object} [options]
    * @param {number} [options.duration=4500] - Durée totale de la traversée en ms
-   * @param {Function} [options.onComplete] - Callback déclenché à la fin du crash
+   * @param {Function} [options.onComplete] - Callback déclenché à la fin du chargement
    */
   start({ duration = 4500, onComplete = null } = {}) {
     this.stop();
     this.setProgress(0);
     this.#isRunning = true;
-    this.#isPaused = false;
-    this.#updatePauseButton(false);
 
-    const startTime = performance.now();
     const intervalMs = 25;
     const step = 100 / (duration / intervalMs);
 
     this.#animationTimer = setInterval(() => {
-      if (this.#isPaused) return;
-
       const nextVal = this.#progress + step;
       if (nextVal >= 100) {
         this.setProgress(100);
@@ -287,53 +253,6 @@ export class FlightLoader {
   }
 
   /**
-   * Met en pause l'animation active.
-   */
-  pause() {
-    this.#isPaused = true;
-    this.#updatePauseButton(true);
-  }
-
-  /**
-   * Reprend l'animation de vol.
-   */
-  resume() {
-    if (!this.#isRunning) {
-      this.start();
-      return;
-    }
-    this.#isPaused = false;
-    this.#updatePauseButton(false);
-  }
-
-  #updatePauseButton(isPaused) {
-    if (this.#btnPauseLabel) {
-      this.#btnPauseLabel.textContent = isPaused
-        ? (this.#i18n?.t('flight.resume') || 'Reprendre')
-        : (this.#i18n?.t('flight.pause') || 'Pause');
-    }
-    const icon = this.#container?.querySelector('#btn-flight-pause-icon');
-    if (icon) {
-      icon.textContent = isPaused ? '▶️' : '⏸️';
-    }
-  }
-
-  /**
-   * Recommence le vol depuis le début.
-   */
-  replay() {
-    this.start();
-  }
-
-  /**
-   * Force un crash immédiat pour test ou fin abrupte.
-   */
-  triggerCrash() {
-    this.stop();
-    this.setProgress(100);
-  }
-
-  /**
    * Arrête le timer d'animation.
    */
   stop() {
@@ -342,33 +261,13 @@ export class FlightLoader {
       this.#animationTimer = null;
     }
     this.#isRunning = false;
-    this.#isPaused = false;
-    this.#updatePauseButton(false);
   }
 
   /**
-   * Alterne entre le thème clair et le thème sombre.
-   */
-  toggleTheme() {
-    if (typeof document === 'undefined') return;
-    const current = document.documentElement?.getAttribute('data-theme') || 'light';
-    const next = current === 'dark' ? 'light' : 'dark';
-    document.documentElement?.setAttribute('data-theme', next);
-    try {
-      if (typeof localStorage !== 'undefined' && localStorage) {
-        localStorage.setItem('theme', next);
-      }
-    } catch (_) {
-      // Ignorer si localStorage n'est pas disponible
-    }
-  }
-
-  /**
-   * Nettoie les écouteurs et arrêts lors de la destruction du composant.
+   * Nettoie les ressources lors de la destruction du composant.
    */
   destroy() {
     this.stop();
-    clearTimeout(this.#shakeTimeout);
   }
 
   /**
