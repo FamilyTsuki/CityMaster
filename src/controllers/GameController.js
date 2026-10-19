@@ -9,6 +9,7 @@ import { I18nService } from "../services/I18nService.js";
 import { NetworkService } from "../services/NetworkService.js";
 import { StorageService } from "../services/StorageService.js";
 import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
+import { HapticService } from "../services/HapticService.js";
 
 export class GameController {
   #gameView;
@@ -730,6 +731,8 @@ export class GameController {
     const mode = this.#session.currentMode;
     if (mode === "identify" || this.#currentStepState !== "guessing") return;
 
+    HapticService.tap();
+
     let targetLat = lat;
     let targetLng = lng;
     let selectedStreet = null;
@@ -776,6 +779,19 @@ export class GameController {
           this.#session.setFinished(result.isFinished);
           this.#session.nextPrompt = result.nextPrompt;
           this.#lastFeedback = result.feedback;
+
+          if (result.feedback) {
+            if (result.feedback.multiplier > 1) {
+              this.#audioService.playCombo(result.feedback.multiplier);
+              HapticService.combo(result.feedback.multiplier);
+            } else if (result.feedback.isCorrect) {
+              this.#audioService.playSuccess();
+              HapticService.success();
+            } else {
+              this.#audioService.playError();
+              HapticService.error();
+            }
+          }
 
           this.#saveState();
 
@@ -1046,10 +1062,13 @@ export class GameController {
 
       if (feedback.multiplier > 1) {
         this.#audioService.playCombo(feedback.multiplier);
+        HapticService.combo(feedback.multiplier);
       } else if (feedback.isCorrect) {
         this.#audioService.playSuccess();
+        HapticService.success();
       } else {
         this.#audioService.playError();
+        HapticService.error();
       }
 
       this.#updateHUD();
@@ -1118,10 +1137,13 @@ export class GameController {
 
       if (feedback.multiplier > 1) {
         this.#audioService.playCombo(feedback.multiplier);
+        HapticService.combo(feedback.multiplier);
       } else if (feedback.isCorrect) {
         this.#audioService.playSuccess();
+        HapticService.success();
       } else {
         this.#audioService.playError();
+        HapticService.error();
       }
 
       this.#updateHUD();

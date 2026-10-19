@@ -18,6 +18,7 @@ import { RoomController } from "./controllers/RoomController.js";
 import { FlightLoader } from "./views/components/FlightLoader.js";
 import { ChangelogView } from "./views/ChangelogView.js";
 import { NetworkService } from "./services/NetworkService.js";
+import { HapticService } from "./services/HapticService.js";
 import { Router } from "./Router.js";
 
 class App {
@@ -56,6 +57,7 @@ class App {
     document.addEventListener("click", (e) => {
       if (e.target.closest("button, .btn, a, li, .icon-btn")) {
         this.#audioService.playClick();
+        HapticService.tap();
       }
     });
 

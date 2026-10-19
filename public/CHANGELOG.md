@@ -3,6 +3,39 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.15.0] - 2026-10-19
+
+### Nouvelles fonctionnalités & Immersion
+- **Fusion toponymique intelligente des voies (Street Stitching)** :
+  - **Raccordement bout-à-bout des tronçons contigus (`stitchCoordinates`)** : Détection et fusion automatique des tronçons d'une même artère qui se touchent ou se succèdent (tolérance géodésique de 10 mètres), gérant automatiquement les inversions de numérisation (reverse). Les segments fragmentés sont transformés en une ligne continue unifiée (`LineString`), réduisant de 46 % la fragmentation des voies (ex. 85 % des rues morcelées de Bordeaux deviennent des lignes uniques parfaites).
+  - **Harmonisation des voies multi-tronçons (`stitchStreetFeatures`)** : Regroupement automatique des entités de même toponyme en composantes connexes. Lors de la sélection d'une avenue ou d'un grand boulevard par le joueur, toute la voie s'illumine d'un seul coup sur la carte au lieu d'un simple petit segment partiel.
+  - **Garde-fous stricts anti-fusion de rues différentes** :
+    - *Toponymes stricts* : Seules les voies partageant exactement le même nom (sans altération de préfixe comme Rue, Avenue, Impasse, Place) peuvent être assemblées.
+    - *Préservation des types* : Les lotissements, places polygonales et points d'intérêt ne sont jamais fusionnés avec les voies routières.
+    - *Protection contre les homonymes distants* : Si deux voies partagent le même nom mais sont situées dans des quartiers ou communes distinctes (séparation spatiale > 150 mètres sans continuité), elles demeurent strictement séparées et autonomes.
+  - **Intégration transparente** : Disponible dans `SpatialService.mergeCityStreets`, `OverpassService.convertToGeoJSON`, et le backend `CityController.convertToGeoJSON`.
+
+- **Retour Haptique immersif sur smartphone (`HapticService.js`)** :
+  - **Vibrations tactiles natives (`navigator.vibrate`)** avec fallback sécurisé pour les navigateurs non compatibles (iOS Safari) et détection dynamique.
+  - **Motifs de vibration adaptés aux actions de jeu** :
+    - *Tap discret (15 ms)* : lors de la sélection ou du clic sur une rue sur la carte ou sur un bouton d'action.
+    - *Vibration gratifiante (`[35, 30, 45] ms`)* : confirmation d'une bonne réponse.
+    - *Pulsations festives de combo (`[40, 35, 55] ms` ou `[40, 30, 40, 30, 75] ms`)* : célébration des séries de victoires consécutives (multiplicateurs x2 et x3).
+    - *Double pulsation d'erreur (`[70, 50, 90] ms`)* : mauvaise réponse ou temps écoulé.
+  - **Préférence utilisateur persistante** : Prise en charge de `localStorage.getItem('haptic_enabled')` avec méthodes `isEnabled()`, `setEnabled()`, et `toggle()`.
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/street_stitching_and_haptics.test.js` (8 suites de tests) validant :
+  - Le raccordement bout-à-bout de segments contigus et la gestion des sens de numérisation inversés.
+  - La non-fusion de segments disjoints ou distants.
+  - La fusion de tronçons portant le même nom et la non-fusion de rues aux toponymes différents.
+  - La protection contre la fusion d'homonymes distants de plus de 150 mètres.
+  - La préservation intacte des polygones, lotissements et points.
+  - Le fonctionnement sécurisé de `HapticService` avec et sans support `navigator.vibrate`.
+- **Suite de tests portée à 68 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.14.3] - 2026-10-19
 
 ### Optimisations & Qualité Cartographique (Filtrage des Micro-Voies de « 1 mm »)

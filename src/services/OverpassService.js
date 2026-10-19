@@ -2,6 +2,7 @@ import { ApiService } from './ApiService.js';
 import { I18nService } from './I18nService.js';
 import { StorageService } from './StorageService.js';
 import { RouteDifficultyService } from './RouteDifficultyService.js';
+import { stitchCoordinates } from './SpatialService.js';
 
 export class OverpassService {
   #apiUrl;
@@ -93,6 +94,8 @@ export class OverpassService {
 
     const features = Object.entries(itemGroups).map(([name, group], index) => {
       if (group.coords.length > 0) {
+        const stitchedCoords = stitchCoordinates(group.coords, 10);
+        const isSingleLine = stitchedCoords.length === 1;
         const feature = {
           type: 'Feature',
           id: index,
@@ -103,8 +106,8 @@ export class OverpassService {
             highway: group.highway || 'unclassified'
           },
           geometry: {
-            type: 'MultiLineString',
-            coordinates: group.coords
+            type: isSingleLine ? 'LineString' : 'MultiLineString',
+            coordinates: isSingleLine ? stitchedCoords[0] : stitchedCoords
           }
         };
         const len = RouteDifficultyService.getFeatureLengthMeters(feature);
