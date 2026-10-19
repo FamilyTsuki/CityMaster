@@ -329,7 +329,9 @@ class App {
         const parser = new DOMParser();
         const appContainer = document.getElementById("app");
 
-        const htmlTemplates = await Promise.all(
+        const i18n = I18nService.getInstance();
+        const i18nPromise = i18n.init();
+        const templatesPromise = Promise.all(
           screens.map(async (screen) => {
             const response = await fetch(`/screens/${screen}.html`);
             if (!response.ok) {
@@ -339,18 +341,30 @@ class App {
           }),
         );
 
+        const [_, htmlTemplates] = await Promise.all([
+          i18nPromise,
+          templatesPromise,
+        ]);
+
         htmlTemplates.reverse().forEach((htmlString) => {
-          const doc = parser.parseFromString(htmlString, "text/html");
+          const doc = parser.parseFromString(htmlString, 'text/html');
+          i18n.translateDOM(doc.body);
           const children = Array.from(doc.body.children);
           children.reverse().forEach((child) => {
             appContainer.prepend(child);
           });
         });
-        await I18nService.getInstance().init();
+        i18n.translateDOM(document);
         NetworkService.getInstance().init();
         new App();
+        if (typeof document !== 'undefined' && document.documentElement) {
+          document.documentElement.classList.remove('i18n-loading');
+        }
       } catch (error) {
-        console.error("Failed to initialize CityMaster application:", error);
+        console.error('Failed to initialize CityMaster application:', error);
+        if (typeof document !== 'undefined' && document.documentElement) {
+          document.documentElement.classList.remove('i18n-loading');
+        }
       }
     };
 

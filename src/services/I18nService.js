@@ -159,66 +159,72 @@ export class I18nService {
     return this.t("errors.network_error");
   }
 
-  translateDOM() {
-    if (typeof document === "undefined") return;
+  translateDOM(root = (typeof document !== 'undefined' ? document : null)) {
+    if (!root) return;
 
-    const metaTitle = this.t("meta.title");
-    if (metaTitle && metaTitle !== "meta.title") {
-      document.title = metaTitle;
+    if (typeof document !== 'undefined' && root === document) {
+      const metaTitle = this.t('meta.title');
+      if (metaTitle && metaTitle !== 'meta.title') {
+        document.title = metaTitle;
+      }
     }
 
-    const elements = document.querySelectorAll("[data-i18n]");
-    elements.forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      const translated = this.t(key);
-      if (translated && translated !== key) {
-        if (translated.includes("<") && translated.includes(">")) {
-          el.innerHTML = translated;
-        } else {
-          el.textContent = translated;
+    const checkEl = (el) => {
+      const key = el.getAttribute('data-i18n');
+      if (key) {
+        const translated = this.t(key);
+        if (translated && translated !== key) {
+          if (translated.includes('<') && translated.includes('>')) {
+            el.innerHTML = translated;
+          } else {
+            el.textContent = translated;
+          }
         }
       }
-    });
 
-    const placeholders = document.querySelectorAll("[data-i18n-placeholder]");
-    placeholders.forEach((el) => {
-      const key = el.getAttribute("data-i18n-placeholder");
-      const translated = this.t(key);
-      if (translated && translated !== key) {
-        el.setAttribute("placeholder", translated);
+      const phKey = el.getAttribute('data-i18n-placeholder');
+      if (phKey) {
+        const translated = this.t(phKey);
+        if (translated && translated !== phKey) {
+          el.setAttribute('placeholder', translated);
+        }
       }
-    });
 
-    const titles = document.querySelectorAll("[data-i18n-title]");
-    titles.forEach((el) => {
-      const key = el.getAttribute("data-i18n-title");
-      const translated = this.t(key);
-      if (translated && translated !== key) {
-        el.title = translated;
+      const titleKey = el.getAttribute('data-i18n-title');
+      if (titleKey) {
+        const translated = this.t(titleKey);
+        if (translated && translated !== titleKey) {
+          el.title = translated;
+        }
       }
-    });
 
-    const arias = document.querySelectorAll(
-      "[data-i18n-aria], [data-i18n-aria-label]",
-    );
-    arias.forEach((el) => {
-      const key =
-        el.getAttribute("data-i18n-aria") ||
-        el.getAttribute("data-i18n-aria-label");
-      const translated = this.t(key);
-      if (translated && translated !== key) {
-        el.setAttribute("aria-label", translated);
+      const ariaKey =
+        el.getAttribute('data-i18n-aria') ||
+        el.getAttribute('data-i18n-aria-label');
+      if (ariaKey) {
+        const translated = this.t(ariaKey);
+        if (translated && translated !== ariaKey) {
+          el.setAttribute('aria-label', translated);
+        }
       }
-    });
 
-    const alts = document.querySelectorAll("[data-i18n-alt]");
-    alts.forEach((el) => {
-      const key = el.getAttribute("data-i18n-alt");
-      const translated = this.t(key);
-      if (translated && translated !== key) {
-        el.setAttribute("alt", translated);
+      const altKey = el.getAttribute('data-i18n-alt');
+      if (altKey) {
+        const translated = this.t(altKey);
+        if (translated && translated !== altKey) {
+          el.setAttribute('alt', translated);
+        }
       }
-    });
+    };
+
+    if (root.getAttribute) checkEl(root);
+    if (root.querySelectorAll) {
+      root
+        .querySelectorAll(
+          '[data-i18n], [data-i18n-placeholder], [data-i18n-title], [data-i18n-aria], [data-i18n-aria-label], [data-i18n-alt]',
+        )
+        .forEach(checkEl);
+    }
   }
 
   onLanguageChange(callback) {

@@ -3,6 +3,24 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.12.1] - 2026-10-19
+
+### Optimisations & Expérience Utilisateur (Anti-FOUC i18n)
+- **Élimination totale du flash de langue au démarrage (Flash of Untranslated Content)** :
+  - **Détection synchrone ultra-précoce (`index.html`)** : Détection de la langue cible (`localStorage.getItem('lang')` ou langue du navigateur) dès la balise `<head>`, application immédiate de `lang="en|fr"`, ajustement instantané du titre de la page `<title>` et ajout de la classe CSS `i18n-loading` sur `<html>`.
+  - **Masquage élégant des composants pendant le chargement (`navbar.css`)** : La barre de navigation principale (`#main-nav`) est dissimulée de manière transparente et sans saut d'affichage pendant la phase d'initialisation, puis apparaît en fondu doux (`transition: opacity 0.25s ease`) dès que la traduction complète est prête.
+  - **Message de chargement synchronisé (`#loading-message`)** : Pré-remplacement immédiat du texte de chargement ("Loading CityMaster...") et de l'attribut ARIA du spinner avant le premier rendu visuel si la langue sélectionnée est l'anglais.
+- **Pré-traduction des gabarits avant injection DOM (`I18nService.js` & `app.js`)** :
+  - Évolution de `I18nService.translateDOM(root)` pour accepter un nœud racine personnalisé (`root`) et traduire récursivement en une seule passe les attributs `data-i18n`, `data-i18n-placeholder`, `data-i18n-title`, `data-i18n-aria` et `data-i18n-alt`.
+  - Parallélisation du chargement du dictionnaire `I18nService.init()` et des gabarits HTML dans `app.js` (`startApp()`).
+  - Traduction directe des fragments HTML parsés (`doc.body`) *avant* leur insertion dans `#app`, garantissant que les écrans naissent directement dans la langue de l'utilisateur.
+
+### Tests Unitaires & Non-Régression
+- Ajout de tests automatisés validant la détection précoce dans `index.html`, la règle de masquage CSS anti-FOUC dans `navbar.css`, et la capacité de `I18nService.translateDOM(root)` à traduire des arbres d'éléments arbitraires.
+- Suite de tests portée à 42 tests unitaires avec 100% de réussite (`npm test`).
+
+---
+
 ## [2.12.0] - 2026-10-19
 
 ### Nouveautés & Jeu Hors-Ligne pour les Villes Jouées

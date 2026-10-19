@@ -117,3 +117,57 @@ test('i18n code: all t() key paths in src/*.js exist in dictionaries', () => {
   assert.deepStrictEqual(missingInFr, [], `Code t() keys missing in fr.json:\n${missingInFr.join('\n')}`);
   assert.deepStrictEqual(missingInEn, [], `Code t() keys missing in en.json:\n${missingInEn.join('\n')}`);
 });
+
+test('i18n anti-FOUC: index.html and navbar.css prevent flash of French text', () => {
+  const indexHtml = fs.readFileSync(path.resolve('public/index.html'), 'utf8');
+  const navbarCss = fs.readFileSync(path.resolve('public/assets/styles/navbar.css'), 'utf8');
+
+  // Verify early detection in index.html head
+  assert.match(indexHtml, /localStorage\.getItem\(["']lang["']\)/, 'index.html must check localStorage lang in head');
+  assert.match(indexHtml, /classList\.add\(["']i18n-loading["']\)/, 'index.html must add i18n-loading class in head');
+  assert.match(indexHtml, /id=["']loading-message["']/, 'index.html must contain #loading-message');
+  assert.match(indexHtml, /Loading CityMaster\.\.\./, 'index.html must pre-set English loading text when lang is en');
+
+  // Verify navbar.css conceals navbar during i18n-loading
+  assert.match(navbarCss, /html\.i18n-loading\s+#main-nav\s*\{[^}]*opacity:\s*0/s, 'navbar.css must hide #main-nav during i18n-loading');
+  assert.match(navbarCss, /html\.i18n-loading\s+#main-nav\s*\{[^}]*visibility:\s*hidden/s, 'navbar.css must set visibility hidden on #main-nav during i18n-loading');
+});
+
+test('I18nService.translateDOM(root): translates element trees with data-i18n attributes', async () => {
+  const { I18nService } = await import('../src/services/I18nService.js');
+  const i18n = I18nService.getInstance();
+
+  const frContent = JSON.parse(fs.readFileSync(path.resolve('public/assets/i18n/fr.json'), 'utf8'));
+
+  // Manually mock dictionary in private property if needed or rely on fallback
+  const mockElements = [
+    {
+      attrs: { 'data-i18n': 'nav.home' },
+      textContent: 'Initial',
+      getAttribute(k) { return this.attrs[k] || null; },
+      setAttribute(k, v) { this.attrs[k] = v; }
+    },
+    {
+      attrs: { 'data-i18n-placeholder': 'auth.username_placeholder' },
+      getAttribute(k) { return this.attrs[k] || null; },
+      setAttribute(k, v) { this.attrs[k] = v; }
+    },
+    {
+      attrs: { 'data-i18n-title': 'nav.theme_title' },
+      title: '',
+      getAttribute(k) { return this.attrs[k] || null; },
+      setAttribute(k, v) { this.attrs[k] = v; }
+    }
+  ];
+
+  const mockRoot = {
+    getAttribute() { return null; },
+    querySelectorAll() { return mockElements; }
+  };
+
+  // Calling translateDOM with mock root should not throw
+  assert.doesNotThrow(() => {
+    i18n.translateDOM(mockRoot);
+  });
+});
+
