@@ -103,7 +103,7 @@ export class CityController {
     const features = Object.entries(itemGroups)
       .map(([name, group], index) => {
         if (group.coords.length > 0) {
-          return {
+          const feature = {
             type: "Feature",
             id: index,
             properties: {
@@ -117,6 +117,11 @@ export class CityController {
               coordinates: group.coords,
             },
           };
+          try {
+            const len = turf.length(feature, { units: "meters" });
+            if (len > 0 && len < 15) return null;
+          } catch (e) {}
+          return feature;
         } else if (group.nodePoint) {
           return {
             type: "Feature",
@@ -268,6 +273,12 @@ export class CityController {
 
       allCityStreets.forEach((f, i) => {
         if (disablePlaces && isPlaceStreet(f)) return;
+        if (f.geometry?.type !== "Point") {
+          try {
+            const len = turf.length(f, { units: "meters" });
+            if (len > 0 && len < 15) return;
+          } catch (e) {}
+        }
         const nameKey = (f.properties?.name || "").toLowerCase().trim();
         const origNameKey = (f.properties?.originalName || "")
           .toLowerCase()

@@ -1,6 +1,7 @@
 import { ApiService } from './ApiService.js';
 import { I18nService } from './I18nService.js';
 import { StorageService } from './StorageService.js';
+import { RouteDifficultyService } from './RouteDifficultyService.js';
 
 export class OverpassService {
   #apiUrl;
@@ -92,7 +93,7 @@ export class OverpassService {
 
     const features = Object.entries(itemGroups).map(([name, group], index) => {
       if (group.coords.length > 0) {
-        return {
+        const feature = {
           type: 'Feature',
           id: index,
           properties: {
@@ -106,6 +107,9 @@ export class OverpassService {
             coordinates: group.coords
           }
         };
+        const len = RouteDifficultyService.getFeatureLengthMeters(feature);
+        if (len > 0 && len < 15) return null;
+        return feature;
       } else if (group.nodePoint) {
         return {
           type: 'Feature',

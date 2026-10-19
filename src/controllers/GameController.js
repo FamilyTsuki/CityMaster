@@ -180,14 +180,22 @@ export class GameController {
           customRoutes,
         );
 
-        let eligibleStreets = this.#allCityStreets.filter(
-          (f) =>
-            f &&
-            f.properties &&
-            f.properties.name &&
-            f.properties.name.trim().length > 0 &&
-            f.geometry,
-        );
+        let eligibleStreets = this.#allCityStreets.filter((f) => {
+          if (
+            !f ||
+            !f.properties ||
+            !f.properties.name ||
+            f.properties.name.trim().length === 0 ||
+            !f.geometry
+          ) {
+            return false;
+          }
+          if (f.geometry.type !== "Point") {
+            const len = RouteDifficultyService.getFeatureLengthMeters(f);
+            if (len > 0 && len < 15) return false;
+          }
+          return true;
+        });
 
         const disablePlaces =
           localStorage.getItem("citymaster_disable_places") === "true";

@@ -248,6 +248,15 @@ export class RouteDifficultyService {
   static isPlaceStreet(featureOrName) {
     return isPlaceStreet(featureOrName);
   }
+
+  /**
+   * Calcule la longueur d'une voie en mètres.
+   * @param {object} feature
+   * @returns {number}
+   */
+  static getFeatureLengthMeters(feature) {
+    return getFeatureLengthMeters(feature);
+  }
 }
 
 export function isPlaceStreet(featureOrName) {

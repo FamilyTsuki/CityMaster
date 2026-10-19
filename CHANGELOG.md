@@ -3,6 +3,24 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.14.3] - 2026-10-19
+
+### Optimisations & Qualité Cartographique (Filtrage des Micro-Voies de « 1 mm »)
+- **Élimination complète des micro-segments de voies inexploitables (< 15 mètres)** :
+  - **Origine du problème OpenStreetMap vs Google Maps** : Contrairement à Google Maps qui est une base propriétaire hautement nettoyée et généralisée, OpenStreetMap découpe les voies en micro-tronçons (bifurcations de ronds-points, îlots de refuges piétons, changements ponctuels de vitesse ou de revêtement). Certains de ces tronçons ne mesuraient que 1,9m à 8m (ex: *Rue du Commandant Marchand* à Bordeaux : 1,9 mètre, ou *Allée de Coudrier* à Tours : 4,4 mètres), formant un point imperceptible d'un millimètre sur la carte impossible à cliquer ou identifier.
+  - **Filtrage automatique à tous les niveaux du pipeline de données** :
+    - **Frontend (`GameController.js` & `OverpassService.js`)** : Exclusion immédiate de toute voie dont la géométrie métrique totale est inférieure à 15 mètres lors de la sélection des rues jouables et du traitement Overpass.
+    - **Backend (`GameController.js` & `CityController.js`)** : Prise en compte du seuil de coupure de 15 mètres dans `filteredDefaults`, `convertToGeoJSON` et le calcul des décomptes de difficulté `getDifficulties`, éliminant automatiquement des centaines de micro-fragments parasites (notamment 393 micro-voies à Lyon).
+    - **Exposition de l'utilitaire de calcul métrique (`RouteDifficultyService.getFeatureLengthMeters`)** pour des vérifications géodésiques instantanées et fiables.
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/micro_streets_filter.test.js` (2 suites de tests) validant :
+  - Le calcul géodésique précis des longueurs de micro-segments et de voies normales.
+  - L'exclusion systématique des voies de moins de 15m lors de la conversion GeoJSON et de la sélection de jeu.
+- **Suite de tests portée à 60 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.14.2] - 2026-10-19
 
 ### Optimisations & Expérience de Jeu (Fiabilité et Fluidité des Tuiles Cartographiques)

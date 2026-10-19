@@ -110,8 +110,15 @@ export class GameController {
           !f.properties ||
           typeof f.properties.name !== "string" ||
           f.properties.name.trim().length === 0
-        )
+        ) {
           return false;
+        }
+        if (f.geometry?.type !== "Point") {
+          try {
+            const len = turf.length(f, { units: "meters" });
+            if (len > 0 && len < 15) return false;
+          } catch (e) {}
+        }
         const id = f.properties.id;
         const name = f.properties.name;
         if (id && (deleted.has(id) || overridden.has(id))) return false;
