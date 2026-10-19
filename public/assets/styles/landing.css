@@ -17,8 +17,7 @@
   backface-visibility: visible !important;
 }
 
-#landing-screen::after {
-  content: '';
+.app-backdrop {
   position: fixed;
   top: 0;
   left: 0;
@@ -26,21 +25,40 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  will-change: opacity;
+}
+
+body.in-game-session .app-backdrop,
+body:has(#game-screen.active) .app-backdrop,
+body:has(#load-screen.active) .app-backdrop {
+  display: none !important;
+}
+
+.backdrop-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
   background-image: var(--landing-bg-gradient);
   pointer-events: none;
   z-index: 0;
   transition: background 0.2s ease;
 }
 
-#landing-screen::before {
-  content: '';
-  position: fixed;
+.backdrop-texture {
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   background-image: 
     url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='cansonGrainMedium'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.12' numOctaves='3' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23ffffff' surfaceScale='1.6'%3E%3CfeDistantLight azimuth='50' elevation='58'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23cansonGrainMedium)' fill='%23faf6ee'/%3E%3C/svg%3E"),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paperFibers'%3E%3CfeTurbulence type='turbulence' baseFrequency='0.75' numOctaves='3' result='noise'/%3E%3CfeColorMatrix type='matrix' values='1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.25'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23paperFibers)'/%3E%3C/svg%3E");
@@ -53,13 +71,13 @@
 }
 
 .ambient-bubbles {
-  position: fixed;
+  position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   pointer-events: none;
   z-index: 2;

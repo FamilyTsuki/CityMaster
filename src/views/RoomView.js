@@ -370,6 +370,9 @@ export class RoomView {
     if (this.#screens.room) {
       this.#screens.room.classList.add("active");
     }
+    if (typeof document !== "undefined" && document.body) {
+      document.body.classList.remove("in-game-session");
+    }
   }
 
   showStep(stepName) {

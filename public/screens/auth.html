@@ -318,7 +318,32 @@
     </div>
 
     <div class="auth-form-container card">
-      <h1 id="auth-title" data-i18n="nav.login">Connexion</h1>
+      <div class="auth-header">
+        <button
+          id="auth-back-btn"
+          class="btn-back-round"
+          title="Retour à l'accueil"
+          data-i18n-title="common.back_home"
+          aria-label="Retour à l'accueil"
+          data-i18n-aria-label="common.back_home"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <h1 id="auth-title" data-i18n="nav.login">Connexion</h1>
+      </div>
 
       <div class="google-auth-container">
         <div id="google-login-btn"></div>

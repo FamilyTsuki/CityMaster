@@ -1,8 +1,35 @@
 <div id="legal-screen" class="screen">
   <div class="card legal-card" role="region" aria-labelledby="legal-title">
     <div class="legal-header">
-      <h1 id="legal-title" data-i18n="legal.title">Mentions Légales & Confidentialité</h1>
-      <p data-i18n="legal.subtitle">Informations réglementaires, RGPD et crédits cartographiques.</p>
+      <div class="legal-header-top">
+        <button
+          id="legal-header-back-btn"
+          class="btn-back-round"
+          title="Retour à l'accueil"
+          data-i18n-title="common.back_home"
+          aria-label="Retour à l'accueil"
+          data-i18n-aria-label="common.back_home"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <div class="legal-header-titles">
+          <h1 id="legal-title" data-i18n="legal.title">Mentions Légales & Confidentialité</h1>
+          <p data-i18n="legal.subtitle">Informations réglementaires, RGPD et crédits cartographiques.</p>
+        </div>
+      </div>
     </div>
 
     <div class="legal-body">

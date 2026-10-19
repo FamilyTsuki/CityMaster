@@ -1,19 +1,5 @@
 #auth-screen::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      circle at 20% 20%,
-      rgba(253, 224, 71, 0.25),
-      transparent 50%
-    ),
-    radial-gradient(circle at 80% 80%, rgba(224, 86, 56, 0.18), transparent 50%);
+  display: none !important;
 }
 
 #auth-screen,
@@ -232,6 +218,23 @@
   max-width: var(--container-xs);
   width: 100%;
   box-sizing: border-box;
+}
+
+.auth-header {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 0.75rem;
+  width: 100%;
+}
+
+.auth-header h1 {
+  font-family: "Lilita One", "Titan One", sans-serif;
+  font-size: clamp(1.6rem, 3.5vw, 1.95rem);
+  font-weight: 900;
+  margin: 0;
+  color: var(--landing-ink);
+  letter-spacing: -0.01em;
 }
 
 .auth-form-container h1 {

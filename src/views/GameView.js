@@ -568,6 +568,12 @@ export class GameView {
     if (this.#screens[screenName]) {
       this.#screens[screenName].classList.add("active");
     }
+    if (typeof document !== "undefined" && document.body) {
+      document.body.classList.toggle(
+        "in-game-session",
+        screenName === "game" || screenName === "load",
+      );
+    }
     if (screenName === "setup") {
       this.refreshSetupDefaults();
     }

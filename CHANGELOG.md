@@ -3,6 +3,28 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.9.1] - 2026-10-19
+
+### Harmonisation Graphique & Design Système
+- **Arrière-plan d'ambiance persistant et global (`#app-backdrop`)** :
+  - Déplacement de la pile visuelle d'ambiance (dégradé radial thématique `var(--landing-bg-gradient)`, textures SVG superposées de papier canson `cansonGrainMedium` & fibres `paperFibers`, et bulles flottantes organiques animées `.ambient-bubbles`) au sommet de l'application dans `public/index.html`.
+  - Extension de l'atmosphère graphique à **toutes les pages** (Accueil, Configuration de partie, Salons multijoueurs, Espace Profil, Connexion / Inscription, Mentions légales & RGPD, Diplôme / Bilan).
+  - Élimination des ruptures visuelles brutales lors de la navigation entre écrans.
+  - Masquage automatique et performant de l'arrière-plan d'ambiance lors des sessions de jeu actives et du chargement de vol (`body.in-game-session`, `body:has(#game-screen.active)`, `body:has(#load-screen.active)`).
+
+### En-têtes & Navigation Harmonisée
+- **Bouton de retour universel standardisé (`.btn-back-round`)** :
+  - Intégration du composant circulaire `.btn-back-round` sur la page de connexion / inscription (`public/screens/auth.html`) dans un en-tête `.auth-header` aligné avec le titre.
+  - Intégration du bouton `.btn-back-round` sur la page des mentions légales (`public/screens/legal.html`) avec `.legal-header-top` pour une parfaite symétrie avec les écrans de configuration, de salons et de profil.
+  - Prise en charge automatique de la navigation retour vers l'accueil via le routeur global (`src/Router.js`).
+  - Suppression des styles résiduels discordants (`#auth-screen::before` avec ses anciens dégradés jaunes/oranges codés en dur) pour laisser transparaître le fond papier et les bulles adaptatives.
+
+### Tests Unitaires & Non-régression
+- **Validation intégrale de la suite de tests (`npm test`)** :
+  - 31/31 tests unitaires validés avec succès (0 régression, 0 erreur).
+
+---
+
 ## [2.9.0] - 2026-10-19
 
 ### Nouveautés & Expérience Utilisateur (Thème & Bulles d'Accueil)
