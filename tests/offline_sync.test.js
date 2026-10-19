@@ -107,3 +107,57 @@ test("ScoreController: queuePendingScore persists scores in storage and flushPen
   assert.strictEqual(stored.length, 2, "Should retain scores until valid token/online flush");
 });
 
+test("CertificateView: displays offline notice and hides global leaderboard in offline mode", async () => {
+  const { CertificateView } = await import("../src/views/CertificateView.js");
+
+  // Mock DOM
+  const certElements = {
+    "cert-player-name": { textContent: "", style: {} },
+    "cert-score": { textContent: "" },
+    "cert-percentile-text": { textContent: "" },
+    "cert-rank-comparison": {
+      classList: {
+        contains: () => false,
+        add: () => {},
+        remove: () => {},
+      },
+    },
+    "test-leaderboard-container": {
+      classList: {
+        contains: () => false,
+        add: (cls) => {
+          certElements["test-leaderboard-container"].hidden = cls === "hidden";
+        },
+        remove: () => {},
+      },
+      hidden: false,
+    },
+    "test-leaderboard-title": { textContent: "" },
+    "test-leaderboard-body": { replaceChildren: () => {} },
+  };
+
+  global.document = {
+    getElementById: (id) => certElements[id] || null,
+  };
+
+  const certView = new CertificateView();
+  certView.render("Alice", 1500, "target", [], 42, true);
+
+  assert.strictEqual(
+    certElements["test-leaderboard-container"].hidden,
+    true,
+    "Test leaderboard must remain hidden during offline games",
+  );
+  assert.match(
+    certElements["cert-percentile-text"].textContent,
+    /hors-ligne/i,
+    "Certificate must display an offline notice explaining score remains local",
+  );
+});
+
+test("badges.css: defines .city-offline-badge style for offline ready cities", () => {
+  const css = fs.readFileSync(path.resolve("public/assets/styles/components/badges.css"), "utf8");
+  assert.match(css, /\.city-offline-badge\s*\{/, ".city-offline-badge must be defined in badges.css");
+});
+
+

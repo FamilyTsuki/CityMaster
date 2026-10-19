@@ -457,6 +457,10 @@
     "room_requires_connection": "Multiplayer rooms require an active Internet connection.",
     "score_saved_locally": "Score saved locally. It will be synchronized once back online.",
     "scores_synced": "Your pending scores have been successfully synchronized!",
-    "leaderboard_requires_connection": "The leaderboard requires an Internet connection."
+    "leaderboard_requires_connection": "The leaderboard requires an Internet connection.",
+    "city_not_cached": "This city is not yet saved for offline mode. Play it at least once with an Internet connection to save it.",
+    "certificate_notice": "Offline game: This score remains local and is not recorded on the global leaderboard.",
+    "no_cached_cities": "No cities available offline. Please play with an Internet connection first.",
+    "offline_ready_badge": "Offline"
   }
 }

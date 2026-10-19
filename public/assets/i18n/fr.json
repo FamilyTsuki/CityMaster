@@ -457,6 +457,10 @@
     "room_requires_connection": "Les salons multijoueurs nécessitent une connexion Internet active.",
     "score_saved_locally": "Score enregistré localement. Il sera synchronisé dès le retour de la connexion.",
     "scores_synced": "Vos scores en attente ont été synchronisés avec succès !",
-    "leaderboard_requires_connection": "Le classement nécessite une connexion Internet."
+    "leaderboard_requires_connection": "Le classement nécessite une connexion Internet.",
+    "city_not_cached": "Cette ville n'est pas encore enregistrée pour le mode hors-ligne. Jouez-y d'abord avec une connexion Internet pour la sauvegarder.",
+    "certificate_notice": "Partie hors-ligne : Ce score reste local et n'est pas enregistré au classement mondial.",
+    "no_cached_cities": "Aucune ville disponible hors-ligne. Jouez d'abord avec une connexion Internet.",
+    "offline_ready_badge": "Hors-ligne"
   }
 }

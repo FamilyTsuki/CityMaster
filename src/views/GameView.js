@@ -1,5 +1,7 @@
 import { I18nService } from "../services/I18nService.js";
 import { ApiService } from "../services/ApiService.js";
+import { NetworkService } from "../services/NetworkService.js";
+import { StorageService } from "../services/StorageService.js";
 
 export class GameView {
   #screens;
@@ -127,6 +129,19 @@ export class GameView {
 
       const searchCities = async (query = "") => {
         const cleanQuery = query.trim().toLowerCase();
+
+        if (!NetworkService.getInstance().isOnline()) {
+          const loader = document.getElementById("city-search-loader");
+          if (loader) loader.classList.remove("active");
+          const cached = await StorageService.getAllCachedCities();
+          if (!cleanQuery) return cached;
+          return cached.filter(
+            (c) =>
+              (c.name && c.name.toLowerCase().includes(cleanQuery)) ||
+              (c.key && c.key.toLowerCase().includes(cleanQuery)),
+          );
+        }
+
         if (citySearchCache.has(cleanQuery)) {
           return citySearchCache.get(cleanQuery);
         }
@@ -156,6 +171,21 @@ export class GameView {
       const renderCityMatches = (cities) => {
         cityDropdown.replaceChildren();
         if (!cities || cities.length === 0) {
+          if (!NetworkService.getInstance().isOnline()) {
+            const emptyLi = document.createElement("li");
+            emptyLi.className = "dropdown-item disabled";
+            const em = document.createElement("em");
+            em.textContent = I18nService.getInstance().t(
+              "offline.no_cached_cities",
+              {},
+              "Aucune ville disponible hors-ligne. Jouez d'abord avec une connexion Internet.",
+            );
+            emptyLi.appendChild(em);
+            cityDropdown.appendChild(emptyLi);
+            cityDropdown.classList.remove("hidden");
+            cityInput.setAttribute("aria-expanded", "true");
+            return;
+          }
           cityDropdown.classList.add("hidden");
           cityInput.setAttribute("aria-expanded", "false");
           return;
@@ -180,6 +210,16 @@ export class GameView {
               "✓ Validée",
             );
             li.appendChild(badge);
+          }
+          if (city.isOfflineCached) {
+            const offlineBadge = document.createElement("span");
+            offlineBadge.className = "city-offline-badge";
+            offlineBadge.textContent = I18nService.getInstance().t(
+              "offline.offline_ready_badge",
+              {},
+              "💾 Hors-ligne",
+            );
+            li.appendChild(offlineBadge);
           }
 
           li.addEventListener("click", () => {

@@ -7,6 +7,8 @@ import {
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
 import { NetworkService } from "../services/NetworkService.js";
+import { StorageService } from "../services/StorageService.js";
+import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
 
 export class GameController {
   #gameView;
@@ -29,6 +31,11 @@ export class GameController {
   #lastGameSettings;
   #lastClickedStreetName;
   #lastFeedback;
+  #isOfflineGame;
+  #offlineStreets;
+  #offlineRoundIndex;
+  #offlineScores;
+  #offlineStreakCount;
 
   constructor(
     gameView,
@@ -57,6 +64,11 @@ export class GameController {
     this.#lastGameSettings = null;
     this.#lastClickedStreetName = null;
     this.#lastFeedback = null;
+    this.#isOfflineGame = false;
+    this.#offlineStreets = [];
+    this.#offlineRoundIndex = 0;
+    this.#offlineScores = [];
+    this.#offlineStreakCount = 0;
 
     this.#initEvents();
   }
@@ -127,75 +139,189 @@ export class GameController {
       }
 
       const i18n = I18nService.getInstance();
-      if (!NetworkService.getInstance().isOnline()) {
-        throw new Error(i18n.t("offline.game_requires_connection"));
-      }
+      const isOnline = NetworkService.getInstance().isOnline();
+      let startData = null;
+      let geojson = null;
 
-      this.#gameView.updateComboBadge(1);
-      this.#gameView.showLoading(i18n.t("loading.generating_city"));
-
-      const generateResponse = await ApiService.post("/cities/generate", {
-        cityKey: cityKey,
-        name: cityData.name,
-        osmId: cityData.osmId || cityData.osm_id,
-        osm_id: cityData.osm_id || cityData.osmId,
-        bbox: bbox,
-      });
-
-      if (!generateResponse.ok) {
-        if (
-          generateResponse.status === 401 ||
-          generateResponse.status === 403
-        ) {
-          this.#handleAuthError();
-          return;
+      if (!isOnline) {
+        const cached = await StorageService.getCityRecord(cityKey);
+        if (!cached || !cached.data) {
+          throw new Error(
+            i18n.t(
+              "offline.city_not_cached",
+              {},
+              "Cette ville n'est pas encore enregistrée pour le mode hors-ligne. Jouez-y d'abord avec une connexion Internet pour la sauvegarder.",
+            ),
+          );
         }
-        throw new Error(i18n.formatError(generateResponse.data?.error));
-      }
 
-      this.#gameView.showLoading(i18n.t("loading.init_session"));
-
-      const startResponse = await ApiService.post("/game/start", {
-        cityKey,
-        mode,
-        difficulty: diff,
-        testNumber,
-        seriesCount,
-      });
-
-      if (!startResponse.ok) {
-        if (startResponse.status === 401 || startResponse.status === 403) {
-          this.#handleAuthError();
-          return;
+        this.#isOfflineGame = true;
+        geojson = cached.data;
+        if (cached.cityData) {
+          cityData = { ...cityData, ...cached.cityData };
+          bbox = cityData.bbox || bbox;
+          center = cityData.center || center;
         }
-        throw new Error(i18n.formatError(startResponse.data?.error));
+
+        this.#gameView.updateComboBadge(1);
+        this.#gameView.showLoading(i18n.t("loading.loading_streets"));
+
+        const hideLabels = selectedMode === "target";
+        await this.#mapView.initMap(center, 14, bbox, hideLabels);
+
+        const [customDistricts, customRoutes] = await Promise.all([
+          this.#fetchCustomDistricts(cityKey),
+          this.#fetchCustomRoutes(cityKey),
+        ]);
+
+        this.#allCityStreets = mergeCityStreets(
+          geojson.features || [],
+          customDistricts,
+          customRoutes,
+        );
+
+        let eligibleStreets = this.#allCityStreets.filter(
+          (f) =>
+            f &&
+            f.properties &&
+            f.properties.name &&
+            f.properties.name.trim().length > 0 &&
+            f.geometry,
+        );
+
+        if (diff === "lotissement") {
+          eligibleStreets = this.#allCityStreets.filter(
+            (f) =>
+              f &&
+              f.properties &&
+              f.properties.isLotissement &&
+              (f.geometry.type === "Polygon" ||
+                f.geometry.type === "MultiPolygon"),
+          );
+        } else if (diff === "easy" || diff === "medium" || diff === "hard") {
+          const matching = eligibleStreets.filter((f) => {
+            const d = RouteDifficultyService.getRouteDifficulty(
+              f,
+              center ? center[0] : 0,
+              center ? center[1] : 0,
+            );
+            return diff === "hard" || d === diff;
+          });
+          if (matching.length >= 5) {
+            eligibleStreets = matching;
+          }
+        }
+
+        const targetCount = Math.min(
+          seriesCount || 10,
+          eligibleStreets.length,
+        );
+        const shuffled = [...eligibleStreets].sort(() => 0.5 - Math.random());
+        this.#offlineStreets = shuffled.slice(0, targetCount);
+        this.#offlineRoundIndex = 0;
+        this.#offlineScores = [];
+        this.#offlineStreakCount = 0;
+
+        if (this.#offlineStreets.length === 0) {
+          throw new Error(i18n.t("errors.network_error"));
+        }
+
+        const firstPrompt = {
+          roundIndex: 0,
+          totalRounds: this.#offlineStreets.length,
+          mode,
+        };
+        if (mode === "target" || mode === "sprint") {
+          firstPrompt.streetName = this.#offlineStreets[0].properties.name;
+        } else if (mode === "identify") {
+          firstPrompt.geometry = this.#offlineStreets[0].geometry;
+        }
+
+        startData = {
+          gameToken: "offline_token",
+          nextPrompt: firstPrompt,
+          isFinished: false,
+        };
+      } else {
+        this.#isOfflineGame = false;
+        this.#gameView.updateComboBadge(1);
+        this.#gameView.showLoading(i18n.t("loading.generating_city"));
+
+        const generateResponse = await ApiService.post("/cities/generate", {
+          cityKey: cityKey,
+          name: cityData.name,
+          osmId: cityData.osmId || cityData.osm_id,
+          osm_id: cityData.osm_id || cityData.osmId,
+          bbox: bbox,
+        });
+
+        if (!generateResponse.ok) {
+          if (
+            generateResponse.status === 401 ||
+            generateResponse.status === 403
+          ) {
+            this.#handleAuthError();
+            return;
+          }
+          throw new Error(i18n.formatError(generateResponse.data?.error));
+        }
+
+        this.#gameView.showLoading(i18n.t("loading.init_session"));
+
+        const startResponse = await ApiService.post("/game/start", {
+          cityKey,
+          mode,
+          difficulty: diff,
+          testNumber,
+          seriesCount,
+        });
+
+        if (!startResponse.ok) {
+          if (startResponse.status === 401 || startResponse.status === 403) {
+            this.#handleAuthError();
+            return;
+          }
+          throw new Error(i18n.formatError(startResponse.data?.error));
+        }
+
+        startData = startResponse.data;
+
+        this.#gameView.showLoading(i18n.t("loading.loading_streets"));
+
+        const hideLabels = selectedMode === "target";
+        const mapReadyPromise = this.#mapView.initMap(
+          center,
+          14,
+          bbox,
+          hideLabels,
+        );
+        const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
+
+        const [_, loadedGeojson, customDistricts, customRoutes] =
+          await Promise.all([
+            mapReadyPromise,
+            streetsPromise,
+            this.#fetchCustomDistricts(cityKey),
+            this.#fetchCustomRoutes(cityKey),
+          ]);
+        geojson = loadedGeojson;
+
+        this.#allCityStreets = mergeCityStreets(
+          geojson.features,
+          customDistricts,
+          customRoutes,
+        );
+
+        if (geojson && geojson.features && geojson.features.length > 0) {
+          StorageService.setCity(cityKey, geojson, {
+            key: cityKey,
+            name: cityData.name || cityKey,
+            bbox: bbox || cityData.bbox,
+            center: center || cityData.center,
+            osmId: cityData.osmId || cityData.osm_id,
+          }).catch(() => {});
+        }
       }
-
-      const startData = startResponse.data;
-
-      this.#gameView.showLoading(i18n.t("loading.loading_streets"));
-
-      const hideLabels = selectedMode === "target";
-      const mapReadyPromise = this.#mapView.initMap(
-        center,
-        14,
-        bbox,
-        hideLabels,
-      );
-      const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
-
-      const [_, geojson, customDistricts, customRoutes] = await Promise.all([
-        mapReadyPromise,
-        streetsPromise,
-        this.#fetchCustomDistricts(cityKey),
-        this.#fetchCustomRoutes(cityKey),
-      ]);
-
-      this.#allCityStreets = mergeCityStreets(
-        geojson.features,
-        customDistricts,
-        customRoutes,
-      );
 
       if (diff === "lotissement" || difficulty === "lotissement") {
         const lotissements = this.#allCityStreets.filter(
@@ -441,6 +567,11 @@ export class GameController {
     this.#session = null;
     this.#lastFeedback = null;
     this.#lastClickedStreetName = null;
+    this.#isOfflineGame = false;
+    this.#offlineStreets = [];
+    this.#offlineRoundIndex = 0;
+    this.#offlineScores = [];
+    this.#offlineStreakCount = 0;
   }
 
   async #fetchCustomDistricts(cityKey) {
@@ -630,6 +761,10 @@ export class GameController {
   }
 
   async #submitRoundToBackend(guess, elapsedSeconds) {
+    if (this.#isOfflineGame) {
+      return this.#evaluateOfflineRound(guess, elapsedSeconds);
+    }
+
     const res = await ApiService.post("/game/submit-round", {
       gameToken: this.#session.gameToken,
       guess,
@@ -645,6 +780,181 @@ export class GameController {
     }
 
     return res.data;
+  }
+
+  #evaluateOfflineRound(guess, elapsedSeconds) {
+    const currentStreet = this.#offlineStreets[this.#offlineRoundIndex];
+    const mode = this.#session.currentMode;
+    const totalTime = this.#totalTime;
+    const remainingTime = Math.max(0, totalTime - (elapsedSeconds || 0));
+
+    let pointsEarned = 0;
+    let isCorrect = false;
+    let distance = -1;
+    let message = "";
+    const streetName = currentStreet.properties?.name || "Rue";
+    const feedback = {
+      correctName: streetName,
+      geometry: currentStreet.geometry,
+    };
+
+    if (mode === "target" || mode === "sprint") {
+      if (
+        !guess ||
+        typeof guess.lat !== "number" ||
+        typeof guess.lng !== "number"
+      ) {
+        distance = -1;
+        pointsEarned = 0;
+        isCorrect = false;
+        feedback.code = remainingTime <= 0 ? "timeout_guess" : "passed";
+        message =
+          remainingTime <= 0
+            ? "Temps écoulé ! Vous n'avez pas sélectionné d'emplacement."
+            : "Passé.";
+      } else {
+        distance = this.#spatialService.getDistanceToStreet(
+          guess.lat,
+          guess.lng,
+          currentStreet,
+        );
+        feedback.distance = Math.round(distance);
+        if (distance <= 15) {
+          pointsEarned = 100;
+          isCorrect = true;
+          feedback.code = "perfect";
+          message = "Parfait ! Vous êtes exactement sur la rue.";
+        } else if (distance <= 100) {
+          const ratio = 1 - (distance - 15) / 85;
+          pointsEarned = Math.round(10 + 40 * ratio);
+          isCorrect = true;
+          feedback.code = "near";
+          message = `Pas mal ! Vous êtes à ${Math.round(distance)}m de la rue.`;
+        } else {
+          pointsEarned = 0;
+          isCorrect = false;
+          feedback.code = "miss";
+          message = `Raté. Vous étiez à ${Math.round(distance)}m. Voici le véritable emplacement.`;
+        }
+
+        let timeBonus = 0;
+        if (pointsEarned > 0 && remainingTime > 0) {
+          const timeRatio = remainingTime / totalTime;
+          timeBonus = Math.round(
+            timeRatio * (mode === "sprint" ? 100 : 30),
+          );
+          if (timeBonus > 0) {
+            pointsEarned += timeBonus;
+            feedback.timeBonus = timeBonus;
+            message += ` Bonus de temps : +${timeBonus} pts.`;
+          }
+        }
+      }
+
+      if (mode === "sprint") {
+        this.#session.sprintHistory.push({
+          name: streetName,
+          distance: distance === -1 ? -1 : Math.round(distance),
+          points: pointsEarned,
+          timeBonus: feedback.timeBonus || 0,
+        });
+      }
+    } else if (mode === "identify") {
+      const normalize = (str) =>
+        typeof str === "string"
+          ? str
+              .toLowerCase()
+              .replace(/^(le|la|les|l'|d'|du|de|des)\s+/, "")
+              .replace(/[^a-z0-9]/g, "")
+              .trim()
+          : "";
+      const cleanAnswer = normalize(guess);
+      const cleanCorrect = normalize(streetName);
+
+      isCorrect =
+        cleanAnswer.length > 0 &&
+        (cleanAnswer === cleanCorrect || cleanCorrect.includes(cleanAnswer));
+
+      if (isCorrect) {
+        pointsEarned = 15;
+        feedback.code = "identify_correct";
+        message = `Bonne réponse ! C'était bien : ${streetName}`;
+
+        let timeBonus = 0;
+        if (remainingTime > 0) {
+          timeBonus = Math.round((remainingTime / totalTime) * 10);
+          if (timeBonus > 0) {
+            pointsEarned += timeBonus;
+            feedback.timeBonus = timeBonus;
+            message += ` Bonus de temps : +${timeBonus} pts.`;
+          }
+        }
+      } else {
+        pointsEarned = 0;
+        feedback.code =
+          remainingTime <= 0 ? "identify_timeout" : "identify_false";
+        message =
+          remainingTime <= 0
+            ? `Temps écoulé ! La bonne réponse était : ${streetName}`
+            : `Faux. La bonne réponse était : ${streetName}`;
+      }
+    }
+
+    if (isCorrect) {
+      this.#offlineStreakCount++;
+    } else {
+      this.#offlineStreakCount = 0;
+    }
+
+    let multiplier = 1;
+    if (this.#offlineStreakCount >= 3) {
+      multiplier = 3;
+    } else if (this.#offlineStreakCount === 2) {
+      multiplier = 2;
+    }
+
+    if (pointsEarned > 0 && multiplier > 1) {
+      pointsEarned *= multiplier;
+      message += ` (Combo x${multiplier} !)`;
+    }
+
+    feedback.streakCount = this.#offlineStreakCount;
+    feedback.multiplier = multiplier;
+    feedback.pointsEarned = pointsEarned;
+    feedback.message = message + ` (+${pointsEarned} pts)`;
+    feedback.isCorrect = isCorrect;
+    feedback.distance = distance === -1 ? -1 : Math.round(distance);
+
+    this.#offlineScores.push(pointsEarned);
+    this.#offlineRoundIndex++;
+
+    const isFinished =
+      this.#offlineRoundIndex >= this.#offlineStreets.length;
+    let nextPrompt = null;
+    if (!isFinished) {
+      const nextStreet = this.#offlineStreets[this.#offlineRoundIndex];
+      nextPrompt = {
+        roundIndex: this.#offlineRoundIndex,
+        totalRounds: this.#offlineStreets.length,
+        mode,
+      };
+      if (mode === "target" || mode === "sprint") {
+        nextPrompt.streetName = nextStreet.properties.name;
+      } else if (mode === "identify") {
+        nextPrompt.geometry = nextStreet.geometry;
+      }
+    }
+
+    const totalScore = this.#offlineScores.reduce((a, b) => a + b, 0);
+
+    return {
+      gameToken: "offline_token",
+      nextPrompt,
+      isFinished,
+      totalScore,
+      feedback,
+      sprintHistory: this.#session.sprintHistory,
+    };
   }
 
   async #validateGuess(forced = false) {
@@ -815,12 +1125,15 @@ export class GameController {
       return;
     }
 
+    const isOffline = Boolean(this.#isOfflineGame);
+
     this.#certificateView.render(
       name,
       score,
       mode,
       sprintHistory,
       this.#session.testNumber,
+      isOffline,
     );
     this.#gameView.showScreen("certificate");
     this.#router.navigate("/certificate");

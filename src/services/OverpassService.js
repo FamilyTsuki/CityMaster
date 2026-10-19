@@ -34,7 +34,11 @@ export class OverpassService {
         const query = `[out:json][timeout:25];(way(${bbox})["highway"~"^(primary|secondary|tertiary|unclassified|residential|living_street)$"]["name"];way(${bbox})["place"]["name"];way(${bbox})["landuse"="residential"]["name"];node(${bbox})["place"]["name"];);out geom;`;
         const res = await ApiService.post(this.#apiUrl, { query });
         if (res.ok && res.data) {
-          return this.#convertToGeoJSON(res.data);
+          const geojson = this.#convertToGeoJSON(res.data);
+          if (cityKey && geojson && geojson.features && geojson.features.length > 0) {
+            StorageService.setCity(cityKey, geojson).catch(() => {});
+          }
+          return geojson;
         }
       } catch (err) {
         console.warn('Dynamic Overpass query failed:', err);

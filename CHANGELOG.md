@@ -3,6 +3,26 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.12.0] - 2026-10-19
+
+### Nouveautés & Jeu Hors-Ligne pour les Villes Jouées
+- **Sauvegarde automatique des villes jouées dans IndexedDB (`StorageService.js` & `GameController.js`)** :
+  - Chaque fois qu'une partie est jouée en ligne, le tracé GeoJSON de la ville ainsi que ses métadonnées géographiques (nom, bbox, centre, OSM ID) sont automatiquement stockés dans IndexedDB (`StorageService.setCity`).
+  - Méthodes `getAllCachedCities()` et `getCityRecord()` permettant d'extraire la liste de toutes les villes disponibles pour le jeu sans connexion.
+- **Moteur de jeu et évaluation locale autonome hors-ligne (`GameController.js`)** :
+  - En mode hors-ligne, le jeu ne dépend plus des endpoints `/api/game/start` et `/api/game/submit-round` : la sélection des rues, la gestion des séries et le filtrage par difficulté s'exécutent entièrement en local (`RouteDifficultyService`).
+  - Calcul autonome des distances (via `SpatialService.getDistanceToStreet`), des points, des combos (x2, x3), des bonus de temps et des feedbacks pour les modes cible, sprint et identification.
+- **Recherche et sélection adaptative sur l'écran de configuration (`GameView.js`)** :
+  - Lorsque l'appareil est hors-ligne, la recherche de ville propose automatiquement les villes enregistrées dans le cache IndexedDB avec le badge `💾 Hors-ligne`.
+  - Message d'aide pédagogique si aucune ville n'est encore en cache : invite l'utilisateur à jouer d'abord une fois avec Internet pour enregistrer la ville de son choix.
+- **Affichage clair sur le certificat de fin de partie (`CertificateView.js`)** :
+  - Lors d'une partie hors-ligne, les scores ne sont pas envoyés au serveur mondial (`scores.create`). Le certificat affiche une mention claire : *« Partie hors-ligne : Ce score reste local et n'est pas enregistré au classement mondial. »*
+  - Le tableau du classement mondial de test est automatiquement masqué.
+- **Tests unitaires et non-régression** :
+  - Suite de tests portée à 40 tests unitaires avec 100% de succès.
+
+---
+
 ## [2.11.0] - 2026-10-19
 
 ### Nouveautés & Mode Hors-Ligne (PWA Mobile)

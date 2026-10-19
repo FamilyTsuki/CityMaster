@@ -24,6 +24,7 @@ export class CertificateView {
     mode = "target",
     sprintHistory = [],
     testNumber = null,
+    isOffline = false,
   ) {
     const numericScore = Number(score) || 0;
 
@@ -55,7 +56,14 @@ export class CertificateView {
     }
 
     if (this.#certRankComparison && this.#certPercentileText) {
-      if (numericScore > 0) {
+      if (isOffline) {
+        this.#certPercentileText.textContent = I18nService.getInstance().t(
+          "offline.certificate_notice",
+          {},
+          "Partie hors-ligne : Ce score reste local et n'est pas enregistré au classement mondial.",
+        );
+        this.#certRankComparison.classList.remove("hidden");
+      } else if (numericScore > 0) {
         const topPercent = this.#calculatePercentile(numericScore, mode);
         this.#certPercentileText.textContent = I18nService.getInstance().t(
           "certificate.top_percentile",
@@ -106,7 +114,7 @@ export class CertificateView {
     const testBody = document.getElementById("test-leaderboard-body");
 
     if (testContainer && testBody && testTitle) {
-      if (testNumber) {
+      if (testNumber && !isOffline) {
         testTitle.textContent = I18nService.getInstance().t(
           "certificate.test_leaderboard_num",
           { number: testNumber },
