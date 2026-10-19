@@ -63,7 +63,6 @@
   font-weight: 700;
   color: var(--landing-ink-muted);
   background: var(--surface);
-  border: 1px solid var(--border-color);
   padding: 0.12rem 0.5rem;
   border-radius: var(--border-radius-pill);
   text-decoration: none;
@@ -75,11 +74,7 @@
 }
 
 .version-tag:hover {
-  background: var(--surface-hover);
   color: var(--primary);
-  border-color: var(--primary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-xs);
 }
 
 .version-tag:active {
