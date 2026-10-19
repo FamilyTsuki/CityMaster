@@ -232,7 +232,6 @@ export class AuthView {
   #authSwitchLink;
   #authSwitchText;
   #authTitle;
-  #authSubtitle;
   #errorMsg;
   #mascotsContainer;
   #togglePasswordBtn;
@@ -292,7 +291,6 @@ export class AuthView {
     this.#authSwitchLink = document.getElementById("auth-switch-link");
     this.#authSwitchText = document.getElementById("auth-switch-text");
     this.#authTitle = document.getElementById("auth-title");
-    this.#authSubtitle = document.getElementById("auth-subtitle");
     this.#errorMsg = document.getElementById("auth-error");
     this.#mascotsContainer = document.getElementById("auth-mascots-container");
     this.#togglePasswordBtn = document.getElementById("toggle-password-btn");
@@ -1662,10 +1660,24 @@ export class AuthView {
       const updateTogglePasswordLabel = () => {
         if (!this.#togglePasswordBtn || !this.#passwordInput) return;
         const isShown = this.#passwordInput.type === "text";
-        const hideLabel = I18nService.getInstance().t("auth.hide_password", {}, "Masquer le mot de passe");
-        const showLabel = I18nService.getInstance().t("auth.show_password", {}, "Afficher le mot de passe");
-        this.#togglePasswordBtn.setAttribute("aria-label", isShown ? hideLabel : showLabel);
-        this.#togglePasswordBtn.setAttribute("aria-pressed", isShown ? "true" : "false");
+        const hideLabel = I18nService.getInstance().t(
+          "auth.hide_password",
+          {},
+          "Masquer le mot de passe",
+        );
+        const showLabel = I18nService.getInstance().t(
+          "auth.show_password",
+          {},
+          "Afficher le mot de passe",
+        );
+        this.#togglePasswordBtn.setAttribute(
+          "aria-label",
+          isShown ? hideLabel : showLabel,
+        );
+        this.#togglePasswordBtn.setAttribute(
+          "aria-pressed",
+          isShown ? "true" : "false",
+        );
       };
 
       this.#togglePasswordBtn.addEventListener("click", (e) => {
@@ -1830,8 +1842,6 @@ export class AuthView {
     if (isLogin) {
       if (this.#authTitle)
         this.#authTitle.textContent = i18n.t("auth.login_title");
-      if (this.#authSubtitle)
-        this.#authSubtitle.textContent = i18n.t("auth.login_subtitle");
       if (this.#authMainBtn)
         this.#authMainBtn.textContent = i18n.t("auth.login_btn");
       if (this.#authSwitchText)
@@ -1843,8 +1853,6 @@ export class AuthView {
     } else {
       if (this.#authTitle)
         this.#authTitle.textContent = i18n.t("auth.register_title");
-      if (this.#authSubtitle)
-        this.#authSubtitle.textContent = i18n.t("auth.register_subtitle");
       if (this.#authMainBtn)
         this.#authMainBtn.textContent = i18n.t("auth.register_btn");
       if (this.#authSwitchText)

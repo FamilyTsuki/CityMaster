@@ -15,9 +15,13 @@
   border-radius: var(--border-radius);
   box-shadow: var(--shadow-sm);
   z-index: var(--z-navbar, 1000);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
   box-sizing: border-box;
   flex-wrap: nowrap;
+  gap: clamp(0.5rem, 1vw, 0.75rem);
 }
 
 .navbar-brand {
@@ -30,7 +34,11 @@
 
 .navbar-brand .logo-text {
   display: inline-block;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: clamp(1.2rem, 2.5vw, 1.35rem);
   font-weight: 900;
   color: var(--landing-ink);
@@ -46,7 +54,11 @@
 }
 
 .version-tag {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-size: 0.75rem;
   color: var(--landing-ink-muted);
   font-weight: 700;
@@ -73,7 +85,9 @@
 }
 
 .burger-line {
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    opacity 0.15s ease;
   transform-origin: center;
 }
 
@@ -105,7 +119,11 @@
 }
 
 #nav-login-btn {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   min-height: 2.375rem;
   padding: 0.4rem 1.125rem;
   font-size: 0.88rem;
@@ -140,7 +158,11 @@
 
 #pwa-install-btn,
 .pwa-install-btn-style {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   min-height: 2.375rem;
   padding: 0.4rem 1rem;
   font-size: 0.88rem;
@@ -168,7 +190,9 @@
   width: 1.05rem;
   height: 1.05rem;
   flex-shrink: 0;
-  transition: transform 0.15s ease, stroke 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    stroke 0.15s ease;
 }
 
 #pwa-install-btn:hover,
@@ -194,7 +218,11 @@
 }
 
 .nav-admin-link {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   min-height: 2.375rem;
   padding: 0.4rem 1rem;
   font-size: 0.85rem;
@@ -228,7 +256,11 @@
 }
 
 .profile-name {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   font-weight: 800;
   font-size: 0.85rem;
   color: var(--landing-ink);
@@ -237,7 +269,11 @@
 }
 
 .logout-link {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Plus Jakarta Sans",
+    system-ui,
+    -apple-system,
+    sans-serif;
   color: var(--danger) !important;
   font-size: 0.85rem;
   font-weight: 800;
@@ -248,7 +284,10 @@
   cursor: pointer;
   padding: 0.375rem 0.75rem;
   border-radius: var(--border-radius-xs);
-  transition: color 0.15s ease, background-color 0.15s ease, transform 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.15s ease;
   white-space: nowrap;
   flex-shrink: 0;
   display: inline-flex;
@@ -281,7 +320,9 @@
   border: none !important;
   box-shadow: none !important;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -303,7 +344,9 @@
   border: 2px solid var(--border-color) !important;
   box-shadow: var(--shadow-xs) !important;
   background: var(--bg-card-solid);
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition:
+    transform 0.15s ease,
+    border-color 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -363,8 +406,6 @@
   animation: spin360 0.5s ease-in-out !important;
 }
 
-
-
 .menu-install-btn {
   display: none !important;
 }
@@ -404,11 +445,11 @@
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
   }
-  
+
   .navbar-brand .logo-text {
     font-size: 1.2rem;
   }
-  
+
   .burger-btn {
     display: flex !important;
   }
@@ -504,7 +545,11 @@
     margin: 0 !important;
     padding: 0 1rem !important;
     box-sizing: border-box !important;
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    font-family:
+      "Plus Jakarta Sans",
+      system-ui,
+      -apple-system,
+      sans-serif;
     font-size: 0.92rem;
     font-weight: 700;
     display: flex !important;
@@ -552,7 +597,9 @@
     text-decoration: none;
     margin-top: 0.25rem !important;
     border-radius: var(--border-radius-sm) !important;
-    transition: color 0.15s ease, background-color 0.15s ease;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
     cursor: pointer;
   }
 

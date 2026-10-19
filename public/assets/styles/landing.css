@@ -80,7 +80,7 @@
   height: 180px;
   left: 6%;
   filter: blur(40px);
-  background: radial-gradient(circle at 50% 50%, rgba(253, 224, 71, 0.65), var(--warning-light), transparent 75%);
+  background: var(--landing-bubble-1);
   animation: floatOrganicA 15.2s linear infinite;
   animation-delay: -3.5s;
 }
@@ -90,7 +90,7 @@
   height: 260px;
   left: 26%;
   filter: blur(55px);
-  background: radial-gradient(circle at 50% 50%, rgba(251, 113, 133, 0.6), rgba(224, 86, 56, 0.3), transparent 75%);
+  background: var(--landing-bubble-2);
   animation: floatOrganicB 19.8s linear infinite;
   animation-delay: -12.0s;
 }
@@ -100,7 +100,7 @@
   height: 150px;
   left: 48%;
   filter: blur(35px);
-  background: radial-gradient(circle at 50% 50%, rgba(254, 240, 138, 0.65), rgba(250, 204, 21, 0.3), transparent 75%);
+  background: var(--landing-bubble-3);
   animation: floatOrganicC 13.4s linear infinite;
   animation-delay: -1.2s;
 }
@@ -110,7 +110,7 @@
   height: 240px;
   left: 65%;
   filter: blur(50px);
-  background: radial-gradient(circle at 50% 50%, rgba(253, 186, 116, 0.6), rgba(234, 88, 12, 0.3), transparent 75%);
+  background: var(--landing-bubble-4);
   animation: floatOrganicA 17.6s linear infinite;
   animation-delay: -14.5s;
 }
@@ -120,7 +120,7 @@
   height: 170px;
   left: 83%;
   filter: blur(40px);
-  background: radial-gradient(circle at 50% 50%, rgba(244, 114, 182, 0.6), rgba(225, 29, 72, 0.3), transparent 75%);
+  background: var(--landing-bubble-5);
   animation: floatOrganicB 14.1s linear infinite;
   animation-delay: -6.8s;
 }
@@ -130,7 +130,7 @@
   height: 210px;
   left: 38%;
   filter: blur(48px);
-  background: radial-gradient(circle at 50% 50%, rgba(254, 215, 170, 0.65), rgba(249, 115, 22, 0.35), transparent 75%);
+  background: var(--landing-bubble-6);
   animation: floatOrganicC 16.5s linear infinite;
   animation-delay: -9.4s;
 }
@@ -156,6 +156,14 @@
   --paper-badge-bg: var(--surface);
   --paper-badge-text: var(--primary);
   --hero-highlight-color: var(--primary);
+
+  /* Light Theme Bubbles: Luminous Blue Palette */
+  --landing-bubble-1: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.65), rgba(2, 132, 199, 0.32), transparent 75%);
+  --landing-bubble-2: radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.6), rgba(37, 99, 235, 0.28), transparent 75%);
+  --landing-bubble-3: radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.65), rgba(14, 165, 233, 0.3), transparent 75%);
+  --landing-bubble-4: radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.6), rgba(59, 130, 246, 0.28), transparent 75%);
+  --landing-bubble-5: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.55), rgba(6, 182, 212, 0.25), transparent 75%);
+  --landing-bubble-6: radial-gradient(circle at 50% 50%, rgba(186, 230, 253, 0.65), rgba(2, 132, 199, 0.3), transparent 75%);
 }
 
 [data-theme="dark"] {
@@ -179,6 +187,18 @@
   --paper-badge-bg: rgba(234, 88, 12, 0.15);
   --paper-badge-text: var(--warning);
   --hero-highlight-color: var(--warning);
+
+  /* Dark Theme Bubbles: Fiery Red & Orange Palette */
+  --landing-bubble-1: radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.7), rgba(194, 65, 12, 0.45), transparent 75%);
+  --landing-bubble-2: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.65), rgba(220, 38, 38, 0.38), transparent 75%);
+  --landing-bubble-3: radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.7), rgba(234, 88, 12, 0.4), transparent 75%);
+  --landing-bubble-4: radial-gradient(circle at 50% 50%, rgba(248, 113, 113, 0.65), rgba(185, 28, 28, 0.38), transparent 75%);
+  --landing-bubble-5: radial-gradient(circle at 50% 50%, rgba(253, 186, 116, 0.65), rgba(234, 88, 12, 0.38), transparent 75%);
+  --landing-bubble-6: radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.65), rgba(225, 29, 72, 0.4), transparent 75%);
+}
+
+[data-theme="dark"] .ambient-bubbles {
+  mix-blend-mode: screen;
 }
 
 .landing-content {

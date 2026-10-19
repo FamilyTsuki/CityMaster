@@ -30,30 +30,34 @@
     <meta name="apple-mobile-web-app-title" content="CityMaster" />
     <title>CityMaster - Jeu Géographique Interactif</title>
 
-    <link rel="manifest" href="/manifest.json?v=2.8.20" />
+    <link rel="manifest" href="/manifest.json?v=2.9.0" />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="/favicon.png?v=2.8.20"
+      href="/favicon.png?v=2.9.0"
       id="dynamic-favicon"
     />
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/assets/images/icon.svg?v=2.8.20"
+      href="/assets/images/icon.svg?v=2.9.0"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="192x192"
-      href="/assets/images/icon-192.png?v=2.8.20"
+      href="/assets/images/icon-192.png?v=2.9.0"
     />
-    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=2.8.20" />
+    <link
+      rel="shortcut icon"
+      type="image/x-icon"
+      href="/favicon.ico?v=2.9.0"
+    />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/assets/images/apple-touch-icon.png?v=2.8.20"
+      href="/assets/images/apple-touch-icon.png?v=2.9.0"
     />
 
     <script>
@@ -71,7 +75,7 @@
 
         const fav = document.getElementById("dynamic-favicon");
         if (fav) {
-          fav.href = "/favicon.png?v=2.8.20";
+          fav.href = "/favicon.png?v=2.9.0";
         }
       })();
     </script>
@@ -312,13 +316,16 @@
             <polyline points="7 10 12 15 17 10"></polyline>
             <line x1="12" y1="15" x2="12" y2="3"></line>
           </svg>
-          <span class="pwa-btn-text" data-i18n="nav.install">Installer l'application</span>
+          <span class="pwa-btn-text" data-i18n="nav.install"
+            >Installer l'application</span
+          >
         </button>
         <button
           id="menu-theme-toggle"
           class="btn secondary menu-theme-btn"
           type="button"
           aria-label="Basculer le mode clair ou sombre"
+          data-i18n-aria-label="nav.theme_toggle"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -333,7 +340,7 @@
           >
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
-          <span id="menu-theme-text" class="menu-theme-text">Mode clair</span>
+          <span id="menu-theme-text" class="menu-theme-text" data-i18n="nav.light_mode">Mode clair</span>
         </button>
         <div id="nav-auth-logged-out">
           <button
@@ -420,10 +427,10 @@
               class="install-modal-logo"
             />
             <div>
-              <h2 id="install-modal-title" class="install-modal-title">
+              <h2 id="install-modal-title" class="install-modal-title" data-i18n="install_modal.title">
                 Installer CityMaster
               </h2>
-              <p class="install-modal-subtitle">
+              <p class="install-modal-subtitle" data-i18n="install_modal.subtitle">
                 Application rapide, légère &amp; disponible hors-ligne
               </p>
             </div>
@@ -433,6 +440,7 @@
             type="button"
             class="modal-close-btn"
             aria-label="Fermer la fenêtre"
+            data-i18n-aria-label="common.close"
           >
             &times;
           </button>
@@ -454,31 +462,18 @@
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                 <line x1="12" y1="18" x2="12.01" y2="18"></line>
               </svg>
-              <span>Sur iPhone &amp; iPad (Safari)</span>
+              <span data-i18n="install_modal.ios_platform">Sur iPhone &amp; iPad (Safari)</span>
             </div>
             <ol class="install-steps-list">
-              <li>
+              <li data-i18n="install_modal.ios_step_1">
                 Appuyez sur le bouton <strong>Partager</strong> en bas de Safari
-                (icône carrée avec une flèche vers le haut
-                <svg
-                  style="display:inline; vertical-align:middle; width:14px; height:14px;"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
-                  <polyline points="16 6 12 2 8 6"></polyline>
-                  <line x1="12" y1="2" x2="12" y2="15"></line></svg
-                >).
+                (icône carrée avec une flèche vers le haut).
               </li>
-              <li>
+              <li data-i18n="install_modal.ios_step_2">
                 Faites défiler vers le bas et appuyez sur
                 <strong>« Sur l'écran d'accueil »</strong> 📲.
               </li>
-              <li>
+              <li data-i18n="install_modal.ios_step_3">
                 Touchez <strong>« Ajouter »</strong> en haut à droite. L'icône
                 apparaît sur votre écran d'accueil !
               </li>
@@ -500,14 +495,14 @@
                 <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
                 <line x1="12" y1="18" x2="12.01" y2="18"></line>
               </svg>
-              <span>Sur Android (Chrome)</span>
+              <span data-i18n="install_modal.android_platform">Sur Android (Chrome)</span>
             </div>
             <ol class="install-steps-list">
-              <li>
+              <li data-i18n="install_modal.android_step_1">
                 Appuyez sur le menu <strong>⋮</strong> (trois points en haut à
                 droite).
               </li>
-              <li>
+              <li data-i18n="install_modal.android_step_2">
                 Sélectionnez <strong>« Installer l'application »</strong> ou
                 <strong>« Ajouter à l'écran d'accueil »</strong>.
               </li>
@@ -530,23 +525,23 @@
                 <line x1="8" y1="21" x2="16" y2="21"></line>
                 <line x1="12" y1="17" x2="12" y2="21"></line>
               </svg>
-              <span>Sur Ordinateur (Chrome / Edge)</span>
+              <span data-i18n="install_modal.desktop_platform">Sur Ordinateur (Chrome / Edge)</span>
             </div>
             <ol class="install-steps-list">
-              <li>
+              <li data-i18n="install_modal.desktop_step_1">
                 Cliquez sur l'icône d'installation à droite dans la barre
                 d'adresse du navigateur.
               </li>
-              <li>
-                Cliquez sur <strong>« Installer »</strong> pour lancer CityMaster
-                comme une application indépendante.
+              <li data-i18n="install_modal.desktop_step_2">
+                Cliquez sur <strong>« Installer »</strong> pour lancer
+                CityMaster comme une application indépendante.
               </li>
             </ol>
           </div>
 
-          <div class="install-card-footer-tip">
-            💡 <strong>Inutile de chercher sur l'App Store ou Google Play</strong> :
-            CityMaster s'installe directement depuis votre navigateur, sans
+          <div class="install-card-footer-tip" data-i18n="install_modal.footer_tip">
+            <strong>Inutile de chercher sur l'App Store ou Google Play</strong>
+            : CityMaster s'installe directement depuis votre navigateur, sans
             publicité et sans saturer l'espace de votre téléphone.
           </div>
         </div>

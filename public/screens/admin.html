@@ -3,6 +3,7 @@
   class="screen"
   role="main"
   aria-label="Espace Administration des Quartiers"
+  data-i18n-aria-label="admin.region_label"
 >
   <div id="admin-dashboard-view" class="admin-dashboard-view">
     <div class="admin-dashboard-header">
@@ -10,6 +11,9 @@
         id="admin-back-btn"
         class="btn-back-round"
         title="Retour à l'accueil"
+        data-i18n-title="common.back_home"
+        aria-label="Retour à l'accueil"
+        data-i18n-aria-label="common.back_home"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -25,7 +29,7 @@
           <polyline points="12 19 5 12 12 5"></polyline>
         </svg>
       </button>
-      <h1 class="admin-dashboard-title">Administration</h1>
+      <h1 class="admin-dashboard-title" data-i18n="admin.dashboard_title">Administration</h1>
     </div>
 
     <div class="admin-cards-grid">
@@ -46,10 +50,10 @@
             ></path>
             <circle cx="12" cy="10" r="3"></circle>
           </svg>
-          <h2 class="admin-card-title">Quartiers</h2>
+          <h2 class="admin-card-title" data-i18n="admin.districts_card_title">Quartiers</h2>
         </div>
-        <p class="admin-card-desc">Limites des quartiers et lotissements.</p>
-        <button id="admin-go-districts-btn" class="btn admin-btn-full">
+        <p class="admin-card-desc" data-i18n="admin.districts_card_desc">Limites des quartiers et lotissements.</p>
+        <button id="admin-go-districts-btn" class="btn admin-btn-full" data-i18n="admin.open_map">
           Ouvrir la carte
         </button>
       </div>
@@ -68,10 +72,10 @@
           >
             <path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path>
           </svg>
-          <h2 class="admin-card-title">Routes</h2>
+          <h2 class="admin-card-title" data-i18n="admin.routes_card_title">Routes</h2>
         </div>
-        <p class="admin-card-desc">Tracé et édition des rues.</p>
-        <button id="admin-go-routes-btn" class="btn admin-btn-full">
+        <p class="admin-card-desc" data-i18n="admin.routes_card_desc">Tracé et édition des rues.</p>
+        <button id="admin-go-routes-btn" class="btn admin-btn-full" data-i18n="admin.open_map">
           Ouvrir la carte
         </button>
       </div>
@@ -93,15 +97,15 @@
             ></path>
             <line x1="4" y1="22" x2="4" y2="15"></line>
           </svg>
-          <h2 class="admin-card-title">Signalements</h2>
+          <h2 class="admin-card-title" data-i18n="admin.reports_card_title">Signalements</h2>
           <span
             id="admin-pending-reports-badge"
             class="admin-pending-badge badge-zero"
             >0</span
           >
         </div>
-        <p class="admin-card-desc">Problèmes signalés par les joueurs.</p>
-        <button id="admin-go-reports-btn" class="btn admin-btn-full">
+        <p class="admin-card-desc" data-i18n="admin.reports_card_desc">Problèmes signalés par les joueurs.</p>
+        <button id="admin-go-reports-btn" class="btn admin-btn-full" data-i18n="admin.view_reports">
           Voir les signalements
         </button>
       </div>
@@ -164,6 +168,9 @@
             id="admin-districts-back-btn"
             class="btn-back-round"
             title="Retour aux paramètres"
+            data-i18n-title="admin.back_to_setup"
+            aria-label="Retour aux paramètres"
+            data-i18n-aria-label="admin.back_to_setup"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -245,7 +252,7 @@
           </div>
 
           <div class="form-group">
-            <label class="admin-form-label">Couleur de la zone :</label>
+            <label class="admin-form-label" data-i18n="admin.zone_color">Couleur de la zone :</label>
             <div class="admin-color-picker-row">
               <button
                 type="button"
@@ -275,7 +282,7 @@
             </div>
           </div>
 
-          <div class="admin-help-box">
+          <div class="admin-help-box" data-i18n="admin.polygon_help">
             <strong>Outil polygone :</strong><br />
             • Clic sur la carte = ajouter un sommet.<br />
             • Glisser un sommet = ajuster le contour.<br />
@@ -284,10 +291,10 @@
           </div>
 
           <div class="admin-action-row">
-            <button id="admin-save-district-btn" class="btn">
+            <button id="admin-save-district-btn" class="btn" data-i18n="admin.save">
               Enregistrer
             </button>
-            <button id="admin-cancel-district-btn" class="btn btn-secondary">
+            <button id="admin-cancel-district-btn" class="btn btn-secondary" data-i18n="admin.cancel">
               Annuler
             </button>
           </div>
@@ -335,6 +342,9 @@
             id="admin-routes-back-btn"
             class="btn-back-round"
             title="Retour aux paramètres"
+            data-i18n-title="admin.back_to_setup"
+            aria-label="Retour aux paramètres"
+            data-i18n-aria-label="admin.back_to_setup"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -392,7 +402,9 @@
               id="admin-city-verify-btn"
               class="btn-verify-city-icon hidden"
               title="Cliquer pour valider la qualité des rues de cette commune"
+              data-i18n-title="admin.validate_city_title"
               aria-label="Valider cette commune"
+              data-i18n-aria-label="admin.validate_city"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -419,7 +431,7 @@
           id="admin-route-editor"
           class="hidden glass-card admin-editor-card"
         >
-          <h3 class="admin-editor-title" id="admin-editor-title-routes">
+          <h3 class="admin-editor-title" id="admin-editor-title-routes" data-i18n="admin.new_route">
             Nouvelle Route
           </h3>
 
@@ -436,14 +448,14 @@
           </div>
 
           <div class="form-group">
-            <label for="admin-route-difficulty" class="admin-form-label"
+            <label for="admin-route-difficulty" class="admin-form-label" data-i18n="admin.enforced_difficulty"
               >Difficulté imposée :</label
             >
             <select id="admin-route-difficulty" class="input admin-input-small">
-              <option value="auto">Automatique (calculée)</option>
-              <option value="easy">Facile (Grands axes)</option>
-              <option value="medium">Moyen (Rues standard)</option>
-              <option value="hard">Difficile (Petites voies / Impasses)</option>
+              <option value="auto" data-i18n="admin.diff_auto">Automatique (calculée)</option>
+              <option value="easy" data-i18n="admin.diff_easy">Facile (Grands axes)</option>
+              <option value="medium" data-i18n="admin.diff_medium">Moyen (Rues standard)</option>
+              <option value="hard" data-i18n="admin.diff_hard">Difficile (Petites voies / Impasses)</option>
             </select>
           </div>
 
@@ -453,12 +465,13 @@
               id="admin-add-route-segment-btn"
               class="btn btn-secondary"
               style="width: 100%; font-size: 0.85rem; padding: 6px 10px;"
+              data-i18n="admin.add_segment"
             >
               ➕ Ajouter un tronçon séparé
             </button>
           </div>
 
-          <div class="admin-help-box">
+          <div class="admin-help-box" data-i18n="admin.line_help">
             <strong>Outil ligne :</strong><br />
             • Clic sur la carte = ajouter un point.<br />
             • Glisser un point = ajuster la route.<br />
@@ -467,8 +480,8 @@
           </div>
 
           <div class="admin-action-row">
-            <button id="admin-save-route-btn" class="btn">Enregistrer</button>
-            <button id="admin-cancel-route-btn" class="btn btn-secondary">
+            <button id="admin-save-route-btn" class="btn" data-i18n="admin.save">Enregistrer</button>
+            <button id="admin-cancel-route-btn" class="btn btn-secondary" data-i18n="admin.cancel">
               Annuler
             </button>
           </div>
@@ -524,6 +537,7 @@
             class="admin-route-filter-tabs"
             role="tablist"
             aria-label="Filtrer par difficulté"
+            data-i18n-aria-label="admin.filter_difficulty"
           >
             <button
               type="button"
@@ -578,7 +592,9 @@
           type="button"
           class="btn-floating-map-toggle"
           title="Afficher ou masquer les noms des rues sur la carte"
+          data-i18n-title="admin.street_names_toggle"
           aria-label="Afficher ou masquer les noms des rues"
+          data-i18n-aria-label="admin.street_names_toggle"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -594,7 +610,7 @@
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
             <circle cx="12" cy="12" r="3"></circle>
           </svg>
-          <span class="map-toggle-text">Noms des rues</span>
+          <span class="map-toggle-text" data-i18n="admin.street_names_label">Noms des rues</span>
         </button>
         <div id="admin-map-container-routes" class="admin-map-element"></div>
       </main>
@@ -608,6 +624,9 @@
           id="admin-reports-back-btn"
           class="btn-back-round"
           title="Retour aux paramètres"
+          data-i18n-title="admin.back_to_setup"
+          aria-label="Retour aux paramètres"
+          data-i18n-aria-label="admin.back_to_setup"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -639,21 +658,21 @@
             ></path>
             <line x1="4" y1="22" x2="4" y2="15"></line>
           </svg>
-          <span>Signalements Utilisateurs</span>
+          <span data-i18n="admin.user_reports_title">Signalements Utilisateurs</span>
         </h1>
       </div>
 
       <div class="admin-reports-filter-bar">
         <div class="reports-filter-group">
-          <label for="admin-reports-status-filter">Statut :</label>
+          <label for="admin-reports-status-filter" data-i18n="admin.status_label">Statut :</label>
           <select
             id="admin-reports-status-filter"
             class="input admin-input-small"
           >
-            <option value="all">Tous</option>
-            <option value="pending" selected>En attente</option>
-            <option value="resolved">Résolus</option>
-            <option value="dismissed">Ignorés</option>
+            <option value="all" data-i18n="admin.status_all">Tous</option>
+            <option value="pending" selected data-i18n="admin.status_pending">En attente</option>
+            <option value="resolved" data-i18n="admin.status_resolved">Résolus</option>
+            <option value="dismissed" data-i18n="admin.status_dismissed">Ignorés</option>
           </select>
         </div>
         <div class="reports-search-group">
@@ -667,6 +686,7 @@
         <button
           id="admin-refresh-reports-btn"
           class="btn btn-secondary btn-small"
+          data-i18n="admin.refresh"
         >
           Actualiser
         </button>
@@ -676,7 +696,7 @@
         id="admin-reports-list-container"
         class="admin-reports-list-container"
       >
-        <div id="admin-reports-empty" class="reports-empty-message hidden">
+        <div id="admin-reports-empty" class="reports-empty-message hidden" data-i18n="admin.no_reports_found">
           Aucun signalement trouvé.
         </div>
         <div id="admin-reports-grid" class="reports-grid"></div>

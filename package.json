@@ -1,6 +1,6 @@
 {
   "name": "citymaster",
-  "version": "2.8.20",
+  "version": "2.9.0",
   "description": "Geographic serious game using OpenStreetMap and Turf.js",
   "type": "module",
   "main": "server.js",

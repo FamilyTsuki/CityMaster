@@ -1,3 +1,5 @@
+import { I18nService } from '../services/I18nService.js';
+
 export class NavbarView {
   #themeToggle;
   #langToggle;
@@ -14,6 +16,7 @@ export class NavbarView {
   #navbarActions;
   #menuThemeToggle;
   #menuThemeText;
+  #currentTheme = 'light';
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
@@ -39,6 +42,11 @@ export class NavbarView {
     }
 
     this.#initBurgerMenu();
+    I18nService.getInstance().onLanguageChange(() => {
+      if (this.#currentTheme) {
+        this.setTheme(this.#currentTheme);
+      }
+    });
   }
 
   #initBurgerMenu() {
@@ -244,8 +252,12 @@ export class NavbarView {
       return svg;
     };
 
+    this.#currentTheme = theme;
+    const i18n = I18nService.getInstance();
     const label =
-      theme === 'dark' ? 'Passer en mode clair' : 'Passer en mode sombre';
+      theme === 'dark'
+        ? i18n.t('nav.switch_to_light', {}, 'Passer en mode clair')
+        : i18n.t('nav.switch_to_dark', {}, 'Passer en mode sombre');
 
     if (this.#themeToggle) {
       this.#themeToggle.replaceChildren(createThemeSvg());
@@ -259,8 +271,11 @@ export class NavbarView {
       const labelText = document.createElement('span');
       labelText.id = 'menu-theme-text';
       labelText.className = 'menu-theme-text';
+      labelText.setAttribute('data-i18n', theme === 'dark' ? 'nav.light_mode' : 'nav.dark_mode');
       labelText.textContent =
-        theme === 'dark' ? 'Mode clair' : 'Mode sombre';
+        theme === 'dark'
+          ? i18n.t('nav.light_mode', {}, 'Mode clair')
+          : i18n.t('nav.dark_mode', {}, 'Mode sombre');
       this.#menuThemeToggle.appendChild(labelText);
       this.#menuThemeText = labelText;
       this.#menuThemeToggle.setAttribute('title', label);

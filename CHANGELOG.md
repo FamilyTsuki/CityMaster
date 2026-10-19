@@ -3,6 +3,32 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.9.0] - 2026-10-19
+
+### Nouveautés & Expérience Utilisateur (Thème & Bulles d'Accueil)
+- **Bulles de fond d'accueil chromatiquement adaptatives (`landing.css`)** :
+  - En mode sombre (`[data-theme="dark"]`) : intégration d'une palette flamboyante rouge / orange (`--landing-bubble-1` à `--landing-bubble-6`) mariant des teintes rouge vif, corail incandescent, orange vif et ambre chaud avec `mix-blend-mode: screen` pour un rendu lumineux et atmosphérique.
+  - En mode clair (`:root, [data-theme="light"]`) : intégration d'une palette rafraîchissante de bleus (`--landing-bubble-1` à `--landing-bubble-6`) mariant le bleu azur, le bleu ciel, le cyan et le bleu saphir doux, apportant un contraste délicat et harmonieux sur le fond crème papier.
+  - Les 6 bulles animées flottantes utilisent désormais les variables CSS dédiées avec une transition d'opacité fluide lors du basculement instantané de thème.
+
+### Internationalisation & Multilingue (i18n)
+- **Traduction intégrale de la modale d'installation PWA (`#install-modal` & `.install-card-footer-tip`)** :
+  - Ajout des attributs `data-i18n` sur le titre, le sous-titre, le bouton de fermeture (`common.close`), ainsi que sur l'ensemble des étapes d'installation spécifiques aux plateformes iOS (Safari), Android (Chrome) et Ordinateur (Chrome / Edge).
+  - Traduction complète de l'encadré d'information `.install-card-footer-tip` dans `fr.json` et `en.json` (*« Inutile de chercher sur l'App Store ou Google Play : CityMaster s'installe directement depuis votre navigateur... »* / *« No need to search the App Store or Google Play: CityMaster installs directly from your browser... »*).
+- **Internationalisation dynamique de la bascule de thème (`NavbarView.js`)** :
+  - Raccordement du sélecteur de mode clair / sombre du menu burger et de l'en-tête à `I18nService`.
+  - Prise en charge des libellés dynamiques `nav.light_mode`, `nav.dark_mode`, `nav.switch_to_light`, et `nav.switch_to_dark` avec écoute des changements de langue à chaud (`onLanguageChange`).
+- **Complétude des templates d'administration et d'authentification** :
+  - Ajout de balises `data-i18n` sur les cartes du tableau de bord d'administration (`admin.html`), les formulaires d'édition de quartiers et de routes, la barre de filtrage par difficulté et les signalements d'utilisateurs.
+  - Ajout de `data-i18n` sur le lien et texte de basculement de compte dans `auth.html` (`auth.no_account` et `auth.register_link`).
+  - Maintien d'une parité stricte à 100 % entre les dictionnaires `fr.json` et `en.json`.
+
+### Tests unitaires & Non-régression
+- **Validation complète de la suite de tests (`npm test`)** :
+  - 31 tests unitaires validés avec succès (0 échec, 0 régression), incluant les vérifications automatisées de parité des dictionnaires et d'existence de l'intégralité des attributs `data-i18n*` des templates.
+
+---
+
 ## [2.8.20] - 2026-10-15
 
 ### Nouveautés & Expérience Utilisateur (PWA & Navbar)
