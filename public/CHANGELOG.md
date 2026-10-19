@@ -3,6 +3,25 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.14.1] - 2026-10-19
+
+### Optimisations & Expérience de Jeu (Rééquilibrage du Mode Facile)
+- **Correction majeure de la classification des voies faciles (`RouteDifficultyService.js`, `GameController.js` Frontend & Backend)** :
+  - **Élimination du faux classement « facile » des ruelles de centre-ville** : Les anciennes heuristiques classaient à tort n'importe quelle voie située à moins de 1,5 km du centre comme « facile », ce qui incluait des centaines de petites ruelles médiévales de 30 à 80 mètres dans les centres historiques (comme à Orléans, Tours ou Rouen). Désormais, les voies courtes (< 200m – 250m) sont strictement exclues du mode facile et classées en difficile (`hard`).
+  - **Priorité aux grands axes toponymiques emblématiques (`MAJOR_TOPONYMS`)** : Détection ciblée des boulevards, avenues, mails, quais, ponts, cours, faubourgs, promenades, rocades, chaussées et routes de plus de 80 mètres, qui constituent les véritables repères connus des joueurs.
+  - **Prise en compte des artères majeures et piétonnes** : Les grandes artères commerçantes ou historiques (ex: *Rue Jeanne d'Arc*, *Rue Royale*, *Rue de Bourgogne* à Orléans) de plus de 550 mètres de long ou de classification tertiaire majeure sont désormais correctement classées en mode facile, sans être pénalisées par le tag `highway: pedestrian`.
+  - **Repli hiérarchique intelligent** : Lorsqu'une ville compte moins de voies faciles que le nombre de manches demandées, le système complète d'abord par les voies de difficulté moyenne (`medium`) plutôt que de tirer au hasard parmi les impasses et voies les plus difficiles de la ville.
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/route_difficulty_easy.test.js` (4 nouvelles suites de tests) vérifiant :
+  - La classification systématique en mode facile des grands axes toponymiques (boulevards, avenues, mails, quais, ponts, cours, faubourgs).
+  - L'inclusion des artères longues et emblématiques même piétonnes (*Rue Jeanne d'Arc*).
+  - L'exclusion absolue des petites ruelles courtes de centre historique (< 200m) du mode facile.
+  - La persistance en mode difficile des voies mineures (impasses, sentiers, passages, venelles).
+- **Suite de tests portée à 56 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.14.0] - 2026-10-19
 
 ### Nouveautés & Expérience de Jeu (Célébration Adaptative de Fin de Partie)

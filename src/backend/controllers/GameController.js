@@ -2,7 +2,12 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import { encrypt, decrypt, getDistanceToStreet, isPlaceStreet } from "../utils/game.js";
+import {
+  encrypt,
+  decrypt,
+  getDistanceToStreet,
+  isPlaceStreet,
+} from "../utils/game.js";
 import { Score } from "../models/Score.js";
 import pool from "../config/database.js";
 
@@ -135,7 +140,8 @@ export class GameController {
         );
         for (const row of modeRes.rows) {
           if (row.key === "difficulty_mode") diffMode = row.value;
-          if (row.key === "disable_places") disablePlaces = row.value === "true";
+          if (row.key === "disable_places")
+            disablePlaces = row.value === "true";
         }
       } catch (e) {}
 
@@ -207,39 +213,63 @@ export class GameController {
           "square",
           "squares",
         ];
-        const isMinorWay = MINOR_KEYWORDS.some((k) => nameLower.includes(k));
+        const isCourMajor = /^cours\b/i.test(nameLower);
+        const isMinorWay =
+          !isCourMajor && MINOR_KEYWORDS.some((k) => nameLower.includes(k));
+
+        const MAJOR_TOPONYMS_LIST = [
+          "boulevard",
+          "boulevards",
+          "bd",
+          "avenue",
+          "avenues",
+          "av",
+          "mail",
+          "mails",
+          "quai",
+          "quais",
+          "pont",
+          "ponts",
+          "cours",
+          "faubourg",
+          "faubourgs",
+          "fg",
+          "promenade",
+          "promenades",
+          "rocade",
+          "rocades",
+          "chaussée",
+          "chaussées",
+          "route",
+          "routes",
+          "esplanade",
+          "parvis",
+        ];
+        const firstWord = nameLower.split(/[\s'-]+/)[0];
+        const isMajorToponym =
+          MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
+        const highway = (f.properties?.highway || "").toLowerCase();
+        const isMajorHighway = [
+          "motorway",
+          "trunk",
+          "primary",
+          "secondary",
+        ].includes(highway);
+
+        let streetLength = 0;
+        try {
+          streetLength = turf.length(f, { units: "meters" });
+        } catch (e) {
+          return "hard";
+        }
 
         if (diffMode === "nomenclature") {
-          const firstWord = nameLower.split(/[\s'-]+/)[0];
-          const MAJOR_TYPES = [
-            "boulevard",
-            "boulevards",
-            "avenue",
-            "avenues",
-            "place",
-            "places",
-            "cours",
-            "quai",
-            "quais",
-            "pont",
-            "ponts",
-          ];
-
-          if (MAJOR_TYPES.includes(firstWord) && !isMinorWay) return "easy";
-          if (!isMinorWay) return "medium";
+          if (isMinorWay || highway === "living_street") return "hard";
+          if (isMajorToponym || isMajorHighway || streetLength >= 550)
+            return "easy";
+          if (streetLength >= 250) return "medium";
           return "hard";
         } else if (diffMode === "center") {
-          const mediumWords = [
-            "rue",
-            "route",
-            "avenue",
-            "boulevard",
-            "place",
-            "cours",
-            "quai",
-          ];
-          let isMediumType = mediumWords.some((w) => nameLower.includes(w));
-
           let nearCount = 0;
           if (centroids[index]) {
             for (let j = 0; j < centroids.length; j++) {
@@ -254,21 +284,20 @@ export class GameController {
           }
 
           const inCenter = nearCount >= 4;
-          if (isMinorWay) return "hard";
-          if (inCenter && isMediumType) return "easy";
-          if (isMediumType) return "medium";
+          if (isMinorWay || highway === "living_street") return "hard";
+          if ((isMajorToponym || isMajorHighway) && streetLength >= 80)
+            return "easy";
+          if (streetLength >= 550) return "easy";
+          if (inCenter && streetLength >= 350) return "easy";
+          if (streetLength >= 250) return "medium";
           return "hard";
         } else {
-          let streetLength = 0;
-          try {
-            streetLength = turf.length(f, { units: "meters" });
-          } catch (e) {
-            return "hard";
-          }
-
-          if (isMinorWay) return "hard";
-          if (streetLength > 800) return "easy";
-          if (streetLength >= 250 && streetLength <= 800) return "medium";
+          if (isMinorWay || highway === "living_street") return "hard";
+          if ((isMajorToponym || isMajorHighway) && streetLength >= 80)
+            return "easy";
+          if (streetLength >= 550) return "easy";
+          if (highway === "tertiary" && streetLength >= 250) return "easy";
+          if (streetLength >= 250) return "medium";
           return "hard";
         }
       };
@@ -359,12 +388,39 @@ export class GameController {
           return s.computedDifficulty === roomDiff;
         });
 
-        const fallbackStreets = uniqueStreetsList.filter(
-          (s) => !matchingStreets.includes(s),
-        );
+        const getSortedFallback = (targetD, shuffler) => {
+          let primaryFallback = [];
+          let secondaryFallback = [];
+          if (targetD === "easy") {
+            primaryFallback = uniqueStreetsList.filter(
+              (s) => s.computedDifficulty === "medium",
+            );
+            secondaryFallback = uniqueStreetsList.filter(
+              (s) => s.computedDifficulty === "hard",
+            );
+          } else if (targetD === "hard") {
+            primaryFallback = uniqueStreetsList.filter(
+              (s) => s.computedDifficulty === "medium",
+            );
+            secondaryFallback = uniqueStreetsList.filter(
+              (s) => s.computedDifficulty === "easy",
+            );
+          } else {
+            primaryFallback = uniqueStreetsList.filter(
+              (s) => s.computedDifficulty === "easy",
+            );
+            secondaryFallback = uniqueStreetsList.filter(
+              (s) => s.computedDifficulty === "hard",
+            );
+          }
+          shuffler(primaryFallback);
+          shuffler(secondaryFallback);
+          return [...primaryFallback, ...secondaryFallback];
+        };
+
+        const fallbackStreets = getSortedFallback(roomDiff, shuffleSeeded);
 
         shuffleSeeded(matchingStreets);
-        shuffleSeeded(fallbackStreets);
 
         selectedStreets = [...matchingStreets, ...fallbackStreets].slice(
           0,
@@ -383,25 +439,42 @@ export class GameController {
           return s.computedDifficulty === difficulty;
         });
 
-        const fallbackStreets = uniqueStreetsList.filter(
-          (s) => !matchingStreets.includes(s),
-        );
+        const shuffleArray = (arr) => {
+          for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+          }
+        };
 
-        for (let i = matchingStreets.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [matchingStreets[i], matchingStreets[j]] = [
-            matchingStreets[j],
-            matchingStreets[i],
-          ];
+        let primaryFallback = [];
+        let secondaryFallback = [];
+        if (difficulty === "easy") {
+          primaryFallback = uniqueStreetsList.filter(
+            (s) => s.computedDifficulty === "medium",
+          );
+          secondaryFallback = uniqueStreetsList.filter(
+            (s) => s.computedDifficulty === "hard",
+          );
+        } else if (difficulty === "hard") {
+          primaryFallback = uniqueStreetsList.filter(
+            (s) => s.computedDifficulty === "medium",
+          );
+          secondaryFallback = uniqueStreetsList.filter(
+            (s) => s.computedDifficulty === "easy",
+          );
+        } else {
+          primaryFallback = uniqueStreetsList.filter(
+            (s) => s.computedDifficulty === "easy",
+          );
+          secondaryFallback = uniqueStreetsList.filter(
+            (s) => s.computedDifficulty === "hard",
+          );
         }
+        shuffleArray(primaryFallback);
+        shuffleArray(secondaryFallback);
+        const fallbackStreets = [...primaryFallback, ...secondaryFallback];
 
-        for (let i = fallbackStreets.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [fallbackStreets[i], fallbackStreets[j]] = [
-            fallbackStreets[j],
-            fallbackStreets[i],
-          ];
-        }
+        shuffleArray(matchingStreets);
 
         selectedStreets = [...matchingStreets, ...fallbackStreets].slice(
           0,

@@ -244,7 +244,8 @@ export class CityController {
         );
         for (const row of modeRes.rows) {
           if (row.key === "difficulty_mode") diffMode = row.value;
-          if (row.key === "disable_places") disablePlaces = row.value === "true";
+          if (row.key === "disable_places")
+            disablePlaces = row.value === "true";
         }
       } catch (e) {}
 
@@ -306,43 +307,69 @@ export class CityController {
           "square",
           "squares",
         ];
-        const isMinorWay = MINOR_KEYWORDS.some((k) => nameKey.includes(k));
+        const isCourMajor = /^cours\b/i.test(nameKey);
+        const isMinorWay =
+          !isCourMajor && MINOR_KEYWORDS.some((k) => nameKey.includes(k));
+
+        const MAJOR_TOPONYMS_LIST = [
+          "boulevard",
+          "boulevards",
+          "bd",
+          "avenue",
+          "avenues",
+          "av",
+          "mail",
+          "mails",
+          "quai",
+          "quais",
+          "pont",
+          "ponts",
+          "cours",
+          "faubourg",
+          "faubourgs",
+          "fg",
+          "promenade",
+          "promenades",
+          "rocade",
+          "rocades",
+          "chaussée",
+          "chaussées",
+          "route",
+          "routes",
+          "esplanade",
+          "parvis",
+        ];
+        const firstWord = nameKey.split(/[\s'-]+/)[0];
+        const isMajorToponym =
+          MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
+        const highway = (f.properties?.highway || "").toLowerCase();
+        const isMajorHighway = [
+          "motorway",
+          "trunk",
+          "primary",
+          "secondary",
+        ].includes(highway);
+
+        let streetLength = 0;
+        if (f.geometry?.type === "Point") {
+          diffCount.hard.add(nameKey);
+          return;
+        }
+        try {
+          streetLength = turf.length(f, { units: "meters" });
+        } catch (e) {}
 
         if (diffMode === "nomenclature") {
-          const firstWord = nameKey.split(/[\s'-]+/)[0];
-          const MAJOR_TYPES = [
-            "boulevard",
-            "boulevards",
-            "avenue",
-            "avenues",
-            "place",
-            "places",
-            "cours",
-            "quai",
-            "quais",
-            "pont",
-            "ponts",
-          ];
-
-          if (MAJOR_TYPES.includes(firstWord) && !isMinorWay) {
-            diffCount.easy.add(nameKey);
-          } else if (isMinorWay) {
+          if (isMinorWay || highway === "living_street") {
             diffCount.hard.add(nameKey);
-          } else {
+          } else if (isMajorToponym || isMajorHighway || streetLength >= 550) {
+            diffCount.easy.add(nameKey);
+          } else if (streetLength >= 250) {
             diffCount.medium.add(nameKey);
+          } else {
+            diffCount.hard.add(nameKey);
           }
         } else if (diffMode === "center") {
-          const mediumWords = [
-            "rue",
-            "route",
-            "avenue",
-            "boulevard",
-            "place",
-            "cours",
-            "quai",
-          ];
-          let isMediumType = mediumWords.some((w) => nameKey.includes(w));
-
           let nearCount = 0;
           if (centroids[i]) {
             for (let j = 0; j < centroids.length; j++) {
@@ -357,31 +384,27 @@ export class CityController {
           }
 
           const inCenter = nearCount >= 4;
-          if (isMinorWay) {
+          if (isMinorWay || highway === "living_street") {
             diffCount.hard.add(nameKey);
-          } else if (inCenter && isMediumType) {
+          } else if ((isMajorToponym || isMajorHighway) && streetLength >= 80) {
             diffCount.easy.add(nameKey);
-          } else if (isMediumType) {
+          } else if (streetLength >= 550) {
+            diffCount.easy.add(nameKey);
+          } else if (inCenter && streetLength >= 350) {
+            diffCount.easy.add(nameKey);
+          } else if (streetLength >= 250) {
             diffCount.medium.add(nameKey);
           } else {
             diffCount.hard.add(nameKey);
           }
         } else {
-          let streetLength = 0;
-          if (f.geometry.type === "Point") {
+          if (isMinorWay || highway === "living_street") {
             diffCount.hard.add(nameKey);
-            return;
-          }
-          try {
-            streetLength = turf.length(f, { units: "meters" });
-          } catch (e) {
-            diffCount.hard.add(nameKey);
-            return;
-          }
-
-          if (isMinorWay) {
-            diffCount.hard.add(nameKey);
-          } else if (streetLength > 800) {
+          } else if ((isMajorToponym || isMajorHighway) && streetLength >= 80) {
+            diffCount.easy.add(nameKey);
+          } else if (streetLength >= 550) {
+            diffCount.easy.add(nameKey);
+          } else if (highway === "tertiary" && streetLength >= 250) {
             diffCount.easy.add(nameKey);
           } else if (streetLength >= 250) {
             diffCount.medium.add(nameKey);

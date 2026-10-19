@@ -218,15 +218,32 @@ export class GameController {
             );
             return diff === "hard" || d === diff;
           });
-          if (matching.length >= 5) {
+          const targetNeeded = Math.min(
+            seriesCount || 5,
+            eligibleStreets.length,
+          );
+          if (matching.length >= targetNeeded) {
             eligibleStreets = matching;
+          } else {
+            const fallbackDiff = diff === "easy" ? "medium" : "easy";
+            const fallbackMatching = eligibleStreets.filter((f) => {
+              const d = RouteDifficultyService.getRouteDifficulty(
+                f,
+                center ? center[0] : 0,
+                center ? center[1] : 0,
+              );
+              return d === fallbackDiff;
+            });
+            const combined = [...matching, ...fallbackMatching];
+            if (combined.length >= targetNeeded) {
+              eligibleStreets = combined;
+            } else if (matching.length > 0) {
+              eligibleStreets = matching;
+            }
           }
         }
 
-        const targetCount = Math.min(
-          seriesCount || 10,
-          eligibleStreets.length,
-        );
+        const targetCount = Math.min(seriesCount || 10, eligibleStreets.length);
         const shuffled = [...eligibleStreets].sort(() => 0.5 - Math.random());
         this.#offlineStreets = shuffled.slice(0, targetCount);
         this.#offlineRoundIndex = 0;
@@ -312,7 +329,10 @@ export class GameController {
           bbox,
           hideLabels,
         );
-        const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
+        const streetsPromise = this.#overpassService.fetchStreets(
+          bbox,
+          cityKey,
+        );
 
         const [_, loadedGeojson, customDistricts, customRoutes] =
           await Promise.all([
@@ -593,9 +613,7 @@ export class GameController {
 
   async #fetchCustomDistricts(cityKey) {
     try {
-      const res = await ApiService.get(
-        `/assets/data/custom_districts.json`,
-      );
+      const res = await ApiService.get(`/assets/data/custom_districts.json`);
       if (res.ok && res.data) {
         return res.data[cityKey] || [];
       }
@@ -607,9 +625,7 @@ export class GameController {
 
   async #fetchCustomRoutes(cityKey) {
     try {
-      const res = await ApiService.get(
-        `/assets/data/custom_routes.json`,
-      );
+      const res = await ApiService.get(`/assets/data/custom_routes.json`);
       if (res.ok && res.data) {
         return res.data[cityKey] || [];
       }
@@ -857,9 +873,7 @@ export class GameController {
         let timeBonus = 0;
         if (pointsEarned > 0 && remainingTime > 0) {
           const timeRatio = remainingTime / totalTime;
-          timeBonus = Math.round(
-            timeRatio * (mode === "sprint" ? 100 : 30),
-          );
+          timeBonus = Math.round(timeRatio * (mode === "sprint" ? 100 : 30));
           if (timeBonus > 0) {
             pointsEarned += timeBonus;
             feedback.timeBonus = timeBonus;
@@ -945,8 +959,7 @@ export class GameController {
     this.#offlineScores.push(pointsEarned);
     this.#offlineRoundIndex++;
 
-    const isFinished =
-      this.#offlineRoundIndex >= this.#offlineStreets.length;
+    const isFinished = this.#offlineRoundIndex >= this.#offlineStreets.length;
     let nextPrompt = null;
     if (!isFinished) {
       const nextStreet = this.#offlineStreets[this.#offlineRoundIndex];
