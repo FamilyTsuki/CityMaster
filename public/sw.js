@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v43';
+const CACHE_NAME = 'citymaster-v44';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -67,6 +67,7 @@ const STATIC_ASSETS = [
   "/src/services/CustomLotissementService.js",
   "/src/services/FlashMessageService.js",
   "/src/services/I18nService.js",
+  "/src/services/NetworkService.js",
   "/src/services/OverpassService.js",
   "/src/services/RouteDifficultyService.js",
   "/src/services/SpatialService.js",
@@ -118,7 +119,11 @@ self.addEventListener("fetch", (event) => {
       fetch(event.request).catch(() => {
         return new Response(
           JSON.stringify({ error: "Vous êtes actuellement hors-ligne." }),
-          { headers: { "Content-Type": "application/json" } },
+          {
+            status: 503,
+            statusText: "Service Unavailable",
+            headers: { "Content-Type": "application/json" },
+          },
         );
       }),
     );
@@ -129,7 +134,8 @@ self.addEventListener("fetch", (event) => {
     url.hostname === "unpkg.com" ||
     url.hostname.endsWith(".unpkg.com") ||
     url.hostname === "cdn.jsdelivr.net" ||
-    url.hostname.endsWith(".jsdelivr.net");
+    url.hostname.endsWith(".jsdelivr.net") ||
+    url.hostname.endsWith("tile.openstreetmap.org");
 
   event.respondWith(
     fetch(event.request)

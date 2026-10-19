@@ -171,3 +171,58 @@
   }
 }
 
+/* Bannière d'état réseau global (hors-ligne / en ligne) */
+.offline-banner {
+  position: fixed;
+  top: var(--nav-height, 64px);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: rgba(234, 88, 12, 0.95);
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.25);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.offline-banner.hidden {
+  display: none !important;
+}
+
+.offline-banner.online-restored {
+  background: rgba(22, 163, 74, 0.95);
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.25);
+}
+
+.offline-banner-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 1000px;
+  text-align: center;
+}
+
+.offline-banner-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 600px) {
+  .offline-banner {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.75rem;
+  }
+}
+
+

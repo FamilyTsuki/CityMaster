@@ -17,6 +17,7 @@ import { RoomView } from "./views/RoomView.js";
 import { RoomController } from "./controllers/RoomController.js";
 import { FlightLoader } from "./views/components/FlightLoader.js";
 import { ChangelogView } from "./views/ChangelogView.js";
+import { NetworkService } from "./services/NetworkService.js";
 import { Router } from "./Router.js";
 
 class App {
@@ -346,6 +347,7 @@ class App {
           });
         });
         await I18nService.getInstance().init();
+        NetworkService.getInstance().init();
         new App();
       } catch (error) {
         console.error("Failed to initialize CityMaster application:", error);

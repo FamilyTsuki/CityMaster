@@ -1,5 +1,6 @@
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
+import { NetworkService } from "../services/NetworkService.js";
 
 export class RoomController {
   #router;
@@ -29,6 +30,15 @@ export class RoomController {
     this.#lastRoomVersion = null;
 
     this.#initEvents();
+
+    NetworkService.getInstance().onStatusChange((isOnline) => {
+      if (isOnline && this.#currentRoomCode) {
+        this.#fetchRoomDetails();
+        if (!this.#sseSource && !this.#pollingInterval) {
+          this.#startPolling(this.#currentRoomCode);
+        }
+      }
+    });
   }
 
   setRouter(router) {
@@ -83,6 +93,18 @@ export class RoomController {
     this.#currentRoomCode = code;
     this.#roomView.showScreen();
 
+    if (!NetworkService.getInstance().isOnline()) {
+      const offlineMsg = I18nService.getInstance().t("offline.room_requires_connection");
+      if (!this.#hasAccount()) {
+        this.#roomView.showStep("guest");
+        this.#roomView.showGuestError(offlineMsg);
+      } else {
+        this.#roomView.showStep("setup");
+        this.#roomView.showJoinError(offlineMsg);
+      }
+      return;
+    }
+
     if (!this.#hasToken()) {
       this.#pendingRoomCode = code;
       const guestCodeInput = document.getElementById("room-guest-code");
@@ -133,6 +155,12 @@ export class RoomController {
   async #handleGuestLogin(username, roomCode) {
     try {
       this.#roomView.hideGuestError();
+      if (!NetworkService.getInstance().isOnline()) {
+        this.#roomView.showGuestError(
+          I18nService.getInstance().t("offline.room_requires_connection"),
+        );
+        return;
+      }
       const codeToJoin = (
         roomCode ||
         this.#pendingRoomCode ||
@@ -192,6 +220,12 @@ export class RoomController {
   async #handleCreateRoom() {
     try {
       this.#roomView.hideJoinError();
+      if (!NetworkService.getInstance().isOnline()) {
+        this.#roomView.showJoinError(
+          I18nService.getInstance().t("offline.room_requires_connection"),
+        );
+        return;
+      }
       const config = this.#roomView.getSetupConfig();
       if (!config.cityKey) {
         this.#roomView.showJoinError(

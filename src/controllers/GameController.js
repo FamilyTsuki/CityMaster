@@ -6,6 +6,7 @@ import {
 } from "../services/SpatialService.js";
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
+import { NetworkService } from "../services/NetworkService.js";
 
 export class GameController {
   #gameView;
@@ -126,6 +127,9 @@ export class GameController {
       }
 
       const i18n = I18nService.getInstance();
+      if (!NetworkService.getInstance().isOnline()) {
+        throw new Error(i18n.t("offline.game_requires_connection"));
+      }
 
       this.#gameView.updateComboBadge(1);
       this.#gameView.showLoading(i18n.t("loading.generating_city"));
@@ -722,6 +726,8 @@ export class GameController {
 
       this.#gameView.setActionsState("next");
     } catch (err) {
+      this.#currentStepState = "guessing";
+      this.#gameView.setActionsState("validate");
       this.#gameView.showError(err.message);
     }
   }
@@ -771,6 +777,8 @@ export class GameController {
       this.#mapView.renderStreet(feedback.geometry, true);
       this.#gameView.setActionsState("next");
     } catch (err) {
+      this.#currentStepState = "guessing";
+      this.#gameView.setActionsState("validate");
       this.#gameView.showError(err.message);
     }
   }
@@ -819,12 +827,21 @@ export class GameController {
     this.#clearState();
   }
 
-  async #submitRoomScore(roomCode, score) {
-    try {
-      await ApiService.post(`/rooms/${roomCode}/submit-score`, { score });
-    } catch (err) {
-      console.error("Error submitting room score:", err);
+  async #submitRoomScore(roomCode, score, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const res = await ApiService.post(`/rooms/${roomCode}/submit-score`, {
+          score,
+        });
+        if (res && res.ok) return true;
+      } catch (err) {
+        console.warn(`Attempt ${attempt} to submit room score failed:`, err);
+      }
+      if (attempt < maxRetries) {
+        await new Promise((resolve) => setTimeout(resolve, attempt * 1000));
+      }
     }
+    return false;
   }
 
   async #quitGame() {

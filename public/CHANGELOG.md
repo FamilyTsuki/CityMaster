@@ -3,6 +3,36 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.11.0] - 2026-10-19
+
+### Nouveautés & Mode Hors-Ligne (PWA Mobile)
+- **Détection globale et bannière de statut réseau (`NetworkService.js` & `index.html`)** :
+  - Création du service singleton `NetworkService` surveillant l'état de la connexion (`navigator.onLine`, écouteurs natifs `'online'` et `'offline'`).
+  - Intégration d'une bannière globale animée et accessible (`#offline-banner`, `role="status"`, `aria-live="polite"`) informant immédiatement l'utilisateur lors de la perte de signal.
+  - Notification visuelle et retour fluide au vert lors du rétablissement de la connexion Internet (« Connexion Internet rétablie ! »).
+- **Mise en cache dynamique des tuiles de carte OpenStreetMap (`sw.js`)** :
+  - Autorisation du domaine `tile.openstreetmap.org` dans la stratégie de mise en cache du Service Worker : les zones de carte consultées sont désormais conservées dans le cache du téléphone pour consultation hors-ligne.
+- **File d'attente de synchronisation des scores (`ScoreController.js`)** :
+  - Sauvegarde locale automatique des scores dans `citymaster_pending_scores` si l'appareil est hors-ligne ou si une coupure réseau survient lors de la soumission.
+  - Déclenchement automatique de la synchronisation (`flushPendingScores`) dès la reconnexion à Internet ou au démarrage de l'application, avec notification de confirmation.
+
+### Corrections de Synchronisation & Résilience Réseau
+- **Correction critique du Service Worker (`sw.js`)** :
+  - Les requêtes `/api/*` échouées renvoyaient auparavant un code HTTP 200 par défaut avec un corps d'erreur, trompant les contrôleurs (`res.ok === true`). Le Service Worker renvoie désormais un statut explicite **HTTP 503 (Service Unavailable)** pour une gestion propre des erreurs réseau.
+- **Résilience des salons multijoueurs (`RoomController.js` & `GameController.js`)** :
+  - Reconnexion automatique au flux SSE et rafraîchissement des données de salon lors du retour en ligne.
+  - Ajout d'un système de retry exponentiel (jusqu'à 3 tentatives) pour la soumission des scores de fin de partie multijoueur (`#submitRoomScore`).
+  - Messages préventifs et explicites en français et anglais en cas de tentative de création de salon ou de lancement de partie hors-ligne.
+- **Déblocage de l'interface en cas d'erreur de round (`GameController.js`)** :
+  - Réinitialisation de l'état d'étape (`guessing`) et réactivation des actions de validation si une requête de validation de round échoue sur le réseau, évitant le blocage de la partie.
+
+### Internationalisation (i18n) & Tests Unitaires
+- Ajout de l'ensemble des clés de traduction `offline.*` avec 100% de parité entre `fr.json` et `en.json`.
+- Création de la suite de tests automatisés `tests/offline_sync.test.js` (validation du statut 503 du SW, du cache des tuiles, de l'accessibilité de la bannière et de la file d'attente des scores).
+- Suite de tests portée à 38 tests unitaires avec 100% de succès.
+
+---
+
 ## [2.10.2] - 2026-10-19
 
 ### Nettoyage & Maintenance du Projet

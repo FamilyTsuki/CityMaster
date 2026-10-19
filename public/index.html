@@ -30,34 +30,34 @@
     <meta name="apple-mobile-web-app-title" content="CityMaster" />
     <title>CityMaster - Jeu Géographique Interactif</title>
 
-    <link rel="manifest" href="/manifest.json?v=2.10.2" />
+    <link rel="manifest" href="/manifest.json?v=2.11.0" />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="/favicon.png?v=2.10.2"
+      href="/favicon.png?v=2.11.0"
       id="dynamic-favicon"
     />
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/assets/images/icon.svg?v=2.10.2"
+      href="/assets/images/icon.svg?v=2.11.0"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="192x192"
-      href="/assets/images/icon-192.png?v=2.10.2"
+      href="/assets/images/icon-192.png?v=2.11.0"
     />
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="/favicon.ico?v=2.10.2"
+      href="/favicon.ico?v=2.11.0"
     />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/assets/images/apple-touch-icon.png?v=2.10.2"
+      href="/assets/images/apple-touch-icon.png?v=2.11.0"
     />
 
     <script>
@@ -75,7 +75,7 @@
 
         const fav = document.getElementById("dynamic-favicon");
         if (fav) {
-          fav.href = "/favicon.png?v=2.10.2";
+          fav.href = "/favicon.png?v=2.11.0";
         }
       })();
     </script>
@@ -376,9 +376,42 @@
           >
             Se déconnecter
           </button>
-        </div>
       </div>
     </nav>
+
+    <div
+      id="offline-banner"
+      class="offline-banner hidden"
+      role="status"
+      aria-live="polite"
+    >
+      <div class="offline-banner-content">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="offline-banner-icon"
+          aria-hidden="true"
+        >
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+        <span
+          id="offline-banner-text"
+          data-i18n="offline.banner_offline"
+          >Mode hors-ligne : Connexion requise pour jouer et synchroniser.</span
+        >
+      </div>
+    </div>
 
     <div id="app-backdrop" class="app-backdrop" aria-hidden="true">
       <div class="backdrop-gradient"></div>

@@ -449,5 +449,14 @@
     "crash_now": "Crash immédiat",
     "progress_label": "Progression :",
     "toggle_theme": "Basculer le mode clair ou sombre"
+  },
+  "offline": {
+    "banner_offline": "Mode hors-ligne : Connexion requise pour jouer et synchroniser.",
+    "banner_online": "Connexion Internet rétablie !",
+    "game_requires_connection": "Une connexion Internet est requise pour générer la carte et lancer la partie.",
+    "room_requires_connection": "Les salons multijoueurs nécessitent une connexion Internet active.",
+    "score_saved_locally": "Score enregistré localement. Il sera synchronisé dès le retour de la connexion.",
+    "scores_synced": "Vos scores en attente ont été synchronisés avec succès !",
+    "leaderboard_requires_connection": "Le classement nécessite une connexion Internet."
   }
 }

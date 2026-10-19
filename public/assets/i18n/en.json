@@ -449,5 +449,14 @@
     "crash_now": "Crash now",
     "progress_label": "Progress:",
     "toggle_theme": "Toggle light or dark mode"
+  },
+  "offline": {
+    "banner_offline": "Offline mode: Connection required to play and sync.",
+    "banner_online": "Internet connection restored!",
+    "game_requires_connection": "An Internet connection is required to generate the map and start the game.",
+    "room_requires_connection": "Multiplayer rooms require an active Internet connection.",
+    "score_saved_locally": "Score saved locally. It will be synchronized once back online.",
+    "scores_synced": "Your pending scores have been successfully synchronized!",
+    "leaderboard_requires_connection": "The leaderboard requires an Internet connection."
   }
 }
