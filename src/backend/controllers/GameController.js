@@ -2,12 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import {
-  encrypt,
-  decrypt,
-  getDistanceToStreet,
-  isPlaceStreet,
-} from "../utils/game.js";
+import { encrypt, decrypt, getDistanceToStreet, isPlaceStreet } from "../utils/game.js";
 import { Score } from "../models/Score.js";
 import pool from "../config/database.js";
 
@@ -140,8 +135,7 @@ export class GameController {
         );
         for (const row of modeRes.rows) {
           if (row.key === "difficulty_mode") diffMode = row.value;
-          if (row.key === "disable_places")
-            disablePlaces = row.value === "true";
+          if (row.key === "disable_places") disablePlaces = row.value === "true";
         }
       } catch (e) {}
 
@@ -246,15 +240,9 @@ export class GameController {
           "parvis",
         ];
         const firstWord = nameLower.split(/[\s'-]+/)[0];
-        const isMajorToponym =
-          MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
+        const isMajorToponym = MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
         const highway = (f.properties?.highway || "").toLowerCase();
-        const isMajorHighway = [
-          "motorway",
-          "trunk",
-          "primary",
-          "secondary",
-        ].includes(highway);
+        const isMajorHighway = ["motorway", "trunk", "primary", "secondary"].includes(highway);
 
         let streetLength = 0;
         try {
@@ -265,8 +253,7 @@ export class GameController {
 
         if (diffMode === "nomenclature") {
           if (isMinorWay || highway === "living_street") return "hard";
-          if (isMajorToponym || isMajorHighway || streetLength >= 550)
-            return "easy";
+          if (isMajorToponym || isMajorHighway || streetLength >= 550) return "easy";
           if (streetLength >= 250) return "medium";
           return "hard";
         } else if (diffMode === "center") {
@@ -285,16 +272,14 @@ export class GameController {
 
           const inCenter = nearCount >= 4;
           if (isMinorWay || highway === "living_street") return "hard";
-          if ((isMajorToponym || isMajorHighway) && streetLength >= 80)
-            return "easy";
+          if ((isMajorToponym || isMajorHighway) && streetLength >= 80) return "easy";
           if (streetLength >= 550) return "easy";
           if (inCenter && streetLength >= 350) return "easy";
           if (streetLength >= 250) return "medium";
           return "hard";
         } else {
           if (isMinorWay || highway === "living_street") return "hard";
-          if ((isMajorToponym || isMajorHighway) && streetLength >= 80)
-            return "easy";
+          if ((isMajorToponym || isMajorHighway) && streetLength >= 80) return "easy";
           if (streetLength >= 550) return "easy";
           if (highway === "tertiary" && streetLength >= 250) return "easy";
           if (streetLength >= 250) return "medium";

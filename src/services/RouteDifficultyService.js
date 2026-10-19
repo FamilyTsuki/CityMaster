@@ -1,81 +1,81 @@
 export const MINOR_WAY_KEYWORDS = [
-  "chemin",
-  "chemins",
-  "sentier",
-  "sentiers",
-  "ruelle",
-  "ruelles",
-  "passage",
-  "passages",
-  "allée",
-  "allées",
-  "impasse",
-  "impasses",
-  "traverse",
-  "traverses",
-  "chemain",
-  "cour",
-  "villa",
-  "villas",
-  "cité",
-  "cités",
-  "square",
-  "squares",
+  'chemin',
+  'chemins',
+  'sentier',
+  'sentiers',
+  'ruelle',
+  'ruelles',
+  'passage',
+  'passages',
+  'allée',
+  'allées',
+  'impasse',
+  'impasses',
+  'traverse',
+  'traverses',
+  'chemain',
+  'cour',
+  'villa',
+  'villas',
+  'cité',
+  'cités',
+  'square',
+  'squares',
 ];
 
 export const MAJOR_WAY_TYPES = [
-  "primary",
-  "secondary",
-  "trunk",
-  "motorway",
-  "tertiary",
+  'primary',
+  'secondary',
+  'trunk',
+  'motorway',
+  'tertiary',
 ];
 
 export const MAJOR_TOPONYMS = [
-  "boulevard",
-  "boulevards",
-  "bd",
-  "avenue",
-  "avenues",
-  "av",
-  "mail",
-  "mails",
-  "quai",
-  "quais",
-  "pont",
-  "ponts",
-  "cours",
-  "faubourg",
-  "faubourgs",
-  "fg",
-  "promenade",
-  "promenades",
-  "rocade",
-  "rocades",
-  "chaussée",
-  "chaussées",
-  "route",
-  "routes",
-  "esplanade",
-  "parvis",
+  'boulevard',
+  'boulevards',
+  'bd',
+  'avenue',
+  'avenues',
+  'av',
+  'mail',
+  'mails',
+  'quai',
+  'quais',
+  'pont',
+  'ponts',
+  'cours',
+  'faubourg',
+  'faubourgs',
+  'fg',
+  'promenade',
+  'promenades',
+  'rocade',
+  'rocades',
+  'chaussée',
+  'chaussées',
+  'route',
+  'routes',
+  'esplanade',
+  'parvis',
 ];
 
 /**
  * Calcule la longueur géodésique d'une voie en mètres (avec turf ou calcul haversine).
  */
 export function getFeatureLengthMeters(feature) {
-  if (typeof turf !== "undefined" && turf.length) {
+  if (typeof turf !== 'undefined' && turf.length) {
     try {
-      return turf.length(feature, { units: "meters" });
+      return turf.length(feature, { units: 'meters' });
     } catch (e) {}
   }
   try {
     const geom = feature.geometry;
     if (!geom) return 0;
     const coordsList =
-      geom.type === "LineString"
+      geom.type === 'LineString'
         ? [geom.coordinates]
-        : geom.type === "MultiLineString"
+        : geom.type === 'MultiLineString'
           ? geom.coordinates
           : [];
     let totalMeters = 0;
@@ -115,42 +115,42 @@ export class RouteDifficultyService {
    * @returns {'easy' | 'medium' | 'hard' | 'lotissement'}
    */
   static getRouteDifficulty(feature, cityCentroidLat, cityCentroidLng) {
-    if (!feature || !feature.geometry) return "medium";
+    if (!feature || !feature.geometry) return 'medium';
 
     const props = feature.properties || {};
     if (
       props.difficulty &&
-      ["easy", "medium", "hard", "lotissement"].includes(props.difficulty)
+      ['easy', 'medium', 'hard', 'lotissement'].includes(props.difficulty)
     ) {
       return props.difficulty;
     }
 
     if (
       (props.isCustom && props.isLotissement) ||
-      props.itemType === "lotissement"
+      props.itemType === 'lotissement'
     ) {
-      return "lotissement";
+      return 'lotissement';
     }
 
-    const name = (props.name || props.originalName || "").trim();
+    const name = (props.name || props.originalName || '').trim();
     const cleanName = name
       .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
       .trim();
-    const highway = (props.highway || "").toLowerCase();
+    const highway = (props.highway || '').toLowerCase();
 
     // 1. Détection des voies mineures (impasses, venelles, sentiers, cours intérieures...)
     const isCourMajor = /^cours\b/i.test(cleanName);
     const isMinorKeyword =
       !isCourMajor &&
       MINOR_WAY_KEYWORDS.some((kw) => {
-        const regex = new RegExp(`\\b${kw}\\b`, "i");
+        const regex = new RegExp(`\\b${kw}\\b`, 'i');
         return regex.test(cleanName);
       });
 
-    if (isMinorKeyword || highway === "living_street") {
-      return "hard";
+    if (isMinorKeyword || highway === 'living_street') {
+      return 'hard';
     }
 
     const lengthMeters = getFeatureLengthMeters(feature);
@@ -158,45 +158,40 @@ export class RouteDifficultyService {
     // 2. Détection des grands axes majeurs (Boulevards, Avenues, Ponts, Quais, Mails, Faubourgs...)
     const firstWord = cleanName.split(/[\s'-]+/)[0];
     const isMajorToponym = MAJOR_TOPONYMS.includes(firstWord) || isCourMajor;
-    const isMajorHighway = [
-      "motorway",
-      "trunk",
-      "primary",
-      "secondary",
-    ].includes(highway);
+    const isMajorHighway = ['motorway', 'trunk', 'primary', 'secondary'].includes(highway);
 
     if (isMajorToponym || isMajorHighway) {
       // Les grands axes sont faciles, sauf s'il s'agit d'un micro-segment technique (< 80m)
       if (lengthMeters >= 80) {
-        return "easy";
+        return 'easy';
       }
-      return "medium";
+      return 'medium';
     }
 
     // 3. Artères principales nommées 'Rue' ou voies structurantes longues (ex: Rue Jeanne d'Arc, Rue Royale)
     if (lengthMeters >= 550) {
-      return "easy";
+      return 'easy';
     }
-    if (highway === "tertiary" && lengthMeters >= 250) {
-      return "easy";
+    if (highway === 'tertiary' && lengthMeters >= 250) {
+      return 'easy';
     }
 
     // 4. Les voies très courtes (< 200m) ne sont jamais 'faciles'
     if (lengthMeters > 0 && lengthMeters < 200) {
-      return "hard";
+      return 'hard';
     }
 
     // 5. Analyse contextuelle par rapport au centre-ville
     if (cityCentroidLat != null && cityCentroidLng != null) {
       try {
         let distKm = 2.0;
-        if (typeof turf !== "undefined" && turf.centroid && turf.distance) {
+        if (typeof turf !== 'undefined' && turf.centroid && turf.distance) {
           const routeCentroid = turf.centroid(feature);
           const [lng, lat] = routeCentroid.geometry.coordinates;
           distKm = turf.distance(
             turf.point([cityCentroidLng, cityCentroidLat]),
             turf.point([lng, lat]),
-            { units: "kilometers" },
+            { units: 'kilometers' },
           );
         }
 
@@ -204,21 +199,21 @@ export class RouteDifficultyService {
         // Les voies moyennes (>= 350m) sont moyennes.
         // Les petites rues étroites (< 250m) sont difficiles.
         if (distKm <= 1.5) {
-          if (lengthMeters >= 350) return "medium";
-          if (lengthMeters > 0 && lengthMeters < 250) return "hard";
-          return "medium";
+          if (lengthMeters >= 350) return 'medium';
+          if (lengthMeters > 0 && lengthMeters < 250) return 'hard';
+          return 'medium';
         } else if (distKm <= 3.5) {
-          return "medium";
+          return 'medium';
         } else {
-          return "hard";
+          return 'hard';
         }
       } catch (e) {}
     }
 
     if (lengthMeters >= 300) {
-      return "medium";
+      return 'medium';
     }
-    return "hard";
+    return 'hard';
   }
 
   /**
@@ -258,17 +253,17 @@ export class RouteDifficultyService {
 export function isPlaceStreet(featureOrName) {
   if (!featureOrName) return false;
   const name =
-    typeof featureOrName === "string"
+    typeof featureOrName === 'string'
       ? featureOrName
-      : featureOrName.properties?.name ||
-        featureOrName.properties?.originalName ||
-        "";
-  if (!name || typeof name !== "string") return false;
+      : (featureOrName.properties?.name ||
+         featureOrName.properties?.originalName ||
+         '');
+  if (!name || typeof name !== 'string') return false;
 
   const clean = name
     .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
     .trim();
 
   const startsWithPlace =
@@ -276,12 +271,12 @@ export function isPlaceStreet(featureOrName) {
       clean,
     );
 
-  if (typeof featureOrName === "object" && featureOrName !== null) {
+  if (typeof featureOrName === 'object' && featureOrName !== null) {
     const props = featureOrName.properties || {};
     if (
-      props.place === "square" ||
-      props.itemType === "place" ||
-      props.itemType === "square"
+      props.place === 'square' ||
+      props.itemType === 'place' ||
+      props.itemType === 'square'
     ) {
       return true;
     }

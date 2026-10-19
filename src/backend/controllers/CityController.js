@@ -244,8 +244,7 @@ export class CityController {
         );
         for (const row of modeRes.rows) {
           if (row.key === "difficulty_mode") diffMode = row.value;
-          if (row.key === "disable_places")
-            disablePlaces = row.value === "true";
+          if (row.key === "disable_places") disablePlaces = row.value === "true";
         }
       } catch (e) {}
 
@@ -340,15 +339,9 @@ export class CityController {
           "parvis",
         ];
         const firstWord = nameKey.split(/[\s'-]+/)[0];
-        const isMajorToponym =
-          MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
+        const isMajorToponym = MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
         const highway = (f.properties?.highway || "").toLowerCase();
-        const isMajorHighway = [
-          "motorway",
-          "trunk",
-          "primary",
-          "secondary",
-        ].includes(highway);
+        const isMajorHighway = ["motorway", "trunk", "primary", "secondary"].includes(highway);
 
         let streetLength = 0;
         if (f.geometry?.type === "Point") {
