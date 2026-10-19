@@ -3,6 +3,16 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.10.2] - 2026-10-19
+
+### Nettoyage & Maintenance du Projet
+- **Audit et retrait des fichiers TODO entièrement achevés** :
+  - **`TODO_API_OPTIMIZATION.md`** : 100% des tâches (phases 1 à 5) accomplies et validées (élimination du cache-busting inutile, persistance IndexedDB via `StorageService`, endpoints légers et SSE, caches mémoire LRU Nominatim/Overpass, charges utiles réduites).
+  - **`TODO_CODE_IMPROVEMENTS.md`** : 100% des tâches (phases 1 à 5) accomplies et validées (sécurisation des chemins backend, déplacement de `users.json`, suppression des logs synchrones dans `/tmp`, messages d'erreurs 500 génériques, élimination de la lecture synchrone de 347 Mo dans `RoomController`, I/O asynchrones à base de promesses, mise en cache mémoire des villes, pré-cache PWA des scripts statiques, hooks de routeur et 34 tests unitaires).
+  - Suppression définitive des deux fichiers devenus obsolètes pour garder un dépôt propre et sans dette technique résiduelle.
+
+---
+
 ## [2.10.1] - 2026-10-19
 
 ### Optimisations & Ambiance Visuelle (Bulles en bas de page)
