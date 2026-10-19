@@ -3,6 +3,33 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.14.0] - 2026-10-19
+
+### Nouveautés & Expérience de Jeu (Célébration Adaptative de Fin de Partie)
+- **Présence et volume de confettis indexés sur la performance du joueur (`ConfettiService.js`)** :
+  - **Condition de présence minimale (Seuil d'échec)** : Les confettis ne se déclenchent plus systématiquement. En cas de score nul ou insuffisant (< 500 points en mode classique *target*, < 300 points en mode *sprint*), aucun confetti n'est généré (aucun canvas créé ni animation superflue), évitant toute célébration déplacée.
+  - **Échelle progressive et paliers visuels dynamiques** :
+    - **Bronze** (500 - 1499 pts) : Pluie légère et discrète de 30 à 65 confettis avec palette douce (ambre, ardoise, bleu ciel).
+    - **Argent** (1500 - 2999 pts) : Fête standard et joyeuse de 75 à 130 confettis multicolores festifs.
+    - **Or** (3000 - 4499 pts) : Célébration dynamique de 150 à 230 confettis rapides aux teintes dorées, turquoise et pourpre.
+    - **Légendaire** (≥ 4500 pts) : Explosion festive spectaculaire de 250 à 320 confettis avec étincelles scintillantes blanches et dorées, vélocité accrue et durée étendue à 8 secondes.
+  - **Méthode d'analyse et configuration dédiée** : Exposition de `ConfettiService.getConfettiConfig(score, mode)` pour une évaluation prédictive, modulaire et hautement testable de chaque palier.
+- **Synchronisation avec le bilan et le certificat de fin de jeu (`CertificateView.js` & `app.js`)** :
+  - `CertificateView` enregistre et expose désormais `lastScore` et `lastMode` lors de l'appel à `render()`.
+  - Lors de la navigation vers `/certificate`, `app.js` transmet le score exact et le mode de jeu à `ConfettiService.launch(score, { mode })`, et n'active la fanfare audio que pour les scores ayant mérité une célébration.
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/confetti_score.test.js` avec 6 suites de tests complètes :
+  - Vérification de l'absence de confettis pour les scores sous les seuils cibles.
+  - Validation de chaque palier (Bronze, Argent, Or, Légendaire) et des effets d'étincelles.
+  - Vérification de la stricte monotonie du nombre de confettis par rapport au score.
+  - Validation du déclenchement conditionnel via `ConfettiService.launch()`.
+  - Vérification de la lecture de secours du score dans le DOM (`#cert-score`).
+  - Validation de la mémorisation de l'état dans `CertificateView`.
+- **Suite de tests portée à 52 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.13.1] - 2026-10-19
 
 ### Optimisations & Responsive Design (Barre de navigation & Menu Burger)

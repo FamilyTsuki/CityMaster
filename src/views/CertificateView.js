@@ -8,6 +8,8 @@ export class CertificateView {
   #certRankComparison;
   #recapContainer;
   #recapBody;
+  #lastScore;
+  #lastMode;
 
   constructor() {
     this.#certPlayerName = document.getElementById("cert-player-name");
@@ -16,6 +18,16 @@ export class CertificateView {
     this.#certRankComparison = document.getElementById("cert-rank-comparison");
     this.#recapContainer = document.getElementById("sprint-recap");
     this.#recapBody = document.getElementById("sprint-recap-body");
+    this.#lastScore = 0;
+    this.#lastMode = "target";
+  }
+
+  get lastScore() {
+    return this.#lastScore;
+  }
+
+  get lastMode() {
+    return this.#lastMode;
   }
 
   render(
@@ -27,6 +39,8 @@ export class CertificateView {
     isOffline = false,
   ) {
     const numericScore = Number(score) || 0;
+    this.#lastScore = numericScore;
+    this.#lastMode = mode;
 
     let displayName = playerName;
     if (!displayName || displayName === "Joueur" || displayName === "Guest") {

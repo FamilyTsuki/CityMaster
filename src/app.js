@@ -123,8 +123,15 @@ class App {
       "/room/:code": (params) => this.#roomController.initRoom(params),
       "/certificate": () => {
         this.#gameView.showScreen("certificate");
-        ConfettiService.launch();
-        this.#audioService.playFanfare();
+        const score = typeof this.#certificateView?.lastScore === "number"
+          ? this.#certificateView.lastScore
+          : parseInt(document.getElementById("cert-score")?.textContent || "0", 10);
+        const mode = this.#certificateView?.lastMode || "target";
+        ConfettiService.launch(score, { mode });
+        const minThreshold = mode === "sprint" ? 300 : 500;
+        if (score >= minThreshold) {
+          this.#audioService.playFanfare();
+        }
       },
       "/profile": () => {
         this.#profileController.loadProfile();
