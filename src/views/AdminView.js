@@ -1,4 +1,5 @@
 import { I18nService } from "../services/I18nService.js";
+import { isPlaceStreet } from "../services/RouteDifficultyService.js";
 
 export class AdminView {
   #map;
@@ -1028,6 +1029,21 @@ export class AdminView {
         strongName.className = "route-list-name";
         strongName.textContent = r.properties.name;
         infoDiv.append(svgIcon, strongName);
+
+        if (isPlaceStreet(r)) {
+          const placeBadge = document.createElement("span");
+          placeBadge.className = options.disablePlaces
+            ? "badge-place-tag badge-place-disabled"
+            : "badge-place-tag";
+          placeBadge.textContent = options.disablePlaces
+            ? I18nService.getInstance().t(
+                "admin.place_disabled_tag",
+                {},
+                "Place (désactivée)",
+              )
+            : I18nService.getInstance().t("admin.place_tag", {}, "Place");
+          infoDiv.append(placeBadge);
+        }
 
         const nameLower = (r.properties.name || "").toLowerCase().trim();
         const manualDiff = options.overrides?.[nameLower];

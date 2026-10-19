@@ -3,6 +3,28 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.13.0] - 2026-10-19
+
+### Nouveautés & Administration (Désactivation des Places et Squares)
+- **Option d'administration globale (`admin.html` & `AdminController.js`)** :
+  - Ajout d'une nouvelle option dans la carte *Paramètres* de l'écran d'administration : **« Places et squares »** (`#admin-disable-places-select`) permettant de basculer entre *Autorisées* et *Désactivées*.
+  - Sauvegarde immédiate du paramètre dans la table PostgreSQL `global_settings` (`key: 'disable_places'`) et synchronisation dans le cache local `localStorage` (`citymaster_disable_places`).
+- **Filtrage automatique des manches de jeu (`GameController.js` Backend & Frontend)** :
+  - Détection avancée des voies de type place, placette, square, esplanade et parvis (`isPlaceStreet`) via les préfixes toponymiques français et les balises OpenStreetMap (`place=square`, `itemType=place`).
+  - Lorsque l'option est désactivée, les places sont exclues des manches générées sur le serveur (`/api/game/start`) ainsi qu'en mode autonome hors-ligne (`GameController.js`).
+  - Ajustement des statistiques et comptages de rues disponibles (`CityController.getCityCounts`) pour refléter les voies jouables réelles.
+- **Visualisation et étiquetage dans l'espace d'administration (`AdminView.js` & `badges.css`)** :
+  - Affichage automatique d'un badge distinctif `.badge-place-tag` à côté de chaque place dans la liste des routes.
+  - Lorsque les places sont désactivées, le badge passe en rouge barré `.badge-place-disabled` (*« Place (désactivée) »*) pour une visibilité immédiate de l'administrateur.
+- **Internationalisation (i18n)** :
+  - Ajout et parité intégrale de toutes les clés de traduction en français et anglais (`admin.places_setting`, `admin.places_option_allowed`, `admin.places_option_disabled`, `admin.place_tag`, `admin.place_disabled_tag`).
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/places_setting.test.js` couvrant la détection bidirectionnelle (frontend/backend) des places, la présence et configuration du sélecteur d'administration et le filtrage effectif des rues.
+- Suite de tests portée à 45 tests unitaires avec 100% de réussite (`npm test`).
+
+---
+
 ## [2.12.1] - 2026-10-19
 
 ### Optimisations & Expérience Utilisateur (Anti-FOUC i18n)

@@ -189,6 +189,17 @@ export class GameController {
             f.geometry,
         );
 
+        const disablePlaces =
+          localStorage.getItem("citymaster_disable_places") === "true";
+        if (disablePlaces) {
+          const nonPlaces = eligibleStreets.filter(
+            (s) => !RouteDifficultyService.isPlaceStreet(s),
+          );
+          if (nonPlaces.length >= 5) {
+            eligibleStreets = nonPlaces;
+          }
+        }
+
         if (diff === "lotissement") {
           eligibleStreets = this.#allCityStreets.filter(
             (f) =>
@@ -285,6 +296,12 @@ export class GameController {
         }
 
         startData = startResponse.data;
+        if (startData && startData.disablePlaces !== undefined) {
+          localStorage.setItem(
+            "citymaster_disable_places",
+            String(startData.disablePlaces),
+          );
+        }
 
         this.#gameView.showLoading(i18n.t("loading.loading_streets"));
 

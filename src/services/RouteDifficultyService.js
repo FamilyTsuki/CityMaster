@@ -128,4 +128,49 @@ export class RouteDifficultyService {
       };
     });
   }
+
+  /**
+   * Checks whether a feature or name corresponds to a square / plaza / placette.
+   * @param {object|string} featureOrName
+   * @returns {boolean}
+   */
+  static isPlaceStreet(featureOrName) {
+    return isPlaceStreet(featureOrName);
+  }
 }
+
+export function isPlaceStreet(featureOrName) {
+  if (!featureOrName) return false;
+  const name =
+    typeof featureOrName === 'string'
+      ? featureOrName
+      : (featureOrName.properties?.name ||
+         featureOrName.properties?.originalName ||
+         '');
+  if (!name || typeof name !== 'string') return false;
+
+  const clean = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim();
+
+  const startsWithPlace =
+    /^(place|places|placette|placettes|square|squares|pl\b|pl\.|esplanade|parvis)\b/i.test(
+      clean,
+    );
+
+  if (typeof featureOrName === 'object' && featureOrName !== null) {
+    const props = featureOrName.properties || {};
+    if (
+      props.place === 'square' ||
+      props.itemType === 'place' ||
+      props.itemType === 'square'
+    ) {
+      return true;
+    }
+  }
+
+  return startsWithPlace;
+}
+

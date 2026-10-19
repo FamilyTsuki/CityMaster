@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
-import { encrypt, decrypt, getDistanceToStreet } from "../utils/game.js";
+import { encrypt, decrypt, getDistanceToStreet, isPlaceStreet } from "../utils/game.js";
 import { Score } from "../models/Score.js";
 import pool from "../config/database.js";
 
@@ -128,12 +128,14 @@ export class GameController {
       }
 
       let diffMode = "length";
+      let disablePlaces = false;
       try {
         const modeRes = await pool.query(
-          "SELECT value FROM global_settings WHERE key = 'difficulty_mode'",
+          "SELECT key, value FROM global_settings WHERE key IN ('difficulty_mode', 'disable_places')",
         );
-        if (modeRes.rows.length > 0) {
-          diffMode = modeRes.rows[0].value;
+        for (const row of modeRes.rows) {
+          if (row.key === "difficulty_mode") diffMode = row.value;
+          if (row.key === "disable_places") disablePlaces = row.value === "true";
         }
       } catch (e) {}
 
@@ -299,7 +301,13 @@ export class GameController {
           }
         }
       });
-      const uniqueStreetsList = Array.from(uniqueStreetsMap.values());
+      let uniqueStreetsList = Array.from(uniqueStreetsMap.values());
+      if (disablePlaces) {
+        const filtered = uniqueStreetsList.filter((s) => !isPlaceStreet(s));
+        if (filtered.length >= 5) {
+          uniqueStreetsList = filtered;
+        }
+      }
 
       let selectedStreets = [];
 
@@ -449,6 +457,7 @@ export class GameController {
       return res.json({
         gameToken,
         nextPrompt,
+        disablePlaces,
         isFinished: false,
       });
     } catch (error) {

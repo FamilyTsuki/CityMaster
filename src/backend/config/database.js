@@ -69,6 +69,11 @@ export const initDB = async () => {
         VALUES ('difficulty_mode', 'length') 
         ON CONFLICT (key) DO NOTHING;
       `);
+      await pool.query(`
+        INSERT INTO global_settings (key, value) 
+        VALUES ('disable_places', 'false') 
+        ON CONFLICT (key) DO NOTHING;
+      `);
     } catch (e) {
       console.error("Error creating global_settings:", e);
     }

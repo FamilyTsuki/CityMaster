@@ -14,6 +14,7 @@ export class AdminController {
   #currentDistricts;
   #currentRoutes;
   #difficultyMode;
+  #disablePlaces;
   #routeFilterQuery;
   #routeDifficultyFilter;
   #routeDifficultyOverrides;
@@ -27,6 +28,7 @@ export class AdminController {
     this.#currentDistricts = [];
     this.#currentRoutes = [];
     this.#difficultyMode = "length";
+    this.#disablePlaces = false;
     this.#routeFilterQuery = "";
     this.#routeDifficultyFilter = "all";
     this.#routeDifficultyOverrides = {};
@@ -456,6 +458,19 @@ export class AdminController {
       });
     }
 
+    const disablePlacesSelect = document.getElementById(
+      "admin-disable-places-select",
+    );
+    if (disablePlacesSelect) {
+      disablePlacesSelect.addEventListener("change", async (e) => {
+        const disabled = e.target.value === "true";
+        this.#disablePlaces = disabled;
+        localStorage.setItem("citymaster_disable_places", String(disabled));
+        await this.#saveSetting("disable_places", String(disabled));
+        this.#renderRouteList();
+      });
+    }
+
     const routeFilter = document.getElementById("admin-route-filter");
     if (routeFilter) {
       routeFilter.addEventListener("input", (e) => {
@@ -535,6 +550,19 @@ export class AdminController {
         const select = document.getElementById("admin-difficulty-mode-select");
         if (select) {
           select.value = this.#difficultyMode;
+        }
+        if (settings.disable_places !== undefined) {
+          this.#disablePlaces = String(settings.disable_places) === "true";
+          localStorage.setItem(
+            "citymaster_disable_places",
+            String(this.#disablePlaces),
+          );
+        }
+        const disablePlacesSelect = document.getElementById(
+          "admin-disable-places-select",
+        );
+        if (disablePlacesSelect) {
+          disablePlacesSelect.value = this.#disablePlaces ? "true" : "false";
         }
         const modeTextEl = document.getElementById("admin-route-mode-text");
         if (modeTextEl) {
@@ -889,6 +917,7 @@ export class AdminController {
         currentFilter: this.#routeDifficultyFilter,
         counts,
         overrides: this.#routeDifficultyOverrides,
+        disablePlaces: this.#disablePlaces,
         onDifficultyChange: (streetName, newDiff) =>
           this.setRouteDifficulty(streetName, newDiff),
       },

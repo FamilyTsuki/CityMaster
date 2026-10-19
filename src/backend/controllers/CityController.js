@@ -5,6 +5,7 @@ import * as turf from "@turf/turf";
 import { City } from "../models/City.js";
 import pool from "../config/database.js";
 import { readDifficultyOverridesFile } from "./AdminController.js";
+import { isPlaceStreet } from "../utils/game.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -236,12 +237,14 @@ export class CityController {
       const diffCount = { easy: new Set(), medium: new Set(), hard: new Set() };
 
       let diffMode = "length";
+      let disablePlaces = false;
       try {
         const modeRes = await pool.query(
-          "SELECT value FROM global_settings WHERE key = 'difficulty_mode'",
+          "SELECT key, value FROM global_settings WHERE key IN ('difficulty_mode', 'disable_places')",
         );
-        if (modeRes.rows.length > 0) {
-          diffMode = modeRes.rows[0].value;
+        for (const row of modeRes.rows) {
+          if (row.key === "difficulty_mode") diffMode = row.value;
+          if (row.key === "disable_places") disablePlaces = row.value === "true";
         }
       } catch (e) {}
 
@@ -264,6 +267,7 @@ export class CityController {
       } catch (e) {}
 
       allCityStreets.forEach((f, i) => {
+        if (disablePlaces && isPlaceStreet(f)) return;
         const nameKey = (f.properties?.name || "").toLowerCase().trim();
         const origNameKey = (f.properties?.originalName || "")
           .toLowerCase()
