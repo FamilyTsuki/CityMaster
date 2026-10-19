@@ -3,6 +3,18 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.10.1] - 2026-10-19
+
+### Optimisations & Ambiance Visuelle (Bulles en bas de page)
+- **Présence permanente et lumineuse des bulles en bas de l'écran (`landing.css` & `index.html`)** :
+  - Élimination de la zone morte inférieure causée par l'ancien décalage hors-champ (`bottom: -260px`) et l'opacité nulle au départ des animations.
+  - Intégration de 3 bulles d'ambiance permanentes ancrées en bas d'écran (`.bubble-6`, `.bubble-7`, `.bubble-8`) oscillant doucement et respirant en continu dans la région inférieure (`bottom: -25px`, `-35px`, `20px` avec keyframes `floatDriftBottomA/B/C`).
+  - Ajustement des bulles ascendantes (`.bubble-1` à `.bubble-5`) démarrant directement à fleur du bas (`bottom: -40px`) avec une lueur active dès le début (`opacity: 0.5-0.55` à 0%).
+  - Intégration de `height: 100dvh` sur `.app-backdrop` pour assurer une couverture absolue jusqu'au bas de l'écran sur mobile malgré les barres d'adresse dynamiques.
+  - Ajout des variables de gradients de couleurs `--landing-bubble-7` et `--landing-bubble-8` pour les modes clair et sombre.
+
+---
+
 ## [2.10.0] - 2026-10-19
 
 ### Nouveautés & Expérience Utilisateur (Page Changelog)
