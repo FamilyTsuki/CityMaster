@@ -1,0 +1,69 @@
+<div id="changelog-screen" class="screen">
+  <div class="card changelog-card" role="region" aria-labelledby="changelog-title">
+    <div class="changelog-header">
+      <div class="changelog-header-top">
+        <button
+          id="changelog-back-btn"
+          class="btn-back-round"
+          title="Retour à l'accueil"
+          data-i18n-title="common.back_home"
+          aria-label="Retour à l'accueil"
+          data-i18n-aria-label="common.back_home"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="action-icon"
+            aria-hidden="true"
+          >
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+        </button>
+        <div class="changelog-header-titles">
+          <h1 id="changelog-title" data-i18n="changelog.title">Notes de Version</h1>
+          <p data-i18n="changelog.subtitle">Historique des mises à jour et évolutions de CityMaster</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="changelog-container" class="changelog-container">
+      <div id="changelog-loading" class="changelog-loading">
+        <div
+          class="loader-spinner"
+          role="status"
+          aria-label="Chargement du journal..."
+          data-i18n-aria-label="common.loading"
+        ></div>
+        <p data-i18n="common.loading">Chargement...</p>
+      </div>
+      <div id="changelog-content" class="changelog-content"></div>
+    </div>
+
+    <div class="changelog-actions">
+      <button id="changelog-footer-back-btn" class="btn secondary">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="action-icon"
+          aria-hidden="true"
+        >
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span data-i18n="common.back_home">Retour à l'accueil</span>
+      </button>
+    </div>
+  </div>
+</div>
+

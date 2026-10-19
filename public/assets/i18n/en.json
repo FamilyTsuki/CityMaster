@@ -35,7 +35,18 @@
     "light_mode": "Light mode",
     "dark_mode": "Dark mode",
     "switch_to_light": "Switch to light mode",
-    "switch_to_dark": "Switch to dark mode"
+    "switch_to_dark": "Switch to dark mode",
+    "changelog_title": "View release notes",
+    "changelog_aria": "CityMaster version history"
+  },
+  "changelog": {
+    "title": "Release Notes",
+    "subtitle": "Update history and changelog for CityMaster",
+    "latest_badge": "Latest release",
+    "load_error": "Unable to load release notes.",
+    "offline_notice": "Offline mode: viewing local changelog.",
+    "all_versions": "Full history",
+    "reload_btn": "Retry"
   },
   "install_modal": {
     "title": "Install CityMaster",

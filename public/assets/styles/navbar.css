@@ -59,10 +59,31 @@
     system-ui,
     -apple-system,
     sans-serif;
-  font-size: 0.75rem;
-  color: var(--landing-ink-muted);
+  font-size: 0.72rem;
   font-weight: 700;
-  opacity: 0.9;
+  color: var(--landing-ink-muted);
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  padding: 0.12rem 0.5rem;
+  border-radius: var(--border-radius-pill);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  line-height: 1.2;
+}
+
+.version-tag:hover {
+  background: var(--surface-hover);
+  color: var(--primary);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-xs);
+}
+
+.version-tag:active {
+  transform: translateY(0);
 }
 
 .navbar-header-actions {

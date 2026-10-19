@@ -37,6 +37,7 @@ export class GameView {
       legal: document.getElementById("legal-screen"),
       admin: document.getElementById("admin-screen"),
       room: document.getElementById("room-screen"),
+      changelog: document.getElementById("changelog-screen"),
     };
 
     this.#citySelect = document.getElementById("city-select");

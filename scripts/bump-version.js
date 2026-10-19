@@ -74,6 +74,9 @@ async function bumpVersion() {
     await fs.writeFile(changelogPath, changelogContent, 'utf8');
   }
 
+  // 6. Sync public/CHANGELOG.md for static & offline serving
+  await fs.copyFile(changelogPath, path.join(rootDir, 'public', 'CHANGELOG.md'));
+
   console.log(`✅ Version successfully updated to ${newVersion} in all configuration and documentation files.`);
 }
 

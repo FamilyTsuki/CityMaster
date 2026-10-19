@@ -16,6 +16,7 @@ import { AdminController } from "./controllers/AdminController.js";
 import { RoomView } from "./views/RoomView.js";
 import { RoomController } from "./controllers/RoomController.js";
 import { FlightLoader } from "./views/components/FlightLoader.js";
+import { ChangelogView } from "./views/ChangelogView.js";
 import { Router } from "./Router.js";
 
 class App {
@@ -27,6 +28,7 @@ class App {
   #profileView;
   #adminView;
   #roomView;
+  #changelogView;
   #scoreController;
   #controller;
   #authController;
@@ -47,6 +49,7 @@ class App {
     this.#profileView = new ProfileView();
     this.#adminView = new AdminView();
     this.#roomView = new RoomView();
+    this.#changelogView = new ChangelogView();
     this.#scoreController = new ScoreController(this.#gameView);
 
     document.addEventListener("click", (e) => {
@@ -149,6 +152,10 @@ class App {
       },
       "/legal": () => {
         this.#gameView.showScreen("legal");
+      },
+      "/changelog": async () => {
+        this.#gameView.showScreen("changelog");
+        await this.#changelogView.loadAndRender();
       },
       "/load": () => {
         this.#showLoad();
@@ -264,11 +271,27 @@ class App {
     const startApp = async () => {
       const renderVersionTag = (v) => {
         const logoBrand = document.getElementById("logo-brand");
-        if (logoBrand && logoBrand.parentElement && !logoBrand.parentElement.querySelector(".version-tag")) {
-          const vSpan = document.createElement("small");
-          vSpan.className = "version-tag";
-          vSpan.textContent = `v${v}`;
-          logoBrand.parentElement.appendChild(vSpan);
+        if (logoBrand && logoBrand.parentElement) {
+          let vTag = logoBrand.parentElement.querySelector(".version-tag");
+          if (!vTag) {
+            vTag = document.createElement("a");
+            vTag.className = "version-tag";
+            vTag.href = "/changelog";
+            vTag.setAttribute(
+              "title",
+              I18nService.getInstance().t("nav.changelog_title") ||
+                "Voir les notes de version",
+            );
+            vTag.setAttribute("data-i18n-title", "nav.changelog_title");
+            vTag.setAttribute(
+              "aria-label",
+              I18nService.getInstance().t("nav.changelog_aria") ||
+                "Historique des versions",
+            );
+            vTag.setAttribute("data-i18n-aria-label", "nav.changelog_aria");
+            logoBrand.parentElement.appendChild(vTag);
+          }
+          vTag.textContent = `v${v}`;
         }
       };
 
@@ -300,6 +323,7 @@ class App {
           "admin",
           "room",
           "load",
+          "changelog",
         ];
         const parser = new DOMParser();
         const appContainer = document.getElementById("app");

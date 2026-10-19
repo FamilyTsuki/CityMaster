@@ -3,6 +3,33 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.10.0] - 2026-10-19
+
+### Nouveautés & Expérience Utilisateur (Page Changelog)
+- **Accès direct au Changelog au clic sur le numéro de version** :
+  - Le badge de version présent dans la barre de navigation (`.version-tag`) est désormais un lien interactif accessible (`<a href="/changelog">`).
+  - Style visuel enrichi sous forme de pilule élégante (`var(--surface)`, bordure douce, transitions au survol et focus accessible).
+  - Navigation instantanée sans rechargement de page gérée par le routeur (`src/Router.js`).
+- **Écran dédié aux notes de version (`public/screens/changelog.html`)** :
+  - Conception d'une nouvelle page harmonisée avec le design système de CityMaster (carte avec flou d'arrière-plan, fond papier texturé persistant et bulles lumineuses).
+  - En-tête standardisé avec le bouton de retour circulaire `.btn-back-round` et bouton secondaire de retour en bas de page.
+- **Rendu dynamique et intelligent du Changelog (`ChangelogView.js`)** :
+  - Parser Markdown client léger convertissant les sections de versions (`## [X.Y.Z]`), dates, sous-titres de catégories (`### ...`) et listes à puces avec mise en gras en cartes de version structurées.
+  - Mise en valeur de la version actuelle avec un badge distinctif *« Dernière version »* / *« Latest release »*.
+  - Prise en charge offline complète (PWA) grâce au cache Service Worker et au fichier statique `/CHANGELOG.md` de secours.
+- **Nouvelle route API serveur (`server.js`)** :
+  - Endpoint `GET /api/changelog` servant le contenu du fichier `CHANGELOG.md` en texte brut avec gestion d'erreur.
+
+### Tests Unitaires & Non-régression
+- **Création de la suite de tests dédiée (`tests/changelog_route.test.js`)** :
+  - Vérification de l'existence et de la structure accessible du template `changelog.html`.
+  - Vérification de la correspondance des routes `/changelog` et `/changelog/` par le routeur.
+  - Test d'initialisation en environnement Node.js / SSR pour `ChangelogView`.
+  - Maintien de 100 % de parité entre les dictionnaires `fr.json` et `en.json`.
+  - **34 tests unitaires validés avec succès (`npm test`)**.
+
+---
+
 ## [2.9.1] - 2026-10-19
 
 ### Harmonisation Graphique & Design Système

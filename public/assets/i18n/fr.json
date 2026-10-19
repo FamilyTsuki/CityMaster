@@ -35,7 +35,18 @@
     "light_mode": "Mode clair",
     "dark_mode": "Mode sombre",
     "switch_to_light": "Passer en mode clair",
-    "switch_to_dark": "Passer en mode sombre"
+    "switch_to_dark": "Passer en mode sombre",
+    "changelog_title": "Voir les notes de version",
+    "changelog_aria": "Historique des versions de CityMaster"
+  },
+  "changelog": {
+    "title": "Notes de Version",
+    "subtitle": "Historique des mises à jour et évolutions de CityMaster",
+    "latest_badge": "Dernière version",
+    "load_error": "Impossible de charger les notes de version.",
+    "offline_notice": "Mode hors-ligne : consultation du changelog local.",
+    "all_versions": "Historique complet",
+    "reload_btn": "Réessayer"
   },
   "install_modal": {
     "title": "Installer CityMaster",

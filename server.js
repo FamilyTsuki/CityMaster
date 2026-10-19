@@ -114,6 +114,19 @@ app.get("/api/version", (req, res) => {
   }
 });
 
+app.get("/api/changelog", (req, res) => {
+  try {
+    const changelogPath = path.join(dirname, "CHANGELOG.md");
+    if (fs.existsSync(changelogPath)) {
+      const content = fs.readFileSync(changelogPath, "utf8");
+      return res.type("text/plain; charset=utf-8").send(content);
+    }
+    res.status(404).json({ error: "Changelog not found" });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to read changelog" });
+  }
+});
+
 app.use("/api", (req, res) => {
   res.status(404).json({ error: "API route not found" });
 });

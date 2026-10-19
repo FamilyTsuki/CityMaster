@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v40';
+const CACHE_NAME = 'citymaster-v41';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -35,6 +35,7 @@ const STATIC_ASSETS = [
   "/assets/styles/setup.css",
   "/assets/styles/room.css",
   "/assets/styles/admin.css",
+  "/assets/styles/changelog.css",
   "/assets/styles/style.css",
   "/screens/landing.html",
   "/screens/setup.html",
@@ -46,6 +47,8 @@ const STATIC_ASSETS = [
   "/screens/room.html",
   "/screens/legal.html",
   "/screens/load.html",
+  "/screens/changelog.html",
+  "/CHANGELOG.md",
   "/assets/i18n/fr.json",
   "/assets/i18n/en.json",
   "/src/app.js",
@@ -76,6 +79,7 @@ const STATIC_ASSETS = [
   "/src/views/NavbarView.js",
   "/src/views/ProfileView.js",
   "/src/views/RoomView.js",
+  "/src/views/ChangelogView.js",
   "/src/views/components/FlightLoader.js",
 ];
 
