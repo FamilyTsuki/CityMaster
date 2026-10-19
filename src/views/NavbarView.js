@@ -42,6 +42,7 @@ export class NavbarView {
     }
 
     this.#initBurgerMenu();
+    this.#initSpaceObserver();
     I18nService.getInstance().onLanguageChange(() => {
       if (this.#currentTheme) {
         this.setTheme(this.#currentTheme);
@@ -81,6 +82,54 @@ export class NavbarView {
         this.#navBurgerBtn.classList.remove('active');
       }
     }
+  }
+
+  #initSpaceObserver() {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
+
+    const nav = document.getElementById('main-nav');
+    if (!nav) return;
+
+    const checkSpace = () => {
+      const brand = nav.querySelector('.navbar-brand');
+      const actions = nav.querySelector('.navbar-header-actions');
+      if (!brand || !actions) return;
+
+      const navStyles = window.getComputedStyle(nav);
+      const paddingLeft = parseFloat(navStyles.paddingLeft) || 0;
+      const paddingRight = parseFloat(navStyles.paddingRight) || 0;
+      const availableWidth = nav.clientWidth - paddingLeft - paddingRight;
+
+      if (availableWidth <= 0) return;
+
+      const themeToggleWidth = 44;
+      const isCompact = nav.classList.contains('nav-compact');
+      const brandWidth = brand.scrollWidth;
+      const actionsWidth =
+        actions.scrollWidth + (isCompact ? themeToggleWidth : 0);
+      const minGap = 12;
+
+      const isMobile = window.innerWidth <= 540;
+      const lacksSpace =
+        isMobile || brandWidth + actionsWidth + minGap > availableWidth;
+
+      if (lacksSpace) {
+        nav.classList.add('nav-compact');
+      } else {
+        nav.classList.remove('nav-compact');
+      }
+    };
+
+    if (typeof ResizeObserver !== 'undefined') {
+      const ro = new ResizeObserver(() => checkSpace());
+      ro.observe(nav);
+      const brand = nav.querySelector('.navbar-brand');
+      if (brand) ro.observe(brand);
+    } else {
+      window.addEventListener('resize', checkSpace);
+    }
+
+    setTimeout(checkSpace, 50);
   }
 
   onThemeToggle(callback) {

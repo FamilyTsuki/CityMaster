@@ -575,7 +575,6 @@ html.i18n-loading #main-nav {
       sans-serif;
     font-size: 0.92rem;
     font-weight: 700;
-    display: flex !important;
     align-items: center;
     justify-content: center;
     gap: 0.625rem;
@@ -586,6 +585,37 @@ html.i18n-loading #main-nav {
     box-shadow: var(--shadow-xs) !important;
     transition: all 0.15s ease;
     cursor: pointer;
+  }
+
+  .navbar-actions.open #nav-login-btn,
+  .navbar-actions.open .pwa-install-btn-style,
+  .navbar-actions.open .nav-admin-link,
+  .navbar-actions.open .profile-link {
+    display: flex !important;
+  }
+
+  /* When there is enough space in header on tablet, hide redundant button in burger menu */
+  .navbar-actions.open .menu-theme-btn {
+    display: none;
+  }
+
+  /* When space is tight in navbar or on small mobile screens: move theme toggle to burger menu */
+  .navbar.nav-compact .navbar-header-actions #theme-toggle {
+    display: none !important;
+  }
+
+  .navbar.nav-compact .navbar-actions.open .menu-theme-btn {
+    display: flex !important;
+  }
+
+  @media (max-width: 540px) {
+    .navbar-header-actions #theme-toggle {
+      display: none !important;
+    }
+
+    .navbar-actions.open .menu-theme-btn {
+      display: flex !important;
+    }
   }
 
   .navbar-actions.open .menu-install-btn {

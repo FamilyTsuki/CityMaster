@@ -3,6 +3,22 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.13.1] - 2026-10-19
+
+### Optimisations & Responsive Design (Barre de navigation & Menu Burger)
+- **Déplacement adaptatif du bouton de thème sur mobile et petits écrans** :
+  - **Observation dynamique de l'espace disponible (`NavbarView.js`)** : Mise en place d'un `ResizeObserver` dans `#initSpaceObserver` calculant en continu l'espace disponible entre la marque (`.navbar-brand`) et les actions d'en-tête (`.navbar-header-actions`), appliquant automatiquement la classe `.nav-compact` sur `nav#main-nav` en cas d'espace horizontal insuffisant.
+  - **Règles CSS adaptatives et Media Query (`navbar.css`)** :
+    - En mode compact (`.nav-compact`) et sur écrans mobiles (`@media (max-width: 540px)`), le bouton de bascule de thème (`#theme-toggle`) est automatiquement retiré de l'en-tête de la barre de navigation pour éviter tout débordement ou compression visuelle du logo et du badge de version.
+    - Le bouton de thème est transféré de manière élégante à l'intérieur du menu déroulant burger (`#menu-theme-toggle` / `.menu-theme-btn`), devenant visible et interactif uniquement lorsque le menu est ouvert.
+    - Sur grand écran (bureau / tablette) où la place est suffisante, le bouton de thème reste fixé dans l'en-tête supérieur et est masqué du menu burger afin d'éviter tout doublon.
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/navbar_responsive.test.js` validant la présence des deux boutons, les règles de masquage et d'affichage conditionnel (desktop, `.nav-compact`, et mobile `@media (max-width: 540px)`).
+- Suite de tests portée à 46 tests unitaires avec 100% de réussite (`npm test`).
+
+---
+
 ## [2.13.0] - 2026-10-19
 
 ### Nouveautés & Administration (Désactivation des Places et Squares)
