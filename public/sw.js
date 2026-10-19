@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v50';
+const CACHE_NAME = 'citymaster-v51';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -135,7 +135,9 @@ self.addEventListener("fetch", (event) => {
     url.hostname.endsWith(".unpkg.com") ||
     url.hostname === "cdn.jsdelivr.net" ||
     url.hostname.endsWith(".jsdelivr.net") ||
-    url.hostname.endsWith("tile.openstreetmap.org");
+    url.hostname.endsWith("tile.openstreetmap.org") ||
+    url.hostname.endsWith("cartocdn.com") ||
+    url.hostname.endsWith("arcgisonline.com");
 
   event.respondWith(
     fetch(event.request)

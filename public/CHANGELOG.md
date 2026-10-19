@@ -3,6 +3,24 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.14.2] - 2026-10-19
+
+### Optimisations & Expérience de Jeu (Fiabilité et Fluidité des Tuiles Cartographiques)
+- **Élimination des tuiles manquantes au chargement (`MapView.js`, `AdminView.js`, `public/sw.js`)** :
+  - **Auto-retry automatique sur `tileerror` (`MapView.js` & `AdminView.js`)** : Par défaut, Leaflet abandonne définitivement toute tuile dont la requête réseau échoue (timeout, ralentissement réseau ou micro-coupure) jusqu'à ce que l'utilisateur s'écarte et revienne. Un mécanisme d'auto-retry automatique réessaie désormais jusqu'à 3 fois la tuile manquante avec un délai progressif (600ms, 1200ms, 1800ms) et un identifiant de cache-busting, assurant son affichage spontané sans aucune intervention manuelle.
+  - **Buffer étendu (`keepBuffer: 8`) et fluidité continue** : Maintien en mémoire d'une couronne de 8 tuiles autour du viewport visible et chargement continu (`updateWhenIdle: false`, `updateInterval: 100`) pour éviter les trous gris ou les flashs blancs lors des déplacements.
+  - **Recalcul dynamique multi-passes (`invalidateSize()`) & `ResizeObserver`** : Le redimensionnement du conteneur `#map` lors de l'activation de l'écran de jeu ou d'un changement de mise en page déclenche immédiatement un `invalidateSize()` renforcé (immédiat, `requestAnimationFrame`, 200ms et 500ms), complété par un `ResizeObserver` natif pour éliminer tout décalage géométrique entre l'affichage de l'écran et le quadrillage de la carte.
+  - **Mise en cache locale Service Worker des tuiles CartoDB et ArcGIS (`sw.js`)** : Ajout de `basemaps.cartocdn.com`, `cartocdn.com` et `arcgisonline.com` dans la liste des CDN autorisés au cache PWA (`isAllowedCdn`), garantissant un chargement instantané à 0ms pour les tuiles déjà consultées et une résilience maximale contre les pertes de réseau.
+
+### Tests Unitaires & Non-Régression
+- Ajout de `tests/map_tile_reliability.test.js` (2 suites de tests) validant :
+  - La présence des options `keepBuffer: 8`, `crossOrigin: true`, `updateWhenIdle: false` et du mécanisme `attachTileAutoRetry` dans `MapView.js`.
+  - La présence de l'invalidation multi-passes via `requestAnimationFrame` et du `ResizeObserver`.
+  - L'autorisation des domaines CartoDB et ArcGIS dans `sw.js`.
+- **Suite de tests portée à 58 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.14.1] - 2026-10-19
 
 ### Optimisations & Expérience de Jeu (Rééquilibrage du Mode Facile)

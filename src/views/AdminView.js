@@ -74,11 +74,33 @@ export class AdminView {
 
       const key = "cb1_2cy8_1_e3fc326c9e8d112e79406187";
 
+      const attachTileErrorRetry = (layer) => {
+        if (!layer || typeof layer.on !== "function") return;
+        layer.on("tileerror", (error) => {
+          const tile = error && error.tile;
+          if (!tile) return;
+          const retryCount = Number(tile.getAttribute("data-retry-count") || 0);
+          if (retryCount < 3) {
+            tile.setAttribute("data-retry-count", retryCount + 1);
+            const delay = (retryCount + 1) * 600;
+            setTimeout(() => {
+              if (tile && tile.src) {
+                const rawUrl = tile.src.split("&cm_retry=")[0];
+                const sep = rawUrl.includes("?") ? "&" : "?";
+                tile.src = `${rawUrl}${sep}cm_retry=${Date.now()}`;
+              }
+            }, delay);
+          }
+        });
+      };
+
       const satelliteLayer = L.tileLayer(
         "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
         {
           maxZoom: 20,
           maxNativeZoom: 18,
+          keepBuffer: 8,
+          crossOrigin: true,
           attribution:
             "&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community",
         },
@@ -89,6 +111,8 @@ export class AdminView {
         {
           maxZoom: 20,
           subdomains: "abcd",
+          keepBuffer: 8,
+          crossOrigin: true,
           attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
         },
       );
@@ -98,9 +122,15 @@ export class AdminView {
         {
           maxZoom: 20,
           subdomains: "abcd",
+          keepBuffer: 8,
+          crossOrigin: true,
           attribution: "&copy; OpenStreetMap contributors &copy; CARTO",
         },
       );
+
+      attachTileErrorRetry(satelliteLayer);
+      attachTileErrorRetry(streetLayer);
+      attachTileErrorRetry(darkLayer);
 
       this.#tileLayer = satelliteLayer;
       satelliteLayer.addTo(this.#map);

@@ -14,6 +14,7 @@ export class MapView {
   #hideLabels;
   #isSatellite;
   #currentStyle;
+  #resizeObserver;
 
   constructor() {
     this.#map = null;
@@ -29,13 +30,16 @@ export class MapView {
     this.#hideLabels = false;
     this.#isSatellite = false;
     this.#currentStyle = 'street';
+    this.#resizeObserver = null;
 
     this.#initThemeObserver();
     this.#initSatelliteButton();
     this.#initVisibilityFix();
+    this.#initResizeObserver();
   }
 
   #initVisibilityFix() {
+    if (typeof document === 'undefined') return;
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && this.#map) {
         if (this.#map.dragging && this.#map.dragging.enabled()) {
@@ -46,8 +50,22 @@ export class MapView {
           this.#map.touchZoom.disable();
           this.#map.touchZoom.enable();
         }
+        this.invalidateSize();
       }
     });
+  }
+
+  #initResizeObserver() {
+    if (typeof ResizeObserver === 'undefined' || typeof document === 'undefined') return;
+    const mapEl = document.getElementById('map');
+    if (!mapEl) return;
+
+    this.#resizeObserver = new ResizeObserver(() => {
+      if (this.#map) {
+        this.invalidateSize();
+      }
+    });
+    this.#resizeObserver.observe(mapEl);
   }
 
   #initThemeObserver() {
@@ -206,8 +224,15 @@ export class MapView {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
       maxZoom: 20,
-      maxNativeZoom: 18
+      maxNativeZoom: 18,
+      keepBuffer: 8,
+      updateWhenIdle: false,
+      updateInterval: 100,
+      crossOrigin: true
     }).addTo(this.#map);
+
+    this.#attachTileAutoRetry(this.#tileLayer);
+    this.#initResizeObserver();
 
     this.showMapLoader(null, true);
 
@@ -414,7 +439,44 @@ export class MapView {
   invalidateSize() {
     if (this.#map) {
       this.#map.invalidateSize();
+      if (typeof requestAnimationFrame !== 'undefined') {
+        requestAnimationFrame(() => {
+          if (this.#map) {
+            this.#map.invalidateSize();
+          }
+        });
+      }
+      setTimeout(() => {
+        if (this.#map) {
+          this.#map.invalidateSize();
+        }
+      }, 200);
+      setTimeout(() => {
+        if (this.#map) {
+          this.#map.invalidateSize();
+        }
+      }, 500);
     }
+  }
+
+  #attachTileAutoRetry(layer) {
+    if (!layer || typeof layer.on !== 'function') return;
+    layer.on('tileerror', (error) => {
+      const tile = error && error.tile;
+      if (!tile) return;
+      const retryCount = Number(tile.getAttribute('data-retry-count') || 0);
+      if (retryCount < 3) {
+        tile.setAttribute('data-retry-count', retryCount + 1);
+        const delay = (retryCount + 1) * 600;
+        setTimeout(() => {
+          if (tile && tile.src) {
+            const rawUrl = tile.src.split('&cm_retry=')[0];
+            const separator = rawUrl.includes('?') ? '&' : '?';
+            tile.src = `${rawUrl}${separator}cm_retry=${Date.now()}`;
+          }
+        }, delay);
+      }
+    });
   }
 
   showMapLoader(message = null, autoHide = false) {
