@@ -467,6 +467,15 @@ body:has(#load-screen.active) .app-backdrop {
   font-weight: 500;
 }
 
+.landing-footer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: 0.625rem;
+}
+
 #landing-screen .paper-footer-btn,
 #landing-legal-btn.paper-footer-btn {
   background: var(--bg-card);

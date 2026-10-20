@@ -3,16 +3,173 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
-## [2.15.3] - 2026-10-20
+## [2.16.8] - 2026-10-20
 
-### Clean Code & Refactoring
-- **Nettoyage intégral des commentaires non-JSDoc** :
-  - Suppression de l'intégralité des commentaires temporaires, d'explication ou en ligne (`//`) sur l'ensemble des modules JavaScript du projet (`src/`, `server.js`, `public/sw.js`, `scripts/`, `tests/`).
-  - **Préservation absolue des documentations JSDoc (`/** ... */`)** : Toutes les définitions de types, descriptions de méthodes et annotations d'API sont conservées intactes pour la maintenabilité du projet.
-  - Réduction de la verbosité du code source et amélioration de la lisibilité selon les standards Clean Code du projet.
+### Optimisations Graphiques & Design Global
+- **Intégration fluide et pleine largeur du header sur toutes les pages (`public/assets/styles/navbar.css`)** :
+  - Suppression de la forme d'îlot flottant (`width: min(calc(100% - 2rem), ...)`, marges supérieures et latérales `0.625rem`) qui laissait transparaître le fond de page derrière et autour de l'en-tête.
+  - Suppression des angles arrondis (`border-radius: 0`) et de la délimitation sur 4 côtés, au profit d'un header pleine largeur (`width: 100%`, `top: 0`, `margin: 0`) avec uniquement une bordure inférieure discrète (`border-bottom: 1px solid var(--border-color)`).
+  - Rendu uniforme et parfaitement intégré au sommet de l'ensemble des écrans et pages de l'application (sur desktop comme sur mobile).
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v65`.
+
+### Tests Unitaires
+- Validation continue de l'ensemble des 77 tests unitaires (`npm test`).
+
+---
+
+## [2.16.7] - 2026-10-20
+
+### Corrections Visuelles & Rendu Graphique
+- **Résolution de la duplication / superposition des frames du GIF animé (`boykisser.gif` & `support.html`)** :
+  - Identification de la cause : l'optimisation delta d'ImageMagick générait des sous-frames transparentes partielles sans réinitialisation de disposition (`disposal: None`), provoquant la superposition des calques successifs dans le navigateur (troisième œil, dédoublement des pattes et des onomatopées).
+  - Régénération du GIF avec coalescence complète (`-coalesce`), garantissant que chaque frame est pleine, opaque et remplace intégralement la précédente sans laisser de résidu transparent ni d'artéfact de fantôme.
+  - Mise à jour de la Data URI Base64 dans `public/screens/support.html` et du fichier `public/assets/images/boykisser.gif`.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v64`.
+
+### Tests Unitaires
+- Validation des 77 tests de non-régression (`npm test`).
+
+---
+
+## [2.16.6] - 2026-10-20
+
+### Optimisations de Performance & Chargement Instantané
+- **Intégration inline en Base64 du GIF animé (`public/screens/support.html`)** :
+  - Optimisation préalable du GIF animé (réduction du poids de 114 Ko à 36 Ko par échantillonnage 120x120 adapté).
+  - Intégration directe du GIF sous forme de Data URI Base64 (`data:image/gif;base64,...`) directement dans l'attribut `src` de la balise `<img>`.
+  - Élimination totale de la requête réseau supplémentaire, garantissant un affichage immédiat à l'ouverture de l'écran.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v63`.
+
+### Tests Unitaires
+- Mise à jour de `tests/support_route.test.js` validant la présence du GIF inline en Base64.
+- Validation des 77 tests unitaires (`npm test`).
+
+---
+
+## [2.16.5] - 2026-10-20
+
+### Épuration de Contenu & Expérience Utilisateur
+- **Allègement du texte de bienvenue (`support.html` & `fr.json`/`en.json`)** :
+  - Suppression de la mention sur les coûts réels de serveur et de cartographie pour simplifier la présentation (« *Le jeu est complètement gratuit et sans publicité. Si vous appréciez le jeu et souhaitez soutenir son évolution, vous êtes au bon endroit !* »).
+- **Suppression des sections d'infrastructure et d'objectifs futurs** :
+  - Retrait complet du bloc intermédiaire `.support-sections-grid` (cartes « *L'infrastructure actuelle* » et « *Objectifs futurs* ») afin d'amener directement le joueur aux deux options de contribution concrètes (Ko-fi et modération).
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v62`.
+
+### Tests Unitaires
+- Mise à jour de `tests/support_route.test.js` pour valider l'absence des cartes intermédiaires.
+- Validation des 77 tests unitaires (`npm test`).
+
+---
+
+## [2.16.4] - 2026-10-20
+
+### Optimisations Graphiques & Médias
+- **Intégration du GIF animé Tenor et suppression de l'effet de survol (`support.html` & `support.css`)** :
+  - Remplacement de l'image statique par le GIF animé officiel *Boykisser* (`public/assets/images/boykisser.gif`).
+  - Suppression de la transformation d'agrandissement et de rotation au survol (`:hover`) sur `.support-mascot-img` pour un affichage stable et discret.
+- **Mise à jour PWA & Cache (`public/sw.js`)** :
+  - Enregistrement de `boykisser.gif` dans `STATIC_ASSETS` pour garantir son affichage immédiat et son fonctionnement hors-ligne.
+  - Incrémentation du cache vers `citymaster-v61`.
+
+### Tests Unitaires
+- Mise à jour du test `tests/support_route.test.js` pour valider l'intégration du GIF `boykisser.gif`.
+- Validation des 77 tests de la suite (`npm test`).
+
+---
+
+## [2.16.3] - 2026-10-20
+
+### Optimisations & Architecture Graphique
+- **Suppression du conteneur englobant inutile (`.card.support-card`)** :
+  - Restructuration du template `public/screens/support.html` en supprimant le wrapper extérieur `.card.support-card` afin de poser le titre principal et les différentes cartes directement sur le fond d'ambiance café dégradé.
+  - Remplacement par un conteneur fluide `.support-container` (`max-width: var(--container-lg)`), harmonisant l'apparence avec la maquette originale où chaque carte vit de façon autonome.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v60`.
+
+### Tests Unitaires
+- Mise à jour du test `tests/support_route.test.js` pour vérifier l'absence du conteneur englobant `.support-card`.
+- Validation des 77 tests de la suite (`npm test`).
+
+---
+
+## [2.16.2] - 2026-10-20
+
+### Optimisations & Épuration Graphique
+- **Simplification et épuration visuelle de l'écran « Soutenir le projet » (`public/screens/support.html` & `public/assets/styles/support.css`)** :
+  - Suppression de la barre de liens secondaires en en-tête (`Accueil`, `Salons Équipes`, `Se connecter`).
+  - Suppression du sous-titre redondant sous le titre principal pour focaliser l'attention sur le titre et la mascotte.
+  - Suppression du lien d'administration sous le bouton de modération pour une interface plus claire.
+  - Suppression du second bouton de retour en bas de page pour laisser la place nette aux deux options d'action (le bouton circulaire `.btn-back-round` en en-tête restant dédié au retour).
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v59`.
+
+### Tests Unitaires
+- Mise à jour des tests dans `tests/support_route.test.js` garantissant l'absence des éléments superflus retirés.
+- Validation des 77 tests de la suite (`npm test`).
+
+---
+
+## [2.16.1] - 2026-10-20
+
+### Nouveautés & Refonte Visuelle Chaleureuse
+- **Design chaleureux inspiré de l'ambiance café / chocolat chaud (`public/assets/styles/support.css`)** :
+  - Palette chaleureuse avec dégradés d'ambiance espresso et ambrés (`#18100e`, touches cuivrées et terracotta).
+  - Typographie élégante avec polices sérif soignées pour les titres (`Georgia`, `Playfair Display`, `Merriweather`) et textes centrés très lisibles.
+  - Intégration de la mascotte animée au clavier dans un médaillon circulaire doux (`public/assets/images/mascot-typing.png`).
+  - Liserés colorés distinctifs en haut des cartes d'infrastructure (pêche/corail `#ff9e79`) et d'objectifs (or étincelant `#fcd34d`).
+- **Deux manières concrètes de soutenir le projet (`public/screens/support.html`)** :
+  - **1. Offrir un café (Ko-fi)** : Don ponctuel libre pour participer au matériel, à l'électricité des Raspberry Pi et aux services de cartes avec bouton d'action dédié vers `https://ko-fi.com/tsuki_dev`.
+  - **2. Devenir Modérateur des Routes (Gestion cartographique)** : Possibilité pour les joueurs de s'investir en aidant à corriger, vérifier et modérer les tracés de rues et de quartiers de leur commune, avec lien direct de candidature par email et raccourci d'accès à l'espace de gestion.
+- **Cache PWA & Service Worker (`public/sw.js`)** :
+  - Ajout de `mascot-typing.png` aux actifs statiques mis en cache pour une consultation hors-ligne fluide.
+  - Incrémentation du cache vers `citymaster-v58`.
+
+### Tests Unitaires & Parité i18n
+- Mise à jour de la suite de tests `tests/support_route.test.js` pour valider la mascotte, les deux manières de contribuer et la sécurité des liens.
+- Parité stricte à 100% conservée dans les dictionnaires `fr.json` et `en.json`.
+- Succès de la totalité des 77 tests unitaires (`npm test`).
+
+---
+
+## [2.16.0] - 2026-10-20
+
+### Nouvelles Fonctionnalités
+- **Page dédiée « Soutenir le projet » (`public/screens/support.html`)** :
+  - Création d'une page accessible présentant la genèse du jeu CityMaster (né d'un projet académique de fin d'études et poursuivi bénévolement par passion).
+  - Détail de l'infrastructure d'hébergement actuelle (serveurs Raspberry Pi auto-hébergés, coûts d'électricité, base de données, bande passante et services de tuiles cartographiques).
+  - Présentation des objectifs futurs d'évolution (serveur dédié performant pour un mode multijoueur fluide sans latence, réservation pérenne du nom de domaine).
+  - Intégration d'un bouton d'action attractif vers la plateforme de don **Ko-fi** (`https://ko-fi.com/tsuki_dev`) pour permettre aux joueurs de soutenir financièrement le développement sans aucune obligation.
+  - Barre de navigation rapide en en-tête (`Accueil`, `Salons Équipes`, `Se connecter`) et bouton de retour à l'accueil circulaire `.btn-back-round`.
+- **Intégration du lien dans tous les pieds de page** :
+  - Ajout du bouton `.support-footer-link` (« 💖 Soutenir le projet ») dans l'écran d'accueil (`landing.html`), l'écran de configuration de partie (`setup.html`) et l'écran de profil joueur (`profile.html`).
+
+### Sécurité & Architecture
+- **Routage applicatif dynamique (`src/Router.js` & `src/app.js`)** :
+  - Déclaration et gestion de la route `/support` (avec normalisation automatique `/support/`).
+  - Interception fluide des clics sur la classe `.support-footer-link` et les boutons `#support-back-btn` / `#support-footer-back-btn`.
+- **Internationalisation (i18n)** :
+  - Prise en charge intégrale bilingue (Français et Anglais) de l'ensemble des textes et métadonnées de la page de soutien (`public/assets/i18n/fr.json` et `public/assets/i18n/en.json`) avec parité stricte à 100%.
+- **Cache hors-ligne PWA & Service Worker (`public/sw.js`)** :
+  - Ajout de `/screens/support.html` et `/assets/styles/support.css` dans `STATIC_ASSETS`.
+  - Incrémentation du cache Service Worker (`citymaster-v57`).
 
 ### Tests Unitaires & Non-Régression
-- Validation complète de la suite de tests : **74 tests réussis sur 74** sans aucune régression.
+- Ajout d'une suite de tests dédiée (`tests/support_route.test.js`, 3 tests) :
+  - Vérification de l'existence et de l'accessibilité sémantique du template `support.html` (bouton Ko-fi, rel `noopener noreferrer`, target `_blank`, bouton retour).
+  - Vérification de la correspondance des routes `/support` et `/support/` par le routeur.
+  - Vérification de la présence des liens de soutien dans les templates de pieds de page (`landing.html`, `setup.html`, `profile.html`).
+- Validation réussie de l'intégralité des 77 tests unitaires de non-régression (`npm test`).
+
+---
+
+## [2.15.3] - 2026-10-20
+
+### Mise à jour et améliorations
+- Synchronisation automatique de version et ajustements du projet.
 
 ---
 

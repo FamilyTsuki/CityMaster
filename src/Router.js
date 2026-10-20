@@ -30,17 +30,21 @@ export class Router {
         }
 
         const routeBtn = e.target.closest(
-          '.btn-back-round, .legal-footer-link, #room-login-link, #legal-back-btn',
+          '.btn-back-round, .legal-footer-link, .support-footer-link, #room-login-link, #legal-back-btn, #support-back-btn, #support-footer-back-btn',
         );
         if (routeBtn) {
           e.preventDefault();
           if (
             routeBtn.id === 'legal-back-btn' ||
+            routeBtn.id === 'support-back-btn' ||
+            routeBtn.id === 'support-footer-back-btn' ||
             routeBtn.classList.contains('btn-back-round')
           ) {
             this.navigate('/');
           } else if (routeBtn.classList.contains('legal-footer-link')) {
             this.navigate('/legal');
+          } else if (routeBtn.classList.contains('support-footer-link')) {
+            this.navigate('/support');
           } else if (routeBtn.id === 'room-login-link') {
             this.navigate('/login');
           }

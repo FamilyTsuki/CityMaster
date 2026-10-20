@@ -448,7 +448,8 @@
   padding-top: 0.75rem;
 }
 
-.legal-footer-link {
+.legal-footer-link,
+.support-footer-link {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.82rem;
   font-weight: 600;
@@ -461,8 +462,16 @@
   transition: color 0.15s ease;
 }
 
-.legal-footer-link:hover {
+.legal-footer-link:hover,
+.support-footer-link:hover {
   color: var(--primary);
+}
+
+.footer-separator {
+  color: var(--text-muted);
+  margin: 0 0.5rem;
+  font-size: 0.8rem;
+  user-select: none;
 }
 
 @media (max-width: 768px) {

@@ -167,6 +167,9 @@ class App {
         this.#gameView.showScreen("changelog");
         await this.#changelogView.loadAndRender();
       },
+      "/support": () => {
+        this.#gameView.showScreen("support");
+      },
       "/load": () => {
         this.#showLoad();
       },
@@ -334,6 +337,7 @@ class App {
           "room",
           "load",
           "changelog",
+          "support",
         ];
         const parser = new DOMParser();
         const appContainer = document.getElementById("app");

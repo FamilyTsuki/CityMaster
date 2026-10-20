@@ -37,7 +37,9 @@
     "switch_to_light": "Switch to light mode",
     "switch_to_dark": "Switch to dark mode",
     "changelog_title": "View release notes",
-    "changelog_aria": "CityMaster version history"
+    "changelog_aria": "CityMaster version history",
+    "support": "💖 Support the Project",
+    "support_title": "Support CityMaster's development"
   },
   "changelog": {
     "title": "Release Notes",
@@ -467,5 +469,22 @@
     "certificate_notice": "Offline game: This score remains local and is not recorded on the global leaderboard.",
     "no_cached_cities": "No cities available offline. Please play with an Internet connection first.",
     "offline_ready_badge": "Offline"
+  },
+  "support": {
+    "title": "Support the Project",
+    "subtitle": "Independent & passionate development of CityMaster",
+    "welcome_intro": "Welcome! CityMaster was initially created as an end-of-year academic project, and I have continued to develop it in my spare time out of pure passion.",
+    "welcome_costs": "The game is completely free and ad-free. If you enjoy the game and want to support its evolution, you're in the right place!",
+    "contribute_title": "Want to contribute?",
+    "contribute_desc": "There's absolutely no obligation, but if you'd like to support the project, there are two great ways to participate:",
+    "way_kofi_title": "1. Buy a Coffee (Ko-fi)",
+    "way_kofi_desc": "Support hosting with a voluntary donation (the price of a coffee) to help cover hardware, electricity, and map servers.",
+    "kofi_button": "💖 Support on Ko-fi",
+    "kofi_aria": "Support CityMaster on Ko-fi (opens in a new tab)",
+    "way_mod_title": "2. Become a Route Moderator",
+    "way_mod_desc": "Help us verify, fix, and validate street geometry and district data in your city to ensure seamless and bug-free rounds.",
+    "mod_button": "🛠️ Join the moderation team",
+    "mod_aria": "Apply as a cartographic moderator via email",
+    "mod_admin_link": "Access route management dashboard"
   }
 }

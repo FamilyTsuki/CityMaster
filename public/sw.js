@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v56';
+const CACHE_NAME = 'citymaster-v65';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   "/assets/images/apple-touch-icon.png",
   "/assets/images/icon.svg",
   "/assets/images/default-avatar.png",
+  "/assets/images/boykisser.gif",
   "/assets/images/monuments/arc-triomphe.png",
   "/assets/images/monuments/louvre-pyramid.png",
   "/assets/images/monuments/eiffel-tower.png",
@@ -36,6 +37,7 @@ const STATIC_ASSETS = [
   "/assets/styles/room.css",
   "/assets/styles/admin.css",
   "/assets/styles/changelog.css",
+  "/assets/styles/support.css",
   "/assets/styles/style.css",
   "/screens/landing.html",
   "/screens/setup.html",
@@ -48,6 +50,7 @@ const STATIC_ASSETS = [
   "/screens/legal.html",
   "/screens/load.html",
   "/screens/changelog.html",
+  "/screens/support.html",
   "/CHANGELOG.md",
   "/assets/i18n/fr.json",
   "/assets/i18n/en.json",

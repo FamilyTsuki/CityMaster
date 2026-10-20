@@ -40,6 +40,7 @@ export class GameView {
       admin: document.getElementById("admin-screen"),
       room: document.getElementById("room-screen"),
       changelog: document.getElementById("changelog-screen"),
+      support: document.getElementById("support-screen"),
     };
 
     this.#citySelect = document.getElementById("city-select");

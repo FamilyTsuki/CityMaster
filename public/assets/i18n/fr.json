@@ -37,7 +37,9 @@
     "switch_to_light": "Passer en mode clair",
     "switch_to_dark": "Passer en mode sombre",
     "changelog_title": "Voir les notes de version",
-    "changelog_aria": "Historique des versions de CityMaster"
+    "changelog_aria": "Historique des versions de CityMaster",
+    "support": "💖 Soutenir le projet",
+    "support_title": "Soutenir le développement de CityMaster"
   },
   "changelog": {
     "title": "Notes de Version",
@@ -467,5 +469,22 @@
     "certificate_notice": "Partie hors-ligne : Ce score reste local et n'est pas enregistré au classement mondial.",
     "no_cached_cities": "Aucune ville disponible hors-ligne. Jouez d'abord avec une connexion Internet.",
     "offline_ready_badge": "Hors-ligne"
+  },
+  "support": {
+    "title": "Soutenir le projet",
+    "subtitle": "Développement indépendant & passionné de CityMaster",
+    "welcome_intro": "Bienvenue ! CityMaster a été initialement créé comme un projet académique de fin d'études, et je continue à le développer sur mon temps libre par pure passion.",
+    "welcome_costs": "Le jeu est complètement gratuit et sans publicité. Si vous appréciez le jeu et souhaitez soutenir son évolution, vous êtes au bon endroit !",
+    "contribute_title": "Envie de contribuer ?",
+    "contribute_desc": "Il n'y a absolument aucune obligation, mais si vous souhaitez soutenir le projet, il existe deux manières concrètes de participer à l'aventure :",
+    "way_kofi_title": "1. Offrir un café (Ko-fi)",
+    "way_kofi_desc": "Soutenez financièrement l'hébergement par un don libre (l'équivalent d'un café) pour financer le matériel, l'électricité et les serveurs de carte.",
+    "kofi_button": "💖 Soutenir sur Ko-fi",
+    "kofi_aria": "Soutenir CityMaster sur Ko-fi (s'ouvre dans un nouvel onglet)",
+    "way_mod_title": "2. Devenir Modérateur des Routes",
+    "way_mod_desc": "Aidez-nous à vérifier, corriger et valider le tracé des rues et des quartiers de votre commune pour garantir des parties parfaites et sans bug.",
+    "mod_button": "🛠️ Rejoindre la modération",
+    "mod_aria": "Postuler comme modérateur cartographique par email",
+    "mod_admin_link": "Accéder à l'espace de gestion des routes"
   }
 }
