@@ -7,7 +7,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: clamp(1.25rem, 3.5vw, 2.5rem) var(--screen-padding-x);
+  padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   background: transparent;
   min-height: 100%;
   width: 100%;
@@ -29,7 +29,7 @@
   padding: var(--card-padding-y) var(--card-padding-x);
   max-width: var(--container-lg);
   width: 100%;
-  margin: auto;
+  margin: 0 auto;
   box-sizing: border-box;
   text-align: left;
 }
@@ -242,11 +242,12 @@
 
 @media (max-width: 640px) {
   #changelog-screen {
-    padding: var(--screen-padding-y) var(--screen-padding-x);
+    padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   }
 
   .changelog-card {
     padding: var(--card-compact-y) var(--card-compact-x);
+    margin: 0 auto;
   }
 
   .changelog-version-card {

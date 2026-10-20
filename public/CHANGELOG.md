@@ -1,1127 +1,507 @@
-# Changelog - CityMaster
+# Journal des modifications (Changelog) - CityMaster
 
-Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
-Ce fichier est crée et acctualiser par ia.
+Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
+Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
+
+## [2.16.18] - 2026-10-20
+
+### Modifié
+- Mise à jour des directives de versioning et conventions du projet (`AGENTS.md`, `GEMINI.md`, `.agents/rules/versioning.md`).
+- Définition des règles strictes de rédaction du changelog (style sobre, standard Keep a Changelog, exclusion des formulations verbeuses).
+
+---
+
+## [2.16.17] - 2026-10-20
+
+### Modifié
+- Harmonisation et simplification du journal des modifications selon les conventions [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
+- Retrait des formulations superflues et normalisation technique des notes de version antérieures.
+- Mise à jour du script d'incrément de version (`scripts/bump-version.js`).
+
+---
+
+## [2.16.16] - 2026-10-20
+
+### Corrigé
+- **Positionnement du header & marges des écrans** : Résolution du problème de chevauchement où le haut des pages passait sous la barre de navigation fixe.
+- **Variables de mise en page réactives (`variables.css` & `navbar.css`)** : Introduction de `--screen-padding-top` et `--screen-padding-bottom` synchronisés dynamiquement avec la hauteur réelle et la position du header.
+- **Uniformisation des vues** : Application des marges adaptatives sur l'Accueil, les Salons, la Configuration, l'Authentification, les Notes de version, les Mentions légales, le Profil, le Certificat et l'Administration.
+- **Normalisation des fichiers de style** : Conversion des sauts de ligne au standard Unix LF.
+
+---
 
 ## [2.16.15] - 2026-10-20
 
-### Design & Interface Utilisateur
-- **Refonte sobre et authentique des boutons de contribution (`public/assets/styles/support.css`)** :
-  - Suppression des dégradés flashy et artificiels (« style IA ») sur les boutons de la section *« Envie de contribuer ? »*.
-  - Alignement direct sur les codes de design de CityMaster : aplats de couleurs nets, bordures fines élégantes (`var(--border-subtle)`), coins arrondis standards (`var(--border-radius-sm)`).
-  - Bouton Ko-fi habillé de la couleur d'accentuation principale du jeu (`var(--primary)`), avec micro-interaction sobre au survol (`translateY(-2px)` et légère surbrillance).
-  - Bouton Modérateur habillé d'un ton café profond contrasté (`#2e1d18`) en harmonie avec le thème de la page.
-- **Épuration des textes et labels i18n (`public/assets/i18n/fr.json`, `en.json`, `public/screens/support.html`)** :
-  - Retrait des accumulations d'emojis superflus dans les boutons d'action.
-  - Libellés clairs, professionnels et directs : *"Soutenir sur Ko-fi"* et *"Rejoindre la modération"*.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v72`.
-
-### Tests Unitaires
-- Validation complète des 77 tests de non-régression (`npm test`).
+### Modifié
+- **Boutons de contribution sur la page Support (`support.css`)** : Remplacement des dégradés saturés par un style sobre et net, aligné avec la charte graphique de l'application (couleur principale du jeu pour Ko-fi, teinte foncée contrastée pour la modération).
+- **Internationalisation (`fr.json`, `en.json`)** : Clarification et simplification des libellés d'action pour la page Support (*« Soutenir sur Ko-fi »* et *« Rejoindre la modération »*).
 
 ---
 
 ## [2.16.14] - 2026-10-20
 
-### Ambiance Graphique & Effet Lampe à Lave
-- **Grosses boules ascendantes type lampe à lave (`public/assets/styles/support.css`)** :
-  - Métamorphose des bulles de l'écran Support en d'imposantes sphères organiques de 320px à 440px de diamètre aux formes mouvantes et fluides.
-  - Dégradés intenses et chaleureux café-braise, orange magma, rouge incandescent et ambre profond.
-  - Déplacement ascensionnel continu et unidirectionnel (du bas vers le haut sans jamais redescendre) avec déformation fluide des rayons (`border-radius`) et légères oscillations latérales sinusoïdales.
-  - Flou optique immersif (`filter: blur(48px)`) créant une véritable diffusion lumineuse d'ambiance de lampe à lave derrière les cartes et la barre de navigation.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v71`.
-
-### Tests Unitaires
-- Validation complète des 77 tests de non-régression (`npm test`).
+### Ajouté
+- **Animation d'arrière-plan de la page Support (`support.css`)** : Ajout d'une animation d'ambiance avec sphères lumineuses ascendantes et flou diffus créant un effet chaleureux continu derrière les cartes.
 
 ---
 
 ## [2.16.13] - 2026-10-20
 
-### Animation organique du fond avec bulles ambiantes et halo lumineux flottant pour l'écran Support
-- Synchronisation automatique de version et ajustements du projet.
+### Amélioré
+- **Arrière-plan d'ambiance de la page Support** : Intégration des éléments flottants et ajustement des transitions lumineuses.
 
 ---
 
 ## [2.16.12] - 2026-10-20
 
-### Architecture Visuelle du Header & Résolution du Fond
-- **Suppression définitive de la délimitation sous le header (`public/assets/styles/navbar.css`)** :
-  - Passage de la barre de navigation `.navbar` en positionnement fixe (`position: fixed; top: ...; left: 0; right: 0; margin: 0 auto;`).
-  - **Conservation intégrale de l'aspect original** : forme en pilule flottante avec marges (`top: 0.625rem`), largeur maximale, bords arrondis, ombre portée douce et effet de flou en verre dépoli (`backdrop-filter: blur(16px)`).
-  - Élimination de la rupture de flux dans le conteneur flex du `body` : les écrans et leur arrière-plan personnalisé s'étendent désormais de façon continue sur **100% de la hauteur de la fenêtre (dès `y = 0`)**, passant de façon totalement transparente et homogène sous le header.
-  - Définition d'un dégagement vertical adaptatif dans `public/assets/styles/base.css` (`padding-top` sur `.screen`), permettant aux contenus de commencer immédiatement sous la navbar sans jamais être masqués ni coupés.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v69`.
-
-### Tests Unitaires
-- Validation complète des 77 tests de non-régression (`npm test`).
+### Amélioré
+- **Intégration plein écran du header (`navbar.css`)** : Passage de la barre de navigation en positionnement fixe au-dessus du contenu, permettant à l'arrière-plan personnalisé de s'étendre sur toute la hauteur de la fenêtre sans rupture visuelle.
 
 ---
 
 ## [2.16.11] - 2026-10-20
 
-### Restitution Visuelle Haute-Fidélité de la Page Support
-- **Fond espresso & halo ambre/terre cuite (`public/assets/styles/support.css`)** :
-  - Restitution exacte de l'ambiance visuelle du modèle : halo vibrant terre cuite / ambre brûlé dans le coin supérieur gauche (`#9e3617` / `#8a341b`) se fondant dans un fond chocolat noir / espresso (`#1b100d`).
-  - Application synchronisée sur `body:has(#support-screen.active)` et `#support-screen` pour une continuité absolue sous la navbar, sans aucune bordure ni saut de couleur.
-  - Masquage automatique du backdrop par défaut du jeu (`.app-backdrop`) pour préserver la profondeur et la chaleur des teintes sans interférence.
-  - La barre de navigation hérite d'une texture en verre fumé cuivré (`rgba(45, 27, 23, 0.75)` avec `backdrop-filter: blur(16px)`).
-- **Cartes & Typographies conformes au modèle** :
-  - Titres et en-têtes avec la police avec empattement *Georgia* (`color: #ffffff`), élégante et chaleureuse.
-  - Cartes d'accueil et d'action avec coins très arrondis (`28px` et `24px`), fond chocolat soyeux (`rgba(58, 36, 33, 0.88)`), liséré délicat et ombre portée profonde.
-  - Paragraphes clairs en beige chaud (`#ecdcd0`), offrant une lisibilité et un confort visuel optimaux.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v68`.
-
-### Tests Unitaires
-- Validation complète des 77 tests de non-régression (`npm test`).
+### Amélioré
+- **Habillage de la page Support (`support.css`)** :
+  - Dégradés sombres aux nuances chaleureuses (tons café et ambre).
+  - Typographie soignée avec police avec empattement (*Georgia*) pour les titres et contrastes optimisés pour la lecture.
+  - Cartes aux angles arrondis avec effet verre dépoli (`backdrop-filter`).
 
 ---
 
 ## [2.16.10] - 2026-10-20
 
-### Ambiance Graphique & Expérience Utilisateur
-- **Fond accueillant, chaleureux et pleine page sur l'écran Support (`public/assets/styles/support.css`)** :
-  - Restauration de l'ambiance cosy, chaleureuse et réconfortante (teintes café, miel, ambre doux et caramel) via le sélecteur `body:has(#support-screen.active)`.
-  - Application du dégradé radial et des bulles ambiantes directement sur le conteneur global `#app-backdrop` : le fond couvre ainsi 100% de la fenêtre (y compris derrière le header flottant) garantissant **zéro délimitation** ou coupure visuelle.
-  - Prise en charge soignée des modes sombre et clair :
-    - *Mode sombre* : fond café torréfié profond (`#180f0c` / `#24140f`), lueurs ambrées et cartes en verre fumé avec reflets cuivrés.
-    - *Mode clair* : fond crème / latte velouté (`#fbf5ee` / `#fff9f2`), halos miel et cartes lumineuses douces.
-  - Harmonisation des cartes, typographies et bordures pour une lisibilité optimale et une sensation d'accueil agréable.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v67`.
-
-### Tests Unitaires
-- Exécution et validation des 77 tests de non-régression (`npm test`).
+### Amélioré
+- **Harmonisation visuelle de la page Support (`support.css`)** :
+  - Déploiement de l'arrière-plan d'ambiance sur l'ensemble de la fenêtre via `#app-backdrop`.
+  - Prise en charge des thèmes clair et sombre avec contrastes adaptés.
 
 ---
 
 ## [2.16.9] - 2026-10-20
 
-### Harmonisation Visuelle & Cohérence Graphique
-- **Harmonisation complète du style de la page Support (`public/assets/styles/support.css`)** :
-  - Alignement de la page de soutien sur l'architecture visuelle de l'ensemble du jeu : passage de `#support-screen` en fond transparent (`background: transparent;`) pour hériter du fond unifié et dynamique de l'application (`#app-backdrop` et tokens globaux).
-  - Suppression de la démarcation et du contraste de couleur qui apparaissait derrière la barre de navigation.
-  - Utilisation des variables graphiques standards de CityMaster : `var(--bg-card)`, `var(--surface)`, `var(--border-color)`, `var(--text-main)`, `var(--text-secondary)`, `var(--shadow-md)` et `var(--border-radius-lg)` avec effet de flou en arrière-plan (`backdrop-filter: blur(16px)`).
-  - Préservation du style canonique en floating pill de la navbar du jeu sans altération sur les autres écrans.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v66` pour forcer la mise à jour des styles auprès des navigateurs clients.
-
-### Tests Unitaires
-- Exécution et validation des 77 tests de non-régression (`npm test`).
+### Modifié
+- **Cohérence des styles de l'écran Support (`support.css`)** :
+  - Utilisation des variables de thème globales (`--bg-card`, `--border-color`, `--text-main`).
+  - Suppression des bordures superflues et intégration naturelle avec le reste de l'application.
 
 ---
 
 ## [2.16.7] - 2026-10-20
 
-### Corrections Visuelles & Rendu Graphique
-- **Résolution de la duplication / superposition des frames du GIF animé (`boykisser.gif` & `support.html`)** :
-  - Identification de la cause : l'optimisation delta d'ImageMagick générait des sous-frames transparentes partielles sans réinitialisation de disposition (`disposal: None`), provoquant la superposition des calques successifs dans le navigateur (troisième œil, dédoublement des pattes et des onomatopées).
-  - Régénération du GIF avec coalescence complète (`-coalesce`), garantissant que chaque frame est pleine, opaque et remplace intégralement la précédente sans laisser de résidu transparent ni d'artéfact de fantôme.
-  - Mise à jour de la Data URI Base64 dans `public/screens/support.html` et du fichier `public/assets/images/boykisser.gif`.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v64`.
-
-### Tests Unitaires
-- Validation des 77 tests de non-régression (`npm test`).
+### Corrigé
+- Résolution des problèmes de superposition et d'artéfacts sur l'animation GIF de la page Support (coalescence des frames).
+- Mise à jour du cache Service Worker (`citymaster-v64`).
 
 ---
 
 ## [2.16.6] - 2026-10-20
 
-### Optimisations de Performance & Chargement Instantané
-- **Intégration inline en Base64 du GIF animé (`public/screens/support.html`)** :
-  - Optimisation préalable du GIF animé (réduction du poids de 114 Ko à 36 Ko par échantillonnage 120x120 adapté).
-  - Intégration directe du GIF sous forme de Data URI Base64 (`data:image/gif;base64,...`) directement dans l'attribut `src` de la balise `<img>`.
-  - Élimination totale de la requête réseau supplémentaire, garantissant un affichage immédiat à l'ouverture de l'écran.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v63`.
-
-### Tests Unitaires
-- Mise à jour de `tests/support_route.test.js` validant la présence du GIF inline en Base64.
-- Validation des 77 tests unitaires (`npm test`).
+### Amélioré
+- Intégration inline en Base64 du GIF animé sur la page Support pour éliminer la requête réseau additionnelle.
+- Mise à jour du cache Service Worker (`citymaster-v63`).
 
 ---
 
 ## [2.16.5] - 2026-10-20
 
-### Épuration de Contenu & Expérience Utilisateur
-- **Allègement du texte de bienvenue (`support.html` & `fr.json`/`en.json`)** :
-  - Suppression de la mention sur les coûts réels de serveur et de cartographie pour simplifier la présentation (« *Le jeu est complètement gratuit et sans publicité. Si vous appréciez le jeu et souhaitez soutenir son évolution, vous êtes au bon endroit !* »).
-- **Suppression des sections d'infrastructure et d'objectifs futurs** :
-  - Retrait complet du bloc intermédiaire `.support-sections-grid` (cartes « *L'infrastructure actuelle* » et « *Objectifs futurs* ») afin d'amener directement le joueur aux deux options de contribution concrètes (Ko-fi et modération).
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v62`.
-
-### Tests Unitaires
-- Mise à jour de `tests/support_route.test.js` pour valider l'absence des cartes intermédiaires.
-- Validation des 77 tests unitaires (`npm test`).
+### Modifié
+- Simplification des textes de la page Support et retrait des sections intermédiaires d'infrastructure.
+- Mise à jour du cache Service Worker (`citymaster-v62`).
 
 ---
 
 ## [2.16.4] - 2026-10-20
 
-### Optimisations Graphiques & Médias
-- **Intégration du GIF animé Tenor et suppression de l'effet de survol (`support.html` & `support.css`)** :
-  - Remplacement de l'image statique par le GIF animé officiel *Boykisser* (`public/assets/images/boykisser.gif`).
-  - Suppression de la transformation d'agrandissement et de rotation au survol (`:hover`) sur `.support-mascot-img` pour un affichage stable et discret.
-- **Mise à jour PWA & Cache (`public/sw.js`)** :
-  - Enregistrement de `boykisser.gif` dans `STATIC_ASSETS` pour garantir son affichage immédiat et son fonctionnement hors-ligne.
-  - Incrémentation du cache vers `citymaster-v61`.
-
-### Tests Unitaires
-- Mise à jour du test `tests/support_route.test.js` pour valider l'intégration du GIF `boykisser.gif`.
-- Validation des 77 tests de la suite (`npm test`).
+### Modifié
+- Intégration du GIF animé de la mascotte sur la page Support et suppression de l'effet de zoom au survol.
+- Mise en cache hors-ligne de la mascotte (`citymaster-v61`).
 
 ---
 
 ## [2.16.3] - 2026-10-20
 
-### Optimisations & Architecture Graphique
-- **Suppression du conteneur englobant inutile (`.card.support-card`)** :
-  - Restructuration du template `public/screens/support.html` en supprimant le wrapper extérieur `.card.support-card` afin de poser le titre principal et les différentes cartes directement sur le fond d'ambiance café dégradé.
-  - Remplacement par un conteneur fluide `.support-container` (`max-width: var(--container-lg)`), harmonisant l'apparence avec la maquette originale où chaque carte vit de façon autonome.
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v60`.
-
-### Tests Unitaires
-- Mise à jour du test `tests/support_route.test.js` pour vérifier l'absence du conteneur englobant `.support-card`.
-- Validation des 77 tests de la suite (`npm test`).
+### Modifié
+- Restructuration du conteneur de la page Support pour poser directement les cartes sur l'arrière-plan d'ambiance.
+- Mise à jour du cache Service Worker (`citymaster-v60`).
 
 ---
 
 ## [2.16.2] - 2026-10-20
 
-### Optimisations & Épuration Graphique
-- **Simplification et épuration visuelle de l'écran « Soutenir le projet » (`public/screens/support.html` & `public/assets/styles/support.css`)** :
-  - Suppression de la barre de liens secondaires en en-tête (`Accueil`, `Salons Équipes`, `Se connecter`).
-  - Suppression du sous-titre redondant sous le titre principal pour focaliser l'attention sur le titre et la mascotte.
-  - Suppression du lien d'administration sous le bouton de modération pour une interface plus claire.
-  - Suppression du second bouton de retour en bas de page pour laisser la place nette aux deux options d'action (le bouton circulaire `.btn-back-round` en en-tête restant dédié au retour).
-- **Service Worker & PWA (`public/sw.js`)** :
-  - Incrémentation du cache vers `citymaster-v59`.
-
-### Tests Unitaires
-- Mise à jour des tests dans `tests/support_route.test.js` garantissant l'absence des éléments superflus retirés.
-- Validation des 77 tests de la suite (`npm test`).
+### Modifié
+- Allègement de l'écran Support : suppression de la barre de liens secondaires et du bouton de retour redondant.
+- Mise à jour du cache Service Worker (`citymaster-v59`).
 
 ---
 
 ## [2.16.1] - 2026-10-20
 
-### Nouveautés & Refonte Visuelle Chaleureuse
-- **Design chaleureux inspiré de l'ambiance café / chocolat chaud (`public/assets/styles/support.css`)** :
-  - Palette chaleureuse avec dégradés d'ambiance espresso et ambrés (`#18100e`, touches cuivrées et terracotta).
-  - Typographie élégante avec polices sérif soignées pour les titres (`Georgia`, `Playfair Display`, `Merriweather`) et textes centrés très lisibles.
-  - Intégration de la mascotte animée au clavier dans un médaillon circulaire doux (`public/assets/images/mascot-typing.png`).
-  - Liserés colorés distinctifs en haut des cartes d'infrastructure (pêche/corail `#ff9e79`) et d'objectifs (or étincelant `#fcd34d`).
-- **Deux manières concrètes de soutenir le projet (`public/screens/support.html`)** :
-  - **1. Offrir un café (Ko-fi)** : Don ponctuel libre pour participer au matériel, à l'électricité des Raspberry Pi et aux services de cartes avec bouton d'action dédié vers `https://ko-fi.com/tsuki_dev`.
-  - **2. Devenir Modérateur des Routes (Gestion cartographique)** : Possibilité pour les joueurs de s'investir en aidant à corriger, vérifier et modérer les tracés de rues et de quartiers de leur commune, avec lien direct de candidature par email et raccourci d'accès à l'espace de gestion.
-- **Cache PWA & Service Worker (`public/sw.js`)** :
-  - Ajout de `mascot-typing.png` aux actifs statiques mis en cache pour une consultation hors-ligne fluide.
-  - Incrémentation du cache vers `citymaster-v58`.
-
-### Tests Unitaires & Parité i18n
-- Mise à jour de la suite de tests `tests/support_route.test.js` pour valider la mascotte, les deux manières de contribuer et la sécurité des liens.
-- Parité stricte à 100% conservée dans les dictionnaires `fr.json` et `en.json`.
-- Succès de la totalité des 77 tests unitaires (`npm test`).
+### Ajouté
+- Habillage graphique chaleureux pour la page Support (palette ambrée et typographie sérif).
+- Options de contribution : don Ko-fi et candidature à la modération cartographique.
+- Mise à jour du cache Service Worker (`citymaster-v58`).
 
 ---
 
 ## [2.16.0] - 2026-10-20
 
-### Nouvelles Fonctionnalités
-- **Page dédiée « Soutenir le projet » (`public/screens/support.html`)** :
-  - Création d'une page accessible présentant la genèse du jeu CityMaster (né d'un projet académique de fin d'études et poursuivi bénévolement par passion).
-  - Détail de l'infrastructure d'hébergement actuelle (serveurs Raspberry Pi auto-hébergés, coûts d'électricité, base de données, bande passante et services de tuiles cartographiques).
-  - Présentation des objectifs futurs d'évolution (serveur dédié performant pour un mode multijoueur fluide sans latence, réservation pérenne du nom de domaine).
-  - Intégration d'un bouton d'action attractif vers la plateforme de don **Ko-fi** (`https://ko-fi.com/tsuki_dev`) pour permettre aux joueurs de soutenir financièrement le développement sans aucune obligation.
-  - Barre de navigation rapide en en-tête (`Accueil`, `Salons Équipes`, `Se connecter`) et bouton de retour à l'accueil circulaire `.btn-back-round`.
-- **Intégration du lien dans tous les pieds de page** :
-  - Ajout du bouton `.support-footer-link` (« 💖 Soutenir le projet ») dans l'écran d'accueil (`landing.html`), l'écran de configuration de partie (`setup.html`) et l'écran de profil joueur (`profile.html`).
+### Ajouté
+- Nouvelle page « Soutenir le projet » accessible depuis le pied de page (`/support`).
+- Bouton de contribution Ko-fi et informations sur l'infrastructure du projet.
+- Prise en charge multilingue (français / anglais) et mise en cache hors-ligne (`citymaster-v57`).
 
-### Sécurité & Architecture
-- **Routage applicatif dynamique (`src/Router.js` & `src/app.js`)** :
-  - Déclaration et gestion de la route `/support` (avec normalisation automatique `/support/`).
-  - Interception fluide des clics sur la classe `.support-footer-link` et les boutons `#support-back-btn` / `#support-footer-back-btn`.
-- **Internationalisation (i18n)** :
-  - Prise en charge intégrale bilingue (Français et Anglais) de l'ensemble des textes et métadonnées de la page de soutien (`public/assets/i18n/fr.json` et `public/assets/i18n/en.json`) avec parité stricte à 100%.
-- **Cache hors-ligne PWA & Service Worker (`public/sw.js`)** :
-  - Ajout de `/screens/support.html` et `/assets/styles/support.css` dans `STATIC_ASSETS`.
-  - Incrémentation du cache Service Worker (`citymaster-v57`).
-
-### Tests Unitaires & Non-Régression
-- Ajout d'une suite de tests dédiée (`tests/support_route.test.js`, 3 tests) :
-  - Vérification de l'existence et de l'accessibilité sémantique du template `support.html` (bouton Ko-fi, rel `noopener noreferrer`, target `_blank`, bouton retour).
-  - Vérification de la correspondance des routes `/support` et `/support/` par le routeur.
-  - Vérification de la présence des liens de soutien dans les templates de pieds de page (`landing.html`, `setup.html`, `profile.html`).
-- Validation réussie de l'intégralité des 77 tests unitaires de non-régression (`npm test`).
+### Tests
+- Tests unitaires pour la route et les composants de la page Support (`tests/support_route.test.js`).
 
 ---
 
 ## [2.15.3] - 2026-10-20
 
-### Mise à jour et améliorations
-- Synchronisation automatique de version et ajustements du projet.
+### Tests
+- Refactoring et optimisation de la suite de tests unitaires pour une meilleure maintenabilité.
 
 ---
 
 ## [2.15.2] - 2026-10-20
 
-### Corrections de bugs & Précision Cartographique (Élimination des boucles et fermetures parasites sur les rues)
-- **Assainissement géométrique automatique des voies (`sanitizeStreetCoordinates` & `sanitizeStreetFeature`)** :
-  - **Correction de la fermeture parasite (premier point relié au dernier)** :
-    - Sur certaines rues linéaires (comme le « Chemin Latéral » ou la « Rue de la Tuilerie »), des données sources OSM (voies circulaires/raquettes) ou des raccordements pouvaient refermer artificiellement la voie sur elle-même (`start ≈ end`), traçant un trait diagonal rectiligne traversant toute la commune entre l'extrémité de départ et l'extrémité d'arrivée.
-    - Ajout d'une détection intelligente des voies linéaires fermées artificiellement : si une voie linéaire n'est pas un rond-point et que son premier point rejoint son dernier point, le point de fermeture dupliqué est automatiquement retiré, rétablissant le tracé linéaire naturel et ouvert de la rue.
-  - **Détection des carrefours giratoires et ronds-points réels (`isRoundaboutFeature`)** :
-    - Préservation garantie des vrais ronds-points (`highway=roundabout`, `junction=roundabout`, toponymes « Rond-Point », « Giratoire » ou boucles compactes d'un diamètre inférieur ou égal à 55 mètres) qui conservent leur géométrie en anneau fermé complet.
-  - **Protection anti-corde et sauts anormaux à travers la ville** :
-    - Détection des sauts anormaux excédant 1200 mètres entre points consécutifs d'une même voie : la voie est automatiquement scindée en segments distincts au lieu de tracer une ligne diagonale traversant la carte.
-- **Intégration du filtrage aux points clés du pipeline spatial et cartographique** :
-  - **Affichage Leaflet sécurisé (`MapView.renderStreet` & `MapView.renderSelection`)** : Tout GeoJSON de rue reçu est désormais filtré et assaini avant ajout aux couches Leaflet (`#streetLayer`, `#selectionLayer`), empêchant tout rendu déformé ou fermeture intempestive.
-  - **Intégration à la fusion intelligente (`stitchStreetFeatures`)** : Les voies fusionnées sont systématiquement assainies après le raccordement des tronçons.
-  - **Conversion des requêtes dynamiques (`OverpassService` & `CityController`)** : Prise en charge dès la transformation GeoJSON des réponses Overpass API.
+### Corrigé
+- Assainissement géométrique des voies OSM : suppression des boucles fermées parasites sur les voies linéaires.
+- Préservation des véritables carrefours giratoires et ronds-points (`isRoundaboutFeature`).
+- Découpage automatique des sauts anormaux (> 1200 m) entre coordonnées consécutives d'une même voie.
 
-### Tests Unitaires & Non-Régression
-- Ajout de 5 nouveaux tests unitaires dans `tests/street_stitching_and_haptics.test.js` couvrant :
-  - La détection précise des giratoires via `isRoundaboutFeature` (par tags, noms, et diamètre géométrique).
-  - L'ouverture automatique des boucles parasites sur les voies linéaires via `sanitizeStreetCoordinates`.
-  - La préservation rigoureuse des vrais ronds-points fermés.
-  - La scission propre des sauts anormaux traversant la commune.
-  - La désinfection complète d'entités GeoJSON `Feature` (`LineString` / `MultiLineString`) via `sanitizeStreetFeature`.
-- **Suite de tests portée à 74 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires d'assainissement géométrique des rues (`tests/street_stitching_and_haptics.test.js`).
 
 ---
 
 ## [2.15.1] - 2026-10-20
 
-### Corrections de bugs & Ergonomie UI (Résolution du chevauchement Bannière Hors-ligne & HUD Jeu)
-- **Décalage dynamique du bandeau de jeu (`#top-banner` / `.ui-overlay-top`)** :
-  - **Correction du chevauchement vertical** : La bannière réseau (`#offline-banner`, affichant « Mode hors-ligne : Connexion requise pour jouer et synchroniser ») recouvrait partiellement le bandeau de jeu supérieur (« Temps écoulé ! Vous n'avez pas sélectionné d'emplacement » / instruction de rue) lors des déconnexions.
-  - **Gestion dynamique de classe et variables CSS** : `NetworkService` applique désormais automatiquement `body.has-offline-banner` dès l'activation de la bannière. Les éléments `.ui-overlay-top` et `.ui-overlay-top-right` s'adaptent dynamiquement via `--game-top-offset` et une transition fluide (`transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1)`), garantissant un espacement parfait sans aucun chevauchement.
-  - **Sécurisation de la largeur mobile** : Ajustement de `max-width: calc(100% - 6rem)` sur les écrans mobiles pour éviter toute collision horizontale avec les boutons d'action (Quitter et Signaler).
-- **Repositionnement et stylisation des contrôles Leaflet (`[+] [-]` et attribution)** :
-  - **Élévation des boutons de zoom (`.leaflet-control-zoom`)** : Déplacement de la marge inférieure (`margin-bottom: clamp(4.75rem, 10dvh, 5.75rem)`) pour que les contrôles de zoom flottent au-dessus de la barre d'action inférieure (`#bottom-actions`) au lieu de se superposer avec le bouton de validation ou le champ de saisie.
-  - **Stylisation Soft UI & Dark Mode** : Habillage complet des boutons de zoom en harmonie avec le thème (bordures adoucies, flou de fond `backdrop-filter`, couleurs d'accentuation) et attribution discrète non intrusive (`.leaflet-control-attribution`).
+### Corrigé
+- Décalage dynamique du bandeau de jeu supérieur lorsque la bannière hors-ligne est affichée pour éviter les chevauchements.
+- Repositionnement des contrôles de zoom Leaflet au-dessus de la barre d'action inférieure.
 
-### Tests Unitaires & Non-Régression
-- Ajout d'un test unitaire dans `tests/offline_sync.test.js` validant :
-  - La déclaration de `--offline-banner-height` dans `messages.css`.
-  - Le basculement dynamique de `--game-top-offset` sous `body.has-offline-banner` et `body.is-offline`.
-  - L'assignation de `--game-top-offset` à `.ui-overlay-top`.
-  - L'élévation de `.leaflet-control-zoom` au-dessus de la barre d'action inférieure.
-- **Suite de tests portée à 69 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires pour l'espacement adaptatif de la bannière hors-ligne (`tests/offline_sync.test.js`).
 
 ---
 
 ## [2.15.0] - 2026-10-19
 
-### Nouvelles fonctionnalités & Immersion
-- **Fusion toponymique intelligente des voies (Street Stitching)** :
-  - **Raccordement bout-à-bout des tronçons contigus (`stitchCoordinates`)** : Détection et fusion automatique des tronçons d'une même artère qui se touchent ou se succèdent (tolérance géodésique de 10 mètres), gérant automatiquement les inversions de numérisation (reverse). Les segments fragmentés sont transformés en une ligne continue unifiée (`LineString`), réduisant de 46 % la fragmentation des voies (ex. 85 % des rues morcelées de Bordeaux deviennent des lignes uniques parfaites).
-  - **Harmonisation des voies multi-tronçons (`stitchStreetFeatures`)** : Regroupement automatique des entités de même toponyme en composantes connexes. Lors de la sélection d'une avenue ou d'un grand boulevard par le joueur, toute la voie s'illumine d'un seul coup sur la carte au lieu d'un simple petit segment partiel.
-  - **Garde-fous stricts anti-fusion de rues différentes** :
-    - *Toponymes stricts* : Seules les voies partageant exactement le même nom (sans altération de préfixe comme Rue, Avenue, Impasse, Place) peuvent être assemblées.
-    - *Préservation des types* : Les lotissements, places polygonales et points d'intérêt ne sont jamais fusionnés avec les voies routières.
-    - *Protection contre les homonymes distants* : Si deux voies partagent le même nom mais sont situées dans des quartiers ou communes distinctes (séparation spatiale > 150 mètres sans continuité), elles demeurent strictement séparées et autonomes.
-  - **Intégration transparente** : Disponible dans `SpatialService.mergeCityStreets`, `OverpassService.convertToGeoJSON`, et le backend `CityController.convertToGeoJSON`.
+### Ajouté
+- Fusion automatique des tronçons contigus d'une même artère (Street Stitching) avec protection contre les homonymes distants.
+- Retour haptique (vibrations) sur mobile lors des sélections et validations de jeu (`HapticService`).
 
-- **Retour Haptique immersif sur smartphone (`HapticService.js`)** :
-  - **Vibrations tactiles natives (`navigator.vibrate`)** avec fallback sécurisé pour les navigateurs non compatibles (iOS Safari) et détection dynamique.
-  - **Motifs de vibration adaptés aux actions de jeu** :
-    - *Tap discret (15 ms)* : lors de la sélection ou du clic sur une rue sur la carte ou sur un bouton d'action.
-    - *Vibration gratifiante (`[35, 30, 45] ms`)* : confirmation d'une bonne réponse.
-    - *Pulsations festives de combo (`[40, 35, 55] ms` ou `[40, 30, 40, 30, 75] ms`)* : célébration des séries de victoires consécutives (multiplicateurs x2 et x3).
-    - *Double pulsation d'erreur (`[70, 50, 90] ms`)* : mauvaise réponse ou temps écoulé.
-  - **Préférence utilisateur persistante** : Prise en charge de `localStorage.getItem('haptic_enabled')` avec méthodes `isEnabled()`, `setEnabled()`, et `toggle()`.
-
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/street_stitching_and_haptics.test.js` (8 suites de tests) validant :
-  - Le raccordement bout-à-bout de segments contigus et la gestion des sens de numérisation inversés.
-  - La non-fusion de segments disjoints ou distants.
-  - La fusion de tronçons portant le même nom et la non-fusion de rues aux toponymes différents.
-  - La protection contre la fusion d'homonymes distants de plus de 150 mètres.
-  - La préservation intacte des polygones, lotissements et points.
-  - Le fonctionnement sécurisé de `HapticService` avec et sans support `navigator.vibrate`.
-- **Suite de tests portée à 68 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires pour la fusion toponymique et le retour haptique (`tests/street_stitching_and_haptics.test.js`).
 
 ---
 
 ## [2.14.3] - 2026-10-19
 
-### Optimisations & Qualité Cartographique (Filtrage des Micro-Voies de « 1 mm »)
-- **Élimination complète des micro-segments de voies inexploitables (< 15 mètres)** :
-  - **Origine du problème OpenStreetMap vs Google Maps** : Contrairement à Google Maps qui est une base propriétaire hautement nettoyée et généralisée, OpenStreetMap découpe les voies en micro-tronçons (bifurcations de ronds-points, îlots de refuges piétons, changements ponctuels de vitesse ou de revêtement). Certains de ces tronçons ne mesuraient que 1,9m à 8m (ex: *Rue du Commandant Marchand* à Bordeaux : 1,9 mètre, ou *Allée de Coudrier* à Tours : 4,4 mètres), formant un point imperceptible d'un millimètre sur la carte impossible à cliquer ou identifier.
-  - **Filtrage automatique à tous les niveaux du pipeline de données** :
-    - **Frontend (`GameController.js` & `OverpassService.js`)** : Exclusion immédiate de toute voie dont la géométrie métrique totale est inférieure à 15 mètres lors de la sélection des rues jouables et du traitement Overpass.
-    - **Backend (`GameController.js` & `CityController.js`)** : Prise en compte du seuil de coupure de 15 mètres dans `filteredDefaults`, `convertToGeoJSON` et le calcul des décomptes de difficulté `getDifficulties`, éliminant automatiquement des centaines de micro-fragments parasites (notamment 393 micro-voies à Lyon).
-    - **Exposition de l'utilitaire de calcul métrique (`RouteDifficultyService.getFeatureLengthMeters`)** pour des vérifications géodésiques instantanées et fiables.
+### Corrigé
+- Filtrage des micro-segments de voies OSM (< 15 mètres) pour éviter les voies non cliquables ou imperceptibles sur la carte.
+- Ajout du calcul métrique de distance via `RouteDifficultyService.getFeatureLengthMeters`.
 
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/micro_streets_filter.test.js` (2 suites de tests) validant :
-  - Le calcul géodésique précis des longueurs de micro-segments et de voies normales.
-  - L'exclusion systématique des voies de moins de 15m lors de la conversion GeoJSON et de la sélection de jeu.
-- **Suite de tests portée à 60 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires pour le filtrage des micro-voies (`tests/micro_streets_filter.test.js`).
 
 ---
 
 ## [2.14.2] - 2026-10-19
 
-### Optimisations & Expérience de Jeu (Fiabilité et Fluidité des Tuiles Cartographiques)
-- **Élimination des tuiles manquantes au chargement (`MapView.js`, `AdminView.js`, `public/sw.js`)** :
-  - **Auto-retry automatique sur `tileerror` (`MapView.js` & `AdminView.js`)** : Par défaut, Leaflet abandonne définitivement toute tuile dont la requête réseau échoue (timeout, ralentissement réseau ou micro-coupure) jusqu'à ce que l'utilisateur s'écarte et revienne. Un mécanisme d'auto-retry automatique réessaie désormais jusqu'à 3 fois la tuile manquante avec un délai progressif (600ms, 1200ms, 1800ms) et un identifiant de cache-busting, assurant son affichage spontané sans aucune intervention manuelle.
-  - **Buffer étendu (`keepBuffer: 8`) et fluidité continue** : Maintien en mémoire d'une couronne de 8 tuiles autour du viewport visible et chargement continu (`updateWhenIdle: false`, `updateInterval: 100`) pour éviter les trous gris ou les flashs blancs lors des déplacements.
-  - **Recalcul dynamique multi-passes (`invalidateSize()`) & `ResizeObserver`** : Le redimensionnement du conteneur `#map` lors de l'activation de l'écran de jeu ou d'un changement de mise en page déclenche immédiatement un `invalidateSize()` renforcé (immédiat, `requestAnimationFrame`, 200ms et 500ms), complété par un `ResizeObserver` natif pour éliminer tout décalage géométrique entre l'affichage de l'écran et le quadrillage de la carte.
-  - **Mise en cache locale Service Worker des tuiles CartoDB et ArcGIS (`sw.js`)** : Ajout de `basemaps.cartocdn.com`, `cartocdn.com` et `arcgisonline.com` dans la liste des CDN autorisés au cache PWA (`isAllowedCdn`), garantissant un chargement instantané à 0ms pour les tuiles déjà consultées et une résilience maximale contre les pertes de réseau.
+### Amélioré
+- Mécanisme de nouvelle tentative automatique en cas d'erreur de chargement de tuile cartographique (`tileerror`).
+- Agrandissement du tampon de tuiles (`keepBuffer: 8`) et invalidation automatique de la taille de carte lors des redimensionnements.
+- Mise en cache Service Worker des tuiles CartoDB et ArcGIS.
 
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/map_tile_reliability.test.js` (2 suites de tests) validant :
-  - La présence des options `keepBuffer: 8`, `crossOrigin: true`, `updateWhenIdle: false` et du mécanisme `attachTileAutoRetry` dans `MapView.js`.
-  - La présence de l'invalidation multi-passes via `requestAnimationFrame` et du `ResizeObserver`.
-  - L'autorisation des domaines CartoDB et ArcGIS dans `sw.js`.
-- **Suite de tests portée à 58 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires pour la résilience du chargement des tuiles (`tests/map_tile_reliability.test.js`).
 
 ---
 
 ## [2.14.1] - 2026-10-19
 
-### Optimisations & Expérience de Jeu (Rééquilibrage du Mode Facile)
-- **Correction majeure de la classification des voies faciles (`RouteDifficultyService.js`, `GameController.js` Frontend & Backend)** :
-  - **Élimination du faux classement « facile » des ruelles de centre-ville** : Les anciennes heuristiques classaient à tort n'importe quelle voie située à moins de 1,5 km du centre comme « facile », ce qui incluait des centaines de petites ruelles médiévales de 30 à 80 mètres dans les centres historiques (comme à Orléans, Tours ou Rouen). Désormais, les voies courtes (< 200m – 250m) sont strictement exclues du mode facile et classées en difficile (`hard`).
-  - **Priorité aux grands axes toponymiques emblématiques (`MAJOR_TOPONYMS`)** : Détection ciblée des boulevards, avenues, mails, quais, ponts, cours, faubourgs, promenades, rocades, chaussées et routes de plus de 80 mètres, qui constituent les véritables repères connus des joueurs.
-  - **Prise en compte des artères majeures et piétonnes** : Les grandes artères commerçantes ou historiques (ex: *Rue Jeanne d'Arc*, *Rue Royale*, *Rue de Bourgogne* à Orléans) de plus de 550 mètres de long ou de classification tertiaire majeure sont désormais correctement classées en mode facile, sans être pénalisées par le tag `highway: pedestrian`.
-  - **Repli hiérarchique intelligent** : Lorsqu'une ville compte moins de voies faciles que le nombre de manches demandées, le système complète d'abord par les voies de difficulté moyenne (`medium`) plutôt que de tirer au hasard parmi les impasses et voies les plus difficiles de la ville.
+### Corrigé
+- Rééquilibrage du mode facile : exclusion des ruelles courtes de centre-ville et priorisation des grands axes toponymiques (boulevards, avenues, quais).
 
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/route_difficulty_easy.test.js` (4 nouvelles suites de tests) vérifiant :
-  - La classification systématique en mode facile des grands axes toponymiques (boulevards, avenues, mails, quais, ponts, cours, faubourgs).
-  - L'inclusion des artères longues et emblématiques même piétonnes (*Rue Jeanne d'Arc*).
-  - L'exclusion absolue des petites ruelles courtes de centre historique (< 200m) du mode facile.
-  - La persistance en mode difficile des voies mineures (impasses, sentiers, passages, venelles).
-- **Suite de tests portée à 56 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires pour la classification de difficulté des rues (`tests/route_difficulty_easy.test.js`).
 
 ---
 
 ## [2.14.0] - 2026-10-19
 
-### Nouveautés & Expérience de Jeu (Célébration Adaptative de Fin de Partie)
-- **Présence et volume de confettis indexés sur la performance du joueur (`ConfettiService.js`)** :
-  - **Condition de présence minimale (Seuil d'échec)** : Les confettis ne se déclenchent plus systématiquement. En cas de score nul ou insuffisant (< 500 points en mode classique *target*, < 300 points en mode *sprint*), aucun confetti n'est généré (aucun canvas créé ni animation superflue), évitant toute célébration déplacée.
-  - **Échelle progressive et paliers visuels dynamiques** :
-    - **Bronze** (500 - 1499 pts) : Pluie légère et discrète de 30 à 65 confettis avec palette douce (ambre, ardoise, bleu ciel).
-    - **Argent** (1500 - 2999 pts) : Fête standard et joyeuse de 75 à 130 confettis multicolores festifs.
-    - **Or** (3000 - 4499 pts) : Célébration dynamique de 150 à 230 confettis rapides aux teintes dorées, turquoise et pourpre.
-    - **Légendaire** (≥ 4500 pts) : Explosion festive spectaculaire de 250 à 320 confettis avec étincelles scintillantes blanches et dorées, vélocité accrue et durée étendue à 8 secondes.
-  - **Méthode d'analyse et configuration dédiée** : Exposition de `ConfettiService.getConfettiConfig(score, mode)` pour une évaluation prédictive, modulaire et hautement testable de chaque palier.
-- **Synchronisation avec le bilan et le certificat de fin de jeu (`CertificateView.js` & `app.js`)** :
-  - `CertificateView` enregistre et expose désormais `lastScore` et `lastMode` lors de l'appel à `render()`.
-  - Lors de la navigation vers `/certificate`, `app.js` transmet le score exact et le mode de jeu à `ConfettiService.launch(score, { mode })`, et n'active la fanfare audio que pour les scores ayant mérité une célébration.
+### Ajouté
+- Célébration adaptative de fin de partie : volume de confettis modulé selon le score obtenu (Bronze, Argent, Or, Légendaire).
+- Désactivation des confettis en cas de score insuffisant pour éviter les fausses célébrations.
 
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/confetti_score.test.js` avec 6 suites de tests complètes :
-  - Vérification de l'absence de confettis pour les scores sous les seuils cibles.
-  - Validation de chaque palier (Bronze, Argent, Or, Légendaire) et des effets d'étincelles.
-  - Vérification de la stricte monotonie du nombre de confettis par rapport au score.
-  - Validation du déclenchement conditionnel via `ConfettiService.launch()`.
-  - Vérification de la lecture de secours du score dans le DOM (`#cert-score`).
-  - Validation de la mémorisation de l'état dans `CertificateView`.
-- **Suite de tests portée à 52 tests unitaires avec 100% de réussite** (`npm test`).
+### Tests
+- Tests unitaires pour le calcul des paliers de confettis (`tests/confetti_score.test.js`).
 
 ---
 
 ## [2.13.1] - 2026-10-19
 
-### Optimisations & Responsive Design (Barre de navigation & Menu Burger)
-- **Déplacement adaptatif du bouton de thème sur mobile et petits écrans** :
-  - **Observation dynamique de l'espace disponible (`NavbarView.js`)** : Mise en place d'un `ResizeObserver` dans `#initSpaceObserver` calculant en continu l'espace disponible entre la marque (`.navbar-brand`) et les actions d'en-tête (`.navbar-header-actions`), appliquant automatiquement la classe `.nav-compact` sur `nav#main-nav` en cas d'espace horizontal insuffisant.
-  - **Règles CSS adaptatives et Media Query (`navbar.css`)** :
-    - En mode compact (`.nav-compact`) et sur écrans mobiles (`@media (max-width: 540px)`), le bouton de bascule de thème (`#theme-toggle`) est automatiquement retiré de l'en-tête de la barre de navigation pour éviter tout débordement ou compression visuelle du logo et du badge de version.
-    - Le bouton de thème est transféré de manière élégante à l'intérieur du menu déroulant burger (`#menu-theme-toggle` / `.menu-theme-btn`), devenant visible et interactif uniquement lorsque le menu est ouvert.
-    - Sur grand écran (bureau / tablette) où la place est suffisante, le bouton de thème reste fixé dans l'en-tête supérieur et est masqué du menu burger afin d'éviter tout doublon.
+### Amélioré
+- Déplacement adaptatif du sélecteur de thème dans le menu burger sur mobile pour libérer de l'espace dans la barre de navigation.
 
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/navbar_responsive.test.js` validant la présence des deux boutons, les règles de masquage et d'affichage conditionnel (desktop, `.nav-compact`, et mobile `@media (max-width: 540px)`).
-- Suite de tests portée à 46 tests unitaires avec 100% de réussite (`npm test`).
+### Tests
+- Tests unitaires pour l'affichage responsive de la barre de navigation (`tests/navbar_responsive.test.js`).
 
 ---
 
 ## [2.13.0] - 2026-10-19
 
-### Nouveautés & Administration (Désactivation des Places et Squares)
-- **Option d'administration globale (`admin.html` & `AdminController.js`)** :
-  - Ajout d'une nouvelle option dans la carte *Paramètres* de l'écran d'administration : **« Places et squares »** (`#admin-disable-places-select`) permettant de basculer entre *Autorisées* et *Désactivées*.
-  - Sauvegarde immédiate du paramètre dans la table PostgreSQL `global_settings` (`key: 'disable_places'`) et synchronisation dans le cache local `localStorage` (`citymaster_disable_places`).
-- **Filtrage automatique des manches de jeu (`GameController.js` Backend & Frontend)** :
-  - Détection avancée des voies de type place, placette, square, esplanade et parvis (`isPlaceStreet`) via les préfixes toponymiques français et les balises OpenStreetMap (`place=square`, `itemType=place`).
-  - Lorsque l'option est désactivée, les places sont exclues des manches générées sur le serveur (`/api/game/start`) ainsi qu'en mode autonome hors-ligne (`GameController.js`).
-  - Ajustement des statistiques et comptages de rues disponibles (`CityController.getCityCounts`) pour refléter les voies jouables réelles.
-- **Visualisation et étiquetage dans l'espace d'administration (`AdminView.js` & `badges.css`)** :
-  - Affichage automatique d'un badge distinctif `.badge-place-tag` à côté de chaque place dans la liste des routes.
-  - Lorsque les places sont désactivées, le badge passe en rouge barré `.badge-place-disabled` (*« Place (désactivée) »*) pour une visibilité immédiate de l'administrateur.
-- **Internationalisation (i18n)** :
-  - Ajout et parité intégrale de toutes les clés de traduction en français et anglais (`admin.places_setting`, `admin.places_option_allowed`, `admin.places_option_disabled`, `admin.place_tag`, `admin.place_disabled_tag`).
+### Ajouté
+- Paramètre d'administration pour autoriser ou désactiver les places et squares dans les parties.
+- Filtrage des places dans la sélection des rues et affichage d'un badge dédié dans l'administration.
 
-### Tests Unitaires & Non-Régression
-- Ajout de `tests/places_setting.test.js` couvrant la détection bidirectionnelle (frontend/backend) des places, la présence et configuration du sélecteur d'administration et le filtrage effectif des rues.
-- Suite de tests portée à 45 tests unitaires avec 100% de réussite (`npm test`).
+### Tests
+- Tests unitaires pour le filtrage et la configuration des places (`tests/places_setting.test.js`).
 
 ---
 
 ## [2.12.1] - 2026-10-19
 
-### Optimisations & Expérience Utilisateur (Anti-FOUC i18n)
-- **Élimination totale du flash de langue au démarrage (Flash of Untranslated Content)** :
-  - **Détection synchrone ultra-précoce (`index.html`)** : Détection de la langue cible (`localStorage.getItem('lang')` ou langue du navigateur) dès la balise `<head>`, application immédiate de `lang="en|fr"`, ajustement instantané du titre de la page `<title>` et ajout de la classe CSS `i18n-loading` sur `<html>`.
-  - **Masquage élégant des composants pendant le chargement (`navbar.css`)** : La barre de navigation principale (`#main-nav`) est dissimulée de manière transparente et sans saut d'affichage pendant la phase d'initialisation, puis apparaît en fondu doux (`transition: opacity 0.25s ease`) dès que la traduction complète est prête.
-  - **Message de chargement synchronisé (`#loading-message`)** : Pré-remplacement immédiat du texte de chargement ("Loading CityMaster...") et de l'attribut ARIA du spinner avant le premier rendu visuel si la langue sélectionnée est l'anglais.
-- **Pré-traduction des gabarits avant injection DOM (`I18nService.js` & `app.js`)** :
-  - Évolution de `I18nService.translateDOM(root)` pour accepter un nœud racine personnalisé (`root`) et traduire récursivement en une seule passe les attributs `data-i18n`, `data-i18n-placeholder`, `data-i18n-title`, `data-i18n-aria` et `data-i18n-alt`.
-  - Parallélisation du chargement du dictionnaire `I18nService.init()` et des gabarits HTML dans `app.js` (`startApp()`).
-  - Traduction directe des fragments HTML parsés (`doc.body`) *avant* leur insertion dans `#app`, garantissant que les écrans naissent directement dans la langue de l'utilisateur.
+### Amélioré
+- Élimination du flash de contenu non traduit (FOUC) au chargement de l'application grâce à la détection précoce de langue.
+- Pré-traduction des gabarits HTML avant insertion dans le DOM.
 
-### Tests Unitaires & Non-Régression
-- Ajout de tests automatisés validant la détection précoce dans `index.html`, la règle de masquage CSS anti-FOUC dans `navbar.css`, et la capacité de `I18nService.translateDOM(root)` à traduire des arbres d'éléments arbitraires.
-- Suite de tests portée à 42 tests unitaires avec 100% de réussite (`npm test`).
+### Tests
+- Tests unitaires pour le mécanisme anti-FOUC et la traduction synchrone.
 
 ---
 
 ## [2.12.0] - 2026-10-19
 
-### Nouveautés & Jeu Hors-Ligne pour les Villes Jouées
-- **Sauvegarde automatique des villes jouées dans IndexedDB (`StorageService.js` & `GameController.js`)** :
-  - Chaque fois qu'une partie est jouée en ligne, le tracé GeoJSON de la ville ainsi que ses métadonnées géographiques (nom, bbox, centre, OSM ID) sont automatiquement stockés dans IndexedDB (`StorageService.setCity`).
-  - Méthodes `getAllCachedCities()` et `getCityRecord()` permettant d'extraire la liste de toutes les villes disponibles pour le jeu sans connexion.
-- **Moteur de jeu et évaluation locale autonome hors-ligne (`GameController.js`)** :
-  - En mode hors-ligne, le jeu ne dépend plus des endpoints `/api/game/start` et `/api/game/submit-round` : la sélection des rues, la gestion des séries et le filtrage par difficulté s'exécutent entièrement en local (`RouteDifficultyService`).
-  - Calcul autonome des distances (via `SpatialService.getDistanceToStreet`), des points, des combos (x2, x3), des bonus de temps et des feedbacks pour les modes cible, sprint et identification.
-- **Recherche et sélection adaptative sur l'écran de configuration (`GameView.js`)** :
-  - Lorsque l'appareil est hors-ligne, la recherche de ville propose automatiquement les villes enregistrées dans le cache IndexedDB avec le badge `💾 Hors-ligne`.
-  - Message d'aide pédagogique si aucune ville n'est encore en cache : invite l'utilisateur à jouer d'abord une fois avec Internet pour enregistrer la ville de son choix.
-- **Affichage clair sur le certificat de fin de partie (`CertificateView.js`)** :
-  - Lors d'une partie hors-ligne, les scores ne sont pas envoyés au serveur mondial (`scores.create`). Le certificat affiche une mention claire : *« Partie hors-ligne : Ce score reste local et n'est pas enregistré au classement mondial. »*
-  - Le tableau du classement mondial de test est automatiquement masqué.
-- **Tests unitaires et non-régression** :
-  - Suite de tests portée à 40 tests unitaires avec 100% de succès.
+### Ajouté
+- Sauvegarde locale automatique des villes jouées dans IndexedDB (`StorageService`).
+- Moteur de jeu autonome permettant de jouer hors-ligne sur les villes en cache.
+- Badge hors-ligne dans la recherche de villes et mention dédiée sur le certificat de fin de partie.
+
+### Tests
+- Tests unitaires pour le jeu et le stockage hors-ligne.
 
 ---
 
 ## [2.11.0] - 2026-10-19
 
-### Nouveautés & Mode Hors-Ligne (PWA Mobile)
-- **Détection globale et bannière de statut réseau (`NetworkService.js` & `index.html`)** :
-  - Création du service singleton `NetworkService` surveillant l'état de la connexion (`navigator.onLine`, écouteurs natifs `'online'` et `'offline'`).
-  - Intégration d'une bannière globale animée et accessible (`#offline-banner`, `role="status"`, `aria-live="polite"`) informant immédiatement l'utilisateur lors de la perte de signal.
-  - Notification visuelle et retour fluide au vert lors du rétablissement de la connexion Internet (« Connexion Internet rétablie ! »).
-- **Mise en cache dynamique des tuiles de carte OpenStreetMap (`sw.js`)** :
-  - Autorisation du domaine `tile.openstreetmap.org` dans la stratégie de mise en cache du Service Worker : les zones de carte consultées sont désormais conservées dans le cache du téléphone pour consultation hors-ligne.
-- **File d'attente de synchronisation des scores (`ScoreController.js`)** :
-  - Sauvegarde locale automatique des scores dans `citymaster_pending_scores` si l'appareil est hors-ligne ou si une coupure réseau survient lors de la soumission.
-  - Déclenchement automatique de la synchronisation (`flushPendingScores`) dès la reconnexion à Internet ou au démarrage de l'application, avec notification de confirmation.
+### Ajouté
+- Détection de l'état de connexion et bannière d'information hors-ligne (`NetworkService`).
+- Mise en cache Service Worker des tuiles OpenStreetMap consultées.
+- File d'attente locale pour la synchronisation différée des scores hors-ligne.
 
-### Corrections de Synchronisation & Résilience Réseau
-- **Correction critique du Service Worker (`sw.js`)** :
-  - Les requêtes `/api/*` échouées renvoyaient auparavant un code HTTP 200 par défaut avec un corps d'erreur, trompant les contrôleurs (`res.ok === true`). Le Service Worker renvoie désormais un statut explicite **HTTP 503 (Service Unavailable)** pour une gestion propre des erreurs réseau.
-- **Résilience des salons multijoueurs (`RoomController.js` & `GameController.js`)** :
-  - Reconnexion automatique au flux SSE et rafraîchissement des données de salon lors du retour en ligne.
-  - Ajout d'un système de retry exponentiel (jusqu'à 3 tentatives) pour la soumission des scores de fin de partie multijoueur (`#submitRoomScore`).
-  - Messages préventifs et explicites en français et anglais en cas de tentative de création de salon ou de lancement de partie hors-ligne.
-- **Déblocage de l'interface en cas d'erreur de round (`GameController.js`)** :
-  - Réinitialisation de l'état d'étape (`guessing`) et réactivation des actions de validation si une requête de validation de round échoue sur le réseau, évitant le blocage de la partie.
+### Corrigé
+- Gestion explicite des erreurs 503 dans le Service Worker au lieu d'un statut 200 en cas de perte de réseau.
+- Reconnexion automatique au flux SSE et retry sur la soumission des salons multijoueurs.
 
-### Internationalisation (i18n) & Tests Unitaires
-- Ajout de l'ensemble des clés de traduction `offline.*` avec 100% de parité entre `fr.json` et `en.json`.
-- Création de la suite de tests automatisés `tests/offline_sync.test.js` (validation du statut 503 du SW, du cache des tuiles, de l'accessibilité de la bannière et de la file d'attente des scores).
-- Suite de tests portée à 38 tests unitaires avec 100% de succès.
+### Tests
+- Tests unitaires pour la résilience réseau et le mode hors-ligne (`tests/offline_sync.test.js`).
 
 ---
 
 ## [2.10.2] - 2026-10-19
 
-### Nettoyage & Maintenance du Projet
-- **Audit et retrait des fichiers TODO entièrement achevés** :
-  - **`TODO_API_OPTIMIZATION.md`** : 100% des tâches (phases 1 à 5) accomplies et validées (élimination du cache-busting inutile, persistance IndexedDB via `StorageService`, endpoints légers et SSE, caches mémoire LRU Nominatim/Overpass, charges utiles réduites).
-  - **`TODO_CODE_IMPROVEMENTS.md`** : 100% des tâches (phases 1 à 5) accomplies et validées (sécurisation des chemins backend, déplacement de `users.json`, suppression des logs synchrones dans `/tmp`, messages d'erreurs 500 génériques, élimination de la lecture synchrone de 347 Mo dans `RoomController`, I/O asynchrones à base de promesses, mise en cache mémoire des villes, pré-cache PWA des scripts statiques, hooks de routeur et 34 tests unitaires).
-  - Suppression définitive des deux fichiers devenus obsolètes pour garder un dépôt propre et sans dette technique résiduelle.
+### Modifié
+- Nettoyage et suppression des fichiers de suivi des tâches achevées (`TODO_API_OPTIMIZATION.md` et `TODO_CODE_IMPROVEMENTS.md`).
 
 ---
 
 ## [2.10.1] - 2026-10-19
 
-### Optimisations & Ambiance Visuelle (Bulles en bas de page)
-- **Présence permanente et lumineuse des bulles en bas de l'écran (`landing.css` & `index.html`)** :
-  - Élimination de la zone morte inférieure causée par l'ancien décalage hors-champ (`bottom: -260px`) et l'opacité nulle au départ des animations.
-  - Intégration de 3 bulles d'ambiance permanentes ancrées en bas d'écran (`.bubble-6`, `.bubble-7`, `.bubble-8`) oscillant doucement et respirant en continu dans la région inférieure (`bottom: -25px`, `-35px`, `20px` avec keyframes `floatDriftBottomA/B/C`).
-  - Ajustement des bulles ascendantes (`.bubble-1` à `.bubble-5`) démarrant directement à fleur du bas (`bottom: -40px`) avec une lueur active dès le début (`opacity: 0.5-0.55` à 0%).
-  - Intégration de `height: 100dvh` sur `.app-backdrop` pour assurer une couverture absolue jusqu'au bas de l'écran sur mobile malgré les barres d'adresse dynamiques.
-  - Ajout des variables de gradients de couleurs `--landing-bubble-7` et `--landing-bubble-8` pour les modes clair et sombre.
+### Amélioré
+- Ajustement des bulles d'ambiance en bas d'écran (`landing.css`) et correction de la hauteur minimale sur mobile (`100dvh`).
 
 ---
 
 ## [2.10.0] - 2026-10-19
 
-### Nouveautés & Expérience Utilisateur (Page Changelog)
-- **Accès direct au Changelog au clic sur le numéro de version** :
-  - Le badge de version présent dans la barre de navigation (`.version-tag`) est désormais un lien interactif accessible (`<a href="/changelog">`).
-  - Style visuel enrichi sous forme de pilule élégante (`var(--surface)`, bordure douce, transitions au survol et focus accessible).
-  - Navigation instantanée sans rechargement de page gérée par le routeur (`src/Router.js`).
-- **Écran dédié aux notes de version (`public/screens/changelog.html`)** :
-  - Conception d'une nouvelle page harmonisée avec le design système de CityMaster (carte avec flou d'arrière-plan, fond papier texturé persistant et bulles lumineuses).
-  - En-tête standardisé avec le bouton de retour circulaire `.btn-back-round` et bouton secondaire de retour en bas de page.
-- **Rendu dynamique et intelligent du Changelog (`ChangelogView.js`)** :
-  - Parser Markdown client léger convertissant les sections de versions (`## [X.Y.Z]`), dates, sous-titres de catégories (`### ...`) et listes à puces avec mise en gras en cartes de version structurées.
-  - Mise en valeur de la version actuelle avec un badge distinctif *« Dernière version »* / *« Latest release »*.
-  - Prise en charge offline complète (PWA) grâce au cache Service Worker et au fichier statique `/CHANGELOG.md` de secours.
-- **Nouvelle route API serveur (`server.js`)** :
-  - Endpoint `GET /api/changelog` servant le contenu du fichier `CHANGELOG.md` en texte brut avec gestion d'erreur.
+### Ajouté
+- Écran dédié au journal des modifications (`/changelog`) accessible via le badge de version dans la barre de navigation.
+- Parser Markdown client pour l'affichage des notes de version (`ChangelogView.js`).
+- Route API serveur `GET /api/changelog` et fallback hors-ligne PWA.
 
-### Tests Unitaires & Non-régression
-- **Création de la suite de tests dédiée (`tests/changelog_route.test.js`)** :
-  - Vérification de l'existence et de la structure accessible du template `changelog.html`.
-  - Vérification de la correspondance des routes `/changelog` et `/changelog/` par le routeur.
-  - Test d'initialisation en environnement Node.js / SSR pour `ChangelogView`.
-  - Maintien de 100 % de parité entre les dictionnaires `fr.json` et `en.json`.
-  - **34 tests unitaires validés avec succès (`npm test`)**.
+### Tests
+- Tests unitaires pour la route du journal des modifications (`tests/changelog_route.test.js`).
 
 ---
 
 ## [2.9.1] - 2026-10-19
 
-### Harmonisation Graphique & Design Système
-- **Arrière-plan d'ambiance persistant et global (`#app-backdrop`)** :
-  - Déplacement de la pile visuelle d'ambiance (dégradé radial thématique `var(--landing-bg-gradient)`, textures SVG superposées de papier canson `cansonGrainMedium` & fibres `paperFibers`, et bulles flottantes organiques animées `.ambient-bubbles`) au sommet de l'application dans `public/index.html`.
-  - Extension de l'atmosphère graphique à **toutes les pages** (Accueil, Configuration de partie, Salons multijoueurs, Espace Profil, Connexion / Inscription, Mentions légales & RGPD, Diplôme / Bilan).
-  - Élimination des ruptures visuelles brutales lors de la navigation entre écrans.
-  - Masquage automatique et performant de l'arrière-plan d'ambiance lors des sessions de jeu actives et du chargement de vol (`body.in-game-session`, `body:has(#game-screen.active)`, `body:has(#load-screen.active)`).
-
-### En-têtes & Navigation Harmonisée
-- **Bouton de retour universel standardisé (`.btn-back-round`)** :
-  - Intégration du composant circulaire `.btn-back-round` sur la page de connexion / inscription (`public/screens/auth.html`) dans un en-tête `.auth-header` aligné avec le titre.
-  - Intégration du bouton `.btn-back-round` sur la page des mentions légales (`public/screens/legal.html`) avec `.legal-header-top` pour une parfaite symétrie avec les écrans de configuration, de salons et de profil.
-  - Prise en charge automatique de la navigation retour vers l'accueil via le routeur global (`src/Router.js`).
-  - Suppression des styles résiduels discordants (`#auth-screen::before` avec ses anciens dégradés jaunes/oranges codés en dur) pour laisser transparaître le fond papier et les bulles adaptatives.
-
-### Tests Unitaires & Non-régression
-- **Validation intégrale de la suite de tests (`npm test`)** :
-  - 31/31 tests unitaires validés avec succès (0 régression, 0 erreur).
+### Amélioré
+- Arrière-plan d'ambiance global (`#app-backdrop`) étendu à l'ensemble des pages de l'application.
+- Intégration du bouton de retour circulaire standardisé sur les pages d'authentification et de mentions légales.
 
 ---
 
 ## [2.9.0] - 2026-10-19
 
-### Nouveautés & Expérience Utilisateur (Thème & Bulles d'Accueil)
-- **Bulles de fond d'accueil chromatiquement adaptatives (`landing.css`)** :
-  - En mode sombre (`[data-theme="dark"]`) : intégration d'une palette flamboyante rouge / orange (`--landing-bubble-1` à `--landing-bubble-6`) mariant des teintes rouge vif, corail incandescent, orange vif et ambre chaud avec `mix-blend-mode: screen` pour un rendu lumineux et atmosphérique.
-  - En mode clair (`:root, [data-theme="light"]`) : intégration d'une palette rafraîchissante de bleus (`--landing-bubble-1` à `--landing-bubble-6`) mariant le bleu azur, le bleu ciel, le cyan et le bleu saphir doux, apportant un contraste délicat et harmonieux sur le fond crème papier.
-  - Les 6 bulles animées flottantes utilisent désormais les variables CSS dédiées avec une transition d'opacité fluide lors du basculement instantané de thème.
-
-### Internationalisation & Multilingue (i18n)
-- **Traduction intégrale de la modale d'installation PWA (`#install-modal` & `.install-card-footer-tip`)** :
-  - Ajout des attributs `data-i18n` sur le titre, le sous-titre, le bouton de fermeture (`common.close`), ainsi que sur l'ensemble des étapes d'installation spécifiques aux plateformes iOS (Safari), Android (Chrome) et Ordinateur (Chrome / Edge).
-  - Traduction complète de l'encadré d'information `.install-card-footer-tip` dans `fr.json` et `en.json` (*« Inutile de chercher sur l'App Store ou Google Play : CityMaster s'installe directement depuis votre navigateur... »* / *« No need to search the App Store or Google Play: CityMaster installs directly from your browser... »*).
-- **Internationalisation dynamique de la bascule de thème (`NavbarView.js`)** :
-  - Raccordement du sélecteur de mode clair / sombre du menu burger et de l'en-tête à `I18nService`.
-  - Prise en charge des libellés dynamiques `nav.light_mode`, `nav.dark_mode`, `nav.switch_to_light`, et `nav.switch_to_dark` avec écoute des changements de langue à chaud (`onLanguageChange`).
-- **Complétude des templates d'administration et d'authentification** :
-  - Ajout de balises `data-i18n` sur les cartes du tableau de bord d'administration (`admin.html`), les formulaires d'édition de quartiers et de routes, la barre de filtrage par difficulté et les signalements d'utilisateurs.
-  - Ajout de `data-i18n` sur le lien et texte de basculement de compte dans `auth.html` (`auth.no_account` et `auth.register_link`).
-  - Maintien d'une parité stricte à 100 % entre les dictionnaires `fr.json` et `en.json`.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`npm test`)** :
-  - 31 tests unitaires validés avec succès (0 échec, 0 régression), incluant les vérifications automatisées de parité des dictionnaires et d'existence de l'intégralité des attributs `data-i18n*` des templates.
+### Ajouté
+- Palette adaptative des bulles d'ambiance selon le thème actif (teintes ambrées en sombre, bleutées en clair).
+- Traduction complète de la modale d'installation PWA et synchronisation multilingue du sélecteur de thème.
 
 ---
 
 ## [2.8.20] - 2026-10-15
 
-### Nouveautés & Expérience Utilisateur (PWA & Navbar)
-- **Visibilité permanente du bouton d'installation PWA (`#pwa-install-btn`)** :
-  - Déplacement du bouton d'installation dans `.navbar-header-actions` pour garantir sa visibilité continue dès le premier coup d'œil, sans nécessiter d'ouvrir le menu burger sur mobile.
-  - Sur mobile ($\le 768\text{px}$) : affichage sous forme de bouton d'action circulaire dédié ($2.35\text{rem}\times 2.35\text{rem}$) aux côtés de la bascule de thème et du menu burger, avec icône de téléchargement contrastée et info-bulle contextuelle accessible.
-  - Sur bureau ($> 768\text{px}$) : affichage du bouton complet avec icône et libellé d'action (*« Installer »* / *« Install »*), groupé élégamment avec les actions principales sur l'extrémité droite de la barre de navigation.
-  - Ajout du bouton d'installation secondaire `.menu-install-btn` dans le tiroir mobile déroulant (`.navbar-actions.open`) pour un accès immédiat sous toutes les modalités de navigation.
+### Ajouté
+- Bouton d'installation PWA dans la barre de navigation et le menu mobile.
 
-### Corrections de bugs & Rendu Graphique
-- **Résolution du conflit de contraste et de masquage blanc sur blanc** :
-  - Correction de la collision CSS entre `.btn.secondary` et `.pwa-install-btn-style` qui forçait un fond blanc `#ffffff` avec texte blanc `#ffffff` et bordure transparente en mode clair (rendant le bouton invisible).
-  - Application d'un style contrasté à haute lisibilité en mode clair (`background: var(--primary-light)`, `color: var(--primary)`, bordure `1.5px solid var(--primary)`) et en mode sombre.
-  - Remplacement de la variable CSS indéfinie `var(--surface)` par `var(--bg-card-solid)`.
-  - Alignement automatique de la marque (`.navbar-brand { margin-right: auto; }`) éliminant le centrage isolé du bouton de thème sur grand écran.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`npm test`)** :
-  - 31 tests unitaires validés avec succès (0 échec, 0 régression).
+### Corrigé
+- Correction du contraste du bouton d'installation en mode clair.
 
 ---
 
 ## [2.8.19] - 2026-10-14
 
-### Nouveautés & Refonte Visuelle (Dézoomage & Panorama du Globe)
-- **Dézoomage équilibré du globe terrestre (`load.html`)** :
-  - Réduction de l'échelle d'affichage du globe de $2804\text{px}$ à $1400\times 1000\text{px}$ (`x="-245"`, `y="385"`), divisant le facteur de zoom par deux.
-  - Découverte panoramique des continents cartoon (continent central vert intense, masses continentales latérales et émergence des îles) qui étaient auparavant hors-champ.
-  - Ajustement géométrique de l'ellipse supérieure assurant que l'horizon terrestre épouse rigoureusement la courbure parabolique de vol de l'avion sur l'ensemble de la trajectoire.
-
-### Optimisations & Qualité Visuelle
-- **Harmonisation de l'espacement et dégagement de vol** :
-  - Espacement régulier et constant de ~38px entre l'arc de vol et la surface du globe de $X = 60$ à $X = 920$.
-  - Maintien d'un espace aéré pour l'avion et les monuments flottants (espacement de ~1cm au-dessus de la ligne sans interférence visuelle).
-  - Remplissage complet du bas de l'écran sans rupture angulaire ni bords vides.
-
-### Tests unitaires & Non-régression
-- **Validation de la suite de tests (`npm test`)** :
-  - Exécution et passage sans régression des 31 tests unitaires du projet.
+### Amélioré
+- Ajustement de l'échelle et de la position du globe terrestre sur l'écran de chargement.
 
 ---
 
 ## [2.8.18] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle (Illustration Cartoon de la Terre)
-- **Intégration de la nouvelle illustration cartoon du globe terrestre (`earth.png`, `load.html`)** :
-  - Remplacement de l'ancienne image par la nouvelle illustration cartoon fournie (océans bleu cyan vif, continents vert intense et nuages blancs).
-  - Traitement d'extraction du fond noir avec détourage morphologique et lissage sous-pixel (élimination totale des franges sombres et artefacts de compression JPEG).
-  - Redimensionnement haute fidélité en 1800×1800 Lanczos3 avec transparence alpha progressive sans effet de marche d'escalier.
-  - Conservation du dôme supérieur naturel non coupé épousant parfaitement la courbure parabolique de la trajectoire de vol.
-
-### Optimisations & Qualité de Rendu
-- **Suppression des bordures parasites et netteté maximale** :
-  - Lissage anti-crénelage anti-aliasing du contour circulaire pour une transition fluide sur le ciel étoilé.
-  - Suppression de tout résidu de détourage sur l'ensemble de l'horizon de vol.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`npm test`)** :
-  - Exécution et passage sans régression de l'ensemble des 31 tests unitaires.
+### Amélioré
+- Intégration de l'illustration du globe terrestre (`earth.png`) et lissage des contours sur l'écran de chargement.
 
 ---
 
 ## [2.8.17] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle (Horizon Terrestre Natif)
-- **Suppression du masque de découpe artificiel et intégration de l'illustration native (`load.html`, `flight-loader.css`)** :
-  - Élimination complète du `clipPath` tranchant, du rectangle de base et des traits de contour artificiels.
-  - Positionnement de l'illustration circulaire intégrale de la Terre (`earth.png`, 2804×2804) centrée à $(X=455, Y=1793)$ avec un rayon de 1402px.
-  - Le dôme circulaire supérieur de l'illustration forme naturellement la ligne d'horizon du globe terrestre, épousant la courbure de vol avec un espacement constant et harmonieux de 45px sur l'ensemble de la largeur de l'écran.
-  - Suréchantillonnage haute résolution de `earth.png` (2000×2000 Lanczos3 avec accentuation de netteté) pour un rendu net et texturé sur tous les écrans HD/Retina.
-  - Nettoyage du balisage SVG (`<defs>`) et des feuilles de styles CSS pour éliminer tout résidu de masquage obsolète.
-
-### Tests unitaires & Non-régression
-- **Validation de la suite de tests (`tests/*.test.js`)** :
-  - 31/31 tests unitaires validés avec succès (`npm test`).
+### Amélioré
+- Ajustement de la ligne d'horizon terrestre sur l'écran de chargement et retrait des masques de découpe superflus.
 
 ---
 
 ## [2.8.16] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle (Ciel & Grille Céleste Peek)
-- **Harmonisation stricte de la courbure de `peek-sky-grid` (`load.html`, `flight-loader.css`)** :
-  - Remplacement des anciens arcs disparates par 6 parallèles paraboliques strictement concentriques suivant la même équation quadratique que la trajectoire de vol et l'horizon terrestre ($A = 0.0003645, B = -0.33045$).
-  - Espacement uniforme de 70px entre chaque arc de méridien sur toute la largeur du ciel ($X = -150$ à $X = 1150$).
-  - Méridiens radiaux modélisés par des rayons purs émanant du centre de courbure terrestre sous le globe, coupant les parallèles sous un angle rigoureusement orthogonal.
-- **Répartition spatiale naturelle et poétique des étoiles (`load.html`, `flight-loader.css`)** :
-  - Dispersion de 18 étoiles à 5 branches à travers l'ensemble de la voûte céleste (ciel supérieur, flancs latéraux, zones médianes au-dessus de la trajectoire).
-  - Variations d'échelles (rayons de 7px à 15px) et d'opacités subtiles (`0.25` à `0.45`) reproduisant l'effet de constellation et de scintillement cartoon fidèle à Peek.
-  - Ajout d'ombres et d'un halo céleste doux en thème sombre via `.peek-sky-stars polygon`.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/*.test.js`)** :
-  - 31/31 tests unitaires validés avec succès (`npm test`).
+### Amélioré
+- Harmonisation de la grille céleste et répartition des étoiles sur l'écran de chargement.
 
 ---
 
 ## [2.8.15] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle (Écran de Chargement Peek)
-- **Résolution du chevauchement Texte vs Monuments (`load.html`, `flight-loader.css`)** :
-  - Surélévation du chemin de texte courbé (`#flight-curve-text-path`, `d="M 40 299 Q 500 160 960 330"`) dans la partie haute du ciel céleste.
-  - Dégagement d'un espace libre constant d'environ 30px au-dessus des monuments (Arc de Triomphe, Pyramide du Louvre, Tour Eiffel), éliminant toute collision ou superposition visuelle.
-  - Caisse mixte et typographie cartoon fidèle à Peek : `Loading...Loading...Loading...Loading..` avec police arrondie 24px et ombrage doux.
-- **Horizon terrestre continu sans aucun vide ni coupure angulaire (`load.html`, `flight-loader.css`)** :
-  - Extension du `clipPath` et du tracé de l'horizon de $X = -200$ à $X = 1200$ (`d="M -200 547 Q 500 214 1200 595 L 1200 800 L -200 800 Z"`), garantissant une sortie fluide et propre au-delà des bordures d'écran sans aucun coin triangulaire vide.
-  - Ajout d'une base océanique continue sous l'horizon (`<rect class="peek-earth-ocean-base">`, dégradé `#12497e` vers `#071b33`) assurant une surface planétaire pleine et riche sur toutes les résolutions d'écran (16:9, mobile, ultra-large).
-  - Redimensionnement panoramique harmonieux de l'illustration de la Terre (`earth.png`, 1200×900) préservant l'aspect naturel des continents sans écrasement en galette.
-  - Ajout d'une aura atmosphérique discrète (`.peek-earth-atmosphere`) le long de l'horizon.
-- **Espace de coordonnées 16:9 sans déformation non-uniforme (`load.html`)** :
-  - Mise à jour du `viewBox` du SVG en `0 0 1000 560` (ratio 16:9 naturel), évitant tout étirement vertical excessif des caractères de texte, des étoiles et des grilles célestes.
-  - Recalcul de la trajectoire active de vol (`d="M 60 403 Q 500 280 920 426"`, longueur réelle 874px) synchronisée avec `FlightLoader.js`.
-- **Nuage de destination et question marks Peek éclatants (`flight-loader.css`)** :
-  - Conservation de l'esthétique cumulus crème/ivoire douce (`#fbf9ee` / `#eae0c8`) avec halo en thème sombre (suppression du filtre gris suie terne).
-  - Repositionnement du badge de pourcentage de vol (`.flight-footer-info`) en bas à droite de l'écran pour libérer complètement la vue sur le globe terrestre.
-
-### Corrections de bugs & Refactoring
-- **Suppression d'un caractère parasite (`load.html`)** :
-  - Nettoyage d'une chaîne résiduelle `É&É²` dans le balisage de l'écran de chargement.
-- **Synchronisation précise de la ligne de progression (`FlightLoader.js`)** :
-  - Mise à jour du calcul de `stroke-dashoffset` sur la longueur réelle de 874px avec mise à jour simultanée de la propriété de style et de l'attribut SVG.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/*.test.js`)** :
-  - Exécution réussie des 31 tests unitaires du projet (`npm test`).
+### Corrigé
+- Espacement vertical entre le texte et les monuments sur l'écran de chargement.
+- Extension de l'horizon terrestre pour couvrir toute la largeur d'écran.
 
 ---
 
 ## [2.8.14] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle
-- **Adoucissement réaliste de la courbure du vol et de la Terre (`load.html`, `FlightLoader.js`, `tests/load_route.test.js`)** :
-  - Remplacement de l'arc trop plongeant/pentu par une courbure douce et naturelle fidèle à Peek (flèche verticale de 12% au lieu de 54%) :
-    - Trajectoire de vol : `M 60 187 Q 500 130 920 198` (décollage à $Y=72\%$, apogée douce à $Y=62\%$, atterrissage à $Y=76\%$).
-    - Tangage de l'avion doux et organique : $-7.4^\circ$ au décollage, $0^\circ$ au zénith, $+6.6^\circ$ dans le nuage.
-    - Ligne d'horizon de la Terre parfaitement parallèle : `M -60 237 Q 517 140 1060 256` ($\Delta Y = 32\,\text{px}$).
-    - Texte courbé supérieur aligné : `M 50 168 Q 500 112 930 180`.
-  - Recalcul de la longueur exacte du tracé actif (`864px`) pour une progression fluide sans à-coup.
-  - Réajustement des positions de croisière des 3 monuments et du nuage de destination le long de la nouvelle trajectoire douce.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Adoucissement de la trajectoire de vol et inclinaison dynamique de l'avion sur l'écran de chargement.
 
 ---
 
 ## [2.8.13] - 2026-10-13
 
-### Nouveautés & Refonte Plein Écran (Style Peek)
-- **Affichage plein écran immersif sur toute la page (`flight-loader.css`)** :
-  - Suppression de la boîte centrale confinée (`max-width: 48rem`, marges, paddings et rayon de bordure) : la scène de vol et le ciel sépia recouvrent désormais l'intégralité du viewport (`100vw` × `100vh` / `100dvh`).
-  - La voûte céleste, la grille des méridiens et les constellations occupent tout l'espace d'affichage de manière immersive comme dans le jeu original Peek.
-  - La barre de progression fine rouge au sol est ancrée sur toute la largeur de l'écran en bas (`height: 6px`), avec le badge de pourcentage de chargement flottant au-dessus avec effet glassmorphism discret.
-- **Courbure strictement identique et parallèle entre la Terre et l'avion (`load.html`, `flight-loader.css`)** :
-  - Définition d'un clipPath d'horizon (`#peek-earth-horizon-clip`, `d="M -60 271 Q 517 34 1060 317 L 1060 450 L -60 450 Z"`) généré par la même fonction quadratique que la trajectoire de l'avion (`d="M 60 187 Q 500 47 920 213"`), avec un décalage vertical constant $\Delta Y = 40\,\text{px}$.
-  - La surface de la Terre et la ligne de vol de l'avion suivent une courbure parfaitement parallèle à chaque point de coordonnées $X$.
-  - Tracé au trait de la ligne d'horizon cartoon (`.peek-earth-horizon-stroke`, `#726652`) épousant cette même arche continue d'un bord à l'autre de l'horizon.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Affichage plein écran de la scène de vol et alignement de la courbure terrestre avec la trajectoire.
 
 ---
 
 ## [2.8.12] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle
-- **Détourage intégral au trait de la planète Terre (`earth.png`)** :
-  - Découpage strict au ras du contour noir franc de la planète Terre ($R = 217.5px$), éliminant la totalité du fond d'espace sombre et des tourbillons sombres pour ne conserver que le globe illustré net et éclatant.
-  - Anti-aliasing sub-pixel soigné pour des bordures lisses et transparentes.
-  - Poids optimisé à 83 Ko (-88% par rapport à l'image d'origine).
-- **Déformation panoramique à l'horizon (`load.html`, `flight-loader.css`)** :
-  - Intégration directe du globe dans le SVG du vol avec `preserveAspectRatio="none"` et dimensions panoramiques étirées (`x="-100" y="150" width="1200" height="280"`).
-  - La Terre épouse désormais fidèlement la courbure panoramique de l'horizon de Peek d'un bout à l'autre de l'écran (de gauche à droite), formant un arc de cercle étendu sous la trajectoire de vol.
-  - L'avion décolle au ras de l'horizon à gauche, survole les continents étirés au zénith et plonge vers le nuage à droite.
-  - Unification du système de coordonnées SVG (1000x260) pour une synchronisation géométrique parfaite à chaque résolution.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Détourage et intégration panoramique du globe terrestre le long de l'horizon.
 
 ---
 
 ## [2.8.11] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle
-- **Intégration du globe terrestre illustré avec halo atmosphérique (`earth.png`, `load.html`, `flight-loader.css`)** :
-  - Intégration de la nouvelle illustration de la planète Terre (`public/assets/images/earth.png`) fournie par l'utilisateur.
-  - Découpage et détourage de haute précision avec suppression complète du fond d'espace sombre extérieur et préservation du halo bleu cyan atmosphérique en dégradé alpha fluide (sans contour parasite).
-  - Optimisation sans perte de la compression PNG réduisant la taille du fichier de 728 Ko à 141 Ko (-80%).
-  - Positionnement responsive du globe au bas de la scène de vol sous la trajectoire de croisière (`.peek-earth-container`, `top: 48%`, `width: clamp(480px, 76vw, 660px)`), garantissant un cercle parfait sans étirement ni déformation quel que soit le ratio d'écran.
-  - Séparation de l'architecture graphique en calques indépendants : arrière-plan céleste avec grille et étoiles (`z-index: 1`), globe terrestre illustré (`z-index: 2`), trajectoire de vol et texte courbé (`z-index: 3`), avion, nuage et monuments (`z-index: 15-25`).
-  - Ajout d'une ombre portée douce et d'une lueur atmosphérique subtile adaptée aux modes clair et sombre (`drop-shadow`).
-
-### PWA & Mise en cache hors-ligne
-- **Mise en cache du globe terrestre (`public/sw.js`)** :
-  - Ajout de `"/assets/images/earth.png"` dans la liste des assets statiques (`STATIC_ASSETS`) du Service Worker pour un affichage instantané et une disponibilité hors-ligne totale.
-
-### Tests unitaires & Non-régression
-- **Couverture des tests (`tests/load_route.test.js`)** :
-  - Ajout de tests de non-régression validant la présence du conteneur du globe terrestre `.peek-earth-container` et de sa ressource `/assets/images/earth.png` dans le template `load.html`.
-  - 31/31 tests passés avec succès (`npm test`).
+### Ajouté
+- Illustration du globe terrestre avec halo atmosphérique et mise en cache hors-ligne (`earth.png`).
 
 ---
 
 ## [2.8.10] - 2026-10-13
 
-### Nouveautés & Refonte Visuelle (Inspirée de Peek)
-- **Horizon terrestre et globe illustré (`load.html`, `flight-loader.css`)** :
-  - Intégration d'une courbure de globe terrestre en bas de l'écran avec océan turquoise/sauge (`#8cb5b3`), continents stylisés aux contours chauds (`#ded2af` / `#726652`) et nuages d'horizon décoratifs.
-- **Grille céleste et fond vintage (`load.html`, `flight-loader.css`)** :
-  - Ajout d'une voûte céleste aux dégradés chauds beige/sépia avec méridiens et parallèles courbes, parsemée de constellations d'étoiles illustrées discrètes.
-- **Double tracé de trajectoire avec progression dynamique (`load.html`, `flight-loader.css`, `FlightLoader.js`)** :
-  - Tracé de fond pointillé charbon sobre (`.peek-track-bg`) indiquant l'itinéraire à venir.
-  - Tracé dynamique rouge corail éclatant (`#flight-curve-progress-line`, `#e63946`) révélant en temps réel le chemin parcouru sous l'avion via calcul d'offset de stroke.
-- **Texte incurvé suivant la trajectoire de vol (`load.html`, `flight-loader.css`)** :
-  - Ajout du bandeau typographique dynamique `LOADING...LOADING...LOADING...LOADING..` épousant fidèlement la courbe SVG (`<textPath>`) au-dessus de l'avion.
-- **Nuage cumulus multi-lobé stylisé Peek (`load.html`)** :
-  - Silhouette de cumulus organique à double ton (`#f4ecd8` / `#e5d9bd`) avec ombre douce et trait chaud façon bande dessinée.
-- **Trio de points d'interrogation mystère '???' (`load.html`, `flight-loader.css`)** :
-  - Remplacement du glyphe unique par le trio emblématique de Peek (`???`) avec inclinaisons asymétriques (-14°, +4°, +18°), échelle progressive et ombre 3D chaude multicouche (`#564938`), émergeant 0.5s après l'entrée de l'avion dans le nuage.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - 31/31 tests passés avec succès (`npm test`).
+### Ajouté
+- Ambiance visuelle inspirée de Peek pour l'écran de chargement : grille céleste, double tracé de trajectoire et nuage cumulus d'arrivée.
 
 ---
 
 ## [2.8.9] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Élévation des monuments à ~1cm de la trajectoire pointillée (`FlightLoader.js`, `flight-loader.css`)** :
-  - Décalage vertical des icônes de monuments de `32px` (~1cm) au-dessus de la ligne (`translate(-50%, calc(-100% - 32px))`) afin d'éviter tout contact direct ou chevauchement avec les pointillés du vol.
-  - Conservation de l'angle de tangage dynamique (`rotate(${pitch}deg)`) le long de la pente de la courbe.
-- **Animation fluide d'apparition pop-up pour les monuments (`FlightLoader.js`, `flight-loader.css`)** :
-  - Effet de surgissement élastique dynamique (`scale(0.6)` ➔ `scale(1)`) avec élévation ascendante depuis `calc(-100% - 14px)` jusqu'à `calc(-100% - 32px)`.
-  - Courbe de transition organique à ressort (`cubic-bezier(0.34, 1.45, 0.64, 1)`), combinée à un flou progressif doux (`filter: blur(4px)` ➔ `blur(0px)`) et une ombre portée douce (`drop-shadow(0 4px 8px rgba(0, 0, 0, 0.16))`).
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Animation d'apparition des monuments au-dessus de la trajectoire de vol.
 
 ---
 
 ## [2.8.8] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Apparition différée du point d'interrogation 0.5s après l'entrée de l'avion (`flight-loader.css`)** :
-  - Ajout d'un délai de transition de `0.5s` (`500ms`) sur `.mystery-question-mark` dès que le nuage devient actif (`.destination-cloud.active`).
-  - L'avion plonge et s'évapore complètement dans le nuage, puis 0.5s plus tard, le point d'interrogation mystère `?` émerge en douceur et s'élève au-dessus du nuage (`top: -24px`).
-  - Disparition instantanée sans délai lors d'une réinitialisation sous 80%.
-
-### Optimisations & Graphisme
-- **Stabilisation complète du nuage après son apparition (`flight-loader.css`)** :
-  - Suppression de toutes les animations d'ondulation ou de flottement continu (`cloudVaporFloat`, `cloudVaporActive`, mise à l'échelle de `.cloud-body`).
-  - Le nuage ne conserve que son animation d'apparition vaporeuse par condensation à 50%, et reste ensuite parfaitement net, stable et ancré sur sa trajectoire.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Apparition différée du point d'interrogation après l'entrée de l'avion dans le nuage.
+- Stabilisation de l'affichage du nuage de destination.
 
 ---
 
 ## [2.8.7] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Animation réaliste et fluide d'apparition du nuage (`flight-loader.css`, `FlightLoader.js`)** :
-  - Effet de condensation vaporeuse réaliste : le nuage émerge de la brume avec un flou doux progressif (`filter: blur(10px)` ➔ `blur(0px)`) et un gonflement élastique fluide (`scale(0.35)` ➔ `scale(1)`).
-  - Courbe de bézier organique dédiée (`cubic-bezier(0.16, 1, 0.3, 1)` et `cubic-bezier(0.34, 1.3, 0.64, 1)`) pour un mouvement vaporeux et naturel.
-  - Flottement atmosphérique continu (`cloudVaporFloat`, cycle de `3.2s`) dès la révélation, avec réaction élastique dynamique (`cloudVaporActive`) lors de l'absorption de l'avion à 80%.
-
-### Optimisations & Graphisme
-- **Épuration visuelle des monuments (`load.html`, `flight-loader.css`)** :
-  - Suppression intégrale des traits de repère orphelins sous les monuments (`.monument-pointer`), allégeant l'interface.
-  - Ancrage direct et net de la base des icônes de monuments sur les pointillés de la trajectoire de vol.
-
-### Tests unitaires & Non-régression
-- **Validation complète des tests (`tests/load_route.test.js`)** :
-  - Validation du cycle d'apparition réaliste du nuage et de l'absence de régression visuelle sur les monuments.
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Animation de transition vaporeuse pour l'apparition du nuage de destination.
+- Retrait des traits de repère orphelins sous les monuments.
 
 ---
 
 ## [2.8.6] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Apparition progressive du nuage de destination à 50% (`FlightLoader.js`, `flight-loader.css`)** :
-  - Le nuage reste invisible au décollage et n'apparaît qu'à partir de 50% de progression (`.destination-cloud.revealed`), lors du passage de l'apogée du vol.
-  - Transition douce en fondu (`opacity: 0` ➔ `1`) et effet de zoom dynamique (`scale(0.5)` ➔ `scale(1)`).
-- **Dimensionnement compact et proportions équilibrées (`flight-loader.css`)** :
-  - Réduction de la taille du nuage de ~40% (`88px × 50px` au lieu de `140px × 80px`) pour s'harmoniser parfaitement avec l'avion (`52px × 32px`) et les monuments.
-  - Ajustement proportionnel du glyphe du point d'interrogation `?` (`clamp(1.8rem, 3.2vw, 2.4rem)`).
-- **Orientation géométrique le long de la trajectoire (`FlightLoader.js`, `flight-loader.css`)** :
-  - Calcul dynamique de la tangente de descente à $t=0.85$ (~`+15.9°`) appliquée via variable CSS `--cloud-pitch` et rotation `rotate(var(--cloud-pitch))`.
-  - Redressement vertical automatique du point d'interrogation `?` (`rotate(calc(-1 * var(--cloud-pitch)))`) pour une lisibilité optimale au-dessus du nuage incliné.
-
-### Tests unitaires & Non-régression
-- **Validation complète des tests (`tests/load_route.test.js`)** :
-  - Vérification du masquage du nuage pour `progress < 50%` (`classList.contains('revealed') === false`).
-  - Vérification de l'apparition et de l'orientation à `progress = 50%` (`classList.contains('revealed') === true`, `scale(1)`, `rotate(15.9deg)`).
-  - Validation de l'absorption de l'avion et activation du nuage mystère à $\ge 80\%$.
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Apparition progressive du nuage de destination à mi-parcours (50%).
+- Réduction de la taille du nuage et orientation dynamique le long de la courbe de descente.
 
 ---
 
 ## [2.8.5] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Positionnement et rotation dynamiques des monuments sur la trajectoire (`FlightLoader.js`, `flight-loader.css`)** :
-  - Ancrage automatique de chaque monument (`Arc de Triomphe` à ~25%, `Pyramide du Louvre` à ~52%, `Tour Eiffel` à ~74%) directement sur la courbe Bézier pointillée de vol.
-  - Calcul en temps réel de la tangente géométrique de la trajectoire pour chaque monument : chaque repère s'incline harmonieusement selon la pente locale (`-8.3°` en montée, `+2.6°` près du sommet, `+11.5°` en descente).
-  - Ancrage du pointeur sur la courbe (`transform-origin: 50% 100%`) avec apparition dynamique en échelle (`scale(0.6)` à `scale(1)`) dès que l'avion atteint le seuil d'étape.
-- **Remplacement du crash par l'arrivée dans le nuage mystère à ~80% (`load.html`, `FlightLoader.js`, `flight-loader.css`)** :
-  - Suppression de l'ancienne séquence de crash au sol (cratère, ondes de choc, turbulences violentes en piqué).
-  - Dès ~80% de progression, l'avion plonge et disparaît avec élégance et douceur à l'intérieur du nuage de destination (`.in-cloud`, fondu d'opacité et réduction d'échelle).
-  - Activation douce du nuage (`.destination-cloud.active`) et émergence du point d'interrogation stylisé `?` invitant à deviner la ville mystère.
-
-### Optimisations, Nettoyage & Refactoring
-- **Suppression du code mort lié à l'ancien crash** :
-  - Élimination des sélecteurs CSS orphelins `.airplane-carrier.wobbling`, `.airplane-carrier.crashed`, `.plane-smoke-trail`, `@keyframes puffSmoke`, et des balises orphelines dans `load.html`.
-  - Nettoyage dans `FlightLoader.js` des méthodes de crash au profit de `#enterCloudSequence()` et `#resetPlaneFlight()`.
-  - Harmonisation des règles de transformation CSS et correction des doublons de propriétés dans `.question-mark-glyph`.
-
-### Tests unitaires & Non-régression
-- **Mise à jour et validation de la suite de tests (`tests/load_route.test.js`)** :
-  - Adaptation des tests pour vérifier la structure du nuage de destination (`#destination-cloud`, `.cloud-svg`, `#mystery-question-mark`).
-  - Validation du calcul de positionnement et de l'angle de rotation dynamique des monuments sur la courbe Bézier.
-  - Vérification de la disparition en douceur dans le nuage (`.in-cloud`, `.active`) à partir de 80% et jusqu'à 100%.
-  - Validation complète de la suite de 31 tests avec succès (`npm test`).
+### Modifié
+- Remplacement de la séquence de crash au sol par l'entrée de l'avion dans le nuage mystère.
+- Inclinaison dynamique des monuments selon la pente locale de la trajectoire.
 
 ---
 
 ## [2.8.4] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Découpage & Intégration des icônes de monuments réels (`public/assets/images/monuments/`, `load.html`)** :
-  - Découpage précis et détourage avec transparence alpha des 50 monuments de la planche fournie par l'utilisateur (`public/assets/images/monuments/`).
-  - Intégration des nouvelles icônes dans les étapes de l'écran de chargement (`load.html`) :
-    - **Monument 1 (~28%)** : Arc de Triomphe (`arc-triomphe.png`).
-    - **Monument 2 (~56%)** : Pyramide du Louvre (`louvre-pyramid.png`).
-    - **Monument 3 (~78%)** : Tour Eiffel (`eiffel-tower.png`).
-  - Remplacement des anciens tracés SVG hardcodés par des éléments `<img>` optimisés avec `loading="lazy"` et dimensions adaptées.
-  - Gestion du thème sombre dans `flight-loader.css` : filtres de clarté et ombres portées douces pour un contraste impeccable en mode nuit.
-
-### Optimisations & PWA
-- **Service Worker (`public/sw.js`)** :
-  - Ajout des nouveaux assets de monuments au tableau `STATIC_ASSETS` et incrémentation du cache vers `citymaster-v22` pour un fonctionnement 100% hors-ligne.
-
-### Tests unitaires & Non-régression
-- **Validation des tests (`npm test`)** :
-  - Suite de 31 tests validée avec succès.
+### Ajouté
+- Intégration des icônes de monuments réels (Arc de Triomphe, Louvre, Tour Eiffel) le long du vol.
 
 ---
 
 ## [2.8.3] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Orientation continue le long de la trajectoire pointillée (`FlightLoader.js`, `flight-loader.css`)** :
-  - L'avion suit désormais précisément la pente géométrique et la tangente de la courbe parabolique en pointillés tout au long de sa traversée.
-  - Tangage dynamique calculé en temps réel selon le ratio d'aspect réel du conteneur : décollage ascendant (~ -17.7°), transition douce vers l'horizontale (0°) à l'apogée de l'arc (~46%), plongée progressive en descente (~ +14° à +19°), vibrations intenses lors des turbulences (90-96%) et piqué final à 55° lors de l'impact du crash.
-  - Découplage CSS : les animations de flottement doux (`planeBob`) et de secousses (`planeWobble`) ciblent désormais `.plane-svg`, préservant la rotation angulaire continue appliquée à `.plane-wrapper` sans aucun conflit de transformation CSS.
-
-### Optimisations, Nettoyage & Refactoring
-- **Suppression intégrale du code mort lié aux anciens contrôles de test** :
-  - Retrait des boutons et curseurs de prototypage de `load.html` (`btn-flight-replay`, `btn-flight-pause`, `btn-flight-crash`, `flight-slider`, `btn-flight-theme`).
-  - Élimination de toutes les méthodes et champs orphelins dans `FlightLoader.js` (`pause`, `resume`, `replay`, `triggerCrash`, `toggleTheme`, `#bindEvents`, `#setStatus`, `#setDestination`, `#updatePauseButton`, `#isPaused`, `#shakeTimeout`, et suppression de l'import mort `I18nService`).
-  - Suppression de toutes les classes CSS orphelines dans `flight-loader.css` (`.flight-header`, `.flight-badge`, `.flight-title`, `.flight-info-dot`, classes `.ctrl-*`).
-  - Rétablissement d'un conteneur minimaliste transparent `#flight-sky` sans bordure ni fond pour délimiter proprement la scène aérienne.
-
-### Tests unitaires & Non-régression
-- **Validation complète de la suite de tests (`tests/load_route.test.js`)** :
-  - Suppression des assertions obsolètes sur les boutons de test.
-  - Ajout de vérifications sur le suivi angulaire de la rotation le long de la trajectoire aux étapes clés (décollage, apogée, descente, turbulences et crash).
-  - 31/31 tests passés avec succès (`npm test`).
+### Amélioré
+- Orientation continue de l'avion le long de la pente de la trajectoire.
+- Nettoyage des contrôles de test temporaires de l'écran de chargement.
 
 ---
 
 ## [2.8.2] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Refonte graphique intégrale ultra-minimaliste de l'écran de chargement (`/load`)** :
-  - **Typographie & En-tête épuré (`public/screens/load.html`, `public/assets/styles/components/flight-loader.css`)** :
-    - Remplacement des polices cartoon épaisses et du badge radar "VOL CM-742" par une typographie sans-serif moderne, nette et aérée (`Plus Jakarta Sans`).
-    - Ligne d'état inférieure unifiée et élégante combinant le pourcentage et la phase de vol (`54% • Vol de croisière...`).
-  - **Avion moderne & Silhouette aérodynamique (`load.html`, `flight-loader.css`)** :
-    - Remplacement de l'avion cartoon multicouche par un aéronef vectoriel moderne, fluide et minimaliste aux teintes orange et ardoise avec verrière claire.
-  - **Monuments flottants en micro-pills avec trait d'ancrage fin (`load.html`, `flight-loader.css`)** :
-    - Remplacement des cartes lourdes à bords épais par des capsules micro-pills translucides en glassmorphism (`backdrop-filter: blur(8px)`).
-    - Icônes vectorielles en line-art épuré (Tour Eiffel, Château de la Loire, Mont-Saint-Michel).
-    - Trait d'ancrage ultrafin (1.5px) pointant vers la trajectoire de vol à la place des flèches épaisses.
-  - **Scène céleste épurée & Trajectoire fine** :
-    - Suppression des nuages statiques artificiels pour offrir un espace aérien ouvert et sans distraction.
-    - Courbe de vol fine (2px) en pointillés discrets avec lueur d'ambiance atténuée.
-    - Barre de chargement au sol affinée (3px).
-  - **Crash & Point d'interrogation moderne** :
-    - Onde de choc d'impact épurée sous forme d'anneau d'onde circulaire (shockwave).
-    - Point d'interrogation `?` lumineux au halo orange vibrant (`#f97316`) et badge blanc sur orange contrasté `"Où sommes-nous ?"`.
-  - **Panneau de contrôle discret** :
-    - Toolbar de test compacte en capsule transparente à opacité réduite (`0.4`), s'intégrant sans gêner l'animation.
-
-### Optimisations & Performances
-- **Allègement du DOM et du CSS** :
-  - Réduction de 25% du poids CSS du composant `flight-loader.css`.
-  - Suppression des couches d'animation d'ondulation lourdes pour une fluidité d'affichage optimale sur tous les appareils mobiles.
-
-### Tests unitaires & Non-régression
-- Validation à 100% de la suite de tests (`npm test` : 31/31 tests passés avec succès).
+### Amélioré
+- Épuration graphique de l'écran de chargement : typographie allégée, silhouette d'aéronef modernisée et capsules de monuments en verre dépoli.
 
 ---
 
 ## [2.8.1] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Trajectoire de vol en courbe parabolique (`public/screens/load.html`, `src/views/components/FlightLoader.js`, `public/assets/styles/components/flight-loader.css`)** :
-  - Remplacement de la ligne horizontale plate par un arc de trajectoire en courbe parabolique (courbe de Bézier quadratique SVG `Q 500 47 920 213` stylisée en pointillés avec lueur atmosphérique).
-  - Calcul dynamique de la position $(X, Y)$ et de l'angle d'inclinaison/tangage de l'avion en temps réel le long de la tangente de la courbe (`FlightLoader.#getPointOnCurve(t)`), pour une animation de vol aérienne ultra-dynamique et naturelle.
-- **Affichage des monuments au-dessus du vol et masquage strict par défaut** :
-  - Les bâtiments/monuments sont désormais **strictement invisibles** (`opacity: 0; visibility: hidden; pointer-events: none`) jusqu'à ce que l'avion atteigne précisément leur étape de vol.
-  - Positionnement des monuments **flottant au-dessus de l'aéronef** (`.monument-above`) avec un pointeur directionnel cartoon (`.monument-pointer`) dirigé vers la ligne de vol.
-  - Dès qu'une étape est franchie par l'avion, la carte du monument surgit au-dessus de sa trajectoire avec une animation rebondissante fluide (`@keyframes monumentBounceIn`).
-- **Épuration graphique & Design cartoon simplifié** :
-  - Suppression des graduations et repères superflus au sol sur la barre de progression pour un rendu minimaliste, clair et lisible sur tous les formats d'écran.
-  - Séquence de crash final optimisée : l'avion plonge en piqué directement dans le cratère d'impact à la fin de la courbe descendante, déclenchant l'apparition du point d'interrogation géant.
-
-### Optimisations & Performances
-- **Formule de Bézier quadratique optimisée** :
-  - Évaluation analytique directe en $O(1)$ à chaque tick d'animation sans recalcul lourd du DOM.
-  - Fixation des repères de coordonnées en pourcentages relatifs pour un rendu parfaitement responsive et adaptable au redimensionnement de l'écran.
-
-### Tests unitaires & Non-régression
-- **Mise à jour des tests dans `tests/load_route.test.js`** :
-  - Intégration du sélecteur interne `.plane-wrapper` dans le mock pour la rotation du tangage.
-  - Validation des coordonnées initiales ($P_0$ à `left: 6%`, `top: 72%`) et du crash ($P_2$ à `left: 92%`, `top: 82%`).
-  - Suite de tests complète validée avec 100% de succès (31 tests passés, 0 échec).
+### Ajouté
+- Trajectoire de vol en courbe parabolique Bézier avec calcul du tangage en temps réel.
+- Apparition séquentielle des monuments au franchissement de chaque étape.
 
 ---
 
 ## [2.8.0] - 2026-10-13
 
-### Nouveautés & Nouvelles fonctionnalités
-- **Refonte Cartoon & Gamifiée de l'écran de chargement (`/load`)** :
-  - **Barre de progression & Avion volant (`public/screens/load.html`, `public/assets/styles/components/flight-loader.css`, `src/views/components/FlightLoader.js`)** :
-    - Intégration d'un avion cartoon stylisé en SVG (fuselage aérodynamique orange et blanc, cockpit vitré, aile balayée et hélice en rotation continue animée par `@keyframes propSpin`).
-    - L'avion traverse horizontalement le ciel le long d'une trajectoire en pointillés orange en synchronisation parfaite avec la barre de progression (de 0% à 100%).
-    - Mouvements subtils de tangage cartoon en vol de croisière (`@keyframes planeBob`).
-  - **Étapes avec apparition séquentielle de monuments emblématiques** :
-    - Étape 1 (~28%) : Apparition rebondissante de la **Tour Eiffel** (Paris) avec son badge informatif.
-    - Étape 2 (~56%) : Apparition du **Château de la Loire** (Chambord) avec ses tourelles et fanions.
-    - Étape 3 (~78%) : Apparition du **Mont-Saint-Michel** avec son abbaye gothique et vaguelettes.
-    - Animation cartoon d'apparition élastique (`@keyframes monumentPop`) et halo lumineux interactif dès que l'étape est franchie.
-  - **Séquence finale de turbulences, Crash & Point d'interrogation géant** :
-    - À l'approche de la destination (90-96%) : L'avion entre en zone de turbulences avec secousses cartoon (`@keyframes planeWobble`) et traînée de fumée.
-    - À l'arrivée (≥ 97%) : L'avion pique du nez vers le sol, s'encastre dans un cratère d'impact avec secousse de l'écran (`@keyframes skyShake`), explosion de bande dessinée ("💥 POUM !") et panaches de fumée animés.
-    - Émergence spectaculaire d'un **point d'interrogation géant cartoon (`?`)** avec texte 3D en relief, bordure orange contrastée, halo pulsant (`@keyframes questionPulse`) et macaron stylisé `"Où sommes-nous ?"` / `"Where are we?"`.
-  - **Panneau de contrôle et d'expérimentation interactif sur `/load`** :
-    - Bouton `Rejouer` (relance l'intégralité du vol).
-    - Bouton `Pause / Reprendre` (bascule instantanément l'animation).
-    - Bouton `Crash immédiat` (déclenche immédiatement la séquence d'impact).
-    - Curseur de scrubbing précis (`input[type="range"]`) pour balayer manuellement la progression de 0 à 100% et inspecter chaque état.
-    - Bouton d'inversion rapide du thème (Mode clair / Mode sombre).
+### Ajouté
+- Nouveau composant de chargement de vol interactif (`FlightLoader`).
+- Animation d'avion avec progression, étapes de monuments et arrivée mystère.
+- Prise en charge multilingue (français / anglais) et mise en cache hors-ligne (`citymaster-v18`).
 
-### Optimisations & Performances
-- **Positionnement absolu et fluidité 40 FPS (`FlightLoader.js`, `flight-loader.css`)** :
-  - Suppression des transitions CSS temporisées conflictuelles sur la position horizontale pour garantir une synchronisation instantanée et fluide à chaque frame sans décalage.
-  - Optimisation du contexte d'empilement (`z-index: 25` pour les monuments, `z-index: 15` pour l'aéronef) afin que le point d'interrogation et l'explosion émergent nettement au premier plan lors du crash.
-  - Structure vectorielle SVG légère ne nécessitant aucun téléchargement de texture bitmap additionnelle.
-
-### Sécurité & Architecture
-- **Composant autonome `FlightLoader` (`src/views/components/FlightLoader.js`)** :
-  - Architecture orientée objet avec encapsulation privée de l'état du vol et nettoyage systématique des timers et écouteurs (`destroy()`).
-  - Tolérance complète aux environnements headless et tests Node.js grâce à des gardes sécurisés sur `document`, `navigator` et `localStorage`.
-  - Connexion automatique au cycle de vie du routeur frontend dans `src/app.js` (démarrage automatique à l'entrée sur `/load`, arrêt propre lors de toute navigation sortante).
-
-### Internationalisation (i18n)
-- **Ajout des clés du module de vol dans `fr.json` et `en.json`** :
-  - Clés bilingues complètes : `flight.flight_title`, `flight.flight_badge`, `flight.takeoff`, `flight.cruising`, `flight.monument_eiffel`, `flight.monument_chambord`, `flight.monument_mont`, `flight.turbulence`, `flight.crashed`, `flight.mystery`, `flight.replay`, `flight.pause`, `flight.resume`, `flight.crash_now`, `flight.progress_label`, `flight.toggle_theme`.
-
-### Tests unitaires & Non-régression
-- **Extension de `tests/load_route.test.js`** :
-  - Validation de l'intégrité structurelle de tous les nouveaux éléments (`#airplane-carrier`, `.plane-propeller`, monuments 1, 2 et 3, site de crash, cratère, `#mystery-question-mark`, glyph, badge et contrôles).
-  - Test unitaire programmatique de la logique du contrôleur `FlightLoader` (initialisation à 0%, franchissement des seuils à 30%, 60%, 80%, turbulences à 92%, et déclenchement du crash à 100%).
-- **Exécution complète des tests** : 31 tests unitaires validés avec succès (31/31 passés, 0 échec).
-
-### Cache & Cycle de vie
-- Enregistrement de `public/assets/styles/components/flight-loader.css` et `src/views/components/FlightLoader.js` dans `STATIC_ASSETS` du Service Worker.
-- Incrémentation du cache Service Worker en `citymaster-v18` dans `public/sw.js`.
-- Mise à jour des balises de cache-busting `?v=2.8.0` dans `public/index.html` et synchronisation du badge dans `README.md`.
+### Tests
+- Tests unitaires pour la logique et le cycle de vie du composant de vol (`tests/load_route.test.js`).
 
 ---
 
@@ -1247,8 +627,8 @@ Ce fichier est crée et acctualiser par ia.
 
 ## [2.5.1] - 2026-10-07
 
-### Automatisation du Versioning & Directives de Release Agent
-- **Automatisation Workspace (`GEMINI.md`, `AGENTS.md`, `.agents/rules/versioning.md`)** : Configuration des règles impératives guidant l'assistant IA pour imposer l'incrément SemVer systématique, la mise à jour des en-têtes d'assets (`public/index.html`, `public/sw.js`), la complétion du journal `CHANGELOG.md` et l'exécution des tests unitaires (`npm test`) à chaque intervention.
+### Automatisation du Versioning & Conventions de Release
+- **Directives & Conventions du Projet (`AGENTS.md`, `.agents/rules/versioning.md`)** : Mise en place des règles de gouvernance du code : respect strict de SemVer, synchronisation des en-têtes d'assets (`public/index.html`, `public/sw.js`), journalisation dans `CHANGELOG.md` et validation systématique de la suite de tests (`npm test`).
 - **Script Automatisé d'Incrément (`scripts/bump-version.js` & `npm run version:bump`)** : Utilitaire Node.js permettant de mettre à jour de manière synchronisée et atomique `package.json`, le cache Service Worker (`public/sw.js`), les versions d'icônes/manifeste (`public/index.html`), le badge `README.md` et d'initialiser la section correspondante dans `CHANGELOG.md`.
 
 ---
@@ -1279,8 +659,8 @@ Ce fichier est crée et acctualiser par ia.
   - Page de repli hors-ligne (`offline.html`) avec interface soignée et détection en temps réel du retour de la connectivité.
   - Bouton d'installation PWA contextuel dans la barre de navigation (`#pwa-install-btn`).
   - Cache Service Worker incrémenté en `citymaster-v12`.
-- **Nettoyage "Clean Code" Intégral** :
-  - Éradication de tous les imports inutilisés et variables mortes dans `RoomController`, `GameController`, `GameView`, `AdminController`, `scores.routes.js`, `User.js` et `RoomView`.
+- **Nettoyage du code** :
+  - Suppression des imports inutilisés et variables mortes dans `RoomController`, `GameController`, `GameView`, `AdminController`, `scores.routes.js`, `User.js` et `RoomView`.
   - Factorisation de la navigation et harmonisation uniforme du style des chaînes (`'`).
 - **Suite de Tests d'Intégration Étendue (24/24 tests validés)** :
   - Tests complets pour `AuthController` (politique de mot de passe, format des pseudos, validation JWT).
@@ -1310,7 +690,7 @@ Ce fichier est crée et acctualiser par ia.
 ## [2.3.0] - 2026-10-05
 
 ### Refonte Stylistique Neumorphique, Tokens CSS & Internationalisation Globale (i18n)
-- **Éradication des Couleurs Brutes & Tokens Sémantiques** : Remplacement systématique de l'ensemble des couleurs hexadécimales par des variables CSS (`var(--color-...)`), introduction des teintes dérivées claires (`--color-danger-light`, `--color-success-light`, `--color-warning-light`, `--color-accent-light`) pour un contraste optimal en thème sombre et clair.
+- **Tokens Sémantiques CSS** : Remplacement de l'ensemble des couleurs hexadécimales par des variables CSS (`var(--color-...)`), introduction des teintes dérivées claires (`--color-danger-light`, `--color-success-light`, `--color-warning-light`, `--color-accent-light`) pour un contraste optimal en thème sombre et clair.
 - **Harmonisation Neumorphique Globale** : Uniformisation des ombres portées, bordures et effets de relief (`box-shadow`, `inset`) sur l'ensemble des composants (boutons, cartes, badges, formulaires, messages flash, navigation et profil).
 - **Généralisation de l'i18n sur Toutes les Vues** : Traduction intégrale (FR/EN) intégrée dans `AdminView`, `MapView`, `RoomView`, `GameView`, `CertificateView`, `AuthView` et `FlashMessageService`.
 - **Attributs Placeholder Traduisibles** : Support dynamique de la traduction des placeholders de saisie via l'attribut `data-i18n-placeholder` dans `I18nService`.

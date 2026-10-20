@@ -102,8 +102,12 @@
   --container-xl: min(100%, 62rem);
   --container-2xl: min(100%, 75rem);
 
-  /* Responsive Fluid Screen & Card Paddings */
-  --screen-padding-y: clamp(0.75rem, 2.5dvh, 2rem);
+  /* Navbar Dimensions & Responsive Screen Clearances */
+  --navbar-height: 3.625rem;
+  --navbar-top: max(0.625rem, env(safe-area-inset-top));
+  --screen-padding-top: calc(var(--navbar-height) + var(--navbar-top) + 1.25rem);
+  --screen-padding-bottom: clamp(1.5rem, 3.5dvh, 2.75rem);
+  --screen-padding-y: var(--screen-padding-top);
   --screen-padding-x: clamp(0.75rem, 3vw, 1.5rem);
   --card-padding-y: clamp(1rem, 2.5dvh, 1.75rem);
   --card-padding-x: clamp(1rem, 3.5vw, 2rem);
@@ -195,3 +199,15 @@
   --paper-badge-text: #fef08a;
   --hero-highlight-color: #fb923c;
 }
+
+@media (max-width: 768px) {
+  :root {
+    --navbar-height: 3.25rem;
+    --navbar-top: max(0.5rem, env(safe-area-inset-top));
+    --screen-padding-top: calc(var(--navbar-height) + var(--navbar-top) + 1rem);
+    --screen-padding-bottom: clamp(1.25rem, 3dvh, 2.25rem);
+    --screen-padding-y: var(--screen-padding-top);
+    --screen-padding-x: clamp(0.75rem, 3vw, 1.25rem);
+  }
+}
+

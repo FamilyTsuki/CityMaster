@@ -5,7 +5,7 @@
 }
 
 .admin-dashboard-view {
-  padding: 24px 16px 60px 16px;
+  padding: var(--screen-padding-top) var(--screen-padding-x) 60px var(--screen-padding-x);
   max-width: 1100px;
   width: 100%;
   margin: 0 auto;

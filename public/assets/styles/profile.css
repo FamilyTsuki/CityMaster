@@ -7,7 +7,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: var(--screen-padding-y) var(--screen-padding-x);
+  padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   background: transparent;
   overflow-y: auto;
   overflow-x: hidden;
@@ -20,7 +20,7 @@
   position: relative;
   width: var(--container-md);
   max-width: 100%;
-  margin: auto;
+  margin: 0 auto;
   padding: var(--card-compact-y) var(--card-compact-x);
   background-color: var(--bg-card);
   border: 1px solid var(--border-color) !important;
@@ -470,12 +470,12 @@ input:checked + .slider::before {
 
 @media (max-width: 640px) {
   #profile-screen {
-    padding: var(--screen-padding-y) var(--screen-padding-x);
+    padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   }
 
   .profile-card {
     padding: var(--card-compact-y) var(--card-compact-x);
-    margin: auto;
+    margin: 0 auto;
   }
 
   .stat-box {

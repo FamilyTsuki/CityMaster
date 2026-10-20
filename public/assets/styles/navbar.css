@@ -9,12 +9,12 @@ html.i18n-loading #main-nav {
   justify-content: space-between;
   align-items: center;
   position: fixed;
-  top: max(0.625rem, env(safe-area-inset-top));
+  top: var(--navbar-top, max(0.625rem, env(safe-area-inset-top)));
   left: 0;
   right: 0;
   margin: 0 auto;
   width: min(calc(100% - 2rem), 75rem);
-  min-height: 3.625rem;
+  min-height: var(--navbar-height, 3.625rem);
   padding: 0 clamp(1rem, 2vw, 1.5rem);
   background-color: var(--bg-card);
   backdrop-filter: blur(16px);
@@ -462,12 +462,12 @@ html.i18n-loading #main-nav {
 
 @media (max-width: 768px) {
   .navbar {
-    top: max(0.5rem, env(safe-area-inset-top));
+    top: var(--navbar-top, max(0.5rem, env(safe-area-inset-top)));
     left: 0;
     right: 0;
     margin: 0 auto;
     width: min(calc(100% - 1.25rem), 75rem);
-    min-height: 3.25rem;
+    min-height: var(--navbar-height, 3.25rem);
     padding: 0 1rem;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);

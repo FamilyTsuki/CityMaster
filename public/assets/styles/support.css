@@ -201,7 +201,7 @@ body:has(#support-screen.active) .bubble-8 {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: calc(3.625rem + max(0.625rem, env(safe-area-inset-top)) + 1.25rem) var(--screen-padding-x) 2.5rem var(--screen-padding-x);
+  padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   background: transparent;
   min-height: 100%;
   width: 100%;
@@ -492,7 +492,7 @@ body:has(#support-screen.active) .bubble-8 {
 
 @media (max-width: 768px) {
   #support-screen {
-    padding: calc(3.25rem + max(0.5rem, env(safe-area-inset-top)) + 1rem) var(--screen-padding-x) 2rem var(--screen-padding-x);
+    padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   }
 
   .support-header-top .btn-back-round {

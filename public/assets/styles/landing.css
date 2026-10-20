@@ -9,7 +9,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   background: transparent;
-  padding: var(--screen-padding-y) var(--screen-padding-x);
+  padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   height: 100%;
   box-sizing: border-box;
   transform: none !important;
@@ -641,7 +641,7 @@ body:has(#load-screen.active) .app-backdrop {
 
 @media (max-width: 640px) {
   #landing-screen {
-    padding: var(--screen-padding-y) var(--screen-padding-x);
+    padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   }
 
   .hero-actions {

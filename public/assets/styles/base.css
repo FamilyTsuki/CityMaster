@@ -92,16 +92,7 @@ img {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
-  padding-top: calc(3.625rem + max(0.625rem, env(safe-area-inset-top)) + 0.75rem);
-  padding-bottom: 0 !important;
-  padding-left: max(1rem, env(safe-area-inset-left));
-  padding-right: max(1rem, env(safe-area-inset-right));
-}
-
-@media (max-width: 768px) {
-  .screen {
-    padding-top: calc(3.25rem + max(0.5rem, env(safe-area-inset-top)) + 0.625rem);
-  }
+  padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
 }
 
 .screen.active {
@@ -109,7 +100,6 @@ img {
   visibility: visible;
   transform: none;
   will-change: auto;
-  padding-bottom: 0 !important;
 }
 
 #game-screen {

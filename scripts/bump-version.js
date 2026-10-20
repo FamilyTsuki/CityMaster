@@ -58,13 +58,14 @@ async function bumpVersion() {
   const today = new Date().toISOString().split('T')[0];
 
   if (!changelogContent.includes(`## [${newVersion}]`)) {
-    const headerPrefix = 'Ce fichier est crée et acctualiser par ia.\n\n';
-    const entry = `## [${newVersion}] - ${today}\n\n### ${summary || 'Mise à jour et améliorations'}\n- Synchronisation automatique de version et ajustements du projet.\n\n---\n\n`;
+    const entry = `## [${newVersion}] - ${today}\n\n### ${summary || 'Améliorations'}\n- Mise à jour et optimisations des composants.\n\n---\n\n`;
 
-    if (changelogContent.includes(headerPrefix)) {
-      changelogContent = changelogContent.replace(headerPrefix, headerPrefix + entry);
+    const marker = '\n\n## [';
+    const firstEntryIndex = changelogContent.indexOf(marker);
+    if (firstEntryIndex !== -1) {
+      changelogContent = changelogContent.slice(0, firstEntryIndex + 2) + entry + changelogContent.slice(firstEntryIndex + 2);
     } else {
-      changelogContent = changelogContent.replace('# Changelog - CityMaster\n\n', `# Changelog - CityMaster\n\n${entry}`);
+      changelogContent += '\n\n' + entry;
     }
     await fs.writeFile(changelogPath, changelogContent, 'utf8');
   }

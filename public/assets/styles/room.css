@@ -3,7 +3,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: var(--screen-padding-y) var(--screen-padding-x);
+  padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   background: transparent;
   min-height: 100%;
   width: 100%;
@@ -19,7 +19,7 @@
   align-items: center;
   justify-content: center;
   width: var(--container-xl);
-  margin: auto 0;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
@@ -719,7 +719,7 @@
 
 @media (max-width: 768px) {
   #room-screen {
-    padding: var(--screen-padding-y) var(--screen-padding-x);
+    padding: var(--screen-padding-top) var(--screen-padding-x) var(--screen-padding-bottom) var(--screen-padding-x);
   }
 
   .room-card,
