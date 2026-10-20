@@ -3,6 +3,40 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.17.2] - 2026-10-20
+
+### Modifié
+- Affichage conditionnel de l'illustration Ko-fi selon le thème : utilisation de `kofi-cat.png` en mode clair et de `kofi-cat2.png` en mode sombre.
+
+---
+
+## [2.17.1] - 2026-10-20
+
+### Modifié
+- Repositionnement en absolu de l'illustration de chat dans le coin supérieur de la carte Ko-fi afin de préserver la hauteur uniforme et l'alignement des deux cartes.
+- Ajout d'un contour adapté au thème sombre pour garantir la lisibilité de l'illustration sans altérer les dimensions des cartes.
+
+---
+
+## [2.17.0] - 2026-10-20
+
+### Ajouté
+- Création de la page et route `/moderation` (`public/screens/moderation.html`, `public/assets/styles/moderation.css`) avec bandeau épuré « Coming Soon » et bouton de retour.
+- Redirection du bouton « Rejoindre la modération » de la page Support vers la nouvelle page de modération.
+
+### Tests
+- Ajout des tests unitaires de structure du template et de résolution de route pour `/moderation` dans `tests/support_route.test.js`.
+
+---
+
+## [2.16.22] - 2026-10-20
+
+### Ajouté
+- Intégration de l'illustration de chat avec fleur dans l'encadré de soutien Ko-fi (`public/assets/images/kofi-cat.png`).
+- Remplissage blanc du corps de l'illustration pour garantir un contraste optimal en thèmes clair et sombre, avec animation interactive au survol.
+
+---
+
 ## [2.16.21] - 2026-10-20
 
 ### Ajouté

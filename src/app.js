@@ -170,6 +170,9 @@ class App {
       "/support": () => {
         this.#gameView.showScreen("support");
       },
+      "/moderation": () => {
+        this.#gameView.showScreen("moderation");
+      },
       "/load": () => {
         this.#showLoad();
       },
@@ -338,6 +341,7 @@ class App {
           "load",
           "changelog",
           "support",
+          "moderation",
         ];
         const parser = new DOMParser();
         const appContainer = document.getElementById("app");

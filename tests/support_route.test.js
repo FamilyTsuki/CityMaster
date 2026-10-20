@@ -30,6 +30,22 @@ test('support screen template exists and contains valid accessible structure wit
     'support.html must contain #kofi-donate-btn',
   );
   assert.ok(
+    content.includes('kofi-cat.png'),
+    'support.html must include kofi-cat.png for light theme',
+  );
+  assert.ok(
+    content.includes('kofi-cat2.png'),
+    'support.html must include kofi-cat2.png for dark theme',
+  );
+  assert.ok(
+    fs.existsSync(path.resolve('public/assets/images/kofi-cat.png')),
+    'kofi-cat.png must exist',
+  );
+  assert.ok(
+    fs.existsSync(path.resolve('public/assets/images/kofi-cat2.png')),
+    'kofi-cat2.png must exist',
+  );
+  assert.ok(
     content.includes('https://ko-fi.com/tsuki_dev'),
     'support.html must link to https://ko-fi.com/tsuki_dev',
   );
@@ -46,8 +62,8 @@ test('support screen template exists and contains valid accessible structure wit
     'support.html must contain #moderator-apply-btn for routes moderation',
   );
   assert.ok(
-    content.includes('support.tsuki.dev@gmail.com'),
-    'moderator link must allow applying by email',
+    content.includes('href="#/moderation"') || content.includes('href="/moderation"'),
+    'moderator button must link to moderation screen',
   );
   assert.ok(
     !content.includes('support-card'),
@@ -122,5 +138,52 @@ test('footer templates contain accessible links to support screen', () => {
   assert.ok(
     profileHtml.includes('support-footer-link'),
     'profile.html must include .support-footer-link',
+  );
+});
+
+test('moderation screen template exists and contains coming soon structure', () => {
+  const moderationHtmlPath = path.resolve('public/screens/moderation.html');
+  assert.ok(fs.existsSync(moderationHtmlPath), 'public/screens/moderation.html must exist');
+
+  const content = fs.readFileSync(moderationHtmlPath, 'utf8');
+  assert.ok(
+    content.includes('id="moderation-screen"'),
+    'moderation.html must contain #moderation-screen',
+  );
+  assert.ok(
+    content.includes('id="moderation-back-btn"'),
+    'moderation.html must contain #moderation-back-btn',
+  );
+  assert.ok(
+    content.includes('coming-soon-title'),
+    'moderation.html must contain .coming-soon-title',
+  );
+});
+
+test('Router matches /moderation and /moderation/ routes correctly', async () => {
+  let moderationRouteHandled = false;
+
+  const routes = {
+    '/': () => {},
+    '/moderation': () => {
+      moderationRouteHandled = true;
+    },
+  };
+
+  const router = new Router(routes);
+
+  await router.navigate('/moderation');
+  assert.strictEqual(
+    moderationRouteHandled,
+    true,
+    'Router must match and execute /moderation route',
+  );
+
+  moderationRouteHandled = false;
+  await router.navigate('/moderation/');
+  assert.strictEqual(
+    moderationRouteHandled,
+    true,
+    'Router must match and normalize trailing slash /moderation/ route',
   );
 });

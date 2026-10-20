@@ -4,6 +4,7 @@
     "description": "CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !"
   },
   "common": {
+    "back": "Retour",
     "back_home": "Retour à l'accueil",
     "close_dialog": "Fermer la boîte de dialogue",
     "close": "Fermer",
@@ -477,14 +478,18 @@
     "welcome_costs": "Le jeu est complètement gratuit et sans publicité. Si vous appréciez le jeu et souhaitez soutenir son évolution, vous êtes au bon endroit !",
     "contribute_title": "Envie de contribuer ?",
     "contribute_desc": "Il n'y a absolument aucune obligation, mais si vous souhaitez soutenir le projet, il existe deux manières concrètes de participer à l'aventure :",
-    "way_kofi_title": "1. Offrir un café (Ko-fi)",
+    "way_kofi_title": "2. Offrir un café (Ko-fi)",
     "way_kofi_desc": "Si vous appréciez CityMaster, vous pouvez m'offrir un café ! C'est un geste libre et amical pour soutenir mon travail et encourager la suite du développement.",
     "kofi_button": "Soutenir sur Ko-fi",
     "kofi_aria": "Soutenir CityMaster sur Ko-fi (s'ouvre dans un nouvel onglet)",
-    "way_mod_title": "2. Devenir Modérateur des Routes",
+    "way_mod_title": "1. Devenir Modérateur des Routes",
     "way_mod_desc": "Aidez-nous à vérifier, corriger et valider le tracé des rues et des quartiers de votre commune pour garantir des parties parfaites et sans bug.",
     "mod_button": "Rejoindre la modération",
-    "mod_aria": "Postuler comme modérateur cartographique par email",
+    "mod_aria": "Accéder à l'espace de modération",
     "mod_admin_link": "Accéder à l'espace de gestion des routes"
+  },
+  "moderation": {
+    "title": "Modération",
+    "coming_soon": "Coming Soon"
   }
 }

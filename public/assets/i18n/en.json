@@ -4,6 +4,7 @@
     "description": "CityMaster - Educational and interactive geography game based on OpenStreetMap. Master your city map!"
   },
   "common": {
+    "back": "Back",
     "back_home": "Back to home",
     "close_dialog": "Close dialog",
     "close": "Close",
@@ -477,14 +478,18 @@
     "welcome_costs": "The game is completely free and ad-free. If you enjoy the game and want to support its evolution, you're in the right place!",
     "contribute_title": "Want to contribute?",
     "contribute_desc": "There's absolutely no obligation, but if you'd like to support the project, there are two great ways to participate:",
-    "way_kofi_title": "1. Buy a Coffee (Ko-fi)",
+    "way_kofi_title": "2. Buy a Coffee (Ko-fi)",
     "way_kofi_desc": "If you enjoy CityMaster, you can buy me a coffee! It's an optional, friendly gesture to support my work and encourage future development.",
     "kofi_button": "Support on Ko-fi",
     "kofi_aria": "Support CityMaster on Ko-fi (opens in a new tab)",
-    "way_mod_title": "2. Become a Route Moderator",
+    "way_mod_title": "1. Become a Route Moderator",
     "way_mod_desc": "Help us verify, fix, and validate street geometry and district data in your city to ensure seamless and bug-free rounds.",
     "mod_button": "Join moderation",
-    "mod_aria": "Apply as a cartographic moderator via email",
+    "mod_aria": "Access moderation area",
     "mod_admin_link": "Access route management dashboard"
+  },
+  "moderation": {
+    "title": "Moderation",
+    "coming_soon": "Coming Soon"
   }
 }

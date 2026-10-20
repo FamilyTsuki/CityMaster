@@ -30,11 +30,13 @@ export class Router {
         }
 
         const routeBtn = e.target.closest(
-          '.btn-back-round, .legal-footer-link, .support-footer-link, #room-login-link, #legal-back-btn, #support-back-btn, #support-footer-back-btn',
+          '.btn-back-round, .legal-footer-link, .support-footer-link, #room-login-link, #legal-back-btn, #support-back-btn, #support-footer-back-btn, #moderation-back-btn',
         );
         if (routeBtn) {
           e.preventDefault();
-          if (
+          if (routeBtn.id === 'moderation-back-btn') {
+            this.navigate('/support');
+          } else if (
             routeBtn.id === 'legal-back-btn' ||
             routeBtn.id === 'support-back-btn' ||
             routeBtn.id === 'support-footer-back-btn' ||
