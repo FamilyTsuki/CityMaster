@@ -3,10 +3,57 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
-## [2.16.8] - 2026-10-20
+## [2.16.11] - 2026-10-20
 
-### Intégration pleine largeur du header à la page sans marges flottantes ni délimitation
-- Synchronisation automatique de version et ajustements du projet.
+### Restitution Visuelle Haute-Fidélité de la Page Support
+- **Fond espresso & halo ambre/terre cuite (`public/assets/styles/support.css`)** :
+  - Restitution exacte de l'ambiance visuelle du modèle : halo vibrant terre cuite / ambre brûlé dans le coin supérieur gauche (`#9e3617` / `#8a341b`) se fondant dans un fond chocolat noir / espresso (`#1b100d`).
+  - Application synchronisée sur `body:has(#support-screen.active)` et `#support-screen` pour une continuité absolue sous la navbar, sans aucune bordure ni saut de couleur.
+  - Masquage automatique du backdrop par défaut du jeu (`.app-backdrop`) pour préserver la profondeur et la chaleur des teintes sans interférence.
+  - La barre de navigation hérite d'une texture en verre fumé cuivré (`rgba(45, 27, 23, 0.75)` avec `backdrop-filter: blur(16px)`).
+- **Cartes & Typographies conformes au modèle** :
+  - Titres et en-têtes avec la police avec empattement *Georgia* (`color: #ffffff`), élégante et chaleureuse.
+  - Cartes d'accueil et d'action avec coins très arrondis (`28px` et `24px`), fond chocolat soyeux (`rgba(58, 36, 33, 0.88)`), liséré délicat et ombre portée profonde.
+  - Paragraphes clairs en beige chaud (`#ecdcd0`), offrant une lisibilité et un confort visuel optimaux.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v68`.
+
+### Tests Unitaires
+- Validation complète des 77 tests de non-régression (`npm test`).
+
+---
+
+## [2.16.10] - 2026-10-20
+
+### Ambiance Graphique & Expérience Utilisateur
+- **Fond accueillant, chaleureux et pleine page sur l'écran Support (`public/assets/styles/support.css`)** :
+  - Restauration de l'ambiance cosy, chaleureuse et réconfortante (teintes café, miel, ambre doux et caramel) via le sélecteur `body:has(#support-screen.active)`.
+  - Application du dégradé radial et des bulles ambiantes directement sur le conteneur global `#app-backdrop` : le fond couvre ainsi 100% de la fenêtre (y compris derrière le header flottant) garantissant **zéro délimitation** ou coupure visuelle.
+  - Prise en charge soignée des modes sombre et clair :
+    - *Mode sombre* : fond café torréfié profond (`#180f0c` / `#24140f`), lueurs ambrées et cartes en verre fumé avec reflets cuivrés.
+    - *Mode clair* : fond crème / latte velouté (`#fbf5ee` / `#fff9f2`), halos miel et cartes lumineuses douces.
+  - Harmonisation des cartes, typographies et bordures pour une lisibilité optimale et une sensation d'accueil agréable.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v67`.
+
+### Tests Unitaires
+- Exécution et validation des 77 tests de non-régression (`npm test`).
+
+---
+
+## [2.16.9] - 2026-10-20
+
+### Harmonisation Visuelle & Cohérence Graphique
+- **Harmonisation complète du style de la page Support (`public/assets/styles/support.css`)** :
+  - Alignement de la page de soutien sur l'architecture visuelle de l'ensemble du jeu : passage de `#support-screen` en fond transparent (`background: transparent;`) pour hériter du fond unifié et dynamique de l'application (`#app-backdrop` et tokens globaux).
+  - Suppression de la démarcation et du contraste de couleur qui apparaissait derrière la barre de navigation.
+  - Utilisation des variables graphiques standards de CityMaster : `var(--bg-card)`, `var(--surface)`, `var(--border-color)`, `var(--text-main)`, `var(--text-secondary)`, `var(--shadow-md)` et `var(--border-radius-lg)` avec effet de flou en arrière-plan (`backdrop-filter: blur(16px)`).
+  - Préservation du style canonique en floating pill de la navbar du jeu sans altération sur les autres écrans.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v66` pour forcer la mise à jour des styles auprès des navigateurs clients.
+
+### Tests Unitaires
+- Exécution et validation des 77 tests de non-régression (`npm test`).
 
 ---
 
