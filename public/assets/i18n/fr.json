@@ -479,11 +479,11 @@
     "contribute_desc": "Il n'y a absolument aucune obligation, mais si vous souhaitez soutenir le projet, il existe deux manières concrètes de participer à l'aventure :",
     "way_kofi_title": "1. Offrir un café (Ko-fi)",
     "way_kofi_desc": "Soutenez financièrement l'hébergement par un don libre (l'équivalent d'un café) pour financer le matériel, l'électricité et les serveurs de carte.",
-    "kofi_button": "💖 Soutenir sur Ko-fi",
+    "kofi_button": "Soutenir sur Ko-fi",
     "kofi_aria": "Soutenir CityMaster sur Ko-fi (s'ouvre dans un nouvel onglet)",
     "way_mod_title": "2. Devenir Modérateur des Routes",
     "way_mod_desc": "Aidez-nous à vérifier, corriger et valider le tracé des rues et des quartiers de votre commune pour garantir des parties parfaites et sans bug.",
-    "mod_button": "🛠️ Rejoindre la modération",
+    "mod_button": "Rejoindre la modération",
     "mod_aria": "Postuler comme modérateur cartographique par email",
     "mod_admin_link": "Accéder à l'espace de gestion des routes"
   }

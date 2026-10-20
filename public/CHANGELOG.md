@@ -3,6 +3,25 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.16.15] - 2026-10-20
+
+### Design & Interface Utilisateur
+- **Refonte sobre et authentique des boutons de contribution (`public/assets/styles/support.css`)** :
+  - Suppression des dégradés flashy et artificiels (« style IA ») sur les boutons de la section *« Envie de contribuer ? »*.
+  - Alignement direct sur les codes de design de CityMaster : aplats de couleurs nets, bordures fines élégantes (`var(--border-subtle)`), coins arrondis standards (`var(--border-radius-sm)`).
+  - Bouton Ko-fi habillé de la couleur d'accentuation principale du jeu (`var(--primary)`), avec micro-interaction sobre au survol (`translateY(-2px)` et légère surbrillance).
+  - Bouton Modérateur habillé d'un ton café profond contrasté (`#2e1d18`) en harmonie avec le thème de la page.
+- **Épuration des textes et labels i18n (`public/assets/i18n/fr.json`, `en.json`, `public/screens/support.html`)** :
+  - Retrait des accumulations d'emojis superflus dans les boutons d'action.
+  - Libellés clairs, professionnels et directs : *"Soutenir sur Ko-fi"* et *"Rejoindre la modération"*.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v72`.
+
+### Tests Unitaires
+- Validation complète des 77 tests de non-régression (`npm test`).
+
+---
+
 ## [2.16.14] - 2026-10-20
 
 ### Ambiance Graphique & Effet Lampe à Lave
