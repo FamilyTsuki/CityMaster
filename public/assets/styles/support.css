@@ -9,16 +9,8 @@ body:has(#support-screen.active) .app-backdrop {
 
 body:has(#support-screen.active) .backdrop-gradient {
   background:
-    radial-gradient(
-      circle at 10% 15%,
-      rgba(185, 65, 25, 0.45) 0%,
-      transparent 55%
-    ),
-    radial-gradient(
-      circle at 90% 85%,
-      rgba(140, 45, 15, 0.35) 0%,
-      transparent 60%
-    ),
+    radial-gradient(circle at 10% 15%, rgba(185, 65, 25, 0.45) 0%, transparent 55%),
+    radial-gradient(circle at 90% 85%, rgba(140, 45, 15, 0.35) 0%, transparent 60%),
     linear-gradient(160deg, #22130f 0%, #170e0b 55%, #100806 100%) !important;
   opacity: 1 !important;
 }
@@ -45,12 +37,7 @@ body:has(#support-screen.active) .bubble-1 {
   height: 380px;
   left: -40px;
   bottom: -220px;
-  background: radial-gradient(
-    circle at 35% 35%,
-    #ff6f43 0%,
-    #d84518 45%,
-    #90270a 85%
-  );
+  background: radial-gradient(circle at 35% 35%, #ff6f43 0%, #d84518 45%, #90270a 85%);
   animation: lavaLampRiseA 22s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -2s !important;
 }
@@ -60,12 +47,7 @@ body:has(#support-screen.active) .bubble-2 {
   height: 440px;
   left: 20%;
   bottom: -280px;
-  background: radial-gradient(
-    circle at 40% 40%,
-    #ff8a3d 0%,
-    #e65100 48%,
-    #a02c05 90%
-  );
+  background: radial-gradient(circle at 40% 40%, #ff8a3d 0%, #e65100 48%, #a02c05 90%);
   animation: lavaLampRiseB 28s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -11s !important;
 }
@@ -75,12 +57,7 @@ body:has(#support-screen.active) .bubble-3 {
   height: 350px;
   left: 45%;
   bottom: -200px;
-  background: radial-gradient(
-    circle at 45% 35%,
-    #ffa726 0%,
-    #f57c00 50%,
-    #b23b00 90%
-  );
+  background: radial-gradient(circle at 45% 35%, #ffa726 0%, #f57c00 50%, #b23b00 90%);
   animation: lavaLampRiseC 24s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -6s !important;
 }
@@ -90,12 +67,7 @@ body:has(#support-screen.active) .bubble-4 {
   height: 420px;
   left: 65%;
   bottom: -260px;
-  background: radial-gradient(
-    circle at 35% 45%,
-    #ff7043 0%,
-    #d84315 50%,
-    #8e2305 90%
-  );
+  background: radial-gradient(circle at 35% 45%, #ff7043 0%, #d84315 50%, #8e2305 90%);
   animation: lavaLampRiseA 26s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -16s !important;
 }
@@ -105,12 +77,7 @@ body:has(#support-screen.active) .bubble-5 {
   height: 390px;
   left: 82%;
   bottom: -240px;
-  background: radial-gradient(
-    circle at 40% 40%,
-    #ff8f00 0%,
-    #e65100 50%,
-    #942903 90%
-  );
+  background: radial-gradient(circle at 40% 40%, #ff8f00 0%, #e65100 50%, #942903 90%);
   animation: lavaLampRiseB 23s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -8s !important;
 }
@@ -120,12 +87,7 @@ body:has(#support-screen.active) .bubble-6 {
   height: 400px;
   left: 10%;
   bottom: -250px;
-  background: radial-gradient(
-    circle at 50% 40%,
-    #ff5722 0%,
-    #bf360c 55%,
-    #751b03 95%
-  );
+  background: radial-gradient(circle at 50% 40%, #ff5722 0%, #bf360c 55%, #751b03 95%);
   animation: lavaLampRiseC 30s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -19s !important;
 }
@@ -135,12 +97,7 @@ body:has(#support-screen.active) .bubble-7 {
   height: 460px;
   left: 50%;
   bottom: -300px;
-  background: radial-gradient(
-    circle at 45% 45%,
-    #ff9800 0%,
-    #f4511e 52%,
-    #9a2400 92%
-  );
+  background: radial-gradient(circle at 45% 45%, #ff9800 0%, #f4511e 52%, #9a2400 92%);
   animation: lavaLampRiseA 32s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -24s !important;
 }
@@ -150,12 +107,7 @@ body:has(#support-screen.active) .bubble-8 {
   height: 360px;
   left: 32%;
   bottom: -220px;
-  background: radial-gradient(
-    circle at 35% 35%,
-    #ff7043 0%,
-    #e64a19 50%,
-    #8d2406 90%
-  );
+  background: radial-gradient(circle at 35% 35%, #ff7043 0%, #e64a19 50%, #8d2406 90%);
   animation: lavaLampRiseB 25s cubic-bezier(0.42, 0, 0.58, 1) infinite !important;
   animation-delay: -14s !important;
 }
@@ -249,8 +201,7 @@ body:has(#support-screen.active) .bubble-8 {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: calc(3.625rem + max(0.625rem, env(safe-area-inset-top)) + 1.25rem)
-    var(--screen-padding-x) 2.5rem var(--screen-padding-x);
+  padding: calc(3.625rem + max(0.625rem, env(safe-area-inset-top)) + 1.25rem) var(--screen-padding-x) 2.5rem var(--screen-padding-x);
   background: transparent;
   min-height: 100%;
   width: 100%;
@@ -306,7 +257,7 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-header h1 {
-  font-family: "Georgia", "Playfair Display", "Merriweather", serif;
+  font-family: 'Georgia', 'Playfair Display', 'Merriweather', serif;
   font-size: clamp(2.1rem, 5vw, 2.85rem);
   font-weight: 700;
   color: #ffffff;
@@ -354,11 +305,7 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-welcome-card p {
-  font-family:
-    "Plus Jakarta Sans",
-    system-ui,
-    -apple-system,
-    sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   font-size: clamp(0.95rem, 2vw, 1.05rem);
   line-height: 1.75;
   color: #ecdcd0;
@@ -382,7 +329,7 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-cta-card h2 {
-  font-family: "Georgia", "Playfair Display", "Merriweather", serif;
+  font-family: 'Georgia', 'Playfair Display', 'Merriweather', serif;
   font-size: clamp(1.6rem, 4vw, 2.1rem);
   font-weight: 700;
   color: #ffffff;
@@ -390,7 +337,7 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-cta-card > p {
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 1rem;
   line-height: 1.65;
   color: #ecdcd0;
@@ -433,7 +380,7 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-way-item h3 {
-  font-family: "Georgia", "Playfair Display", "Merriweather", serif;
+  font-family: 'Georgia', 'Playfair Display', 'Merriweather', serif;
   font-size: 1.3rem;
   font-weight: 700;
   color: #ffffff;
@@ -441,7 +388,7 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-way-item p {
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.92rem;
   line-height: 1.65;
   color: #ecdcd0;
@@ -465,17 +412,14 @@ body:has(#support-screen.active) .bubble-8 {
   gap: 0.625rem;
   background: linear-gradient(135deg, #ff5e5b 0%, #ff416c 100%);
   color: #ffffff !important;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.98rem;
   font-weight: 800;
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius-full);
   text-decoration: none !important;
   box-shadow: 0 4px 14px rgba(255, 94, 91, 0.38);
-  transition:
-    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.25);
   user-select: none;
@@ -508,17 +452,14 @@ body:has(#support-screen.active) .bubble-8 {
   gap: 0.625rem;
   background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
   color: #ffffff !important;
-  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.98rem;
   font-weight: 800;
   padding: 0.75rem 1.5rem;
   border-radius: var(--border-radius-full);
   text-decoration: none !important;
   box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
-  transition:
-    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.2s ease,
-    filter 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, filter 0.2s ease;
   cursor: pointer;
   border: 1px solid rgba(255, 255, 255, 0.25);
   user-select: none;
@@ -547,8 +488,7 @@ body:has(#support-screen.active) .bubble-8 {
 
 @media (max-width: 768px) {
   #support-screen {
-    padding: calc(3.25rem + max(0.5rem, env(safe-area-inset-top)) + 1rem)
-      var(--screen-padding-x) 2rem var(--screen-padding-x);
+    padding: calc(3.25rem + max(0.5rem, env(safe-area-inset-top)) + 1rem) var(--screen-padding-x) 2rem var(--screen-padding-x);
   }
 
   .support-header-top .btn-back-round {
