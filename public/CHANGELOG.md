@@ -3,6 +3,24 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.16.20] - 2026-10-20
+
+### Modifié
+- Harmonisation des bordures, rayons et ombres des conteneurs de la page Support (suppression de la bordure en tirets et des bordures supérieures asymétriques).
+- Alignement typographique des titres de la page Support sur la police de l'application (Lilita One).
+- Intégration de la barre de navigation au thème chaud lors de l'affichage de l'écran de support.
+
+---
+
+## [2.16.19] - 2026-10-20
+
+### Modifié
+- Rectification de l'origine du projet sur la page Support : genèse créée pour aider les pompiers à mémoriser leur secteur tout en s'amusant.
+- Révision de la description du soutien Ko-fi (don amical et libre, sans mention de coûts d'infrastructure ou de matériel).
+- Synchronisation des dictionnaires de traduction français et anglais (`fr.json`, `en.json`).
+
+---
+
 ## [2.16.18] - 2026-10-20
 
 ### Modifié
@@ -148,7 +166,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Ajouté
 - Nouvelle page « Soutenir le projet » accessible depuis le pied de page (`/support`).
-- Bouton de contribution Ko-fi et informations sur l'infrastructure du projet.
+- Bouton de contribution Ko-fi et options de participation au projet.
 - Prise en charge multilingue (français / anglais) et mise en cache hors-ligne (`citymaster-v57`).
 
 ### Tests

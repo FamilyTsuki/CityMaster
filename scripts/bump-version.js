@@ -58,12 +58,11 @@ async function bumpVersion() {
   const today = new Date().toISOString().split('T')[0];
 
   if (!changelogContent.includes(`## [${newVersion}]`)) {
-    const entry = `## [${newVersion}] - ${today}\n\n### ${summary || 'Améliorations'}\n- Mise à jour et optimisations des composants.\n\n---\n\n`;
+    const entry = `## [${newVersion}] - ${today}\n\n### ${summary || 'Amélioré'}\n- Mise à jour et optimisations des composants.\n\n---\n\n`;
 
-    const marker = '\n\n## [';
-    const firstEntryIndex = changelogContent.indexOf(marker);
-    if (firstEntryIndex !== -1) {
-      changelogContent = changelogContent.slice(0, firstEntryIndex + 2) + entry + changelogContent.slice(firstEntryIndex + 2);
+    const match = changelogContent.search(/\n## \[/);
+    if (match !== -1) {
+      changelogContent = changelogContent.slice(0, match + 1) + entry + changelogContent.slice(match + 1);
     } else {
       changelogContent += '\n\n' + entry;
     }

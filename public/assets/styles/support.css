@@ -19,6 +19,35 @@ body:has(#support-screen.active) .backdrop-texture {
   opacity: 0.18 !important;
 }
 
+/* Adaptation de la barre de navigation sur l'écran support */
+body:has(#support-screen.active) .navbar {
+  background-color: rgba(35, 21, 18, 0.88) !important;
+  border: 1px solid rgba(255, 180, 140, 0.22) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+body:has(#support-screen.active) .navbar-brand .logo-text {
+  color: #ffffff !important;
+}
+
+body:has(#support-screen.active) .navbar-brand .brand-badge {
+  color: #ff9e79 !important;
+  background: rgba(255, 180, 140, 0.15) !important;
+  border-color: rgba(255, 180, 140, 0.3) !important;
+}
+
+body:has(#support-screen.active) .nav-action-btn {
+  background: rgba(50, 30, 26, 0.85) !important;
+  border-color: rgba(255, 180, 140, 0.22) !important;
+  color: #ecdcd0 !important;
+}
+
+body:has(#support-screen.active) .nav-action-btn:hover {
+  background: rgba(85, 50, 45, 0.95) !important;
+  color: #ffffff !important;
+  border-color: rgba(255, 180, 140, 0.45) !important;
+}
+
 /* Grosses boules type lampe à lave qui montent lentement sans jamais redescendre */
 body:has(#support-screen.active) .ambient-bubbles {
   mix-blend-mode: normal !important;
@@ -239,9 +268,10 @@ body:has(#support-screen.active) .bubble-8 {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(58, 36, 33, 0.85);
-  border: 1px solid rgba(255, 180, 140, 0.25);
+  background: rgba(50, 30, 26, 0.88);
+  border: 1px solid rgba(255, 180, 140, 0.22);
   color: #ff9e79;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .support-header-top .btn-back-round:hover {
@@ -257,12 +287,13 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-header h1 {
-  font-family: 'Georgia', 'Playfair Display', 'Merriweather', serif;
+  font-family: 'Lilita One', 'Plus Jakarta Sans', cursive, sans-serif;
   font-size: clamp(2.1rem, 5vw, 2.85rem);
-  font-weight: 700;
+  font-weight: normal;
   color: #ffffff;
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
   text-shadow: 0 2px 14px rgba(0, 0, 0, 0.4);
 }
 
@@ -273,11 +304,11 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-welcome-card {
-  background: rgba(58, 36, 33, 0.88);
-  border: 1px solid rgba(255, 180, 140, 0.12);
-  border-radius: 28px;
-  padding: clamp(1.75rem, 4vw, 2.75rem);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  background: rgba(50, 30, 26, 0.88);
+  border: 1px solid rgba(255, 180, 140, 0.22);
+  border-radius: var(--border-radius-lg, 1.5rem);
+  padding: clamp(1.75rem, 4vw, 2.5rem);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
@@ -285,6 +316,7 @@ body:has(#support-screen.active) .bubble-8 {
   align-items: center;
   gap: 1.25rem;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .support-mascot-container {
@@ -298,7 +330,7 @@ body:has(#support-screen.active) .bubble-8 {
   width: 110px;
   height: 110px;
   border-radius: 50%;
-  border: 3.5px solid rgba(255, 230, 215, 0.85);
+  border: 3px solid rgba(255, 230, 215, 0.85);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   object-fit: cover;
   background: #ffffff;
@@ -314,26 +346,29 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-cta-card {
-  background: rgba(58, 36, 33, 0.8);
-  border: 2px dashed rgba(255, 180, 140, 0.25);
-  border-radius: 28px;
+  background: rgba(50, 30, 26, 0.88);
+  border: 1px solid rgba(255, 180, 140, 0.22);
+  border-radius: var(--border-radius-lg, 1.5rem);
   padding: clamp(1.75rem, 4vw, 2.5rem);
   text-align: center;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.85rem;
+  box-sizing: border-box;
 }
 
 .support-cta-card h2 {
-  font-family: 'Georgia', 'Playfair Display', 'Merriweather', serif;
+  font-family: 'Lilita One', 'Plus Jakarta Sans', cursive, sans-serif;
   font-size: clamp(1.6rem, 4vw, 2.1rem);
-  font-weight: 700;
+  font-weight: normal;
   color: #ffffff;
   margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
 }
 
 .support-cta-card > p {
@@ -354,24 +389,24 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-way-item {
-  background: rgba(45, 27, 23, 0.92);
-  border: 1px solid rgba(255, 180, 140, 0.14);
-  border-radius: 24px;
+  background: rgba(35, 21, 18, 0.92);
+  border: 1px solid rgba(255, 180, 140, 0.22);
+  border-radius: var(--border-radius, 1.125rem);
   padding: 1.75rem 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.support-way-item.way-coffee {
-  border-top: 4px solid #ff7a59;
-}
-
-.support-way-item.way-moderation {
-  border-top: 4px solid #f59e0b;
+.support-way-item:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 180, 140, 0.45);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
 }
 
 .support-way-icon {
@@ -380,11 +415,13 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .support-way-item h3 {
-  font-family: 'Georgia', 'Playfair Display', 'Merriweather', serif;
-  font-size: 1.3rem;
-  font-weight: 700;
+  font-family: 'Lilita One', 'Plus Jakarta Sans', cursive, sans-serif;
+  font-size: 1.35rem;
+  font-weight: normal;
   color: #ffffff;
   margin: 0;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
 }
 
 .support-way-item p {
@@ -405,13 +442,12 @@ body:has(#support-screen.active) .bubble-8 {
   margin-top: 0.5rem;
 }
 
-.kofi-button {
+.kofi-button,
+.moderator-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  background-color: var(--primary);
-  color: var(--white) !important;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   font-size: 0.95rem;
   font-weight: 700;
@@ -419,13 +455,18 @@ body:has(#support-screen.active) .bubble-8 {
   border-radius: var(--border-radius-sm);
   text-decoration: none !important;
   box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), background-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
   cursor: pointer;
-  border: 1px solid rgba(255, 255, 255, 0.15);
   user-select: none;
   width: 100%;
   max-width: 250px;
   box-sizing: border-box;
+}
+
+.kofi-button {
+  background-color: var(--primary);
+  color: var(--white) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .kofi-button:hover {
@@ -448,30 +489,13 @@ body:has(#support-screen.active) .bubble-8 {
 }
 
 .moderator-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  background-color: #2e1d18;
+  background-color: rgba(35, 21, 18, 0.85);
   color: #fff2e8 !important;
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 700;
-  padding: 0.75rem 1.375rem;
-  border-radius: var(--border-radius-sm);
-  text-decoration: none !important;
-  box-shadow: var(--shadow-sm);
-  transition: transform var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
-  cursor: pointer;
   border: 1px solid rgba(255, 180, 140, 0.28);
-  user-select: none;
-  width: 100%;
-  max-width: 250px;
-  box-sizing: border-box;
 }
 
 .moderator-button:hover {
-  background-color: #3d2720;
+  background-color: rgba(58, 36, 33, 0.95);
   border-color: rgba(255, 180, 140, 0.5);
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
