@@ -36,7 +36,6 @@ test('RouteDifficultyService: les grands axes toponymiques sont classés en mode
 test('RouteDifficultyService: les artères historiques longues et voies primaires sont faciles', () => {
   const orleansCenter = [47.9029, 1.909];
 
-  // Rue Jeanne d'Arc (longue artère historique > 600m)
   const rueJeanneDArc = {
     type: 'Feature',
     properties: { name: "Rue Jeanne d'Arc", highway: 'pedestrian' },
@@ -44,7 +43,7 @@ test('RouteDifficultyService: les artères historiques longues et voies primaire
       type: 'LineString',
       coordinates: [
         [1.904, 47.902],
-        [1.913, 47.903] // ~680 mètres
+        [1.913, 47.903] 
       ]
     }
   };
@@ -55,7 +54,6 @@ test('RouteDifficultyService: les artères historiques longues et voies primaire
     `Une artère emblématique longue comme "Rue Jeanne d'Arc" doit être classée facile même si piétonne`
   );
 
-  // Voie avec tag routier majeur OSM (primary/secondary)
   const routeDepartementale = {
     type: 'Feature',
     properties: { name: 'D 2020', highway: 'primary' },
@@ -73,7 +71,6 @@ test('RouteDifficultyService: les artères historiques longues et voies primaire
 test('RouteDifficultyService: les petites ruelles courtes du centre historique ne sont PAS classées en mode facile', () => {
   const orleansCenter = [47.9029, 1.909];
 
-  // Ruelle courte (ex: 45 mètres) au cœur du centre historique
   const petiteRueCentre = {
     type: 'Feature',
     properties: { name: 'Rue du Chariot', highway: 'residential' },
@@ -81,7 +78,7 @@ test('RouteDifficultyService: les petites ruelles courtes du centre historique n
       type: 'LineString',
       coordinates: [
         [1.9090, 47.9029],
-        [1.9094, 47.9031] // ~40 mètres
+        [1.9094, 47.9031] 
       ]
     }
   };

@@ -1,4 +1,5 @@
 import { I18nService } from '../services/I18nService.js';
+import { sanitizeStreetFeature } from '../services/SpatialService.js';
 
 export class MapView {
   #map;
@@ -353,7 +354,8 @@ export class MapView {
       this.#streetLayer.clearLayers();
     }
     if (visible && streetGeoJSON) {
-      this.#streetLayer.addData(streetGeoJSON);
+      const sanitized = sanitizeStreetFeature(streetGeoJSON);
+      this.#streetLayer.addData(sanitized);
     }
   }
 
@@ -362,7 +364,8 @@ export class MapView {
       this.#selectionLayer.clearLayers();
     }
     if (visible && streetGeoJSON) {
-      this.#selectionLayer.addData(streetGeoJSON);
+      const sanitized = sanitizeStreetFeature(streetGeoJSON);
+      this.#selectionLayer.addData(sanitized);
     }
   }
 

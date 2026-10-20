@@ -238,7 +238,7 @@ test("GameController.startGame respects difficulty override from difficulty_over
       diffData = JSON.parse(origContent);
     } catch (e) {}
     diffData["saint_cyr"] = diffData["saint_cyr"] || {};
-    // "Chemin de Gobson" is normally hard (minor way keyword "chemin")
+    
     diffData["saint_cyr"]["chemin de gobson"] = "easy";
     await fs.writeFile(diffFilePath, JSON.stringify(diffData, null, 2), "utf8");
 
@@ -353,7 +353,6 @@ test("AdminController.saveRoute correctly preserves MultiLineString geometry for
       [1.91, 47.75],
     ]);
 
-    // Verify it persists in custom_routes.json
     const savedFile = JSON.parse(await fs.readFile(routesFilePath, "utf8"));
     const savedInCity = savedFile["la_ferte_saint_aubin"];
     assert.ok(Array.isArray(savedInCity));
@@ -367,5 +366,4 @@ test("AdminController.saveRoute correctly preserves MultiLineString geometry for
     await fs.writeFile(routesFilePath, origRoutes, "utf8");
   }
 });
-
 

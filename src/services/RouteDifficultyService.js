@@ -140,7 +140,6 @@ export class RouteDifficultyService {
       .trim();
     const highway = (props.highway || '').toLowerCase();
 
-    // 1. Détection des voies mineures (impasses, venelles, sentiers, cours intérieures...)
     const isCourMajor = /^cours\b/i.test(cleanName);
     const isMinorKeyword =
       !isCourMajor &&
@@ -155,20 +154,17 @@ export class RouteDifficultyService {
 
     const lengthMeters = getFeatureLengthMeters(feature);
 
-    // 2. Détection des grands axes majeurs (Boulevards, Avenues, Ponts, Quais, Mails, Faubourgs...)
     const firstWord = cleanName.split(/[\s'-]+/)[0];
     const isMajorToponym = MAJOR_TOPONYMS.includes(firstWord) || isCourMajor;
     const isMajorHighway = ['motorway', 'trunk', 'primary', 'secondary'].includes(highway);
 
     if (isMajorToponym || isMajorHighway) {
-      // Les grands axes sont faciles, sauf s'il s'agit d'un micro-segment technique (< 80m)
       if (lengthMeters >= 80) {
         return 'easy';
       }
       return 'medium';
     }
 
-    // 3. Artères principales nommées 'Rue' ou voies structurantes longues (ex: Rue Jeanne d'Arc, Rue Royale)
     if (lengthMeters >= 550) {
       return 'easy';
     }
@@ -176,12 +172,10 @@ export class RouteDifficultyService {
       return 'easy';
     }
 
-    // 4. Les voies très courtes (< 200m) ne sont jamais 'faciles'
     if (lengthMeters > 0 && lengthMeters < 200) {
       return 'hard';
     }
 
-    // 5. Analyse contextuelle par rapport au centre-ville
     if (cityCentroidLat != null && cityCentroidLng != null) {
       try {
         let distKm = 2.0;
@@ -195,9 +189,6 @@ export class RouteDifficultyService {
           );
         }
 
-        // Dans le centre historique (ex: hypercentre d'Orléans) :
-        // Les voies moyennes (>= 350m) sont moyennes.
-        // Les petites rues étroites (< 250m) sont difficiles.
         if (distKm <= 1.5) {
           if (lengthMeters >= 350) return 'medium';
           if (lengthMeters > 0 && lengthMeters < 250) return 'hard';

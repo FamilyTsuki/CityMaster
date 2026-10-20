@@ -6,7 +6,7 @@ import { City } from "../models/City.js";
 import pool from "../config/database.js";
 import { readDifficultyOverridesFile } from "./AdminController.js";
 import { isPlaceStreet } from "../utils/game.js";
-import { stitchCoordinates } from "../../services/SpatialService.js";
+import { stitchCoordinates, sanitizeStreetCoordinates } from "../../services/SpatialService.js";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -105,7 +105,11 @@ export class CityController {
       .map(([name, group], index) => {
         if (group.coords.length > 0) {
           const stitchedCoords = stitchCoordinates(group.coords, 10);
-          const isSingleLine = stitchedCoords.length === 1;
+          const sanitizedCoords = sanitizeStreetCoordinates(stitchedCoords, {
+            name,
+            highway: group.highway,
+          });
+          const isSingleLine = sanitizedCoords.length === 1;
           const feature = {
             type: "Feature",
             id: index,
@@ -117,7 +121,7 @@ export class CityController {
             },
             geometry: {
               type: isSingleLine ? "LineString" : "MultiLineString",
-              coordinates: isSingleLine ? stitchedCoords[0] : stitchedCoords,
+              coordinates: isSingleLine ? sanitizedCoords[0] : sanitizedCoords,
             },
           };
           try {

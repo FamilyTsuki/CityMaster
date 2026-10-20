@@ -19,11 +19,10 @@ export class FlightLoader {
   #isRunning = false;
   #animationTimer = null;
 
-  // Définition de la courbe parabolique de vol (en pourcentages de l'espace aérien)
   static #CURVE = {
-    p0: { x: 6, y: 72 }, // Décollage bas-gauche
-    p1: { x: 50, y: 50 }, // Apogée douce de l'arc haut-centre
-    p2: { x: 92, y: 76 }, // Fin de trajectoire bas-droite
+    p0: { x: 6, y: 72 },
+    p1: { x: 50, y: 50 },
+    p2: { x: 92, y: 76 },
   };
 
   /**
@@ -137,12 +136,10 @@ export class FlightLoader {
   setProgress(value) {
     this.#progress = Math.max(0, Math.min(100, Number(value) || 0));
 
-    // 1. Barre de chargement
     if (this.#progressBar) {
       this.#progressBar.style.width = `${this.#progress}%`;
     }
 
-    // 1b. Trajectoire rouge Peek active le long de la courbe
     if (this.#curveProgressLine) {
       const len = 874;
       const offset = Math.round(len * (1 - this.#progress / 100) * 10) / 10;
@@ -152,12 +149,10 @@ export class FlightLoader {
       }
     }
 
-    // 2. Chiffre du pourcentage
     if (this.#percentageVal) {
       this.#percentageVal.textContent = `${Math.round(this.#progress)}%`;
     }
 
-    // 3. Position et inclinaison dynamique de l'avion sur la trajectoire
     const t = this.#progress / 100;
     const pt = this.#getPointOnCurve(t);
 
@@ -172,7 +167,6 @@ export class FlightLoader {
       }
     }
 
-    // 4. Apparition des monuments le long de la trajectoire (à ~1cm au-dessus de la ligne)
     this.#monuments.forEach((monument) => {
       if (!monument.el) return;
       if (this.#progress >= monument.threshold) {
@@ -184,7 +178,6 @@ export class FlightLoader {
       }
     });
 
-    // 5. Apparition du nuage à 50% sur la trajectoire (orienté et plus petit)
     if (this.#destinationCloud) {
       if (this.#progress >= 50) {
         this.#destinationCloud.classList.add('revealed');
@@ -195,14 +188,12 @@ export class FlightLoader {
       }
     }
 
-    // 6. Gestion du vol et disparition dans le nuage à destination (~80%)
     if (this.#progress < 80) {
       this.#resetPlaneFlight();
       if (this.#destinationCloud) {
         this.#destinationCloud.classList.remove('active');
       }
     } else {
-      // Disparition douce dans le nuage
       this.#enterCloudSequence();
     }
   }

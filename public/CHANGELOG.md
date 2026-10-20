@@ -3,6 +3,46 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.15.3] - 2026-10-20
+
+### Clean Code & Refactoring
+- **Nettoyage intégral des commentaires non-JSDoc** :
+  - Suppression de l'intégralité des commentaires temporaires, d'explication ou en ligne (`//`) sur l'ensemble des modules JavaScript du projet (`src/`, `server.js`, `public/sw.js`, `scripts/`, `tests/`).
+  - **Préservation absolue des documentations JSDoc (`/** ... */`)** : Toutes les définitions de types, descriptions de méthodes et annotations d'API sont conservées intactes pour la maintenabilité du projet.
+  - Réduction de la verbosité du code source et amélioration de la lisibilité selon les standards Clean Code du projet.
+
+### Tests Unitaires & Non-Régression
+- Validation complète de la suite de tests : **74 tests réussis sur 74** sans aucune régression.
+
+---
+
+## [2.15.2] - 2026-10-20
+
+### Corrections de bugs & Précision Cartographique (Élimination des boucles et fermetures parasites sur les rues)
+- **Assainissement géométrique automatique des voies (`sanitizeStreetCoordinates` & `sanitizeStreetFeature`)** :
+  - **Correction de la fermeture parasite (premier point relié au dernier)** :
+    - Sur certaines rues linéaires (comme le « Chemin Latéral » ou la « Rue de la Tuilerie »), des données sources OSM (voies circulaires/raquettes) ou des raccordements pouvaient refermer artificiellement la voie sur elle-même (`start ≈ end`), traçant un trait diagonal rectiligne traversant toute la commune entre l'extrémité de départ et l'extrémité d'arrivée.
+    - Ajout d'une détection intelligente des voies linéaires fermées artificiellement : si une voie linéaire n'est pas un rond-point et que son premier point rejoint son dernier point, le point de fermeture dupliqué est automatiquement retiré, rétablissant le tracé linéaire naturel et ouvert de la rue.
+  - **Détection des carrefours giratoires et ronds-points réels (`isRoundaboutFeature`)** :
+    - Préservation garantie des vrais ronds-points (`highway=roundabout`, `junction=roundabout`, toponymes « Rond-Point », « Giratoire » ou boucles compactes d'un diamètre inférieur ou égal à 55 mètres) qui conservent leur géométrie en anneau fermé complet.
+  - **Protection anti-corde et sauts anormaux à travers la ville** :
+    - Détection des sauts anormaux excédant 1200 mètres entre points consécutifs d'une même voie : la voie est automatiquement scindée en segments distincts au lieu de tracer une ligne diagonale traversant la carte.
+- **Intégration du filtrage aux points clés du pipeline spatial et cartographique** :
+  - **Affichage Leaflet sécurisé (`MapView.renderStreet` & `MapView.renderSelection`)** : Tout GeoJSON de rue reçu est désormais filtré et assaini avant ajout aux couches Leaflet (`#streetLayer`, `#selectionLayer`), empêchant tout rendu déformé ou fermeture intempestive.
+  - **Intégration à la fusion intelligente (`stitchStreetFeatures`)** : Les voies fusionnées sont systématiquement assainies après le raccordement des tronçons.
+  - **Conversion des requêtes dynamiques (`OverpassService` & `CityController`)** : Prise en charge dès la transformation GeoJSON des réponses Overpass API.
+
+### Tests Unitaires & Non-Régression
+- Ajout de 5 nouveaux tests unitaires dans `tests/street_stitching_and_haptics.test.js` couvrant :
+  - La détection précise des giratoires via `isRoundaboutFeature` (par tags, noms, et diamètre géométrique).
+  - L'ouverture automatique des boucles parasites sur les voies linéaires via `sanitizeStreetCoordinates`.
+  - La préservation rigoureuse des vrais ronds-points fermés.
+  - La scission propre des sauts anormaux traversant la commune.
+  - La désinfection complète d'entités GeoJSON `Feature` (`LineString` / `MultiLineString`) via `sanitizeStreetFeature`.
+- **Suite de tests portée à 74 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.15.1] - 2026-10-20
 
 ### Corrections de bugs & Ergonomie UI (Résolution du chevauchement Bannière Hors-ligne & HUD Jeu)

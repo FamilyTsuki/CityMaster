@@ -35,19 +35,17 @@ async function cleanupTestUsers() {
 }
 
 test("AuthController.register: valider le format des pseudos (3-30 caractères, alphanumériques, hyphens, underscores)", async () => {
-  // Trop court (< 3 caractères)
+  
   const resTooShort = createMockRes();
   await AuthController.register({ body: { username: "ab", password: "password123" } }, resTooShort);
   assert.equal(resTooShort.statusCode, 400);
   assert.match(resTooShort.body.error, /between 3 and 30 characters/i);
 
-  // Trop long (> 30 caractères)
   const resTooLong = createMockRes();
   await AuthController.register({ body: { username: "a".repeat(31), password: "password123" } }, resTooLong);
   assert.equal(resTooLong.statusCode, 400);
   assert.match(resTooLong.body.error, /between 3 and 30 characters/i);
 
-  // Caractères invalides (espaces, symboles, @, !)
   const invalidUsernames = ["user name", "user@mail", "user!test", "pseudo#1", "test$"];
   for (const invalid of invalidUsernames) {
     const res = createMockRes();
@@ -56,7 +54,6 @@ test("AuthController.register: valider le format des pseudos (3-30 caractères, 
     assert.match(res.body.error, /alphanumeric/i);
   }
 
-  // Pseudo vide ou non renseigné
   const resMissing = createMockRes();
   await AuthController.register({ body: { username: "", password: "password123" } }, resMissing);
   assert.equal(resMissing.statusCode, 400);
@@ -67,23 +64,20 @@ test("AuthController.register: valider le format des pseudos (3-30 caractères, 
 });
 
 test("AuthController.register: valider la politique de mot de passe (min 6 caractères, max 72)", async () => {
-  // Trop court (< 6 caractères)
+  
   const resShortPass = createMockRes();
   await AuthController.register({ body: { username: "validUser1", password: "123" } }, resShortPass);
   assert.equal(resShortPass.statusCode, 400);
   assert.match(resShortPass.body.error, /Password must be between 6 and 72/i);
 
-  // 5 caractères
   const res5Pass = createMockRes();
   await AuthController.register({ body: { username: "validUser2", password: "abcde" } }, res5Pass);
   assert.equal(res5Pass.statusCode, 400);
 
-  // Trop long (> 72 caractères)
   const resLongPass = createMockRes();
   await AuthController.register({ body: { username: "validUser3", password: "a".repeat(73) } }, resLongPass);
   assert.equal(resLongPass.statusCode, 400);
 
-  // Mot de passe manquant
   const resMissingPass = createMockRes();
   await AuthController.register({ body: { username: "validUser4" } }, resMissingPass);
   assert.equal(resMissingPass.statusCode, 400);
@@ -95,14 +89,12 @@ test("AuthController: hachage bcrypt sécurisé et génération de token JWT val
   createdUsernames.push(uniqueUsername.toLowerCase());
   const rawPassword = "SuperSecurePassword123!";
 
-  // 1. Inscription réussie
   const resReg = createMockRes();
   await AuthController.register({ body: { username: uniqueUsername, password: rawPassword } }, resReg);
   assert.equal(resReg.statusCode, 201);
   assert.equal(resReg.body.message, "User registered successfully");
   assert.ok(resReg.body.id);
 
-  // 2. Vérification que le mot de passe est bien haché par bcrypt dans le modèle
   const userInDb = await User.findByUsername(uniqueUsername);
   assert.ok(userInDb);
   assert.notEqual(userInDb.password, rawPassword, "Le mot de passe ne doit jamais être stocké en clair");
@@ -110,20 +102,17 @@ test("AuthController: hachage bcrypt sécurisé et génération de token JWT val
   const isMatch = await bcrypt.compare(rawPassword, userInDb.password);
   assert.equal(isMatch, true, "bcrypt.compare doit valider le mot de passe avec le hash stocké");
 
-  // 3. Connexion échoue avec un mauvais mot de passe
   const resBadLogin = createMockRes();
   await AuthController.login({ body: { username: uniqueUsername, password: "wrongPassword" } }, resBadLogin);
   assert.equal(resBadLogin.statusCode, 401);
   assert.equal(resBadLogin.body.error, "Invalid username or password");
 
-  // 4. Connexion réussie avec bon mot de passe -> génère token JWT
   const resLogin = createMockRes();
   await AuthController.login({ body: { username: uniqueUsername, password: rawPassword } }, resLogin);
   assert.equal(resLogin.statusCode, 200);
   assert.ok(resLogin.body.token, "Un token JWT doit être renvoyé");
   assert.equal(resLogin.body.username, uniqueUsername);
 
-  // 5. Vérification du token JWT
   const decoded = jwt.verify(resLogin.body.token, process.env.JWT_SECRET);
   assert.ok(decoded);
   assert.equal(decoded.username, uniqueUsername);

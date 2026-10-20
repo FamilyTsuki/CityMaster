@@ -27,7 +27,6 @@ test('load screen template exists and contains valid structure with cartoon flig
     'load.html must contain #load-page-message for a11y',
   );
 
-  // Composants visuels épurés : Scène, Ciel, Barre, Avion, Monuments, Nuage Destination, Point d'interrogation
   assert.ok(
     content.includes('flight-loader-stage'),
     'load.html must contain .flight-loader-stage',
@@ -143,7 +142,6 @@ test('FlightLoader positions monuments along trajectory curve, rotates plane & m
 
   const loader = new FlightLoader(mockContainer);
 
-  // 1. Initial State : Monuments positionnés et inclinés précisément sur la trajectoire pointillée (courbe douce Peek)
   assert.equal(elements['#monument-1'].style.left, '27.9%');
   assert.equal(elements['#monument-1'].style.top, '64%');
   assert.ok(elements['#monument-1'].style.transform.includes('rotate(-3.4deg)'));
@@ -157,7 +155,6 @@ test('FlightLoader positions monuments along trajectory curve, rotates plane & m
   assert.equal(elements['#monument-3'].style.top, '65.7%');
   assert.ok(elements['#monument-3'].style.transform.includes('rotate(4.7deg)'));
 
-  // Nuage de destination orienté sur la courbe (t=0.85, pitch ~6.6deg), masqué initialement
   assert.equal(elements['#destination-cloud'].style.left, '79.4%');
   assert.equal(elements['#destination-cloud'].style.top, '69.3%');
   assert.ok(elements['#destination-cloud'].style.transform.includes('rotate(6.6deg)'));
@@ -176,7 +173,6 @@ test('FlightLoader positions monuments along trajectory curve, rotates plane & m
   assert.equal(elements['#destination-cloud'].classList.contains('revealed'), false);
   assert.equal(elements['#destination-cloud'].classList.contains('active'), false);
 
-  // 2. Étape 1 : Monument 1 révélé (>= 25%), nuage toujours masqué (< 50%)
   loader.setProgress(30);
   assert.equal(loader.progress, 30);
   assert.equal(elements['#monument-1'].classList.contains('revealed'), true);
@@ -185,12 +181,10 @@ test('FlightLoader positions monuments along trajectory curve, rotates plane & m
   assert.equal(elements['#monument-2'].classList.contains('revealed'), false);
   assert.equal(elements['#destination-cloud'].classList.contains('revealed'), false);
 
-  // Apogée douce de l'arc parabolique (~46%) : tangage horizontal
   loader.setProgress(46);
   assert.equal(planeWrapperEl.style.transform, 'rotate(0deg)');
   assert.equal(elements['#destination-cloud'].classList.contains('revealed'), false);
 
-  // 3. Étape 2 : Apparition du nuage à 50% orienté, puis Monument 2 (>= 52%)
   loader.setProgress(50);
   assert.equal(elements['#destination-cloud'].classList.contains('revealed'), true);
   assert.ok(elements['#destination-cloud'].style.transform.includes('rotate(6.6deg)'));
@@ -205,7 +199,6 @@ test('FlightLoader positions monuments along trajectory curve, rotates plane & m
   assert.equal(elements['#monument-3'].classList.contains('revealed'), false);
   assert.equal(elements['#destination-cloud'].classList.contains('revealed'), true);
 
-  // 4. Étape 3 : Monument 3 révélé (>= 74%)
   loader.setProgress(75);
   assert.equal(elements['#monument-3'].classList.contains('revealed'), true);
   assert.ok(elements['#monument-3'].style.transform.includes('scale(1)'));
@@ -214,19 +207,16 @@ test('FlightLoader positions monuments along trajectory curve, rotates plane & m
   assert.equal(elements['#airplane-carrier'].classList.contains('in-cloud'), false);
   assert.equal(elements['#destination-cloud'].classList.contains('active'), false);
 
-  // 5. Disparition dans le nuage à partir de ~80% (au lieu de se crasher)
   loader.setProgress(82);
   assert.equal(elements['#airplane-carrier'].classList.contains('flying'), false);
   assert.equal(elements['#airplane-carrier'].classList.contains('in-cloud'), true);
   assert.equal(elements['#destination-cloud'].classList.contains('revealed'), true);
   assert.equal(elements['#destination-cloud'].classList.contains('active'), true);
 
-  // 6. Arrivée à 100% : l'avion reste fondu dans le nuage et le nuage reste actif
   loader.setProgress(100);
   assert.equal(elements['#airplane-carrier'].classList.contains('in-cloud'), true);
   assert.equal(elements['#destination-cloud'].classList.contains('active'), true);
 
-  // Réinitialisation si la progression revient en arrière en dessous de 50%
   loader.setProgress(40);
   assert.equal(elements['#airplane-carrier'].classList.contains('flying'), true);
   assert.equal(elements['#airplane-carrier'].classList.contains('in-cloud'), false);

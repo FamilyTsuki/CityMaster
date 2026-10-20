@@ -4,11 +4,14 @@ import {
   pointDistanceMeters,
   stitchCoordinates,
   stitchStreetFeatures,
+  isRoundaboutFeature,
+  sanitizeStreetCoordinates,
+  sanitizeStreetFeature,
 } from '../src/services/SpatialService.js';
 import { HapticService } from '../src/services/HapticService.js';
 
 test('SpatialService.stitchCoordinates: raccorde les segments contigus bout-à-bout', () => {
-  // Deux segments consécutifs A -> B et B -> C
+  
   const seg1 = [[1.900, 47.900], [1.901, 47.901]];
   const seg2 = [[1.901, 47.901], [1.902, 47.902]];
 
@@ -23,7 +26,7 @@ test('SpatialService.stitchCoordinates: raccorde les segments contigus bout-à-b
 });
 
 test('SpatialService.stitchCoordinates: gère les inversions de sens de numérisation (reverse)', () => {
-  // Segments où le second a été numérisé en sens inverse C -> B
+  
   const seg1 = [[1.900, 47.900], [1.901, 47.901]];
   const seg2Reversed = [[1.902, 47.902], [1.901, 47.901]];
 
@@ -39,7 +42,7 @@ test('SpatialService.stitchCoordinates: gère les inversions de sens de numéris
 
 test('SpatialService.stitchCoordinates: ne fusionne PAS les segments disjoints / distants', () => {
   const segA = [[1.900, 47.900], [1.901, 47.901]];
-  const segFar = [[1.950, 47.950], [1.951, 47.951]]; // ~7 km plus loin
+  const segFar = [[1.950, 47.950], [1.951, 47.951]]; 
 
   const stitched = stitchCoordinates([segA, segFar], 10);
   assert.equal(stitched.length, 2, 'Les segments trop éloignés doivent rester strictement séparés');
@@ -115,7 +118,7 @@ test('SpatialService.stitchStreetFeatures: ne fusionne PAS des homonymes géogra
     properties: { name: 'Rue du Moulin' },
     geometry: {
       type: 'LineString',
-      coordinates: [[1.950, 47.950], [1.951, 47.951]], // ~7 km plus loin
+      coordinates: [[1.950, 47.950], [1.951, 47.951]], 
     },
   };
 
@@ -148,7 +151,7 @@ test('SpatialService.stitchStreetFeatures: préserve les polygones, lotissements
 });
 
 test('HapticService: exécution sécurisée et motifs de vibration', () => {
-  // Sans navigator.vibrate dans node
+  
   assert.equal(HapticService.isSupported(), false);
   assert.equal(HapticService.tap(), false);
   assert.equal(HapticService.success(), false);
@@ -156,7 +159,6 @@ test('HapticService: exécution sécurisée et motifs de vibration', () => {
   assert.equal(HapticService.error(), false);
   assert.equal(HapticService.warning(), false);
 
-  // Avec un mock navigator.vibrate
   const recorded = [];
   const hadVibrate = 'vibrate' in globalThis.navigator;
   const originalVibrate = globalThis.navigator.vibrate;
@@ -201,3 +203,103 @@ test('HapticService: exécution sécurisée et motifs de vibration', () => {
     }
   }
 });
+
+test('SpatialService.isRoundaboutFeature: détecte les giratoires par tags, toponyme ou géométrie compacte', () => {
+  
+  assert.equal(isRoundaboutFeature({ highway: 'roundabout' }), true);
+  assert.equal(isRoundaboutFeature({ junction: 'roundabout' }), true);
+
+  assert.equal(isRoundaboutFeature({ name: 'Rond-Point de la République' }), true);
+  assert.equal(isRoundaboutFeature({ name: 'Carrefour Giratoire des Justes' }), true);
+
+  assert.equal(isRoundaboutFeature({ name: 'Chemin Latéral', highway: 'unclassified' }), false);
+  assert.equal(isRoundaboutFeature({ name: 'Rue de la Paix', highway: 'residential' }), false);
+
+  const smallLoop = [
+    [1.9000, 47.9000],
+    [1.9002, 47.9000],
+    [1.9002, 47.9002],
+    [1.9000, 47.9000],
+  ];
+  assert.equal(isRoundaboutFeature({ name: 'Place du Marché' }, smallLoop), true);
+
+  const bigLoop = [
+    [1.900, 47.900],
+    [1.905, 47.905],
+    [1.910, 47.910],
+    [1.900, 47.900],
+  ];
+  assert.equal(isRoundaboutFeature({ name: 'Chemin Latéral' }, bigLoop), false);
+});
+
+test('SpatialService.sanitizeStreetCoordinates: ouvre les boucles artificielles des voies linéaires', () => {
+  
+  const pStart = [1.9329, 47.7209];
+  const pMid1 = [1.9333, 47.7194];
+  const pMid2 = [1.9350, 47.7137];
+  const pEnd = [1.9385, 47.7114];
+
+  const closedArtificialRoad = [pStart, pMid1, pMid2, pEnd, pStart];
+
+  const sanitized = sanitizeStreetCoordinates([closedArtificialRoad], { name: 'Chemin Latéral' });
+  assert.equal(sanitized.length, 1);
+  assert.equal(sanitized[0].length, 4, 'Le point de fermeture parasite doit être retiré');
+  assert.deepEqual(sanitized[0][0], pStart);
+  assert.deepEqual(sanitized[0][sanitized[0].length - 1], pEnd);
+  assert.notDeepEqual(sanitized[0][0], sanitized[0][sanitized[0].length - 1]);
+});
+
+test('SpatialService.sanitizeStreetCoordinates: préserve les vrais ronds-points fermés', () => {
+  const p1 = [1.9000, 47.9000];
+  const p2 = [1.9002, 47.9000];
+  const p3 = [1.9002, 47.9002];
+
+  const genuineRoundabout = [p1, p2, p3, p1];
+  const sanitized = sanitizeStreetCoordinates([genuineRoundabout], {
+    name: 'Rond-Point de la Gare',
+    highway: 'roundabout',
+  });
+
+  assert.equal(sanitized.length, 1);
+  assert.equal(sanitized[0].length, 4, 'Le rond-point doit conserver sa boucle complète');
+  assert.deepEqual(sanitized[0][0], sanitized[0][sanitized[0].length - 1]);
+});
+
+test('SpatialService.sanitizeStreetCoordinates: scinde les sauts / cordes anormales traversant la ville', () => {
+  const p1 = [1.9300, 47.7200];
+  const p2 = [1.9305, 47.7205];
+  
+  const pFar = [1.9450, 47.7100];
+  const pFarNext = [1.9455, 47.7105];
+
+  const roadWithHugeLeap = [p1, p2, pFar, pFarNext];
+  const sanitized = sanitizeStreetCoordinates([roadWithHugeLeap], { name: 'Rue Traversante' }, { maxChordJumpMeters: 200 });
+
+  assert.equal(sanitized.length, 2, 'La ligne avec saut anormal doit être scindée en deux tronçons');
+  assert.deepEqual(sanitized[0], [p1, p2]);
+  assert.deepEqual(sanitized[1], [pFar, pFarNext]);
+});
+
+test('SpatialService.sanitizeStreetFeature: nettoie proprement un objet Feature GeoJSON', () => {
+  const dirtyFeature = {
+    type: 'Feature',
+    id: 42,
+    properties: { name: 'Avenue Victor Hugo' },
+    geometry: {
+      type: 'LineString',
+      coordinates: [
+        [1.900, 47.900],
+        [1.905, 47.905],
+        [1.910, 47.910],
+        [1.900, 47.900], 
+      ],
+    },
+  };
+
+  const cleanFeature = sanitizeStreetFeature(dirtyFeature);
+  assert.equal(cleanFeature.geometry.type, 'LineString');
+  assert.equal(cleanFeature.geometry.coordinates.length, 3);
+  assert.deepEqual(cleanFeature.geometry.coordinates[0], [1.900, 47.900]);
+  assert.deepEqual(cleanFeature.geometry.coordinates[2], [1.910, 47.910]);
+});
+

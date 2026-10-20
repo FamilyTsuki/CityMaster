@@ -4,7 +4,7 @@ import { RouteDifficultyService } from '../src/services/RouteDifficultyService.j
 import { CityController } from '../src/backend/controllers/CityController.js';
 
 test('RouteDifficultyService.getFeatureLengthMeters: calcule correctement la longueur métrique', () => {
-  // Micro-segment de ~2 mètres (ex: 1.9m à Bordeaux)
+  
   const microFeature = {
     type: 'Feature',
     properties: { name: 'Rue du Commandant Marchand' },
@@ -12,7 +12,7 @@ test('RouteDifficultyService.getFeatureLengthMeters: calcule correctement la lon
       type: 'LineString',
       coordinates: [
         [-0.579200, 44.837800],
-        [-0.579225, 44.837800] // ~1.9m
+        [-0.579225, 44.837800] 
       ]
     }
   };
@@ -20,7 +20,6 @@ test('RouteDifficultyService.getFeatureLengthMeters: calcule correctement la lon
   const len = RouteDifficultyService.getFeatureLengthMeters(microFeature);
   assert.ok(len > 0 && len < 5, `Longueur attendue < 5m, reçu: ${len}m`);
 
-  // Voie normale de ~500 mètres
   const normalFeature = {
     type: 'Feature',
     properties: { name: 'Boulevard Central' },
@@ -28,7 +27,7 @@ test('RouteDifficultyService.getFeatureLengthMeters: calcule correctement la lon
       type: 'LineString',
       coordinates: [
         [1.900, 47.900],
-        [1.906, 47.903] // ~550m
+        [1.906, 47.903] 
       ]
     }
   };
@@ -44,7 +43,7 @@ test('CityController.convertToGeoJSON: élimine automatiquement les micro-segmen
         tags: { name: 'Micro Ruelle 2m', highway: 'residential' },
         geometry: [
           { lat: 47.900000, lon: 1.900000 },
-          { lat: 47.900018, lon: 1.900000 } // ~2 mètres
+          { lat: 47.900018, lon: 1.900000 } 
         ]
       },
       {
@@ -52,7 +51,7 @@ test('CityController.convertToGeoJSON: élimine automatiquement les micro-segmen
         tags: { name: 'Avenue Principale 200m', highway: 'secondary' },
         geometry: [
           { lat: 47.9000, lon: 1.9000 },
-          { lat: 47.9018, lon: 1.9000 } // ~200 mètres
+          { lat: 47.9018, lon: 1.9000 } 
         ]
       }
     ]

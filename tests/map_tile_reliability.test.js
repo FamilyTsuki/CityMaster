@@ -6,7 +6,6 @@ import path from 'node:path';
 test('MapView: configuration de tuiles avec buffer étendu et auto-retry', () => {
   const mapViewSrc = fs.readFileSync(path.resolve('src/views/MapView.js'), 'utf8');
 
-  // Vérifier la présence des options de fluidité et de mémoire tampon
   assert.match(
     mapViewSrc,
     /keepBuffer:\s*8/,
@@ -23,7 +22,6 @@ test('MapView: configuration de tuiles avec buffer étendu et auto-retry', () =>
     'MapView tileLayer doit charger en continu (updateWhenIdle: false)'
   );
 
-  // Vérifier la méthode d auto-retry sur erreur de chargement
   assert.match(
     mapViewSrc,
     /attachTileAutoRetry/,
@@ -35,7 +33,6 @@ test('MapView: configuration de tuiles avec buffer étendu et auto-retry', () =>
     'MapView doit tracker le nombre de tentatives de rechargement de tuile'
   );
 
-  // Vérifier invalidateSize multi-pass et ResizeObserver
   assert.match(
     mapViewSrc,
     /requestAnimationFrame/,

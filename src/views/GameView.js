@@ -563,7 +563,6 @@ export class GameView {
         return;
       }
 
-      // If report modal is open, completely disable all game shortcuts!
       if (isReportOpen) return;
 
       const activeEl = document.activeElement;

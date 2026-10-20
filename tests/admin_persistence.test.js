@@ -29,13 +29,11 @@ test("User.setAdminStatus persists admin and findByUsername retrieves it", async
   assert.ok(retrieved);
   assert.equal(retrieved.is_admin, true);
 
-  // Downgrade
   await User.setAdminStatus(testUser, false);
   const downgraded = await User.findByUsername(testUser);
   assert.ok(downgraded);
   assert.equal(downgraded.is_admin, false);
 
-  // Clean up test entry
   try {
     const fs = await import("fs/promises");
     const path = await import("path");

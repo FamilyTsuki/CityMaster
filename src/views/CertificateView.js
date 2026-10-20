@@ -238,7 +238,6 @@ export class CertificateView {
       if (score >= 200) return 80;
       return 90;
     }
-    // target mode (max 5000)
     if (score >= 4600) return 5;
     if (score >= 4000) return 15;
     if (score >= 3200) return 30;

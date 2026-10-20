@@ -7,7 +7,6 @@ test('navbar responsive theme toggle: structure and adaptive styles', () => {
   const indexHtml = fs.readFileSync(path.resolve('public/index.html'), 'utf8');
   const navbarCss = fs.readFileSync(path.resolve('public/assets/styles/navbar.css'), 'utf8');
 
-  // Verify DOM elements in index.html
   assert.match(indexHtml, /id=["']theme-toggle["']/, 'index.html must contain header #theme-toggle');
   assert.match(indexHtml, /id=["']menu-theme-toggle["']/, 'index.html must contain menu #menu-theme-toggle');
 

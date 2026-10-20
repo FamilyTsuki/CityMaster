@@ -41,7 +41,6 @@ test('isPlaceStreet: correctly identifies places, squares, and placettes', () =>
     assert.strictEqual(RouteDifficultyService.isPlaceStreet(name), false, `RouteDifficultyService.isPlaceStreet should not detect "${name}"`);
   }
 
-  // Feature object tests
   assert.strictEqual(isPlaceStreetFront({ properties: { name: 'Place Royale' } }), true);
   assert.strictEqual(isPlaceStreetBack({ properties: { name: 'Place Royale' } }), true);
   assert.strictEqual(isPlaceStreetFront({ properties: { name: 'Forum', place: 'square' } }), true);

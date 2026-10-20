@@ -589,7 +589,6 @@ export class AdminView {
         );
       if (nameInput) nameInput.value = routeFeature.properties.name || "";
 
-      // Hide tooltip of the currently edited route so it does not block vertex editing
       if (this.#routesLayer) {
         this.#routesLayer.eachLayer((layer) => {
           if (
@@ -965,7 +964,6 @@ export class AdminView {
       modeTextEl.textContent = modeLabels[difficultyMode] || difficultyMode;
     }
 
-    // Update filter tabs counts and active states
     const currentFilter = options.currentFilter || "all";
     const tabAll = document.querySelector('.btn-filter-tab[data-filter="all"]');
     const tabEasy = document.querySelector(

@@ -60,7 +60,6 @@ export class ConfettiService {
       };
     }
 
-    // Mode classique 'target' (sur ~5000 pts)
     if (numericScore >= 4500) {
       return {
         count: Math.min(320, Math.round(250 + ((numericScore - 4500) / 1000) * 60)),
@@ -128,7 +127,6 @@ export class ConfettiService {
       }
     }
 
-    // Valeur par défaut standard si aucun score n'a pu être trouvé
     if (score === null || score === undefined) {
       score = 2500;
     }
@@ -136,7 +134,6 @@ export class ConfettiService {
     const mode = options.mode || 'target';
     const config = this.getConfettiConfig(score, mode);
 
-    // Si le score ne qualifie pas de confettis (seuil minimal non atteint)
     if (config.count <= 0) {
       if (typeof document !== 'undefined') {
         const canvas = document.getElementById('confetti-canvas');
@@ -148,7 +145,6 @@ export class ConfettiService {
       return { ...config, launched: false };
     }
 
-    // Protection environnements hors-navigateur (tests Node / SSR)
     if (typeof document === 'undefined' || typeof window === 'undefined') {
       return { ...config, launched: true };
     }

@@ -7,7 +7,7 @@ const dirname = path.dirname(filename);
 const rootDir = path.join(dirname, '..');
 
 async function bumpVersion() {
-  const bumpType = process.argv[2] || 'patch'; // 'patch', 'minor', 'major'
+  const bumpType = process.argv[2] || 'patch';
   const summary = process.argv[3] || '';
 
   const pkgPath = path.join(rootDir, 'package.json');
@@ -31,11 +31,9 @@ async function bumpVersion() {
   const newVersion = parts.join('.');
   console.log(`Bumping version: ${oldVersion} -> ${newVersion} (${bumpType})`);
 
-  // 1. Update package.json
   pkg.version = newVersion;
   await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
 
-  // 2. Update public/sw.js (increment CACHE_NAME)
   const swPath = path.join(rootDir, 'public', 'sw.js');
   let swContent = await fs.readFile(swPath, 'utf8');
   swContent = swContent.replace(/CACHE_NAME\s*=\s*['"]citymaster-v(\d+)['"]/, (match, num) => {
@@ -44,20 +42,17 @@ async function bumpVersion() {
   });
   await fs.writeFile(swPath, swContent, 'utf8');
 
-  // 3. Update public/index.html (?v=...)
   const htmlPath = path.join(rootDir, 'public', 'index.html');
   let htmlContent = await fs.readFile(htmlPath, 'utf8');
   htmlContent = htmlContent.replaceAll(`?v=${oldVersion}`, `?v=${newVersion}`);
   await fs.writeFile(htmlPath, htmlContent, 'utf8');
 
-  // 4. Update README.md
   const readmePath = path.join(rootDir, 'README.md');
   let readmeContent = await fs.readFile(readmePath, 'utf8');
   readmeContent = readmeContent.replaceAll(`version-${oldVersion}-emerald`, `version-${newVersion}-emerald`);
   readmeContent = readmeContent.replaceAll(`through v${oldVersion}`, `through v${newVersion}`);
   await fs.writeFile(readmePath, readmeContent, 'utf8');
 
-  // 5. Update CHANGELOG.md if summary provided or section missing
   const changelogPath = path.join(rootDir, 'CHANGELOG.md');
   let changelogContent = await fs.readFile(changelogPath, 'utf8');
   const today = new Date().toISOString().split('T')[0];
@@ -74,7 +69,6 @@ async function bumpVersion() {
     await fs.writeFile(changelogPath, changelogContent, 'utf8');
   }
 
-  // 6. Sync public/CHANGELOG.md for static & offline serving
   await fs.copyFile(changelogPath, path.join(rootDir, 'public', 'CHANGELOG.md'));
 
   console.log(`✅ Version successfully updated to ${newVersion} in all configuration and documentation files.`);

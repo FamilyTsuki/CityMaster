@@ -4,48 +4,42 @@ import { ConfettiService } from '../src/services/ConfettiService.js';
 import { CertificateView } from '../src/views/CertificateView.js';
 
 test('ConfettiService.getConfettiConfig: score nul ou inférieur au seuil donne 0 confetti', () => {
-  // Score nul ou négatif
+  
   assert.strictEqual(ConfettiService.getConfettiConfig(0, 'target').count, 0);
   assert.strictEqual(ConfettiService.getConfettiConfig(0, 'target').tier, 'none');
   assert.strictEqual(ConfettiService.getConfettiConfig(-100, 'target').count, 0);
 
-  // Mode classique target : seuil minimum à 500 points
   assert.strictEqual(ConfettiService.getConfettiConfig(250, 'target').count, 0);
   assert.strictEqual(ConfettiService.getConfettiConfig(499, 'target').count, 0);
   assert.strictEqual(ConfettiService.getConfettiConfig(499, 'target').tier, 'none');
 
-  // Mode sprint : seuil minimum à 300 points
   assert.strictEqual(ConfettiService.getConfettiConfig(150, 'sprint').count, 0);
   assert.strictEqual(ConfettiService.getConfettiConfig(299, 'sprint').count, 0);
   assert.strictEqual(ConfettiService.getConfettiConfig(299, 'sprint').tier, 'none');
 });
 
 test('ConfettiService.getConfettiConfig: échelle progressive par paliers (Bronze, Argent, Or, Légendaire)', () => {
-  // Bronze target (500 - 1499)
+  
   const bronzeTarget = ConfettiService.getConfettiConfig(1000, 'target');
   assert.strictEqual(bronzeTarget.tier, 'bronze');
   assert.ok(bronzeTarget.count >= 30 && bronzeTarget.count <= 65, `Bronze count attendu [30-65], reçu: ${bronzeTarget.count}`);
   assert.strictEqual(bronzeTarget.hasSparks, false);
 
-  // Argent target (1500 - 2999)
   const silverTarget = ConfettiService.getConfettiConfig(2200, 'target');
   assert.strictEqual(silverTarget.tier, 'silver');
   assert.ok(silverTarget.count >= 75 && silverTarget.count <= 130, `Silver count attendu [75-130], reçu: ${silverTarget.count}`);
   assert.strictEqual(silverTarget.hasSparks, false);
 
-  // Or target (3000 - 4499)
   const goldTarget = ConfettiService.getConfettiConfig(3800, 'target');
   assert.strictEqual(goldTarget.tier, 'gold');
   assert.ok(goldTarget.count >= 150 && goldTarget.count <= 230, `Gold count attendu [150-230], reçu: ${goldTarget.count}`);
 
-  // Légendaire target (>= 4500)
   const legendaryTarget = ConfettiService.getConfettiConfig(4900, 'target');
   assert.strictEqual(legendaryTarget.tier, 'legendary');
   assert.ok(legendaryTarget.count >= 250 && legendaryTarget.count <= 320, `Legendary count attendu [250-320], reçu: ${legendaryTarget.count}`);
   assert.strictEqual(legendaryTarget.hasSparks, true, 'Le palier légendaire doit comporter des étincelles dorées et blanches');
   assert.ok(legendaryTarget.duration >= 8000, 'La durée du palier légendaire doit être d au moins 8000ms');
 
-  // Mode sprint
   const bronzeSprint = ConfettiService.getConfettiConfig(600, 'sprint');
   assert.strictEqual(bronzeSprint.tier, 'bronze');
   const silverSprint = ConfettiService.getConfettiConfig(1800, 'sprint');
@@ -69,7 +63,7 @@ test('ConfettiService.getConfettiConfig: croissance strictement monotone du nomb
 });
 
 test('ConfettiService.launch: déclenchement conditionné par le score', () => {
-  // Score 0 ou insuffisant : aucun lancement
+  
   const zeroResult = ConfettiService.launch(0, { mode: 'target' });
   assert.strictEqual(zeroResult.launched, false);
   assert.strictEqual(zeroResult.count, 0);
@@ -78,7 +72,6 @@ test('ConfettiService.launch: déclenchement conditionné par le score', () => {
   assert.strictEqual(lowResult.launched, false);
   assert.strictEqual(lowResult.count, 0);
 
-  // Score suffisant : lancement actif avec bon palier
   const winResult = ConfettiService.launch(4200, { mode: 'target' });
   assert.strictEqual(winResult.launched, true);
   assert.strictEqual(winResult.tier, 'gold');
@@ -96,7 +89,7 @@ test('ConfettiService.launch: lecture de secours dans le DOM (#cert-score)', () 
   };
 
   try {
-    const res = ConfettiService.launch(); // aucun score explicite fourni
+    const res = ConfettiService.launch(); 
     assert.strictEqual(res.launched, true);
     assert.strictEqual(res.tier, 'gold');
   } finally {

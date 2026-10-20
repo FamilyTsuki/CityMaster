@@ -8,21 +8,18 @@ import { ScoreController } from "../src/controllers/ScoreController.js";
 test("Service Worker: returns HTTP 503 on offline API fallback and caches OSM tiles", () => {
   const swContent = fs.readFileSync(path.resolve("public/sw.js"), "utf8");
 
-  // Vérifier le statut 503 pour les requêtes API en échec
   assert.match(
     swContent,
     /status:\s*503/,
     "sw.js must explicitly return status: 503 for offline API responses",
   );
 
-  // Vérifier le support du cache des tuiles OpenStreetMap
   assert.match(
     swContent,
     /tile\.openstreetmap\.org/,
     "sw.js must allow caching OpenStreetMap tiles",
   );
 
-  // Vérifier la présence de NetworkService dans STATIC_ASSETS
   assert.match(
     swContent,
     /\/src\/services\/NetworkService\.js/,
@@ -178,19 +175,16 @@ test("Offline banner anti-overlap: CSS variables and class management prevent HU
     "game.css must shift --game-top-offset when body has .has-offline-banner or .is-offline",
   );
 
-  // Vérifier l'utilisation de --game-top-offset par le bandeau de jeu
   assert.match(
     gameCss,
     /\.ui-overlay-top\s*\{[^}]*top:\s*var\(--game-top-offset\)/s,
     ".ui-overlay-top must use top: var(--game-top-offset)",
   );
 
-  // Vérifier l'élévation des boutons de zoom Leaflet pour éviter le chevauchement du bandeau d'actions
   assert.match(
     gameCss,
     /\.leaflet-control-zoom\s*\{[^}]*margin-bottom:\s*clamp\(/s,
     ".leaflet-control-zoom must be elevated to prevent overlapping bottom action bar",
   );
 });
-
 

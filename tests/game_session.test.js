@@ -44,7 +44,6 @@ test("Setting nextPrompt preserves currentPrompt and roundIndex during feedback"
   };
   session.nextPrompt = nextPrompt;
 
-  // During feedback screen:
   assert.equal(
     session.currentPrompt.streetName,
     "Rue de Rivoli",
@@ -79,7 +78,6 @@ test("Promoting nextPrompt updates currentPrompt and roundIndex", () => {
   };
   session.nextPrompt = nextPrompt;
 
-  // When next question is loaded:
   if (session.nextPrompt) {
     session.currentPrompt = session.nextPrompt;
     session.nextPrompt = null;

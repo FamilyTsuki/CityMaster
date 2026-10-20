@@ -17,7 +17,7 @@ let lastCacheTime = 0;
 const CACHE_TTL_MS = 60 * 1000;
 
 const nominatimCache = new Map();
-const NOMINATIM_CACHE_TTL_MS = 60 * 60 * 1000; // 1 heure
+const NOMINATIM_CACHE_TTL_MS = 60 * 60 * 1000;
 const NOMINATIM_CACHE_MAX_ENTRIES = 500;
 
 export class City {

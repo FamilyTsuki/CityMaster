@@ -8,7 +8,7 @@ const OVERPASS_SERVERS = [
 ];
 
 const overpassCache = new Map();
-const OVERPASS_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 heures
+const OVERPASS_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 const OVERPASS_CACHE_MAX_ENTRIES = 200;
 
 export class OverpassController {
