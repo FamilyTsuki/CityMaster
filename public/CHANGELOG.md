@@ -3,6 +3,45 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.16.14] - 2026-10-20
+
+### Ambiance Graphique & Effet Lampe à Lave
+- **Grosses boules ascendantes type lampe à lave (`public/assets/styles/support.css`)** :
+  - Métamorphose des bulles de l'écran Support en d'imposantes sphères organiques de 320px à 440px de diamètre aux formes mouvantes et fluides.
+  - Dégradés intenses et chaleureux café-braise, orange magma, rouge incandescent et ambre profond.
+  - Déplacement ascensionnel continu et unidirectionnel (du bas vers le haut sans jamais redescendre) avec déformation fluide des rayons (`border-radius`) et légères oscillations latérales sinusoïdales.
+  - Flou optique immersif (`filter: blur(48px)`) créant une véritable diffusion lumineuse d'ambiance de lampe à lave derrière les cartes et la barre de navigation.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v71`.
+
+### Tests Unitaires
+- Validation complète des 77 tests de non-régression (`npm test`).
+
+---
+
+## [2.16.13] - 2026-10-20
+
+### Animation organique du fond avec bulles ambiantes et halo lumineux flottant pour l'écran Support
+- Synchronisation automatique de version et ajustements du projet.
+
+---
+
+## [2.16.12] - 2026-10-20
+
+### Architecture Visuelle du Header & Résolution du Fond
+- **Suppression définitive de la délimitation sous le header (`public/assets/styles/navbar.css`)** :
+  - Passage de la barre de navigation `.navbar` en positionnement fixe (`position: fixed; top: ...; left: 0; right: 0; margin: 0 auto;`).
+  - **Conservation intégrale de l'aspect original** : forme en pilule flottante avec marges (`top: 0.625rem`), largeur maximale, bords arrondis, ombre portée douce et effet de flou en verre dépoli (`backdrop-filter: blur(16px)`).
+  - Élimination de la rupture de flux dans le conteneur flex du `body` : les écrans et leur arrière-plan personnalisé s'étendent désormais de façon continue sur **100% de la hauteur de la fenêtre (dès `y = 0`)**, passant de façon totalement transparente et homogène sous le header.
+  - Définition d'un dégagement vertical adaptatif dans `public/assets/styles/base.css` (`padding-top` sur `.screen`), permettant aux contenus de commencer immédiatement sous la navbar sans jamais être masqués ni coupés.
+- **Service Worker & PWA (`public/sw.js`)** :
+  - Incrémentation du cache vers `citymaster-v69`.
+
+### Tests Unitaires
+- Validation complète des 77 tests de non-régression (`npm test`).
+
+---
+
 ## [2.16.11] - 2026-10-20
 
 ### Restitution Visuelle Haute-Fidélité de la Page Support

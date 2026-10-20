@@ -92,10 +92,16 @@ img {
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
   box-sizing: border-box;
-  padding-top: 0;
+  padding-top: calc(3.625rem + max(0.625rem, env(safe-area-inset-top)) + 0.75rem);
   padding-bottom: 0 !important;
   padding-left: max(1rem, env(safe-area-inset-left));
   padding-right: max(1rem, env(safe-area-inset-right));
+}
+
+@media (max-width: 768px) {
+  .screen {
+    padding-top: calc(3.25rem + max(0.5rem, env(safe-area-inset-top)) + 0.625rem);
+  }
 }
 
 .screen.active {
@@ -108,8 +114,11 @@ img {
 
 #game-screen {
   overflow: hidden !important;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 0 !important;
+}
+
+#load-screen {
+  padding: 0 !important;
 }
 
 #admin-screen {
