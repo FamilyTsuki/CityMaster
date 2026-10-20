@@ -3,6 +3,14 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.16.21] - 2026-10-20
+
+### Ajouté
+- Prise en charge complète du mode clair sur la page Support (palette parchemin, bulles d'ambiance pastel abricot/ambre et cartes claires contrastées).
+- Adaptation dynamique des variables de thème de la page Support via les sélecteurs `[data-theme="light"]` et `[data-theme="dark"]`.
+
+---
+
 ## [2.16.20] - 2026-10-20
 
 ### Modifié
