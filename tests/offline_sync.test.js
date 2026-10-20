@@ -160,4 +160,37 @@ test("badges.css: defines .city-offline-badge style for offline ready cities", (
   assert.match(css, /\.city-offline-badge\s*\{/, ".city-offline-badge must be defined in badges.css");
 });
 
+test("Offline banner anti-overlap: CSS variables and class management prevent HUD collision", () => {
+  const gameCss = fs.readFileSync(path.resolve("public/assets/styles/game.css"), "utf8");
+  const messagesCss = fs.readFileSync(path.resolve("public/assets/styles/components/messages.css"), "utf8");
+
+  // Vérifier la déclaration de --offline-banner-height
+  assert.match(
+    messagesCss,
+    /--offline-banner-height:\s*[\d.]+rem/,
+    "messages.css must declare --offline-banner-height",
+  );
+
+  // Vérifier le décalage dynamique lors de l'activation de la bannière
+  assert.match(
+    gameCss,
+    /body\.has-offline-banner.*--game-top-offset/s,
+    "game.css must shift --game-top-offset when body has .has-offline-banner or .is-offline",
+  );
+
+  // Vérifier l'utilisation de --game-top-offset par le bandeau de jeu
+  assert.match(
+    gameCss,
+    /\.ui-overlay-top\s*\{[^}]*top:\s*var\(--game-top-offset\)/s,
+    ".ui-overlay-top must use top: var(--game-top-offset)",
+  );
+
+  // Vérifier l'élévation des boutons de zoom Leaflet pour éviter le chevauchement du bandeau d'actions
+  assert.match(
+    gameCss,
+    /\.leaflet-control-zoom\s*\{[^}]*margin-bottom:\s*clamp\(/s,
+    ".leaflet-control-zoom must be elevated to prevent overlapping bottom action bar",
+  );
+});
+
 

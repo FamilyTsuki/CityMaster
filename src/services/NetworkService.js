@@ -104,7 +104,7 @@ export class NetworkService {
     }
 
     if (!this.#isOnline) {
-      document.body.classList.add("is-offline");
+      document.body.classList.add("is-offline", "has-offline-banner");
       if (this.#bannerElement) {
         this.#bannerElement.classList.remove("hidden", "online-restored");
         this.#bannerElement.classList.add("active");
@@ -119,6 +119,7 @@ export class NetworkService {
     } else {
       document.body.classList.remove("is-offline");
       if (this.#bannerElement && this.#bannerElement.classList.contains("active")) {
+        document.body.classList.add("has-offline-banner");
         this.#bannerElement.classList.add("online-restored");
         if (this.#bannerTextElement) {
           this.#bannerTextElement.textContent = I18nService.getInstance().t(
@@ -128,13 +129,17 @@ export class NetworkService {
           );
         }
         this.#restoreTimeout = setTimeout(() => {
+          document.body.classList.remove("has-offline-banner");
           if (this.#bannerElement) {
             this.#bannerElement.classList.remove("active", "online-restored");
             this.#bannerElement.classList.add("hidden");
           }
         }, 3000);
-      } else if (this.#bannerElement) {
-        this.#bannerElement.classList.add("hidden");
+      } else {
+        document.body.classList.remove("has-offline-banner");
+        if (this.#bannerElement) {
+          this.#bannerElement.classList.add("hidden");
+        }
       }
     }
   }

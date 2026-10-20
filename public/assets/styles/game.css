@@ -27,14 +27,23 @@
   z-index: 1;
 }
 
+:root {
+  --game-top-offset: calc(4.25rem + max(0.5rem, env(safe-area-inset-top)));
+}
+
+body.has-offline-banner,
+body.is-offline {
+  --game-top-offset: calc(4.25rem + var(--offline-banner-height, 2.35rem) + max(0.5rem, env(safe-area-inset-top)));
+}
+
 .ui-overlay-top {
   position: absolute;
-  top: calc(3.75rem + max(0.5rem, env(safe-area-inset-top)));
+  top: var(--game-top-offset);
   left: 50%;
   transform: translate3d(-50%, 0, 0);
   padding: clamp(0.5rem, 1.5dvh, 0.75rem) clamp(0.875rem, 2.5vw, 1.5rem);
   text-align: center;
-  max-width: min(calc(100% - 6.5rem), 38rem);
+  max-width: min(calc(100% - 7rem), 38rem);
   width: auto;
   pointer-events: auto;
   background-color: var(--bg-card);
@@ -48,6 +57,7 @@
   align-items: center;
   gap: var(--space-sm);
   z-index: 1000;
+  transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   animation: slideDown 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
@@ -192,11 +202,12 @@
 
 .ui-overlay-top-right {
   position: absolute;
-  top: calc(3.75rem + max(0.5rem, env(safe-area-inset-top)));
+  top: var(--game-top-offset);
   right: 1rem;
   z-index: 1000;
   display: flex;
   gap: var(--space-xs);
+  transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .quit-btn {
@@ -281,8 +292,70 @@
   align-items: center;
   gap: 0.75rem;
   pointer-events: auto;
-  max-width: min(90%, 30rem);
+  max-width: min(calc(100% - 8rem), 30rem);
   width: 90%;
+}
+
+/* Contrôles Leaflet (Zoom & Attribution) - Élévation et stylisation Soft UI */
+.leaflet-bottom.leaflet-right {
+  z-index: 900 !important;
+  pointer-events: none;
+}
+
+.leaflet-bottom.leaflet-right .leaflet-control-zoom {
+  pointer-events: auto;
+  margin-bottom: clamp(4.75rem, 10dvh, 5.75rem) !important;
+  margin-right: clamp(0.75rem, 2vw, 1.25rem) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--border-radius-xs) !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm) !important;
+  background: var(--bg-card) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.leaflet-control-zoom a {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  width: 2.25rem !important;
+  height: 2.25rem !important;
+  line-height: 2.25rem !important;
+  font-size: 1.15rem !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none !important;
+  transition: all 0.15s ease;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background-color: var(--surface-hover) !important;
+  color: var(--primary) !important;
+}
+
+.leaflet-control-attribution {
+  background-color: var(--bg-card) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--text-muted) !important;
+  border-radius: var(--border-radius-xs) !important;
+  font-size: 0.68rem !important;
+  padding: 0.125rem 0.375rem !important;
+  margin-right: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+  pointer-events: auto;
+}
+
+.leaflet-control-attribution:hover {
+  opacity: 1;
 }
 
 .game-input-container {
@@ -646,23 +719,27 @@
 }
 
 @media (max-width: 640px) {
+  :root {
+    --game-top-offset: calc(3.75rem + max(0.5rem, env(safe-area-inset-top)));
+  }
+
+  body.has-offline-banner,
+  body.is-offline {
+    --game-top-offset: calc(3.75rem + var(--offline-banner-height, 2.2rem) + max(0.5rem, env(safe-area-inset-top)));
+  }
+
   .ui-overlay-top {
-    max-width: calc(100% - 2rem);
-    padding: 0.5rem 1rem;
-    top: calc(3.5rem + max(0.5rem, env(safe-area-inset-top)));
+    max-width: calc(100% - 6rem);
+    padding: 0.5rem 0.875rem;
+    top: var(--game-top-offset);
   }
 
   .instruction-text {
-    font-size: 1rem;
-  }
-
-  .ui-overlay-top-left {
-    top: calc(3.5rem + max(0.5rem, env(safe-area-inset-top)));
-    left: 0.75rem;
+    font-size: 0.95rem;
   }
 
   .ui-overlay-top-right {
-    top: calc(3.5rem + max(0.5rem, env(safe-area-inset-top)));
+    top: var(--game-top-offset);
     right: 0.75rem;
   }
 
@@ -673,14 +750,19 @@
   }
 
   .ui-overlay-bottom {
-    bottom: 1rem;
-    max-width: 95%;
+    bottom: 0.85rem;
+    max-width: calc(100% - 5.5rem);
+  }
+
+  .leaflet-bottom.leaflet-right .leaflet-control-zoom {
+    margin-bottom: clamp(4.25rem, 9dvh, 5.25rem) !important;
+    margin-right: 0.625rem !important;
   }
 
   #validate-btn,
   #next-btn {
     min-height: 2.625rem;
-    font-size: 1rem;
-    padding: 0.5rem 1.25rem;
+    font-size: 0.95rem;
+    padding: 0.5rem 1.125rem;
   }
 }

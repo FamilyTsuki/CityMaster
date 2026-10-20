@@ -172,12 +172,24 @@
 }
 
 /* Bannière d'état réseau global (hors-ligne / en ligne) */
+:root {
+  --offline-banner-height: 2.35rem;
+}
+
+@media (max-width: 600px) {
+  :root {
+    --offline-banner-height: 2.2rem;
+  }
+}
+
 .offline-banner {
   position: fixed;
-  top: var(--nav-height, 64px);
+  top: var(--nav-height, 4.25rem);
   left: 0;
   right: 0;
   z-index: 999;
+  min-height: var(--offline-banner-height);
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -220,6 +232,7 @@
 
 @media (max-width: 600px) {
   .offline-banner {
+    top: var(--nav-height, 3.75rem);
     font-size: 0.78rem;
     padding: 0.4rem 0.75rem;
   }

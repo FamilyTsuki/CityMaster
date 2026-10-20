@@ -3,6 +3,27 @@
 Toutes les modifications majeures du projet CityMaster sont répertoriées ci-dessous par version.
 Ce fichier est crée et acctualiser par ia.
 
+## [2.15.1] - 2026-10-20
+
+### Corrections de bugs & Ergonomie UI (Résolution du chevauchement Bannière Hors-ligne & HUD Jeu)
+- **Décalage dynamique du bandeau de jeu (`#top-banner` / `.ui-overlay-top`)** :
+  - **Correction du chevauchement vertical** : La bannière réseau (`#offline-banner`, affichant « Mode hors-ligne : Connexion requise pour jouer et synchroniser ») recouvrait partiellement le bandeau de jeu supérieur (« Temps écoulé ! Vous n'avez pas sélectionné d'emplacement » / instruction de rue) lors des déconnexions.
+  - **Gestion dynamique de classe et variables CSS** : `NetworkService` applique désormais automatiquement `body.has-offline-banner` dès l'activation de la bannière. Les éléments `.ui-overlay-top` et `.ui-overlay-top-right` s'adaptent dynamiquement via `--game-top-offset` et une transition fluide (`transition: top 0.3s cubic-bezier(0.16, 1, 0.3, 1)`), garantissant un espacement parfait sans aucun chevauchement.
+  - **Sécurisation de la largeur mobile** : Ajustement de `max-width: calc(100% - 6rem)` sur les écrans mobiles pour éviter toute collision horizontale avec les boutons d'action (Quitter et Signaler).
+- **Repositionnement et stylisation des contrôles Leaflet (`[+] [-]` et attribution)** :
+  - **Élévation des boutons de zoom (`.leaflet-control-zoom`)** : Déplacement de la marge inférieure (`margin-bottom: clamp(4.75rem, 10dvh, 5.75rem)`) pour que les contrôles de zoom flottent au-dessus de la barre d'action inférieure (`#bottom-actions`) au lieu de se superposer avec le bouton de validation ou le champ de saisie.
+  - **Stylisation Soft UI & Dark Mode** : Habillage complet des boutons de zoom en harmonie avec le thème (bordures adoucies, flou de fond `backdrop-filter`, couleurs d'accentuation) et attribution discrète non intrusive (`.leaflet-control-attribution`).
+
+### Tests Unitaires & Non-Régression
+- Ajout d'un test unitaire dans `tests/offline_sync.test.js` validant :
+  - La déclaration de `--offline-banner-height` dans `messages.css`.
+  - Le basculement dynamique de `--game-top-offset` sous `body.has-offline-banner` et `body.is-offline`.
+  - L'assignation de `--game-top-offset` à `.ui-overlay-top`.
+  - L'élévation de `.leaflet-control-zoom` au-dessus de la barre d'action inférieure.
+- **Suite de tests portée à 69 tests unitaires avec 100% de réussite** (`npm test`).
+
+---
+
 ## [2.15.0] - 2026-10-19
 
 ### Nouvelles fonctionnalités & Immersion
