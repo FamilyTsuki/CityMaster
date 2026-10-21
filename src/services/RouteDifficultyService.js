@@ -109,43 +109,66 @@ export class RouteDifficultyService {
    * Détermine le niveau de difficulté ('easy', 'medium', 'hard') pour une voie GeoJSON.
    * Combine la nomenclature toponymique, la hiérarchie routière et la longueur réelle
    * afin d'éviter qu'une ruelle médiévale courte soit erronément classée facile.
+   * Supporte les modes 'length', 'nomenclature' et 'center' ainsi que les surcharges manuelles.
    * @param {object} feature GeoJSON Feature
-   * @param {number} [cityCentroidLat]
+   * @param {number|object} [cityCentroidLatOrOptions]
    * @param {number} [cityCentroidLng]
+   * @param {object} [options]
    * @returns {'easy' | 'medium' | 'hard' | 'lotissement'}
    */
-  static getRouteDifficulty(feature, cityCentroidLat, cityCentroidLng) {
+  static getRouteDifficulty(feature, cityCentroidLatOrOptions, cityCentroidLng, options = {}) {
     if (!feature || !feature.geometry) return 'medium';
+
+    let lat = cityCentroidLatOrOptions;
+    let lng = cityCentroidLng;
+    let opts = options;
+
+    if (typeof cityCentroidLatOrOptions === 'object' && cityCentroidLatOrOptions !== null) {
+      opts = cityCentroidLatOrOptions;
+      lat = opts.cityCentroidLat;
+      lng = opts.cityCentroidLng;
+    }
 
     const props = feature.properties || {};
     if (
-      props.difficulty &&
-      ['easy', 'medium', 'hard', 'lotissement'].includes(props.difficulty)
-    ) {
-      return props.difficulty;
-    }
-
-    if (
       (props.isCustom && props.isLotissement) ||
+      props.difficulty === 'lotissement' ||
       props.itemType === 'lotissement'
     ) {
       return 'lotissement';
     }
 
+    if (feature.geometry.type === 'Point') {
+      return 'hard';
+    }
+
     const name = (props.name || props.originalName || '').trim();
+    const nameLower = name.toLowerCase().trim();
+    const origNameLower = (props.originalName || '').toLowerCase().trim();
     const cleanName = name
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .trim();
-    const highway = (props.highway || '').toLowerCase();
 
+    const overrides = opts.overrides || opts.difficultyOverrides;
+    const manualDiff =
+      (overrides && (overrides[nameLower] || (origNameLower && overrides[origNameLower]))) ||
+      (props.difficulty && ['easy', 'medium', 'hard'].includes(props.difficulty)
+        ? props.difficulty
+        : null);
+
+    if (manualDiff && ['easy', 'medium', 'hard'].includes(manualDiff)) {
+      return manualDiff;
+    }
+
+    const highway = (props.highway || '').toLowerCase();
     const isCourMajor = /^cours\b/i.test(cleanName);
     const isMinorKeyword =
       !isCourMajor &&
       MINOR_WAY_KEYWORDS.some((kw) => {
         const regex = new RegExp(`\\b${kw}\\b`, 'i');
-        return regex.test(cleanName);
+        return regex.test(cleanName) || regex.test(nameLower);
       });
 
     if (isMinorKeyword || highway === 'living_street') {
@@ -158,6 +181,57 @@ export class RouteDifficultyService {
     const isMajorToponym = MAJOR_TOPONYMS.includes(firstWord) || isCourMajor;
     const isMajorHighway = ['motorway', 'trunk', 'primary', 'secondary'].includes(highway);
 
+    const diffMode = opts.diffMode || 'length';
+
+    if (diffMode === 'nomenclature') {
+      if (isMajorToponym || isMajorHighway || lengthMeters >= 550) {
+        return 'easy';
+      }
+      if (lengthMeters >= 250) {
+        return 'medium';
+      }
+      return 'hard';
+    }
+
+    if (diffMode === 'center') {
+      let inCenter = false;
+      if (opts.centroids && opts.centroids[opts.index] && typeof turf !== 'undefined' && turf.distance) {
+        let nearCount = 0;
+        const currentCentroid = opts.centroids[opts.index];
+        for (let j = 0; j < opts.centroids.length; j++) {
+          if (opts.index === j || !opts.centroids[j]) continue;
+          try {
+            const dist = turf.distance(currentCentroid, opts.centroids[j], {
+              units: 'meters',
+            });
+            if (dist <= 200) nearCount++;
+          } catch (e) {}
+        }
+        inCenter = nearCount >= 4;
+      } else if (lat != null && lng != null) {
+        try {
+          let distKm = 2.0;
+          if (typeof turf !== 'undefined' && turf.centroid && turf.distance) {
+            const routeCentroid = turf.centroid(feature);
+            const [cLng, cLat] = routeCentroid.geometry.coordinates;
+            distKm = turf.distance(
+              turf.point([lng, lat]),
+              turf.point([cLng, cLat]),
+              { units: 'kilometers' },
+            );
+          }
+          inCenter = distKm <= 1.5;
+        } catch (e) {}
+      }
+
+      if ((isMajorToponym || isMajorHighway) && lengthMeters >= 80) return 'easy';
+      if (lengthMeters >= 550) return 'easy';
+      if (inCenter && lengthMeters >= 350) return 'easy';
+      if (lengthMeters >= 250) return 'medium';
+      return 'hard';
+    }
+
+    // Mode par défaut: 'length'
     if (isMajorToponym || isMajorHighway) {
       if (lengthMeters >= 80) {
         return 'easy';
@@ -176,15 +250,15 @@ export class RouteDifficultyService {
       return 'hard';
     }
 
-    if (cityCentroidLat != null && cityCentroidLng != null) {
+    if (lat != null && lng != null) {
       try {
         let distKm = 2.0;
         if (typeof turf !== 'undefined' && turf.centroid && turf.distance) {
           const routeCentroid = turf.centroid(feature);
-          const [lng, lat] = routeCentroid.geometry.coordinates;
+          const [cLng, cLat] = routeCentroid.geometry.coordinates;
           distKm = turf.distance(
-            turf.point([cityCentroidLng, cityCentroidLat]),
             turf.point([lng, lat]),
+            turf.point([cLng, cLat]),
             { units: 'kilometers' },
           );
         }
@@ -210,16 +284,18 @@ export class RouteDifficultyService {
   /**
    * Classifie un tableau de voies GeoJSON avec leur difficulté calculée.
    * @param {Array<object>} features
-   * @param {number} cityCentroidLat
-   * @param {number} cityCentroidLng
+   * @param {number|object} [cityCentroidLat]
+   * @param {number} [cityCentroidLng]
+   * @param {object} [options]
    * @returns {Array<object>}
    */
-  static classifyRoutes(features = [], cityCentroidLat, cityCentroidLng) {
-    return features.map((feature) => {
+  static classifyRoutes(features = [], cityCentroidLat, cityCentroidLng, options = {}) {
+    return features.map((feature, index) => {
       const difficulty = this.getRouteDifficulty(
         feature,
         cityCentroidLat,
         cityCentroidLng,
+        { ...options, index },
       );
       return {
         ...feature,

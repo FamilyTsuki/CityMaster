@@ -117,3 +117,62 @@ test('RouteDifficultyService: les voies mineures (impasses, sentiers, passages) 
   }
 });
 
+test('RouteDifficultyService: les voies entre 80m et 800m avec toponyme majeur sont faciles (résolution disparité admin/jeu)', () => {
+  // Voies réelles de Bordeaux et Tours qui étaient précédemment classées medium par AdminController (seuil >800m) mais faciles en jeu
+  const testFeatures = [
+    { name: 'Boulevard Maréchal Foch', lenCoords: [[0.0, 0.0], [0.005, 0.003]] }, // ~560m
+    { name: 'Avenue de Paris', lenCoords: [[0.0, 0.0], [0.004, 0.002]] }, // ~450m
+    { name: 'Pont George V', lenCoords: [[0.0, 0.0], [0.0018, 0.0005]] }, // ~200m
+    { name: 'Quai Richelieu', lenCoords: [[0.0, 0.0], [0.0035, 0.0015]] }, // ~400m
+    { name: 'Cours de l\'Intendance', lenCoords: [[0.0, 0.0], [0.003, 0.001]] }, // ~330m
+  ];
+
+  for (const item of testFeatures) {
+    const f = {
+      type: 'Feature',
+      properties: { name: item.name },
+      geometry: { type: 'LineString', coordinates: item.lenCoords }
+    };
+
+    // Mode longueur (default)
+    const diffLength = RouteDifficultyService.getRouteDifficulty(f, { diffMode: 'length' });
+    assert.strictEqual(
+      diffLength,
+      'easy',
+      `"${item.name}" doit être classée "easy" en mode longueur, reçu: "${diffLength}"`
+    );
+
+    // Mode nomenclature
+    const diffNom = RouteDifficultyService.getRouteDifficulty(f, { diffMode: 'nomenclature' });
+    assert.strictEqual(
+      diffNom,
+      'easy',
+      `"${item.name}" doit être classée "easy" en mode nomenclature, reçu: "${diffNom}"`
+    );
+  }
+});
+
+test('RouteDifficultyService: prise en compte des surcharges manuelles (overrides)', () => {
+  const f = {
+    type: 'Feature',
+    properties: { name: 'Rue Ordinaire' },
+    geometry: { type: 'LineString', coordinates: [[0.0, 0.0], [0.003, 0.002]] } // ~400m -> medium par défaut
+  };
+
+  const defaultDiff = RouteDifficultyService.getRouteDifficulty(f);
+  assert.strictEqual(defaultDiff, 'medium');
+
+  // Surcharge en facile
+  const forcedEasy = RouteDifficultyService.getRouteDifficulty(f, {
+    overrides: { 'rue ordinaire': 'easy' }
+  });
+  assert.strictEqual(forcedEasy, 'easy');
+
+  // Surcharge en difficile
+  const forcedHard = RouteDifficultyService.getRouteDifficulty(f, {
+    overrides: { 'rue ordinaire': 'hard' }
+  });
+  assert.strictEqual(forcedHard, 'hard');
+});
+
+

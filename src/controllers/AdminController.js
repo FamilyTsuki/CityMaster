@@ -1,9 +1,6 @@
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
-import {
-  MINOR_WAY_KEYWORDS,
-  MAJOR_WAY_TYPES,
-} from "../services/RouteDifficultyService.js";
+import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
 import { mergeCityStreets } from "../services/SpatialService.js";
 
 export class AdminController {
@@ -771,54 +768,13 @@ export class AdminController {
     }
   }
 
-  #getRouteDifficulty(route) {
-    const name = route.properties?.name || "";
-    const nameLower = name.toLowerCase().trim();
-    const origNameLower = (route.properties?.originalName || "")
-      .toLowerCase()
-      .trim();
-
-    if (
-      this.#routeDifficultyOverrides &&
-      (this.#routeDifficultyOverrides[nameLower] ||
-        (origNameLower && this.#routeDifficultyOverrides[origNameLower]))
-    ) {
-      return (
-        this.#routeDifficultyOverrides[nameLower] ||
-        this.#routeDifficultyOverrides[origNameLower]
-      );
-    }
-
-    if (
-      route.properties?.difficulty &&
-      ["easy", "medium", "hard"].includes(route.properties.difficulty)
-    ) {
-      return route.properties.difficulty;
-    }
-
-    const isMinorWay = MINOR_WAY_KEYWORDS.some((k) => nameLower.includes(k));
-
-    if (this.#difficultyMode === "nomenclature") {
-      const firstWord = nameLower.split(/[\s'-]+/)[0];
-
-      if (MAJOR_WAY_TYPES.includes(firstWord) && !isMinorWay) return "easy";
-      if (isMinorWay) return "hard";
-      return "medium";
-    } else {
-      let len = 0;
-      if (route.geometry?.type === "Point") return "hard";
-      try {
-        if (window.turf) {
-          len = window.turf.length(route, { units: "meters" });
-        }
-      } catch (e) {
-        return "hard";
-      }
-      if (isMinorWay) return "hard";
-      if (len > 800) return "easy";
-      if (len >= 250) return "medium";
-      return "hard";
-    }
+  #getRouteDifficulty(route, index = 0, centroids = null) {
+    return RouteDifficultyService.getRouteDifficulty(route, {
+      diffMode: this.#difficultyMode,
+      overrides: this.#routeDifficultyOverrides,
+      centroids,
+      index,
+    });
   }
 
   #renderRouteList() {
@@ -853,39 +809,8 @@ export class AdminController {
           ? r.properties.difficulty
           : null);
       const isManual = Boolean(manualDiff);
-      let diff = "hard";
 
-      if (isManual) {
-        diff = manualDiff;
-      } else if (this.#difficultyMode === "center") {
-        const isMinorWay = MINOR_WAY_KEYWORDS.some((k) =>
-          nameLower.includes(k),
-        );
-        const isMediumType =
-          MAJOR_WAY_TYPES.some((w) => nameLower.includes(w)) ||
-          nameLower.includes("rue") ||
-          nameLower.includes("route");
-
-        let nearCount = 0;
-        if (centroids[i] && window.turf) {
-          for (let j = 0; j < centroids.length; j++) {
-            if (i === j || !centroids[j]) continue;
-            try {
-              const dist = window.turf.distance(centroids[i], centroids[j], {
-                units: "meters",
-              });
-              if (dist <= 200) nearCount++;
-            } catch (e) {}
-          }
-        }
-
-        const inCenter = nearCount >= 4;
-        if (isMinorWay) diff = "hard";
-        else if (inCenter && isMediumType) diff = "easy";
-        else if (isMediumType) diff = "medium";
-      } else {
-        diff = this.#getRouteDifficulty(r);
-      }
+      const diff = this.#getRouteDifficulty(r, i, centroids);
 
       r._difficulty = diff;
       routeMeta.set(r, { diff, isManual });

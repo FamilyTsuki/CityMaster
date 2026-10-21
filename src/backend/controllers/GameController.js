@@ -11,6 +11,7 @@ const dirname = path.dirname(filename);
 
 import * as turf from "@turf/turf";
 import { readDifficultyOverridesFile } from "./AdminController.js";
+import { RouteDifficultyService } from "../../services/RouteDifficultyService.js";
 
 export class GameController {
   static async startGame(req, res) {
@@ -164,144 +165,18 @@ export class GameController {
         difficultyOverrides = allDiffData[cityKey] || {};
       } catch (e) {}
 
-      const getStreetDifficulty = (f, diffMode, index) => {
-        if (
-          (f.properties?.isCustom && f.properties?.isLotissement) ||
-          f.properties?.difficulty === "lotissement" ||
-          f.properties?.itemType === "lotissement"
-        ) {
-          return "lotissement";
-        }
-        if (f.geometry?.type === "Point") return "hard";
-
-        const name = f.properties?.name || "";
-        const nameLower = name.toLowerCase().trim();
-        const origNameLower = (f.properties?.originalName || "")
-          .toLowerCase()
-          .trim();
-
-        const manualDiff =
-          difficultyOverrides[nameLower] ||
-          (origNameLower ? difficultyOverrides[origNameLower] : null) ||
-          f.properties?.difficulty;
-
-        if (manualDiff && ["easy", "medium", "hard"].includes(manualDiff)) {
-          return manualDiff;
-        }
-
-        const MINOR_KEYWORDS = [
-          "chemin",
-          "chemins",
-          "sentier",
-          "sentiers",
-          "ruelle",
-          "ruelles",
-          "passage",
-          "passages",
-          "allée",
-          "allées",
-          "impasse",
-          "impasses",
-          "traverse",
-          "traverses",
-          "chemain",
-          "cour",
-          "cours",
-          "villa",
-          "villas",
-          "cité",
-          "cités",
-          "square",
-          "squares",
-        ];
-        const isCourMajor = /^cours\b/i.test(nameLower);
-        const isMinorWay =
-          !isCourMajor && MINOR_KEYWORDS.some((k) => nameLower.includes(k));
-
-        const MAJOR_TOPONYMS_LIST = [
-          "boulevard",
-          "boulevards",
-          "bd",
-          "avenue",
-          "avenues",
-          "av",
-          "mail",
-          "mails",
-          "quai",
-          "quais",
-          "pont",
-          "ponts",
-          "cours",
-          "faubourg",
-          "faubourgs",
-          "fg",
-          "promenade",
-          "promenades",
-          "rocade",
-          "rocades",
-          "chaussée",
-          "chaussées",
-          "route",
-          "routes",
-          "esplanade",
-          "parvis",
-        ];
-        const firstWord = nameLower.split(/[\s'-]+/)[0];
-        const isMajorToponym = MAJOR_TOPONYMS_LIST.includes(firstWord) || isCourMajor;
-        const highway = (f.properties?.highway || "").toLowerCase();
-        const isMajorHighway = ["motorway", "trunk", "primary", "secondary"].includes(highway);
-
-        let streetLength = 0;
-        try {
-          streetLength = turf.length(f, { units: "meters" });
-        } catch (e) {
-          return "hard";
-        }
-
-        if (diffMode === "nomenclature") {
-          if (isMinorWay || highway === "living_street") return "hard";
-          if (isMajorToponym || isMajorHighway || streetLength >= 550) return "easy";
-          if (streetLength >= 250) return "medium";
-          return "hard";
-        } else if (diffMode === "center") {
-          let nearCount = 0;
-          if (centroids[index]) {
-            for (let j = 0; j < centroids.length; j++) {
-              if (index === j || !centroids[j]) continue;
-              try {
-                const dist = turf.distance(centroids[index], centroids[j], {
-                  units: "meters",
-                });
-                if (dist <= 200) nearCount++;
-              } catch (e) {}
-            }
-          }
-
-          const inCenter = nearCount >= 4;
-          if (isMinorWay || highway === "living_street") return "hard";
-          if ((isMajorToponym || isMajorHighway) && streetLength >= 80) return "easy";
-          if (streetLength >= 550) return "easy";
-          if (inCenter && streetLength >= 350) return "easy";
-          if (streetLength >= 250) return "medium";
-          return "hard";
-        } else {
-          if (isMinorWay || highway === "living_street") return "hard";
-          if ((isMajorToponym || isMajorHighway) && streetLength >= 80) return "easy";
-          if (streetLength >= 550) return "easy";
-          if (highway === "tertiary" && streetLength >= 250) return "easy";
-          if (streetLength >= 250) return "medium";
-          return "hard";
-        }
-      };
-
       const uniqueStreetsMap = new Map();
       allCityStreets.forEach((street, index) => {
         const nameKey = street.properties.name.toLowerCase().trim();
         if (!uniqueStreetsMap.has(nameKey)) {
-          street.computedDifficulty = getStreetDifficulty(
+          street.computedDifficulty = RouteDifficultyService.getRouteDifficulty(
             street,
-            diffMode,
-            index,
+            {
+              diffMode,
+              overrides: difficultyOverrides,
+              centroids,
+              index,
+            },
           );
           uniqueStreetsMap.set(nameKey, street);
         } else {

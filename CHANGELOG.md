@@ -3,6 +3,17 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.17.5] - 2026-10-21
+
+### Corrigé
+- Harmonisation du calcul de difficulté des voies en utilisant `RouteDifficultyService` comme référence unique dans l'administration et le moteur de jeu.
+- Correction du seuil de difficulté et de la détection toponymique dans la page d'administration qui affichait à tort les boulevards et avenues comme moyens ou difficiles.
+
+### Tests
+- Ajout de tests validant la cohérence de classification des voies majeures et des surcharges manuelles dans `tests/route_difficulty_easy.test.js`.
+
+---
+
 ## [2.17.4] - 2026-10-21
 
 ### Corrigé
