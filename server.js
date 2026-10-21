@@ -82,6 +82,7 @@ app.use(
     if (req.path.startsWith("/backend") || req.path.includes("..")) {
       return res.status(403).json({ error: "Access denied" });
     }
+    res.setHeader("Cache-Control", "no-cache");
     next();
   },
   express.static(path.join(dirname, "src")),

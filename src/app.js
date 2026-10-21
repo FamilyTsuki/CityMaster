@@ -318,8 +318,17 @@ class App {
         .then((res) => res.json())
         .then((data) => {
           if (data.version && data.version !== "unknown") {
+            const prevVersion = sessionStorage.getItem("app_version");
             sessionStorage.setItem("app_version", data.version);
             renderVersionTag(data.version);
+
+            if (prevVersion && prevVersion !== data.version) {
+              if ("serviceWorker" in navigator) {
+                navigator.serviceWorker.getRegistration().then((reg) => {
+                  if (reg) reg.update().catch(() => {});
+                });
+              }
+            }
           }
         })
         .catch(() => {});

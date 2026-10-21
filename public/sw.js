@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v83';
+const CACHE_NAME = 'citymaster-v84';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -95,9 +95,23 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      return Promise.allSettled(
+        STATIC_ASSETS.map((asset) => {
+          return fetch(asset, { cache: "reload" }).then((response) => {
+            if (response && response.ok) {
+              return cache.put(asset, response);
+            }
+          });
+        }),
+      );
     }),
   );
+});
+
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("activate", (event) => {

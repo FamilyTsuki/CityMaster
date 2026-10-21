@@ -117,27 +117,39 @@ test("Admin route lookup matches numeric id, string id, properties.id and origin
   const matchRoute = (id, name) => {
     return routes.find(
       (r) =>
-        (r.properties?.id !== undefined && String(r.properties.id) === String(id)) ||
+        (r.properties?.id !== undefined &&
+          String(r.properties.id) === String(id)) ||
         (r.id !== undefined && String(r.id) === String(id)) ||
-        (r.properties?.name && (r.properties.name === name || r.properties.name === id)) ||
-        (r.properties?.originalName && (r.properties.originalName === name || r.properties.originalName === id)),
+        (r.properties?.name &&
+          (r.properties.name === name || r.properties.name === id)) ||
+        (r.properties?.originalName &&
+          (r.properties.originalName === name ||
+            r.properties.originalName === id)),
     );
   };
 
   // String dataset id matching numeric r.id
-  assert.equal(matchRoute("42", "Rue Numeric Id")?.properties.name, "Rue Numeric Id");
+  assert.equal(
+    matchRoute("42", "Rue Numeric Id")?.properties.name,
+    "Rue Numeric Id",
+  );
   // String id matching r.properties.id
-  assert.equal(matchRoute("custom_str_99", "Avenue String Id")?.properties.name, "Avenue String Id");
+  assert.equal(
+    matchRoute("custom_str_99", "Avenue String Id")?.properties.name,
+    "Avenue String Id",
+  );
   // Original name fallback
-  assert.equal(matchRoute("Place Ancienne", "Place Ancienne")?.properties.name, "Place Nouvelle");
+  assert.equal(
+    matchRoute("Place Ancienne", "Place Ancienne")?.properties.name,
+    "Place Nouvelle",
+  );
   // Name fallback when id is empty
   assert.equal(matchRoute("", "Rue Numeric Id")?.id, 42);
 });
 
 test("AdminController.getSettings returns file fallback when database query fails", async () => {
-  const { AdminController } = await import(
-    "../src/backend/controllers/AdminController.js"
-  );
+  const { AdminController } =
+    await import("../src/backend/controllers/AdminController.js");
   let responseData = null;
   const req = {};
   const res = {

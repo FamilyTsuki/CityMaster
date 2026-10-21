@@ -3,6 +3,18 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.17.4] - 2026-10-21
+
+### Corrigé
+- Prise en charge du rechargement automatique lors de l'activation d'un nouveau Service Worker via l'écoute de `controllerchange`.
+- Forçage du contournement du cache HTTP (`updateViaCache: 'none'` et `cache: 'reload'`) pour le Service Worker et les modules statiques `/src`.
+- Déclenchement de la vérification de mise à jour lors de la reprise de l'application mobile (`visibilitychange` et `online`).
+
+### Tests
+- Ajout de tests vérifiant la configuration de mise à jour PWA et les en-têtes de cache dans `tests/offline_sync.test.js`.
+
+---
+
 ## [2.17.3] - 2026-10-21
 
 ### Corrigé

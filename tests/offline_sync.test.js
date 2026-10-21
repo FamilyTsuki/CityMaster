@@ -188,3 +188,45 @@ test("Offline banner anti-overlap: CSS variables and class management prevent HU
   );
 });
 
+test("PWA Auto-Update: SW install uses cache reload, index.html handles controllerchange and updateViaCache", () => {
+  const swContent = fs.readFileSync(path.resolve("public/sw.js"), "utf8");
+  const indexHtml = fs.readFileSync(path.resolve("public/index.html"), "utf8");
+  const serverJs = fs.readFileSync(path.resolve("server.js"), "utf8");
+
+  // sw.js cache reload
+  assert.match(
+    swContent,
+    /cache:\s*["']reload["']/,
+    "sw.js must use cache: 'reload' when caching static assets to bypass stale HTTP cache",
+  );
+  assert.match(
+    swContent,
+    /SKIP_WAITING/,
+    "sw.js must listen for SKIP_WAITING message",
+  );
+
+  // index.html controllerchange and updateViaCache
+  assert.match(
+    indexHtml,
+    /controllerchange/,
+    "index.html must listen to controllerchange to refresh active clients",
+  );
+  assert.match(
+    indexHtml,
+    /updateViaCache:\s*["']none["']/,
+    "index.html must register sw.js with updateViaCache: 'none'",
+  );
+  assert.match(
+    indexHtml,
+    /visibilitychange/,
+    "index.html must check for updates on visibilitychange when mobile PWA resumes",
+  );
+
+  // server.js /src cache-control
+  assert.match(
+    serverJs,
+    /\/src[\s\S]*Cache-Control[\s\S]*no-cache/,
+    "server.js must set Cache-Control: no-cache on /src static route",
+  );
+});
+
