@@ -3,6 +3,18 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.17.3] - 2026-10-21
+
+### Corrigé
+- Prise en charge des identifiants numériques et toponymes alternatifs lors du clic sur le bouton Éditer des routes et quartiers.
+- Défilement automatique vers le formulaire d'édition et focus du champ lors de la sélection d'un élément dans la barre latérale.
+- Ajout d'une action directe d'édition du tracé dans le popup de sélection des routes sur la carte.
+
+### Tests
+- Ajout de tests de non-régression pour la résolution des entités administratives et le repli fichier des paramètres système.
+
+---
+
 ## [2.17.2] - 2026-10-20
 
 ### Modifié

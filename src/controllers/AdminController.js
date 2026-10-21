@@ -314,16 +314,19 @@ export class AdminController {
           const name = editBtn.dataset.name;
           const district = this.#currentDistricts.find(
             (d) =>
-              d.properties.id === id ||
-              (!d.properties.id && d.properties.name === name),
+              (d.properties?.id !== undefined && String(d.properties.id) === String(id)) ||
+              (d.id !== undefined && String(d.id) === String(id)) ||
+              (d.properties?.name && (d.properties.name === name || d.properties.name === id)) ||
+              (d.properties?.originalName && (d.properties.originalName === name || d.properties.originalName === id)),
           );
           if (district) {
             this.#adminView.startEditingDistrict(district);
           }
         } else if (deleteBtn) {
           const id = deleteBtn.dataset.id;
-          if (id) {
-            this.#deleteDistrict(id);
+          const name = deleteBtn.dataset.name;
+          if (id || name) {
+            this.#deleteDistrict(id || name);
           }
         } else if (districtItem) {
           const name = districtItem.dataset.name;
@@ -407,14 +410,16 @@ export class AdminController {
           const name = editBtn.dataset.name;
           const route = this.#currentRoutes.find(
             (r) =>
-              r.properties.id === id ||
-              (!r.properties.id && r.properties.name === name),
+              (r.properties?.id !== undefined && String(r.properties.id) === String(id)) ||
+              (r.id !== undefined && String(r.id) === String(id)) ||
+              (r.properties?.name && (r.properties.name === name || r.properties.name === id)) ||
+              (r.properties?.originalName && (r.properties.originalName === name || r.properties.originalName === id)),
           );
           if (route) {
-            const nameLower = (route.properties.name || "")
+            const nameLower = (route.properties?.name || "")
               .toLowerCase()
               .trim();
-            const origNameLower = (route.properties.originalName || "")
+            const origNameLower = (route.properties?.originalName || "")
               .toLowerCase()
               .trim();
             const currentDiff =
@@ -427,8 +432,9 @@ export class AdminController {
           }
         } else if (deleteBtn) {
           const id = deleteBtn.dataset.id;
-          if (id) {
-            this.#deleteRoute(id);
+          const name = deleteBtn.dataset.name;
+          if (id || name) {
+            this.#deleteRoute(id || name);
           }
         } else if (routeItem) {
           const name = routeItem.dataset.name;
@@ -521,16 +527,25 @@ export class AdminController {
           <button type="button" class="btn-popup-diff diff-medium" data-diff="medium">Moyen</button>
           <button type="button" class="btn-popup-diff diff-hard" data-diff="hard">Difficile</button>
           <button type="button" class="btn-popup-diff diff-auto" data-diff="auto">Auto</button>
+          <button type="button" class="btn-popup-diff btn-popup-edit">✏️ Éditer</button>
         </div>
       `;
 
-      popupContent.querySelectorAll(".btn-popup-diff").forEach((btn) => {
+      popupContent.querySelectorAll(".btn-popup-diff:not(.btn-popup-edit)").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const diff = btn.dataset.diff;
           await this.setRouteDifficulty(name, diff);
           if (layer && layer.closePopup) layer.closePopup();
         });
       });
+
+      const editPopupBtn = popupContent.querySelector(".btn-popup-edit");
+      if (editPopupBtn) {
+        editPopupBtn.addEventListener("click", () => {
+          if (layer && layer.closePopup) layer.closePopup();
+          this.#adminView.startEditingRoute(feature, currentDiff);
+        });
+      }
 
       if (layer && layer.bindPopup) {
         layer.bindPopup(popupContent).openPopup(e ? e.latlng : undefined);

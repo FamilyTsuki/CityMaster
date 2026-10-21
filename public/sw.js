@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v82';
+const CACHE_NAME = 'citymaster-v83';
 const STATIC_ASSETS = [
   "/",
   "/index.html",

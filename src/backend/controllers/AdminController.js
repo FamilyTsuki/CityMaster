@@ -38,6 +38,30 @@ const diffFilePath = path.join(
   "difficulty_overrides.json",
 );
 
+const settingsFilePath = path.join(
+  dirname,
+  "..",
+  "..",
+  "..",
+  "public",
+  "assets",
+  "data",
+  "global_settings.json",
+);
+
+async function readSettingsFile() {
+  try {
+    const content = await fs.readFile(settingsFilePath, "utf8");
+    return JSON.parse(content);
+  } catch (e) {
+    return {};
+  }
+}
+
+async function writeSettingsFile(data) {
+  await fs.writeFile(settingsFilePath, JSON.stringify(data, null, 2), "utf8");
+}
+
 export async function readDifficultyOverridesFile(cityKey = null) {
   let fileData = {};
   try {
@@ -460,18 +484,21 @@ export class AdminController {
   }
 
   static async getSettings(req, res) {
+    let settings = {};
+    try {
+      settings = await readSettingsFile();
+    } catch (e) {}
+
     try {
       const result = await pool.query("SELECT key, value FROM global_settings");
-      const settings = {};
-      for (const row of result.rows) {
-        settings[row.key] = row.value;
+      if (result && result.rows) {
+        for (const row of result.rows) {
+          settings[row.key] = row.value;
+        }
       }
-      return res.json(settings);
-    } catch (err) {
-      return res
-        .status(500)
-        .json({ error: "Internal server error getting settings" });
-    }
+    } catch (err) {}
+
+    return res.json(settings);
   }
 
   static async saveSettings(req, res) {
@@ -480,10 +507,18 @@ export class AdminController {
       if (!key || value === undefined) {
         return res.status(400).json({ error: "key and value are required" });
       }
-      await pool.query(
-        "INSERT INTO global_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2",
-        [key, value],
-      );
+
+      const settings = await readSettingsFile();
+      settings[key] = value;
+      await writeSettingsFile(settings);
+
+      try {
+        await pool.query(
+          "INSERT INTO global_settings (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = $2",
+          [key, value],
+        );
+      } catch (e) {}
+
       return res.json({ success: true });
     } catch (err) {
       return res

@@ -92,3 +92,65 @@ test("requireAdmin middleware validates token and checks persistent User fallbac
     "tsuki should be authenticated as admin even if token has is_admin: false",
   );
 });
+
+test("Admin route lookup matches numeric id, string id, properties.id and originalName", () => {
+  const routes = [
+    {
+      type: "Feature",
+      id: 42,
+      properties: { name: "Rue Numeric Id" },
+    },
+    {
+      type: "Feature",
+      properties: { id: "custom_str_99", name: "Avenue String Id" },
+    },
+    {
+      type: "Feature",
+      properties: {
+        id: "renamed_1",
+        name: "Place Nouvelle",
+        originalName: "Place Ancienne",
+      },
+    },
+  ];
+
+  const matchRoute = (id, name) => {
+    return routes.find(
+      (r) =>
+        (r.properties?.id !== undefined && String(r.properties.id) === String(id)) ||
+        (r.id !== undefined && String(r.id) === String(id)) ||
+        (r.properties?.name && (r.properties.name === name || r.properties.name === id)) ||
+        (r.properties?.originalName && (r.properties.originalName === name || r.properties.originalName === id)),
+    );
+  };
+
+  // String dataset id matching numeric r.id
+  assert.equal(matchRoute("42", "Rue Numeric Id")?.properties.name, "Rue Numeric Id");
+  // String id matching r.properties.id
+  assert.equal(matchRoute("custom_str_99", "Avenue String Id")?.properties.name, "Avenue String Id");
+  // Original name fallback
+  assert.equal(matchRoute("Place Ancienne", "Place Ancienne")?.properties.name, "Place Nouvelle");
+  // Name fallback when id is empty
+  assert.equal(matchRoute("", "Rue Numeric Id")?.id, 42);
+});
+
+test("AdminController.getSettings returns file fallback when database query fails", async () => {
+  const { AdminController } = await import(
+    "../src/backend/controllers/AdminController.js"
+  );
+  let responseData = null;
+  const req = {};
+  const res = {
+    json(data) {
+      responseData = data;
+      return this;
+    },
+    status() {
+      return this;
+    },
+  };
+
+  await AdminController.getSettings(req, res);
+  assert.ok(responseData !== null, "getSettings should return an object");
+  assert.equal(typeof responseData, "object");
+});

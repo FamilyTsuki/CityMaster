@@ -705,6 +705,13 @@
   border-color: var(--border-color);
 }
 
+.btn-popup-diff.btn-popup-edit {
+  background: var(--primary-light, rgba(59, 130, 246, 0.15));
+  color: var(--primary-color, #2563eb);
+  border-color: var(--primary-color, #2563eb);
+  font-weight: 700;
+}
+
 .btn-popup-diff:hover {
   filter: brightness(0.95);
   transform: translateY(-1px);

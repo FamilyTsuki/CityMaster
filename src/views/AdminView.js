@@ -391,40 +391,58 @@ export class AdminView {
   }
 
   startEditingDistrict(districtFeature = null) {
-    this.#editMode = "district";
+    this.#editMode = 'district';
     this.clearHighlight();
     this.clearActiveDrawing();
-    const editor = document.getElementById("admin-district-editor");
-    const titleEl = document.getElementById("admin-editor-title");
-    const nameInput = document.getElementById("admin-district-name");
+    const editor = document.getElementById('admin-district-editor');
+    const titleEl = document.getElementById('admin-editor-title');
+    const nameInput = document.getElementById('admin-district-name');
 
-    if (editor) editor.classList.remove("hidden");
+    if (editor) {
+      editor.classList.remove('hidden');
+      const sidebar = editor.closest('.admin-sidebar');
+      if (sidebar) sidebar.scrollTop = 0;
+      editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
     if (districtFeature) {
       this.#editingDistrictId =
-        districtFeature.properties.id ||
+        districtFeature.properties?.id ||
         districtFeature.id ||
-        districtFeature.properties.name;
+        districtFeature.properties?.name;
       this.#originalDistrictName =
-        districtFeature.properties.originalName ||
-        districtFeature.properties.name ||
+        districtFeature.properties?.originalName ||
+        districtFeature.properties?.name ||
         null;
       if (titleEl)
         titleEl.textContent = I18nService.getInstance().t(
-          "admin.edit_district",
+          'admin.edit_district',
           {},
-          "Éditer le Quartier",
+          'Éditer le Quartier',
         );
-      if (nameInput) nameInput.value = districtFeature.properties.name || "";
-      if (districtFeature.properties.color) {
+      if (nameInput) {
+        nameInput.value = districtFeature.properties?.name || '';
+        setTimeout(() => nameInput.focus(), 50);
+      }
+      if (districtFeature.properties?.color) {
         this.#activeColor = districtFeature.properties.color;
       }
 
-      if (
-        districtFeature.geometry &&
-        districtFeature.geometry.type === "Polygon"
-      ) {
-        const ring = districtFeature.geometry.coordinates[0] || [];
+      if (districtFeature.geometry) {
+        let ring = [];
+        if (districtFeature.geometry.type === 'Polygon') {
+          ring = districtFeature.geometry.coordinates[0] || [];
+        } else if (districtFeature.geometry.type === 'MultiPolygon') {
+          const firstPoly = districtFeature.geometry.coordinates[0] || [];
+          ring = firstPoly[0] || [];
+        }
+        if (
+          ring.length > 1 &&
+          ring[0][0] === ring[ring.length - 1][0] &&
+          ring[0][1] === ring[ring.length - 1][1]
+        ) {
+          ring = ring.slice(0, -1);
+        }
         ring.forEach((coord) => {
           this.#addVertex([coord[1], coord[0]]);
         });
@@ -432,6 +450,7 @@ export class AdminView {
       if (this.#activePoints.length > 0 && this.#map) {
         const bounds = L.latLngBounds(this.#activePoints);
         if (bounds.isValid()) {
+          this.#map.invalidateSize();
           this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
         }
       }
@@ -440,11 +459,11 @@ export class AdminView {
       this.#originalDistrictName = null;
       if (titleEl)
         titleEl.textContent = I18nService.getInstance().t(
-          "admin.new_district",
+          'admin.new_district',
           {},
-          "Nouveau Quartier",
+          'Nouveau Quartier',
         );
-      if (nameInput) nameInput.value = "";
+      if (nameInput) nameInput.value = '';
     }
   }
 
@@ -565,7 +584,12 @@ export class AdminView {
     const nameInput = document.getElementById("admin-route-name");
     const diffSelect = document.getElementById("admin-route-difficulty");
 
-    if (editor) editor.classList.remove("hidden");
+    if (editor) {
+      editor.classList.remove("hidden");
+      const sidebar = editor.closest(".admin-sidebar");
+      if (sidebar) sidebar.scrollTop = 0;
+      editor.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
     if (diffSelect) diffSelect.value = currentDifficulty || "auto";
 
     if (this.#map) {
@@ -574,12 +598,12 @@ export class AdminView {
 
     if (routeFeature) {
       this.#editingRouteId =
-        routeFeature.properties.id ||
+        routeFeature.properties?.id ||
         routeFeature.id ||
-        routeFeature.properties.name;
+        routeFeature.properties?.name;
       this.#originalRouteName =
-        routeFeature.properties.originalName ||
-        routeFeature.properties.name ||
+        routeFeature.properties?.originalName ||
+        routeFeature.properties?.name ||
         null;
       if (titleEl)
         titleEl.textContent = I18nService.getInstance().t(
@@ -587,7 +611,10 @@ export class AdminView {
           {},
           "Éditer la Route",
         );
-      if (nameInput) nameInput.value = routeFeature.properties.name || "";
+      if (nameInput) {
+        nameInput.value = routeFeature.properties?.name || "";
+        setTimeout(() => nameInput.focus(), 50);
+      }
 
       if (this.#routesLayer) {
         this.#routesLayer.eachLayer((layer) => {
@@ -595,7 +622,8 @@ export class AdminView {
             layer.feature &&
             layer.getTooltip &&
             (layer.feature.properties?.name === this.#originalRouteName ||
-              layer.feature.properties?.id === this.#editingRouteId)
+              layer.feature.properties?.id === this.#editingRouteId ||
+              String(layer.feature.id) === String(this.#editingRouteId))
           ) {
             const tooltip = layer.getTooltip();
             if (tooltip && tooltip._container) {
@@ -642,6 +670,7 @@ export class AdminView {
       if (allPoints.length > 0 && this.#map) {
         const bounds = L.latLngBounds(allPoints);
         if (bounds.isValid()) {
+          this.#map.invalidateSize();
           this.#map.fitBounds(bounds, { maxZoom: 17, padding: [50, 50] });
         }
       }
@@ -926,8 +955,8 @@ export class AdminView {
       const editBtn = document.createElement("button");
       editBtn.type = "button";
       editBtn.className = "btn-edit-item btn-edit-district";
-      editBtn.dataset.id = d.properties.id || d.properties.name;
-      editBtn.dataset.name = d.properties.name;
+      editBtn.dataset.id = d.properties?.id ?? d.id ?? d.properties?.name ?? '';
+      editBtn.dataset.name = d.properties?.name ?? '';
       editBtn.textContent = I18nService.getInstance().t(
         "admin.edit",
         {},
@@ -937,7 +966,8 @@ export class AdminView {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "btn-delete-item btn-delete-district";
-      deleteBtn.dataset.id = d.properties.id || d.properties.name;
+      deleteBtn.dataset.id = d.properties?.id ?? d.id ?? d.properties?.name ?? '';
+      deleteBtn.dataset.name = d.properties?.name ?? '';
       deleteBtn.textContent = I18nService.getInstance().t(
         "admin.delete",
         {},
@@ -1094,8 +1124,8 @@ export class AdminView {
         const editBtn = document.createElement("button");
         editBtn.type = "button";
         editBtn.className = "btn-edit-item btn-edit-route";
-        editBtn.dataset.id = r.properties.id || r.properties.name;
-        editBtn.dataset.name = r.properties.name;
+        editBtn.dataset.id = r.properties?.id ?? r.id ?? r.properties?.name ?? '';
+        editBtn.dataset.name = r.properties?.name ?? '';
         editBtn.textContent = I18nService.getInstance().t(
           "admin.edit",
           {},
@@ -1105,7 +1135,8 @@ export class AdminView {
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
         deleteBtn.className = "btn-delete-item btn-delete-route";
-        deleteBtn.dataset.id = r.properties.id || r.properties.name;
+        deleteBtn.dataset.id = r.properties?.id ?? r.id ?? r.properties?.name ?? '';
+        deleteBtn.dataset.name = r.properties?.name ?? '';
         deleteBtn.textContent = I18nService.getInstance().t(
           "admin.delete",
           {},
