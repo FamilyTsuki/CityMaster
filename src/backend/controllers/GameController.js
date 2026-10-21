@@ -1,371 +1,151 @@
-import fs from "fs/promises";
-import path from "path";
-import crypto from "crypto";
-import { fileURLToPath } from "url";
-import { encrypt, decrypt, getDistanceToStreet, isPlaceStreet } from "../utils/game.js";
-import { Score } from "../models/Score.js";
-import pool from "../config/database.js";
+import crypto from 'crypto';
+import pool, { isDatabaseEnabled } from '../config/database.js';
+import { isValidCityKey } from '../config/paths.js';
+import { encryptGameToken, decryptGameToken, getDistanceToStreet } from '../utils/game.js';
+import { Score } from '../models/Score.js';
+import {
+  getPlayableStreets,
+  pickStreets,
+  seededRandom,
+} from '../services/CityStreetsService.js';
+import {
+  GAME_MODES,
+  GAME_DIFFICULTIES,
+  evaluateRound,
+  buildRoundFeedback,
+  getRoundTimeLimit,
+  normalizeSeriesCount,
+} from '../../services/ScoringService.js';
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
+/**
+ * Une partie est entièrement décrite par un jeton chiffré (voir utils/game.js)
+ * que le client renvoie à chaque manche : le serveur ne stocke pas les parties.
+ *
+ * Pour qu'un même jeton ne puisse pas être rejoué (connaître la réponse puis
+ * renvoyer le même jeton, ou double envoi après une coupure réseau), le
+ * résultat de la dernière manche traitée de chaque partie est gardé en mémoire :
+ * - même jeton renvoyé  -> même réponse, sans recalcul ni nouveau score ;
+ * - jeton plus ancien   -> refusé (409).
+ * Ce cache est perdu au redémarrage du serveur.
+ */
+const ROUND_CACHE_TTL_MS = 2 * 60 * 60 * 1000;
+const ROUND_CACHE_MAX_ENTRIES = 2000;
+const processedRounds = new Map();
 
-import * as turf from "@turf/turf";
-import { readDifficultyOverridesFile } from "./AdminController.js";
-import { RouteDifficultyService } from "../../services/RouteDifficultyService.js";
+const MAX_TEST_NUMBER = 2147483647;
+
+function rememberRound(gameId, round, response) {
+  processedRounds.delete(gameId);
+  processedRounds.set(gameId, { round, response, expiresAt: Date.now() + ROUND_CACHE_TTL_MS });
+  while (processedRounds.size > ROUND_CACHE_MAX_ENTRIES) {
+    processedRounds.delete(processedRounds.keys().next().value);
+  }
+}
+
+function getProcessedRound(gameId) {
+  const entry = processedRounds.get(gameId);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) {
+    processedRounds.delete(gameId);
+    return null;
+  }
+  return entry;
+}
+
+function parseTestNumber(value) {
+  return Number.isInteger(value) && value > 0 && value <= MAX_TEST_NUMBER ? value : null;
+}
+
+function buildPrompt(session) {
+  const street = session.streets[session.currentRound];
+  const prompt = {
+    roundIndex: session.currentRound,
+    totalRounds: session.streets.length,
+    mode: session.mode,
+    timeLimit: getRoundTimeLimit(street.difficulty),
+  };
+  if (session.mode === 'identify') {
+    prompt.geometry = street.geometry;
+  } else {
+    prompt.streetName = street.name;
+  }
+  return prompt;
+}
+
+/**
+ * Paramètres imposés par le salon associé à un numéro de test, s'il existe.
+ */
+async function findRoomSettings(testNumber) {
+  if (!testNumber || !isDatabaseEnabled()) return null;
+  const result = await pool.query(
+    'SELECT city_key, mode, difficulty, series_count FROM rooms WHERE test_id = $1 ORDER BY created_at DESC LIMIT 1',
+    [testNumber],
+  );
+  return result.rows[0] || null;
+}
+
+function getSecret(res) {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    res.status(500).json({ error: 'Server security configuration error' });
+    return null;
+  }
+  return secret;
+}
 
 export class GameController {
   static async startGame(req, res) {
     try {
-      let { cityKey, mode, difficulty, testNumber, seriesCount } = req.body;
-      if (!mode) mode = "target";
-      if (!difficulty) difficulty = "hard";
+      const secret = getSecret(res);
+      if (!secret) return;
 
-      const parsedCount = parseInt(seriesCount, 10);
-      const targetSeries =
-        !isNaN(parsedCount) && parsedCount >= 1 && parsedCount <= 50
-          ? parsedCount
-          : 5;
+      const body = req.body || {};
+      const testNumber = parseTestNumber(body.testNumber);
+      let cityKey = body.cityKey;
+      let mode = GAME_MODES.includes(body.mode) ? body.mode : 'target';
+      let difficulty = GAME_DIFFICULTIES.includes(body.difficulty) ? body.difficulty : 'hard';
+      let seriesCount = normalizeSeriesCount(body.seriesCount);
+
+      const room = await findRoomSettings(testNumber);
+      if (room) {
+        cityKey = room.city_key;
+        if (GAME_MODES.includes(room.mode)) mode = room.mode;
+        if (GAME_DIFFICULTIES.includes(room.difficulty)) difficulty = room.difficulty;
+        seriesCount = normalizeSeriesCount(room.series_count, seriesCount);
+      }
 
       if (!cityKey) {
-        return res.status(400).json({ error: "cityKey is required" });
+        return res.status(400).json({ error: 'cityKey is required' });
+      }
+      if (!isValidCityKey(cityKey)) {
+        return res.status(400).json({ error: 'Invalid cityKey' });
       }
 
-      if (!/^[a-z0-9_]+$/.test(cityKey)) {
-        return res.status(400).json({ error: "Invalid cityKey" });
+      const playable = await getPlayableStreets(cityKey);
+      if (!playable) {
+        return res.status(404).json({ error: 'City data not found.' });
+      }
+      if (playable.streets.length === 0) {
+        return res.status(400).json({ error: 'No streets found for this city.' });
       }
 
-      const filePath = path.join(
-        dirname,
-        "..",
-        "..",
-        "..",
-        "public",
-        "assets",
-        "data",
-        `${cityKey}.json`,
-      );
-      let geojson;
-      try {
-        const fileContent = await fs.readFile(filePath, "utf8");
-        geojson = JSON.parse(fileContent);
-      } catch (err) {
-        return res.status(404).json({ error: "City data not found." });
-      }
-
-      let customDistricts = [];
-      try {
-        const districtsFilePath = path.join(
-          process.cwd(),
-          "public",
-          "assets",
-          "data",
-          "custom_districts.json",
-        );
-        const content = await fs.readFile(districtsFilePath, "utf8");
-        const customDistrictsObj = JSON.parse(content);
-        customDistricts = customDistrictsObj[cityKey] || [];
-      } catch (err) {}
-
-      let customRoutes = [];
-      try {
-        const routesFilePath = path.join(
-          process.cwd(),
-          "public",
-          "assets",
-          "data",
-          "custom_routes.json",
-        );
-        const routesContent = await fs.readFile(routesFilePath, "utf8");
-        const customRoutesObj = JSON.parse(routesContent);
-        customRoutes = customRoutesObj[cityKey] || [];
-      } catch (err) {}
-
-      const overridden = new Set();
-      const deleted = new Set();
-      [...customDistricts, ...customRoutes].forEach((f) => {
-        if (!f || !f.properties) return;
-        if (f.properties.isDeleted) {
-          if (f.properties.id) deleted.add(f.properties.id);
-          if (f.properties.name) deleted.add(f.properties.name);
-          if (f.properties.originalName) deleted.add(f.properties.originalName);
-        } else {
-          if (f.properties.id) overridden.add(f.properties.id);
-          if (f.properties.name) overridden.add(f.properties.name);
-          if (f.properties.originalName)
-            overridden.add(f.properties.originalName);
-        }
-      });
-
-      const activeCustom = [...customDistricts, ...customRoutes].filter(
-        (f) =>
-          f &&
-          f.properties &&
-          !f.properties.isDeleted &&
-          typeof f.properties.name === "string" &&
-          f.properties.name.trim().length > 0,
-      );
-
-      const filteredDefaults = geojson.features.filter((f) => {
-        if (
-          !f ||
-          !f.properties ||
-          typeof f.properties.name !== "string" ||
-          f.properties.name.trim().length === 0
-        ) {
-          return false;
-        }
-        if (f.geometry?.type !== "Point") {
-          try {
-            const len = turf.length(f, { units: "meters" });
-            if (len > 0 && len < 15) return false;
-          } catch (e) {}
-        }
-        const id = f.properties.id;
-        const name = f.properties.name;
-        if (id && (deleted.has(id) || overridden.has(id))) return false;
-        if (name && (deleted.has(name) || overridden.has(name))) return false;
-        return true;
-      });
-
-      const allCityStreets = [...filteredDefaults, ...activeCustom];
-
-      if (allCityStreets.length === 0) {
-        return res
-          .status(400)
-          .json({ error: "No streets found for this city." });
-      }
-
-      let diffMode = "length";
-      let disablePlaces = false;
-      try {
-        const modeRes = await pool.query(
-          "SELECT key, value FROM global_settings WHERE key IN ('difficulty_mode', 'disable_places')",
-        );
-        for (const row of modeRes.rows) {
-          if (row.key === "difficulty_mode") diffMode = row.value;
-          if (row.key === "disable_places") disablePlaces = row.value === "true";
-        }
-      } catch (e) {}
-
-      let centroids = [];
-      if (diffMode === "center") {
-        centroids = allCityStreets.map((f) => {
-          if (f.geometry.type === "Point") return f;
-          try {
-            return turf.centroid(f);
-          } catch (e) {
-            return null;
-          }
-        });
-      }
-
-      let difficultyOverrides = {};
-      try {
-        const allDiffData = await readDifficultyOverridesFile(cityKey);
-        difficultyOverrides = allDiffData[cityKey] || {};
-      } catch (e) {}
-
-      const uniqueStreetsMap = new Map();
-      allCityStreets.forEach((street, index) => {
-        const nameKey = street.properties.name.toLowerCase().trim();
-        if (!uniqueStreetsMap.has(nameKey)) {
-          street.computedDifficulty = RouteDifficultyService.getRouteDifficulty(
-            street,
-            {
-              diffMode,
-              overrides: difficultyOverrides,
-              centroids,
-              index,
-            },
-          );
-          uniqueStreetsMap.set(nameKey, street);
-        } else {
-          const existing = uniqueStreetsMap.get(nameKey);
-          const origNameLower = (street.properties?.originalName || "")
-            .toLowerCase()
-            .trim();
-          const hasOverride =
-            difficultyOverrides[nameKey] ||
-            (origNameLower ? difficultyOverrides[origNameLower] : null);
-          if (
-            !hasOverride &&
-            street.properties?.difficulty &&
-            ["easy", "medium", "hard"].includes(street.properties.difficulty) &&
-            existing.computedDifficulty !== street.properties.difficulty
-          ) {
-            existing.computedDifficulty = street.properties.difficulty;
-          }
-        }
-      });
-      let uniqueStreetsList = Array.from(uniqueStreetsMap.values());
-      if (disablePlaces) {
-        const filtered = uniqueStreetsList.filter((s) => !isPlaceStreet(s));
-        if (filtered.length >= 5) {
-          uniqueStreetsList = filtered;
-        }
-      }
-
-      let selectedStreets = [];
-
-      if (testNumber && typeof testNumber === "number") {
-        let roomSeriesCount = targetSeries;
-        let roomDiff = difficulty;
-        try {
-          const roomRes = await pool.query(
-            "SELECT series_count, difficulty FROM rooms WHERE test_id = $1",
-            [testNumber],
-          );
-          if (roomRes.rows.length > 0) {
-            if (roomRes.rows[0].series_count)
-              roomSeriesCount = roomRes.rows[0].series_count;
-            if (roomRes.rows[0].difficulty)
-              roomDiff = roomRes.rows[0].difficulty;
-          }
-        } catch (e) {
-          console.error("Error fetching series_count/difficulty for room:", e);
-        }
-
-        const mulberry32 = (a) => {
-          return function () {
-            var t = (a += 0x6d2b79f5);
-            t = Math.imul(t ^ (t >>> 15), t | 1);
-            t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-            return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-          };
-        };
-        const random = mulberry32(testNumber);
-
-        const shuffleSeeded = (array) => {
-          let currentIndex = array.length,
-            randomIndex;
-          while (currentIndex > 0) {
-            randomIndex = Math.floor(random() * currentIndex);
-            currentIndex--;
-            [array[currentIndex], array[randomIndex]] = [
-              array[randomIndex],
-              array[currentIndex],
-            ];
-          }
-          return array;
-        };
-
-        const matchingStreets = uniqueStreetsList.filter((s) => {
-          if (roomDiff === "lotissement")
-            return s.properties.isCustom && s.properties.isLotissement;
-          return s.computedDifficulty === roomDiff;
-        });
-
-        const getSortedFallback = (targetD, shuffler) => {
-          let primaryFallback = [];
-          let secondaryFallback = [];
-          if (targetD === "easy") {
-            primaryFallback = uniqueStreetsList.filter(
-              (s) => s.computedDifficulty === "medium",
-            );
-            secondaryFallback = uniqueStreetsList.filter(
-              (s) => s.computedDifficulty === "hard",
-            );
-          } else if (targetD === "hard") {
-            primaryFallback = uniqueStreetsList.filter(
-              (s) => s.computedDifficulty === "medium",
-            );
-            secondaryFallback = uniqueStreetsList.filter(
-              (s) => s.computedDifficulty === "easy",
-            );
-          } else {
-            primaryFallback = uniqueStreetsList.filter(
-              (s) => s.computedDifficulty === "easy",
-            );
-            secondaryFallback = uniqueStreetsList.filter(
-              (s) => s.computedDifficulty === "hard",
-            );
-          }
-          shuffler(primaryFallback);
-          shuffler(secondaryFallback);
-          return [...primaryFallback, ...secondaryFallback];
-        };
-
-        const fallbackStreets = getSortedFallback(roomDiff, shuffleSeeded);
-
-        shuffleSeeded(matchingStreets);
-
-        selectedStreets = [...matchingStreets, ...fallbackStreets].slice(
-          0,
-          roomSeriesCount,
-        );
-
-        if (selectedStreets.length < roomSeriesCount) {
-          return res
-            .status(400)
-            .json({ error: "not_enough_streets_difficulty" });
-        }
-      } else {
-        const matchingStreets = uniqueStreetsList.filter((s) => {
-          if (difficulty === "lotissement")
-            return s.properties.isCustom && s.properties.isLotissement;
-          return s.computedDifficulty === difficulty;
-        });
-
-        const shuffleArray = (arr) => {
-          for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-          }
-        };
-
-        let primaryFallback = [];
-        let secondaryFallback = [];
-        if (difficulty === "easy") {
-          primaryFallback = uniqueStreetsList.filter(
-            (s) => s.computedDifficulty === "medium",
-          );
-          secondaryFallback = uniqueStreetsList.filter(
-            (s) => s.computedDifficulty === "hard",
-          );
-        } else if (difficulty === "hard") {
-          primaryFallback = uniqueStreetsList.filter(
-            (s) => s.computedDifficulty === "medium",
-          );
-          secondaryFallback = uniqueStreetsList.filter(
-            (s) => s.computedDifficulty === "easy",
-          );
-        } else {
-          primaryFallback = uniqueStreetsList.filter(
-            (s) => s.computedDifficulty === "easy",
-          );
-          secondaryFallback = uniqueStreetsList.filter(
-            (s) => s.computedDifficulty === "hard",
-          );
-        }
-        shuffleArray(primaryFallback);
-        shuffleArray(secondaryFallback);
-        const fallbackStreets = [...primaryFallback, ...secondaryFallback];
-
-        shuffleArray(matchingStreets);
-
-        selectedStreets = [...matchingStreets, ...fallbackStreets].slice(
-          0,
-          targetSeries,
-        );
-
-        if (selectedStreets.length < targetSeries) {
-          return res
-            .status(400)
-            .json({ error: "not_enough_streets_difficulty" });
-        }
+      const random = testNumber ? seededRandom(testNumber) : Math.random;
+      const selected = pickStreets(playable.streets, difficulty, seriesCount, random);
+      if (selected.length < seriesCount) {
+        return res.status(400).json({ error: 'not_enough_streets_difficulty' });
       }
 
       const session = {
         gameId: crypto.randomUUID(),
         username: req.user.username,
         mode,
-        difficulty: testNumber ? "competition" : difficulty,
-        testNumber: testNumber || null,
-        streets: selectedStreets.map((s, idx) => ({
+        difficulty: testNumber ? 'competition' : difficulty,
+        testNumber,
+        streets: selected.map(({ feature, difficulty: streetDifficulty }, idx) => ({
           id: idx,
-          name: s.properties.name,
-          geometry: s.geometry,
-          difficulty: s.computedDifficulty,
+          name: feature.properties.name,
+          geometry: feature.geometry,
+          difficulty: streetDifficulty,
         })),
         currentRound: 0,
         streakCount: 0,
@@ -373,273 +153,107 @@ export class GameController {
         sprintHistory: [],
       };
 
-      const secret = process.env.JWT_SECRET;
-      if (!secret) {
-        return res
-          .status(500)
-          .json({ error: "Server security configuration error" });
-      }
-
-      const gameToken = encrypt(JSON.stringify(session), secret);
-      const currentStreet = session.streets[0];
-      const nextPrompt = {
-        roundIndex: 0,
-        totalRounds: session.streets.length,
-        mode: session.mode,
-      };
-
-      if (mode === "target" || mode === "sprint") {
-        nextPrompt.streetName = currentStreet.name;
-      } else if (mode === "identify") {
-        nextPrompt.geometry = currentStreet.geometry;
-      }
-
       return res.json({
-        gameToken,
-        nextPrompt,
-        disablePlaces,
+        gameToken: encryptGameToken(session, secret),
+        nextPrompt: buildPrompt(session),
+        disablePlaces: playable.disablePlaces,
         isFinished: false,
       });
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Internal server error starting game" });
+      console.error('GameController startGame error:', error);
+      return res.status(500).json({ error: 'Internal server error starting game' });
     }
   }
 
   static async submitRound(req, res) {
     try {
-      const { gameToken, guess, elapsedSeconds } = req.body;
-      if (!gameToken) {
-        return res.status(400).json({ error: "gameToken is required" });
-      }
+      const secret = getSecret(res);
+      if (!secret) return;
 
-      const secret = process.env.JWT_SECRET;
-      if (!secret) {
-        return res
-          .status(500)
-          .json({ error: "Server security configuration error" });
+      const { gameToken, guess, elapsedSeconds } = req.body || {};
+      if (!gameToken) {
+        return res.status(400).json({ error: 'gameToken is required' });
       }
 
       let session;
       try {
-        session = JSON.parse(decrypt(gameToken, secret));
-      } catch (err) {
-        return res.status(400).json({ error: "Invalid or tampered gameToken" });
+        session = decryptGameToken(gameToken, secret);
+      } catch {
+        return res
+          .status(400)
+          .json({ error: 'Invalid or tampered gameToken', code: 'INVALID_GAME_TOKEN' });
       }
 
       if (session.username !== req.user.username) {
         return res
           .status(403)
-          .json({ error: "Game session does not belong to you" });
+          .json({ error: 'Game session does not belong to you', code: 'GAME_SESSION_MISMATCH' });
+      }
+
+      const processed = getProcessedRound(session.gameId);
+      if (processed && processed.round === session.currentRound) {
+        return res.json(processed.response);
+      }
+      if (processed && processed.round > session.currentRound) {
+        return res
+          .status(409)
+          .json({ error: 'This round has already been played', code: 'STALE_GAME_TOKEN' });
       }
 
       if (session.currentRound >= session.streets.length) {
-        return res.status(400).json({ error: "Game is already finished" });
+        return res.status(400).json({ error: 'Game is already finished', code: 'GAME_FINISHED' });
       }
 
-      if (session.streakCount === undefined) {
-        session.streakCount = 0;
-      }
-
-      const currentStreet = session.streets[session.currentRound];
+      const roundIndex = session.currentRound;
+      const currentStreet = session.streets[roundIndex];
       const mode = session.mode;
-      const effectiveDifficulty =
-        session.difficulty === "competition"
-          ? currentStreet.difficulty
-          : session.difficulty;
-      const totalTime =
-        effectiveDifficulty === "easy"
-          ? 45
-          : effectiveDifficulty === "medium" ||
-              effectiveDifficulty === "lotissement"
-            ? 60
-            : 90;
-      const remainingTime = Math.max(0, totalTime - (elapsedSeconds || 0));
+      const hasGuess = guess && typeof guess.lat === 'number' && typeof guess.lng === 'number';
 
-      let pointsEarned = 0;
-      let isCorrect = false;
-      let distance = -1;
-      let message = "";
-      let feedback = {
-        correctName: currentStreet.name,
-        geometry: currentStreet.geometry,
-      };
+      const result = evaluateRound({
+        mode,
+        streetName: currentStreet.name,
+        distanceMeters:
+          mode !== 'identify' && hasGuess
+            ? getDistanceToStreet(guess.lat, guess.lng, currentStreet.geometry)
+            : null,
+        answer: guess,
+        elapsedSeconds,
+        timeLimit: getRoundTimeLimit(currentStreet.difficulty),
+        streakCount: session.streakCount || 0,
+      });
+      const feedback = buildRoundFeedback(result, currentStreet);
 
-      if (mode === "target" || mode === "sprint") {
-        if (
-          !guess ||
-          typeof guess.lat !== "number" ||
-          typeof guess.lng !== "number"
-        ) {
-          distance = -1;
-          pointsEarned = 0;
-          isCorrect = false;
-          feedback.code = remainingTime <= 0 ? "timeout_guess" : "passed";
-          message =
-            remainingTime <= 0
-              ? "Temps écoulé ! Vous n'avez pas sélectionné d'emplacement."
-              : "Passé.";
-        } else {
-          distance = getDistanceToStreet(
-            guess.lat,
-            guess.lng,
-            currentStreet.geometry,
-          );
-          feedback.distance = Math.round(distance);
-          if (distance <= 15) {
-            pointsEarned = 100;
-            isCorrect = true;
-            feedback.code = "perfect";
-            message = "Parfait ! Vous êtes exactement sur la rue.";
-          } else if (distance <= 100) {
-            const ratio = 1 - (distance - 15) / 85;
-            pointsEarned = Math.round(10 + 40 * ratio);
-            isCorrect = true;
-            feedback.code = "near";
-            message = `Pas mal ! Vous êtes à ${Math.round(distance)}m de la rue.`;
-          } else {
-            pointsEarned = 0;
-            isCorrect = false;
-            feedback.code = "miss";
-            message = `Raté. Vous étiez à ${Math.round(distance)}m. Voici le véritable emplacement.`;
-          }
-
-          let timeBonus = 0;
-          if (pointsEarned > 0 && remainingTime > 0) {
-            const timeRatio = remainingTime / totalTime;
-            if (mode === "sprint") {
-              timeBonus = Math.round(timeRatio * 100);
-            } else {
-              timeBonus = Math.round(timeRatio * 30);
-            }
-            if (timeBonus > 0) {
-              pointsEarned += timeBonus;
-              feedback.timeBonus = timeBonus;
-              message += ` Bonus de temps : +${timeBonus} pts.`;
-            }
-          }
-        }
-
-        if (mode === "sprint") {
-          session.sprintHistory.push({
-            name: currentStreet.name,
-            distance: distance === -1 ? -1 : Math.round(distance),
-            points: pointsEarned,
-            timeBonus: feedback.timeBonus || 0,
-          });
-        }
-      } else if (mode === "identify") {
-        const normalize = (str) =>
-          typeof str === "string"
-            ? str
-                .toLowerCase()
-                .replace(/^(le|la|les|l'|d'|du|de|des)\s+/, "")
-                .replace(/[^a-z0-9]/g, "")
-                .trim()
-            : "";
-        const cleanAnswer = normalize(guess);
-        const cleanCorrect = normalize(currentStreet.name);
-
-        isCorrect =
-          cleanAnswer.length > 0 &&
-          (cleanAnswer === cleanCorrect || cleanCorrect.includes(cleanAnswer));
-        if (isCorrect) {
-          pointsEarned = 15;
-          feedback.code = "identify_correct";
-          message = `Bonne réponse ! C'était bien : ${currentStreet.name}`;
-
-          let timeBonus = 0;
-          if (remainingTime > 0) {
-            timeBonus = Math.round((remainingTime / totalTime) * 10);
-            if (timeBonus > 0) {
-              pointsEarned += timeBonus;
-              feedback.timeBonus = timeBonus;
-              message += ` Bonus de temps : +${timeBonus} pts.`;
-            }
-          }
-        } else {
-          pointsEarned = 0;
-          feedback.code =
-            remainingTime <= 0 ? "identify_timeout" : "identify_false";
-          message =
-            remainingTime <= 0
-              ? `Temps écoulé ! La bonne réponse était : ${currentStreet.name}`
-              : `Faux. La bonne réponse était : ${currentStreet.name}`;
-        }
+      if (mode === 'sprint') {
+        session.sprintHistory.push({
+          name: currentStreet.name,
+          distance: result.distance,
+          points: result.pointsEarned,
+          timeBonus: result.timeBonus,
+        });
       }
-
-      if (isCorrect) {
-        session.streakCount++;
-      } else {
-        session.streakCount = 0;
-      }
-
-      let multiplier = 1;
-      if (session.streakCount >= 3) {
-        multiplier = 3;
-      } else if (session.streakCount === 2) {
-        multiplier = 2;
-      }
-
-      if (pointsEarned > 0 && multiplier > 1) {
-        pointsEarned *= multiplier;
-        message += ` (Combo x${multiplier} !)`;
-      }
-
-      feedback.streakCount = session.streakCount;
-      feedback.multiplier = multiplier;
-      feedback.pointsEarned = pointsEarned;
-      feedback.message = message + ` (+${pointsEarned} pts)`;
-      feedback.isCorrect = isCorrect;
-      feedback.distance = distance === -1 ? -1 : Math.round(distance);
-
-      session.scores.push(pointsEarned);
+      session.streakCount = result.streakCount;
+      session.scores.push(result.pointsEarned);
       session.currentRound++;
 
       const isFinished = session.currentRound >= session.streets.length;
-      let nextPrompt = null;
-      let finalScore = 0;
-      let newGameToken = null;
-
-      if (!isFinished) {
-        const nextStreet = session.streets[session.currentRound];
-        nextPrompt = {
-          roundIndex: session.currentRound,
-          totalRounds: session.streets.length,
-          mode: session.mode,
-        };
-        if (mode === "target" || mode === "sprint") {
-          nextPrompt.streetName = nextStreet.name;
-        } else if (mode === "identify") {
-          nextPrompt.geometry = nextStreet.geometry;
-        }
-        newGameToken = encrypt(JSON.stringify(session), secret);
-      } else {
-        finalScore = session.scores.reduce((a, b) => a + b, 0);
-        if (finalScore > 0) {
-          await Score.create(
-            session.username,
-            finalScore,
-            session.difficulty,
-            null,
-            session.testNumber,
-          );
-        }
+      const totalScore = session.scores.reduce((a, b) => a + b, 0);
+      if (isFinished && totalScore > 0) {
+        await Score.create(session.username, totalScore, session.difficulty, null, session.testNumber);
       }
 
-      return res.json({
-        gameToken: newGameToken,
+      const response = {
+        gameToken: isFinished ? null : encryptGameToken(session, secret),
         feedback,
-        nextPrompt,
+        nextPrompt: isFinished ? null : buildPrompt(session),
         isFinished,
-        totalScore: finalScore,
+        totalScore,
         sprintHistory: session.sprintHistory,
-      });
+      };
+      rememberRound(session.gameId, roundIndex, response);
+      return res.json(response);
     } catch (error) {
-      return res
-        .status(500)
-        .json({ error: "Internal server error submitting round" });
+      console.error('GameController submitRound error:', error);
+      return res.status(500).json({ error: 'Internal server error submitting round' });
     }
   }
 }

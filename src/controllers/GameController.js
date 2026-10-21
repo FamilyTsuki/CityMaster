@@ -10,12 +10,28 @@ import { NetworkService } from "../services/NetworkService.js";
 import { StorageService } from "../services/StorageService.js";
 import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
 import { HapticService } from "../services/HapticService.js";
+import {
+  DEFAULT_SERIES_COUNT,
+  buildRoundFeedback,
+  evaluateRound,
+  getRoundTimeLimit,
+} from "../services/ScoringService.js";
+
+const OFFLINE_GAME_TOKEN = "offline_token";
+
+// Erreurs du serveur qui rendent la partie sauvegardée inutilisable
+// (jeton expiré ou modifié, partie d'un autre compte, manche déjà jouée...).
+const INVALID_SESSION_CODES = [
+  "INVALID_GAME_TOKEN",
+  "GAME_SESSION_MISMATCH",
+  "STALE_GAME_TOKEN",
+  "GAME_FINISHED",
+];
 
 export class GameController {
   #gameView;
   #mapView;
   #certificateView;
-  #scoreController;
   #spatialService;
   #overpassService;
   #session;
@@ -25,7 +41,6 @@ export class GameController {
   #hasPlacedMarker;
   #currentStepState;
   #allCityStreets;
-  #activeAbortController;
   #timerInterval;
   #totalTime;
   #remainingTime;
@@ -42,14 +57,12 @@ export class GameController {
     gameView,
     mapView,
     certificateView,
-    scoreController,
     router,
     audioService,
   ) {
     this.#gameView = gameView;
     this.#mapView = mapView;
     this.#certificateView = certificateView;
-    this.#scoreController = scoreController;
     this.#router = router;
     this.#audioService = audioService;
     this.#spatialService = new SpatialService();
@@ -58,7 +71,6 @@ export class GameController {
     this.#hasPlacedMarker = false;
     this.#currentStepState = "guessing";
     this.#allCityStreets = [];
-    this.#activeAbortController = null;
     this.#timerInterval = null;
     this.#totalTime = 90;
     this.#remainingTime = 0;
@@ -227,7 +239,10 @@ export class GameController {
             );
             return diff === "hard" || d === diff;
           });
-          const targetNeeded = Math.min(seriesCount || 5, eligibleStreets.length);
+          const targetNeeded = Math.min(
+            seriesCount || DEFAULT_SERIES_COUNT,
+            eligibleStreets.length,
+          );
           if (matching.length >= targetNeeded) {
             eligibleStreets = matching;
           } else {
@@ -250,7 +265,7 @@ export class GameController {
         }
 
         const targetCount = Math.min(
-          seriesCount || 10,
+          seriesCount || DEFAULT_SERIES_COUNT,
           eligibleStreets.length,
         );
         const shuffled = [...eligibleStreets].sort(() => 0.5 - Math.random());
@@ -263,20 +278,9 @@ export class GameController {
           throw new Error(i18n.t("errors.network_error"));
         }
 
-        const firstPrompt = {
-          roundIndex: 0,
-          totalRounds: this.#offlineStreets.length,
-          mode,
-        };
-        if (mode === "target" || mode === "sprint") {
-          firstPrompt.streetName = this.#offlineStreets[0].properties.name;
-        } else if (mode === "identify") {
-          firstPrompt.geometry = this.#offlineStreets[0].geometry;
-        }
-
         startData = {
-          gameToken: "offline_token",
-          nextPrompt: firstPrompt,
+          gameToken: OFFLINE_GAME_TOKEN,
+          nextPrompt: this.#buildOfflinePrompt(0, mode, diff),
           isFinished: false,
         };
       } else {
@@ -338,9 +342,15 @@ export class GameController {
           bbox,
           hideLabels,
         );
-        const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey);
+        const streetsPromise = this.#overpassService.fetchStreets(bbox, cityKey, {
+          key: cityKey,
+          name: cityData.name || cityKey,
+          bbox: bbox || cityData.bbox,
+          center: center || cityData.center,
+          osmId: cityData.osmId || cityData.osm_id,
+        });
 
-        const [_, loadedGeojson, customDistricts, customRoutes] =
+        const [, loadedGeojson, customDistricts, customRoutes] =
           await Promise.all([
             mapReadyPromise,
             streetsPromise,
@@ -355,15 +365,6 @@ export class GameController {
           customRoutes,
         );
 
-        if (geojson && geojson.features && geojson.features.length > 0) {
-          StorageService.setCity(cityKey, geojson, {
-            key: cityKey,
-            name: cityData.name || cityKey,
-            bbox: bbox || cityData.bbox,
-            center: center || cityData.center,
-            osmId: cityData.osmId || cityData.osm_id,
-          }).catch(() => {});
-        }
       }
 
       if (diff === "lotissement" || difficulty === "lotissement") {
@@ -403,9 +404,9 @@ export class GameController {
       this.#mapView.invalidateSize();
       this.#loadNextQuestion();
       if (this.roomCode) {
-        this.#router.navigate(`/room/${this.roomCode}/play`, true);
+        this.#router.navigate(`/room/${this.roomCode}/play`);
       } else {
-        this.#router.navigate("/play", true);
+        this.#router.navigate("/play");
       }
     } catch (error) {
       const i18n = I18nService.getInstance();
@@ -442,26 +443,7 @@ export class GameController {
           if (this.#session.currentMode === "target") {
             this.#validateGuess(true);
           } else if (this.#session.currentMode === "sprint") {
-            this.#submitRoundToBackend(null, this.#totalTime)
-              .then((result) => {
-                this.#session.gameToken = result.gameToken;
-                this.#session.score = result.totalScore;
-                this.#session.sprintHistory = result.sprintHistory;
-                this.#session.setFinished(result.isFinished);
-                this.#session.nextPrompt = result.nextPrompt;
-                this.#lastFeedback = result.feedback;
-
-                this.#saveState();
-
-                if (result.isFinished) {
-                  this.#endGame();
-                } else {
-                  this.#loadNextQuestion();
-                }
-              })
-              .catch((err) => {
-                this.#gameView.showError(err.message);
-              });
+            this.#submitSprintRound(null, this.#totalTime, false);
           } else {
             this.#checkTextAnswer("", true);
           }
@@ -475,15 +457,13 @@ export class GameController {
   #startRoundTimer() {
     this.#stopRoundTimer();
 
-    const difficulty =
-      localStorage.getItem("citymaster_last_difficulty") || "hard";
-    if (difficulty === "easy") {
-      this.#totalTime = 45;
-    } else if (difficulty === "medium" || difficulty === "lotissement") {
-      this.#totalTime = 60;
-    } else {
-      this.#totalTime = 90;
-    }
+    // La durée vient du serveur (même valeur que celle utilisée pour le score) ;
+    // à défaut, elle est déduite de la difficulté de la partie.
+    const promptLimit = this.#session?.currentPrompt?.timeLimit;
+    this.#totalTime =
+      typeof promptLimit === "number" && promptLimit > 0
+        ? promptLimit
+        : getRoundTimeLimit(this.#session?.difficulty);
 
     this.#remainingTime = this.#totalTime;
     this.#gameView.showTimer();
@@ -527,7 +507,19 @@ export class GameController {
   }
 
   hasActiveSession() {
-    return this.#session !== null;
+    return (
+      this.#session !== null &&
+      this.#session.playerName === localStorage.getItem("username")
+    );
+  }
+
+  /**
+   * Abandonne la partie en cours (déconnexion, changement de compte).
+   */
+  abandonSession() {
+    this.#stopRoundTimer();
+    this.roomCode = null;
+    this.#clearState();
   }
 
   resumeGame() {
@@ -535,7 +527,14 @@ export class GameController {
     if (!savedState) return false;
 
     this.#session = GameSession.deserialize(savedState);
-    if (!this.#session) {
+    // Une partie hors-ligne ne peut pas être reprise : ses rues ne sont pas
+    // sauvegardées et son jeton n'est pas reconnu par le serveur. Une partie
+    // d'un autre compte ne doit pas non plus être reprise.
+    if (
+      !this.#session ||
+      this.#session.gameToken === OFFLINE_GAME_TOKEN ||
+      this.#session.playerName !== localStorage.getItem("username")
+    ) {
       this.#clearState();
       return false;
     }
@@ -572,7 +571,7 @@ export class GameController {
       customDistrictsPromise,
       customRoutesPromise,
     ])
-      .then(([_, geojson, customDistricts, customRoutes]) => {
+      .then(([, geojson, customDistricts, customRoutes]) => {
         this.#allCityStreets = mergeCityStreets(
           geojson.features,
           customDistricts,
@@ -585,7 +584,7 @@ export class GameController {
         this.#gameView.showScreen("game");
         this.#mapView.invalidateSize();
         this.#loadNextQuestion();
-        this.#router.navigate("/play", true);
+        this.#router.navigate("/play");
       })
       .catch((err) => {
         console.error(
@@ -770,40 +769,7 @@ export class GameController {
       this.#stopRoundTimer();
       const elapsedSeconds = this.#totalTime - this.#remainingTime;
       const guess = selectedStreet ? { lat: targetLat, lng: targetLng } : null;
-
-      this.#submitRoundToBackend(guess, elapsedSeconds)
-        .then((result) => {
-          this.#session.gameToken = result.gameToken;
-          this.#session.score = result.totalScore;
-          this.#session.sprintHistory = result.sprintHistory;
-          this.#session.setFinished(result.isFinished);
-          this.#session.nextPrompt = result.nextPrompt;
-          this.#lastFeedback = result.feedback;
-
-          if (result.feedback) {
-            if (result.feedback.multiplier > 1) {
-              this.#audioService.playCombo(result.feedback.multiplier);
-              HapticService.combo(result.feedback.multiplier);
-            } else if (result.feedback.isCorrect) {
-              this.#audioService.playSuccess();
-              HapticService.success();
-            } else {
-              this.#audioService.playError();
-              HapticService.error();
-            }
-          }
-
-          this.#saveState();
-
-          if (result.isFinished) {
-            this.#endGame();
-          } else {
-            this.#loadNextQuestion();
-          }
-        })
-        .catch((err) => {
-          this.#gameView.showError(err.message);
-        });
+      this.#submitSprintRound(guess, elapsedSeconds, true);
       return;
     }
 
@@ -818,6 +784,76 @@ export class GameController {
     this.#gameView.setActionsState("validate");
   }
 
+  /**
+   * Manche du mode sprint : un clic (ou la fin du temps) envoie directement la réponse.
+   * L'état passe à "submitting" avant l'envoi : un double clic ou un clic au
+   * moment où le temps expire n'envoie qu'une seule réponse.
+   */
+  async #submitSprintRound(guess, elapsedSeconds, playFeedback) {
+    if (!this.#session || this.#currentStepState !== "guessing") return;
+    this.#currentStepState = "submitting";
+
+    try {
+      const result = await this.#submitRoundToBackend(guess, elapsedSeconds);
+      this.#session.gameToken = result.gameToken;
+      this.#session.score = result.totalScore;
+      this.#session.sprintHistory = result.sprintHistory;
+      this.#session.setFinished(result.isFinished);
+      this.#session.nextPrompt = result.nextPrompt;
+      this.#lastFeedback = result.feedback;
+
+      if (playFeedback && result.feedback) {
+        this.#playRoundFeedback(result.feedback);
+      }
+
+      this.#saveState();
+
+      if (result.isFinished) {
+        this.#endGame();
+      } else {
+        this.#loadNextQuestion();
+      }
+    } catch (err) {
+      this.#currentStepState = "guessing";
+      if (!this.#recoverFromInvalidSession(err)) {
+        this.#gameView.showError(err.message);
+      }
+    }
+  }
+
+  #playRoundFeedback(feedback) {
+    if (feedback.multiplier > 1) {
+      this.#audioService.playCombo(feedback.multiplier);
+      HapticService.combo(feedback.multiplier);
+    } else if (feedback.isCorrect) {
+      this.#audioService.playSuccess();
+      HapticService.success();
+    } else {
+      this.#audioService.playError();
+      HapticService.error();
+    }
+  }
+
+  /**
+   * Si le serveur indique que la partie sauvegardée n'est plus valide, la partie
+   * est abandonnée proprement au lieu de laisser le joueur bloqué sur une erreur.
+   * @returns {boolean} true si l'erreur a été traitée.
+   */
+  #recoverFromInvalidSession(err) {
+    if (!INVALID_SESSION_CODES.includes(err?.code)) return false;
+    const roomCode = this.roomCode;
+    this.abandonSession();
+    this.#gameView.showError(
+      I18nService.getInstance().t(
+        "errors.game_session_invalid",
+        {},
+        "Cette partie n'est plus valide. Veuillez en lancer une nouvelle.",
+      ),
+    );
+    this.#router.navigate(roomCode ? `/room/${roomCode}` : "/setup");
+    return true;
+  }
+
   async #submitRoundToBackend(guess, elapsedSeconds) {
     if (this.#isOfflineGame) {
       return this.#evaluateOfflineRound(guess, elapsedSeconds);
@@ -830,187 +866,90 @@ export class GameController {
     });
 
     if (!res.ok) {
-      if (res.status === 401 || res.status === 403) {
+      const code = res.data?.code;
+      if (!code && (res.status === 401 || res.status === 403)) {
         this.#handleAuthError();
         throw new Error(I18nService.getInstance().t("errors.session_expired"));
       }
-      throw new Error(I18nService.getInstance().formatError(res.data?.error));
+      const error = new Error(
+        I18nService.getInstance().formatError(res.data?.error),
+      );
+      error.code = code;
+      throw error;
     }
 
     return res.data;
   }
 
+  #buildOfflinePrompt(roundIndex, mode, difficulty) {
+    const street = this.#offlineStreets[roundIndex];
+    const prompt = {
+      roundIndex,
+      totalRounds: this.#offlineStreets.length,
+      mode,
+      timeLimit: getRoundTimeLimit(difficulty),
+    };
+    if (mode === "identify") {
+      prompt.geometry = street.geometry;
+    } else {
+      prompt.streetName = street.properties.name;
+    }
+    return prompt;
+  }
+
   #evaluateOfflineRound(guess, elapsedSeconds) {
     const currentStreet = this.#offlineStreets[this.#offlineRoundIndex];
     const mode = this.#session.currentMode;
-    const totalTime = this.#totalTime;
-    const remainingTime = Math.max(0, totalTime - (elapsedSeconds || 0));
-
-    let pointsEarned = 0;
-    let isCorrect = false;
-    let distance = -1;
-    let message = "";
-    const streetName = currentStreet.properties?.name || "Rue";
-    const feedback = {
-      correctName: streetName,
+    const street = {
+      name: currentStreet.properties?.name || "Rue",
       geometry: currentStreet.geometry,
     };
+    const hasGuess =
+      guess && typeof guess.lat === "number" && typeof guess.lng === "number";
 
-    if (mode === "target" || mode === "sprint") {
-      if (
-        !guess ||
-        typeof guess.lat !== "number" ||
-        typeof guess.lng !== "number"
-      ) {
-        distance = -1;
-        pointsEarned = 0;
-        isCorrect = false;
-        feedback.code = remainingTime <= 0 ? "timeout_guess" : "passed";
-        message =
-          remainingTime <= 0
-            ? "Temps écoulé ! Vous n'avez pas sélectionné d'emplacement."
-            : "Passé.";
-      } else {
-        distance = this.#spatialService.getDistanceToStreet(
-          guess.lat,
-          guess.lng,
-          currentStreet,
-        );
-        feedback.distance = Math.round(distance);
-        if (distance <= 15) {
-          pointsEarned = 100;
-          isCorrect = true;
-          feedback.code = "perfect";
-          message = "Parfait ! Vous êtes exactement sur la rue.";
-        } else if (distance <= 100) {
-          const ratio = 1 - (distance - 15) / 85;
-          pointsEarned = Math.round(10 + 40 * ratio);
-          isCorrect = true;
-          feedback.code = "near";
-          message = `Pas mal ! Vous êtes à ${Math.round(distance)}m de la rue.`;
-        } else {
-          pointsEarned = 0;
-          isCorrect = false;
-          feedback.code = "miss";
-          message = `Raté. Vous étiez à ${Math.round(distance)}m. Voici le véritable emplacement.`;
-        }
+    const result = evaluateRound({
+      mode,
+      streetName: street.name,
+      distanceMeters:
+        mode !== "identify" && hasGuess
+          ? this.#spatialService.getDistanceToStreet(
+              guess.lat,
+              guess.lng,
+              currentStreet,
+            )
+          : null,
+      answer: guess,
+      elapsedSeconds,
+      timeLimit: this.#totalTime,
+      streakCount: this.#offlineStreakCount,
+    });
 
-        let timeBonus = 0;
-        if (pointsEarned > 0 && remainingTime > 0) {
-          const timeRatio = remainingTime / totalTime;
-          timeBonus = Math.round(
-            timeRatio * (mode === "sprint" ? 100 : 30),
-          );
-          if (timeBonus > 0) {
-            pointsEarned += timeBonus;
-            feedback.timeBonus = timeBonus;
-            message += ` Bonus de temps : +${timeBonus} pts.`;
-          }
-        }
-      }
-
-      if (mode === "sprint") {
-        this.#session.sprintHistory.push({
-          name: streetName,
-          distance: distance === -1 ? -1 : Math.round(distance),
-          points: pointsEarned,
-          timeBonus: feedback.timeBonus || 0,
-        });
-      }
-    } else if (mode === "identify") {
-      const normalize = (str) =>
-        typeof str === "string"
-          ? str
-              .toLowerCase()
-              .replace(/^(le|la|les|l'|d'|du|de|des)\s+/, "")
-              .replace(/[^a-z0-9]/g, "")
-              .trim()
-          : "";
-      const cleanAnswer = normalize(guess);
-      const cleanCorrect = normalize(streetName);
-
-      isCorrect =
-        cleanAnswer.length > 0 &&
-        (cleanAnswer === cleanCorrect || cleanCorrect.includes(cleanAnswer));
-
-      if (isCorrect) {
-        pointsEarned = 15;
-        feedback.code = "identify_correct";
-        message = `Bonne réponse ! C'était bien : ${streetName}`;
-
-        let timeBonus = 0;
-        if (remainingTime > 0) {
-          timeBonus = Math.round((remainingTime / totalTime) * 10);
-          if (timeBonus > 0) {
-            pointsEarned += timeBonus;
-            feedback.timeBonus = timeBonus;
-            message += ` Bonus de temps : +${timeBonus} pts.`;
-          }
-        }
-      } else {
-        pointsEarned = 0;
-        feedback.code =
-          remainingTime <= 0 ? "identify_timeout" : "identify_false";
-        message =
-          remainingTime <= 0
-            ? `Temps écoulé ! La bonne réponse était : ${streetName}`
-            : `Faux. La bonne réponse était : ${streetName}`;
-      }
+    if (mode === "sprint") {
+      this.#session.sprintHistory.push({
+        name: street.name,
+        distance: result.distance,
+        points: result.pointsEarned,
+        timeBonus: result.timeBonus,
+      });
     }
 
-    if (isCorrect) {
-      this.#offlineStreakCount++;
-    } else {
-      this.#offlineStreakCount = 0;
-    }
-
-    let multiplier = 1;
-    if (this.#offlineStreakCount >= 3) {
-      multiplier = 3;
-    } else if (this.#offlineStreakCount === 2) {
-      multiplier = 2;
-    }
-
-    if (pointsEarned > 0 && multiplier > 1) {
-      pointsEarned *= multiplier;
-      message += ` (Combo x${multiplier} !)`;
-    }
-
-    feedback.streakCount = this.#offlineStreakCount;
-    feedback.multiplier = multiplier;
-    feedback.pointsEarned = pointsEarned;
-    feedback.message = message + ` (+${pointsEarned} pts)`;
-    feedback.isCorrect = isCorrect;
-    feedback.distance = distance === -1 ? -1 : Math.round(distance);
-
-    this.#offlineScores.push(pointsEarned);
+    this.#offlineStreakCount = result.streakCount;
+    this.#offlineScores.push(result.pointsEarned);
     this.#offlineRoundIndex++;
 
-    const isFinished =
-      this.#offlineRoundIndex >= this.#offlineStreets.length;
-    let nextPrompt = null;
-    if (!isFinished) {
-      const nextStreet = this.#offlineStreets[this.#offlineRoundIndex];
-      nextPrompt = {
-        roundIndex: this.#offlineRoundIndex,
-        totalRounds: this.#offlineStreets.length,
-        mode,
-      };
-      if (mode === "target" || mode === "sprint") {
-        nextPrompt.streetName = nextStreet.properties.name;
-      } else if (mode === "identify") {
-        nextPrompt.geometry = nextStreet.geometry;
-      }
-    }
-
-    const totalScore = this.#offlineScores.reduce((a, b) => a + b, 0);
-
+    const isFinished = this.#offlineRoundIndex >= this.#offlineStreets.length;
     return {
-      gameToken: "offline_token",
-      nextPrompt,
+      gameToken: OFFLINE_GAME_TOKEN,
+      nextPrompt: isFinished
+        ? null
+        : this.#buildOfflinePrompt(
+            this.#offlineRoundIndex,
+            mode,
+            this.#session.difficulty,
+          ),
       isFinished,
-      totalScore,
-      feedback,
+      totalScore: this.#offlineScores.reduce((a, b) => a + b, 0),
+      feedback: buildRoundFeedback(result, street),
       sprintHistory: this.#session.sprintHistory,
     };
   }
@@ -1060,16 +999,7 @@ export class GameController {
       this.#gameView.setInstruction(displayMsg);
       this.#gameView.updateComboBadge(feedback.multiplier);
 
-      if (feedback.multiplier > 1) {
-        this.#audioService.playCombo(feedback.multiplier);
-        HapticService.combo(feedback.multiplier);
-      } else if (feedback.isCorrect) {
-        this.#audioService.playSuccess();
-        HapticService.success();
-      } else {
-        this.#audioService.playError();
-        HapticService.error();
-      }
+      this.#playRoundFeedback(feedback);
 
       this.#updateHUD();
 
@@ -1098,6 +1028,7 @@ export class GameController {
       this.#gameView.setActionsState("next");
     } catch (err) {
       this.#currentStepState = "guessing";
+      if (this.#recoverFromInvalidSession(err)) return;
       this.#gameView.setActionsState("validate");
       this.#gameView.showError(err.message);
     }
@@ -1135,16 +1066,7 @@ export class GameController {
       this.#gameView.setInstruction(feedback.message);
       this.#gameView.updateComboBadge(feedback.multiplier);
 
-      if (feedback.multiplier > 1) {
-        this.#audioService.playCombo(feedback.multiplier);
-        HapticService.combo(feedback.multiplier);
-      } else if (feedback.isCorrect) {
-        this.#audioService.playSuccess();
-        HapticService.success();
-      } else {
-        this.#audioService.playError();
-        HapticService.error();
-      }
+      this.#playRoundFeedback(feedback);
 
       this.#updateHUD();
 
@@ -1152,6 +1074,7 @@ export class GameController {
       this.#gameView.setActionsState("next");
     } catch (err) {
       this.#currentStepState = "guessing";
+      if (this.#recoverFromInvalidSession(err)) return;
       this.#gameView.setActionsState("validate");
       this.#gameView.showError(err.message);
     }

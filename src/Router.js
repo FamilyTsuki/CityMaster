@@ -5,7 +5,7 @@ export class Router {
 
   constructor(routes) {
     this.#routes = routes;
-    this.#currentPath = this.#getPath();
+    this.#currentPath = null;
 
     if (typeof window !== 'undefined') {
       window.addEventListener('popstate', () => {
@@ -75,16 +75,25 @@ export class Router {
     return this;
   }
 
-  init() {
-    this.#handleRoute(this.#currentPath);
+  /**
+   * Chemin de la route actuellement affichée.
+   * @returns {string|null}
+   */
+  get currentPath() {
+    return this.#currentPath;
   }
 
-  async navigate(path, force = false) {
-    if (this.#currentPath === path && !force) {
-      await this.#handleRoute(path);
-      return;
-    }
-    if (typeof window !== 'undefined' && window.history) {
+  init() {
+    return this.#handleRoute(this.#getPath());
+  }
+
+  /**
+   * Affiche la route `path` et met l'URL à jour (sans entrée d'historique
+   * supplémentaire si l'URL ne change pas).
+   * @param {string} path
+   */
+  async navigate(path) {
+    if (typeof window !== 'undefined' && window.history && this.#getPath() !== path) {
       window.history.pushState({}, '', path);
     }
     await this.#handleRoute(path);
@@ -100,6 +109,7 @@ export class Router {
         console.error('Error in router beforeEach hook:', err);
       }
     }
+    this.#currentPath = path;
     const normalizedPath =
       path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
     let matchedRoute = this.#routes[path] || this.#routes[normalizedPath];

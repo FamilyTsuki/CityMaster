@@ -7,6 +7,6 @@ const router = express.Router();
 router.get('/', authenticateToken, CityController.getCities);
 router.post('/generate', authenticateToken, CityController.generateCity);
 router.get('/:key/difficulties', authenticateToken, CityController.getDifficulties);
-router.patch('/:key/verify', authenticateToken, requireAdmin, CityController.toggleVerification);
+router.patch('/:key/verify', requireAdmin, CityController.toggleVerification);
 
 export default router;

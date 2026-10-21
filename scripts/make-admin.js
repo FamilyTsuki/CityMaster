@@ -1,51 +1,38 @@
-import pg from "pg";
-import dotenv from "dotenv";
-import path from "path";
-import { fileURLToPath } from "url";
+import path from 'path';
+import { initDB, closeDB } from '../src/backend/config/database.js';
+import { ROOT_DIR, USERS_FILE } from '../src/backend/config/paths.js';
+import { User } from '../src/backend/models/User.js';
 
-const filename = fileURLToPath(import.meta.url);
-const dirname = path.dirname(filename);
-
-dotenv.config({ path: path.join(dirname, "..", ".env") });
-
-const { Pool } = pg;
-const pool = new Pool({
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  host: process.env.PGHOST,
-  port: process.env.PGPORT,
-  database: process.env.PGDATABASE,
-});
-
+/**
+ * Donne les droits administrateur à un compte existant.
+ * Usage : npm run make-admin -- <pseudo> [--revoke]
+ * Fonctionne avec PostgreSQL ou, sans base, avec config/users.json.
+ */
 const username = process.argv[2];
+const revoke = process.argv.includes('--revoke');
 
-if (!username) {
-  console.error("Erreur: Veuillez specifier un nom d'utilisateur.");
-  console.log("Usage: npm run make-admin <username>");
+if (!username || username.startsWith('--')) {
+  console.error("Erreur : veuillez indiquer un nom d'utilisateur.");
+  console.log('Usage : npm run make-admin -- <pseudo> [--revoke]');
   process.exit(1);
 }
 
-async function makeAdmin() {
-  try {
-    const result = await pool.query(
-      "UPDATE users SET is_admin = true WHERE username = $1 RETURNING id, username, is_admin",
-      [username],
-    );
+try {
+  const usingDatabase = await initDB();
+  const user = await User.setAdminStatus(username, !revoke);
+  const storage = usingDatabase ? 'la base de données' : path.relative(ROOT_DIR, USERS_FILE);
 
-    if (result.rowCount === 0) {
-      console.log(
-        `❌ L'utilisateur "${username}" n'existe pas dans la base de donnees.`,
-      );
-    } else {
-      console.log(
-        `✅ L'utilisateur "${username}" est maintenant Administrateur !`,
-      );
-    }
-  } catch (error) {
-    console.error("Erreur lors de la mise a jour :", error);
-  } finally {
-    await pool.end();
+  if (!user) {
+    console.log(`❌ L'utilisateur "${username}" n'existe pas dans ${storage}.`);
+    process.exitCode = 1;
+  } else if (revoke) {
+    console.log(`✅ "${user.username}" n'est plus administrateur (${storage}).`);
+  } else {
+    console.log(`✅ "${user.username}" est maintenant administrateur (${storage}).`);
   }
+} catch (error) {
+  console.error('Erreur lors de la mise à jour :', error);
+  process.exitCode = 1;
+} finally {
+  await closeDB();
 }
-
-makeAdmin();

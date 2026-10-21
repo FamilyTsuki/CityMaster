@@ -1,4 +1,5 @@
 import { I18nService } from './I18nService.js';
+import { escapeHTML } from '../utils/security.js';
 
 export class FlashMessageService {
   static #containerElement = null;
@@ -37,8 +38,8 @@ export class FlashMessageService {
 
     flashElement.innerHTML = `
       ${iconMarkup}
-      <span class="flash-text">${message}</span>
-      <button type="button" class="flash-close-btn" aria-label="${closeLabel}">${closeMarkup}</button>
+      <span class="flash-text">${escapeHTML(message)}</span>
+      <button type="button" class="flash-close-btn" aria-label="${escapeHTML(closeLabel)}">${closeMarkup}</button>
     `;
 
     const closeButton = flashElement.querySelector('.flash-close-btn');

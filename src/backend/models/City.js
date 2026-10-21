@@ -1,8 +1,12 @@
 import fs from "fs/promises";
-import path from "path";
+import { BASE_CITIES_FILE, CUSTOM_CITIES_FILE, cityDataFile } from "../config/paths.js";
+import { readJsonFile, updateJsonFile } from "../utils/jsonStore.js";
 
-const baseFilePath = path.join(process.cwd(), "config", "cities.json");
-const customFilePath = path.join(process.cwd(), "config", "custom_cities.json");
+/**
+ * Liste des villes jouables : config/cities.json (versionné) complété par
+ * custom_cities.json (villes découvertes via la recherche Nominatim ou
+ * modifiées par un administrateur, qui priment sur la liste de base).
+ */
 
 const slugify = (text) =>
   text
@@ -27,21 +31,8 @@ export class City {
       return [...cachedCities];
     }
 
-    let baseCities = [];
-    try {
-      const data = await fs.readFile(baseFilePath, "utf-8");
-      baseCities = JSON.parse(data);
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
-
-    let customCities = [];
-    try {
-      const customData = await fs.readFile(customFilePath, "utf-8");
-      customCities = JSON.parse(customData);
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
+    const baseCities = await readJsonFile(BASE_CITIES_FILE, []);
+    const customCities = await readJsonFile(CUSTOM_CITIES_FILE, []);
 
     const cityMap = new Map();
     for (const city of baseCities) {
@@ -65,24 +56,16 @@ export class City {
   static async saveCustomCities(citiesToSave) {
     if (!Array.isArray(citiesToSave) || citiesToSave.length === 0) return;
 
-    let customCities = [];
-    try {
-      const customData = await fs.readFile(customFilePath, "utf-8");
-      customCities = JSON.parse(customData);
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-    }
-
-    for (const city of citiesToSave) {
-      const index = customCities.findIndex((c) => c.key === city.key);
-      if (index >= 0) {
-        customCities[index] = city;
-      } else {
-        customCities.push(city);
+    await updateJsonFile(CUSTOM_CITIES_FILE, [], (customCities) => {
+      for (const city of citiesToSave) {
+        const index = customCities.findIndex((c) => c.key === city.key);
+        if (index >= 0) {
+          customCities[index] = city;
+        } else {
+          customCities.push(city);
+        }
       }
-    }
-
-    await fs.writeFile(customFilePath, JSON.stringify(customCities, null, 2), "utf-8");
+    });
     cachedCities = null;
   }
 
@@ -190,9 +173,12 @@ export class City {
           }
 
           const name = (
-            result.name || result.display_name.split(",")[0]
+            result.name || String(result.display_name || "").split(",")[0]
           ).trim();
           const key = slugify(name);
+          if (!key) {
+            continue;
+          }
 
           if (
             !cities.some((c) => c.key === key) &&
@@ -233,35 +219,27 @@ export class City {
     return combinedResults;
   }
 
+  /**
+   * Inverse le statut « vérifiée » d'une ville.
+   * @returns {Promise<object|null>} La ville modifiée, ou null si elle n'existe pas.
+   */
   static async toggleVerification(key) {
-    const cities = await this.getAll();
-    let city = cities.find((c) => c.key === key);
+    let city = await this.getByKey(key);
     if (!city) {
-      const dataFile = path.join(
-        process.cwd(),
-        "public",
-        "assets",
-        "data",
-        `${key}.json`
-      );
       try {
-        await fs.access(dataFile);
-        const name = key
-          .split("_")
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(" ");
-        city = {
-          key,
-          name,
-          isVerified: false,
-        };
-      } catch (e) {
-        throw new Error(`City with key "${key}" not found.`);
+        await fs.access(cityDataFile(key));
+      } catch {
+        return null;
       }
+      const name = key
+        .split("_")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+      city = { key, name, isVerified: false };
     }
-    
-    city.isVerified = !city.isVerified;
-    await this.saveCustomCity(city);
-    return city;
+
+    const updated = { ...city, isVerified: !city.isVerified };
+    await this.saveCustomCity(updated);
+    return updated;
   }
 }

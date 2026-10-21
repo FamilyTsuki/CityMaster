@@ -89,14 +89,11 @@ class App {
       this.#gameView,
       this.#mapView,
       this.#certificateView,
-      this.#scoreController,
       null,
       this.#audioService,
     );
-    this.#adminController = new AdminController(
-      this.#adminView,
-      this.#gameView,
-    );
+    this.#authController.onLogout(() => this.#controller.abandonSession());
+    this.#adminController = new AdminController(this.#adminView);
     this.#roomController = new RoomController(
       null,
       this.#roomView,
@@ -367,7 +364,7 @@ class App {
           }),
         );
 
-        const [_, htmlTemplates] = await Promise.all([
+        const [, htmlTemplates] = await Promise.all([
           i18nPromise,
           templatesPromise,
         ]);

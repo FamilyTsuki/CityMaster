@@ -2,8 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert';
 import fs from 'node:fs';
 import path from 'node:path';
-import { isPlaceStreet as isPlaceStreetFront, RouteDifficultyService } from '../src/services/RouteDifficultyService.js';
-import { isPlaceStreet as isPlaceStreetBack } from '../src/backend/utils/game.js';
+import { isPlaceStreet, RouteDifficultyService } from '../src/services/RouteDifficultyService.js';
 
 test('isPlaceStreet: correctly identifies places, squares, and placettes', () => {
   const placeNames = [
@@ -30,23 +29,18 @@ test('isPlaceStreet: correctly identifies places, squares, and placettes', () =>
   ];
 
   for (const name of placeNames) {
-    assert.strictEqual(isPlaceStreetFront(name), true, `Frontend should detect "${name}" as a place`);
-    assert.strictEqual(isPlaceStreetBack(name), true, `Backend should detect "${name}" as a place`);
+    assert.strictEqual(isPlaceStreet(name), true, `isPlaceStreet should detect "${name}" as a place`);
     assert.strictEqual(RouteDifficultyService.isPlaceStreet(name), true, `RouteDifficultyService.isPlaceStreet should detect "${name}"`);
   }
 
   for (const name of nonPlaceNames) {
-    assert.strictEqual(isPlaceStreetFront(name), false, `Frontend should not detect "${name}" as a place`);
-    assert.strictEqual(isPlaceStreetBack(name), false, `Backend should not detect "${name}" as a place`);
+    assert.strictEqual(isPlaceStreet(name), false, `isPlaceStreet should not detect "${name}" as a place`);
     assert.strictEqual(RouteDifficultyService.isPlaceStreet(name), false, `RouteDifficultyService.isPlaceStreet should not detect "${name}"`);
   }
 
-  assert.strictEqual(isPlaceStreetFront({ properties: { name: 'Place Royale' } }), true);
-  assert.strictEqual(isPlaceStreetBack({ properties: { name: 'Place Royale' } }), true);
-  assert.strictEqual(isPlaceStreetFront({ properties: { name: 'Forum', place: 'square' } }), true);
-  assert.strictEqual(isPlaceStreetBack({ properties: { name: 'Forum', place: 'square' } }), true);
-  assert.strictEqual(isPlaceStreetFront({ properties: { name: 'Rue Royale' } }), false);
-  assert.strictEqual(isPlaceStreetBack({ properties: { name: 'Rue Royale' } }), false);
+  assert.strictEqual(isPlaceStreet({ properties: { name: 'Place Royale' } }), true);
+  assert.strictEqual(isPlaceStreet({ properties: { name: 'Forum', place: 'square' } }), true);
+  assert.strictEqual(isPlaceStreet({ properties: { name: 'Rue Royale' } }), false);
 });
 
 test('admin.html: contains disable-places setting select and i18n tags', () => {
@@ -70,10 +64,10 @@ test('places filtering: streets array correctly filters out places when disabled
     { properties: { name: 'Rue du Commerce' }, geometry: { type: 'LineString' } },
   ];
 
-  const filtered = mixedStreets.filter((s) => !isPlaceStreetBack(s));
+  const filtered = mixedStreets.filter((s) => !isPlaceStreet(s));
 
   assert.strictEqual(filtered.length, 5, 'Should filter out exactly 3 places leaving 5 streets');
-  assert.ok(filtered.every((s) => !isPlaceStreetBack(s)), 'No remaining street should be a place');
+  assert.ok(filtered.every((s) => !isPlaceStreet(s)), 'No remaining street should be a place');
   assert.deepStrictEqual(
     filtered.map((s) => s.properties.name),
     ['Rue Principale', 'Avenue de la Gare', 'Boulevard Victor Hugo', 'Chemin des Dames', 'Rue du Commerce']

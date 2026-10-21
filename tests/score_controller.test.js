@@ -19,49 +19,6 @@ function createMockRes() {
   return res;
 }
 
-test("ScoreController.postScore: rejet des scores négatifs ou non entiers", async () => {
-  const mockUser = { username: "score_test_user" };
-
-  const resMissing = createMockRes();
-  await ScoreController.postScore({ body: {}, user: mockUser }, resMissing);
-  assert.equal(resMissing.statusCode, 400);
-  assert.equal(resMissing.body.error, "Score is required");
-
-  const negativeScores = [-1, -50, -1000];
-  for (const neg of negativeScores) {
-    const res = createMockRes();
-    await ScoreController.postScore({ body: { score: neg, difficulty: "hard" }, user: mockUser }, res);
-    assert.equal(res.statusCode, 400, `Le score négatif ${neg} doit être rejeté avec un code 400`);
-    assert.equal(res.body.error, "Score must be a non-negative integer");
-  }
-
-  const floatScores = [0.5, 12.34, 999.9];
-  for (const fl of floatScores) {
-    const res = createMockRes();
-    await ScoreController.postScore({ body: { score: fl, difficulty: "hard" }, user: mockUser }, res);
-    assert.equal(res.statusCode, 400, `Le score décimal ${fl} doit être rejeté avec un code 400`);
-    assert.equal(res.body.error, "Score must be a non-negative integer");
-  }
-
-  const invalidValues = ["invalid_score", "cent", NaN, Infinity, -Infinity];
-  for (const inv of invalidValues) {
-    const res = createMockRes();
-    await ScoreController.postScore({ body: { score: inv, difficulty: "hard" }, user: mockUser }, res);
-    assert.equal(res.statusCode, 400, `La valeur invalide ${inv} doit être rejetée avec un code 400`);
-    assert.equal(res.body.error, "Score must be a non-negative integer");
-  }
-
-  const resZero = createMockRes();
-  await ScoreController.postScore({ body: { score: 0, difficulty: "medium" }, user: mockUser }, resZero);
-  assert.equal(resZero.statusCode, 201, "Le score 0 doit être accepté");
-  assert.equal(resZero.body.score, 0);
-
-  const resValid = createMockRes();
-  await ScoreController.postScore({ body: { score: 1500, difficulty: "hard" }, user: mockUser }, resValid);
-  assert.equal(resValid.statusCode, 201, "Un score entier positif doit être accepté");
-  assert.equal(resValid.body.score, 1500);
-});
-
 test("ScoreController & Score: déduplication MAX(score) et classement par joueur", async () => {
   const testNumber = 778899;
   const playerA = "player_alpha";

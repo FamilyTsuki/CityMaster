@@ -1,11 +1,11 @@
 import { ApiService } from "../services/ApiService.js";
+import { escapeHTML } from "../utils/security.js";
 import { I18nService } from "../services/I18nService.js";
 import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
 import { mergeCityStreets } from "../services/SpatialService.js";
 
 export class AdminController {
   #adminView;
-  #gameView;
   #router;
   #selectedCity;
   #currentDistricts;
@@ -17,9 +17,8 @@ export class AdminController {
   #routeDifficultyOverrides;
   #reportsSearchQuery;
 
-  constructor(adminView, gameView, router = null) {
+  constructor(adminView, router = null) {
     this.#adminView = adminView;
-    this.#gameView = gameView;
     this.#router = router;
     this.#selectedCity = null;
     this.#currentDistricts = [];
@@ -513,10 +512,10 @@ export class AdminController {
       const popupContent = document.createElement("div");
       popupContent.className = "admin-route-popup";
       popupContent.innerHTML = `
-        <h4>${name}</h4>
+        <h4>${escapeHTML(name)}</h4>
         <div class="admin-route-popup-diff">
           <span>Difficulté :</span>
-          <strong class="diff-tag diff-${currentDiff}">${diffLabel}</strong>
+          <strong class="diff-tag diff-${escapeHTML(currentDiff)}">${escapeHTML(diffLabel)}</strong>
           ${isManual ? '<span class="badge-manual-diff">Manuel</span>' : ""}
         </div>
         <div class="admin-popup-actions">
@@ -593,11 +592,15 @@ export class AdminController {
   }
 
   async #saveSetting(key, value) {
-    try {
-      await ApiService.post("/admin/settings", { key, value });
-    } catch (e) {
-      console.error("Failed to save settings", e);
+    const res = await ApiService.post("/admin/settings", { key, value });
+    if (!res.ok) {
+      console.error("Failed to save setting", key, res.status, res.data?.error);
+      this.#adminView.showToast(
+        res.data?.error || "Le réglage n'a pas pu être enregistré",
+        "error",
+      );
     }
+    return res.ok;
   }
 
   updateVerifyButtonState() {
@@ -768,12 +771,11 @@ export class AdminController {
     }
   }
 
-  #getRouteDifficulty(route, index = 0, centroids = null) {
+  #getRouteDifficulty(route, nearCount = undefined) {
     return RouteDifficultyService.getRouteDifficulty(route, {
       diffMode: this.#difficultyMode,
       overrides: this.#routeDifficultyOverrides,
-      centroids,
-      index,
+      nearCount,
     });
   }
 
@@ -782,17 +784,10 @@ export class AdminController {
     const counts = { all: 0, easy: 0, medium: 0, hard: 0, manual: 0 };
     const routeMeta = new Map();
 
-    let centroids = [];
-    if (this.#difficultyMode === "center" && window.turf) {
-      centroids = allRoutes.map((r) => {
-        if (r.geometry?.type === "Point") return r;
-        try {
-          return window.turf.centroid(r);
-        } catch (e) {
-          return null;
-        }
-      });
-    }
+    const neighbourCounts =
+      this.#difficultyMode === "center"
+        ? RouteDifficultyService.computeNeighbourCounts(allRoutes)
+        : null;
 
     allRoutes.forEach((r, i) => {
       const nameLower = (r.properties?.name || "").toLowerCase().trim();
@@ -810,7 +805,10 @@ export class AdminController {
           : null);
       const isManual = Boolean(manualDiff);
 
-      const diff = this.#getRouteDifficulty(r, i, centroids);
+      const diff = this.#getRouteDifficulty(
+        r,
+        neighbourCounts ? neighbourCounts[i] : undefined,
+      );
 
       r._difficulty = diff;
       routeMeta.set(r, { diff, isManual });

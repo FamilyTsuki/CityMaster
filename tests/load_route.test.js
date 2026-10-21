@@ -248,6 +248,7 @@ test('Router matches /load and /load/ routes correctly', async () => {
     2,
     '/load/ route should also trigger the /load handler',
   );
+  assert.strictEqual(defaultRouteCalled, 0, 'la route / ne doit pas être appelée');
 });
 
 test('No visible navigation link or menu item points to /load in templates', () => {

@@ -3,22 +3,8 @@ import assert from "node:assert/strict";
 import crypto from "crypto";
 import { RoomController } from "../src/backend/controllers/RoomController.js";
 import pool from "../src/backend/config/database.js";
-
-function createMockRes() {
-  const res = {
-    statusCode: 200,
-    body: null,
-    status(code) {
-      this.statusCode = code;
-      return this;
-    },
-    json(data) {
-      this.body = data;
-      return this;
-    },
-  };
-  return res;
-}
+import { createMockRes } from "./helpers.js";
+import { pickStreets, seededRandom } from "../src/backend/services/CityStreetsService.js";
 
 test("RoomController: génération de code de salon (6 caractères hexadécimaux majuscules)", () => {
   
@@ -127,53 +113,80 @@ test("RoomController: calcul et rejet des salons expirés (1h, 24h, 7 jours)", a
   }
 });
 
-test("RoomController: mélange déterministe des rues via test_id (mulberry32 PRNG)", () => {
-  
-  const mulberry32 = (seed) => {
-    return function () {
-      let t = (seed += 0x6d2b79f5);
-      t = Math.imul(t ^ (t >>> 15), t | 1);
-      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  };
-
-  const shuffleSeeded = (array, seed) => {
-    const arr = [...array];
-    const random = mulberry32(seed);
-    let currentIndex = arr.length;
-    while (currentIndex > 0) {
-      const randomIndex = Math.floor(random() * currentIndex);
-      currentIndex--;
-      [arr[currentIndex], arr[randomIndex]] = [arr[randomIndex], arr[currentIndex]];
-    }
-    return arr;
-  };
-
-  const sampleStreets = [
-    "Rue de la Paix",
-    "Avenue des Champs-Élysées",
-    "Boulevard Saint-Germain",
-    "Rue de Rivoli",
-    "Boulevard Haussmann",
-    "Rue Victor Hugo",
-    "Avenue Montaigne",
-    "Rue Saint-Honoré",
-    "Boulevard Saint-Michel",
-    "Rue La Fayette"
+test("Tirage des rues : même test_id, mêmes rues dans le même ordre (code réel)", () => {
+  const streets = [
+    ...["Rue A", "Rue B", "Rue C", "Rue D", "Rue E", "Rue F"].map((name) => ({
+      feature: { properties: { name } },
+      difficulty: "hard",
+    })),
+    ...["Avenue G", "Avenue H", "Avenue I"].map((name) => ({
+      feature: { properties: { name } },
+      difficulty: "medium",
+    })),
   ];
+  const names = (picked) => picked.map((s) => s.feature.properties.name);
 
-  const testId1 = 54321;
-  const testId2 = 98765;
+  const run1 = names(pickStreets(streets, "hard", 8, seededRandom(54321)));
+  const run2 = names(pickStreets(streets, "hard", 8, seededRandom(54321)));
+  const other = names(pickStreets(streets, "hard", 8, seededRandom(98765)));
 
-  const run1 = shuffleSeeded(sampleStreets, testId1);
-  const run2 = shuffleSeeded(sampleStreets, testId1);
-  assert.deepEqual(run1, run2, "Deux joueurs avec le même test_id doivent recevoir exactement les mêmes rues dans le même ordre");
+  assert.deepEqual(run1, run2);
+  assert.notDeepEqual(run1, other);
+  assert.equal(run1.length, 8);
+  assert.ok(run1.slice(0, 6).every((n) => n.startsWith("Rue")), "les rues de la difficulté demandée d'abord");
+  assert.ok(run1.slice(6).every((n) => n.startsWith("Avenue")), "puis les rues de secours");
 
-  const runDiff = shuffleSeeded(sampleStreets, testId2);
-  assert.notDeepEqual(run1, runDiff, "Deux test_id différents doivent produire des tirages distincts");
-
-  assert.equal(run1.length, sampleStreets.length);
-  assert.deepEqual([...run1].sort(), [...sampleStreets].sort());
+  // Valeur obtenue avec l'algorithme d'avant la refonte (v2.17.5) :
+  // un salon créé avant une mise à jour garde exactement les mêmes rues.
+  assert.deepEqual(run1, ["Rue D", "Rue C", "Rue F", "Rue A", "Rue B", "Rue E", "Avenue I", "Avenue G"]);
 });
 
+test("RoomController.createRoom: refuse les invités et les paramètres invalides", async () => {
+  const guest = createMockRes();
+  await RoomController.createRoom(
+    { body: { cityKey: "paris", difficulty: "hard" }, user: { username: "g", is_guest: true } },
+    guest,
+  );
+  assert.equal(guest.statusCode, 403);
+
+  const badDifficulty = createMockRes();
+  await RoomController.createRoom(
+    { body: { cityKey: "paris", difficulty: "' OR 1=1" }, user: { username: "alice", id: 1 } },
+    badDifficulty,
+  );
+  assert.equal(badDifficulty.statusCode, 400);
+
+  const badCity = createMockRes();
+  await RoomController.createRoom(
+    { body: { cityKey: "../etc", difficulty: "hard" }, user: { username: "alice", id: 1 } },
+    badCity,
+  );
+  assert.equal(badCity.statusCode, 400);
+});
+
+test("RoomController.submitRoomScore: rejette les scores impossibles", async () => {
+  const originalQuery = pool.query;
+  const updates = [];
+  pool.query = async (sql, params) => {
+    if (sql.includes("SELECT series_count FROM rooms")) return { rows: [{ series_count: 2 }] };
+    if (sql.includes("UPDATE room_participants")) {
+      updates.push(params);
+      return { rows: [{ username: "bob", score: params[0] }] };
+    }
+    if (sql.includes("SELECT finished")) return { rows: [{ finished: false }] };
+    return { rows: [] };
+  };
+  try {
+    for (const score of [-5, 1.5, "abc", 2 * 600 + 1]) {
+      const res = createMockRes();
+      await RoomController.submitRoomScore({ params: { code: "abc123" }, body: { score }, user: { username: "bob" } }, res);
+      assert.equal(res.statusCode, 400, `score ${score} doit être refusé`);
+    }
+    const ok = createMockRes();
+    await RoomController.submitRoomScore({ params: { code: "abc123" }, body: { score: 1200 }, user: { username: "bob" } }, ok);
+    assert.equal(ok.statusCode, 200);
+    assert.deepEqual(updates, [[1200, "ABC123", "bob"]]);
+  } finally {
+    pool.query = originalQuery;
+  }
+});

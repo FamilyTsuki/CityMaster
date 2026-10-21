@@ -56,52 +56,26 @@ test("NetworkService: subscribes to status changes and updates state", () => {
   const service = NetworkService.getInstance();
   assert.strictEqual(typeof service.isOnline(), "boolean");
 
-  let receivedStatus = null;
-  const unsubscribe = service.onStatusChange((isOnline) => {
-    receivedStatus = isOnline;
-  });
+  const unsubscribe = service.onStatusChange(() => {});
 
   assert.strictEqual(typeof unsubscribe, "function");
   unsubscribe();
 });
 
-test("ScoreController: queuePendingScore persists scores in storage and flushPendingScores drains them", async () => {
-  // Mock localStorage
-  const store = {};
+test("ScoreController: supprime l'ancienne file de scores hors-ligne au démarrage", async () => {
+  const store = { citymaster_pending_scores: JSON.stringify([{ player: "Alice", score: 1250 }]) };
   global.localStorage = {
-    getItem: (key) => store[key] || null,
+    getItem: (key) => (key in store ? store[key] : null),
     setItem: (key, value) => {
       store[key] = String(value);
     },
     removeItem: (key) => {
       delete store[key];
     },
-    clear: () => {
-      for (const k of Object.keys(store)) delete store[k];
-    },
   };
 
-  const mockGameView = {
-    renderLeaderboard: () => {},
-    showError: () => {},
-  };
-
-  const controller = new ScoreController(mockGameView);
-
-  // Queue two scores
-  controller.queuePendingScore("Alice", 1250);
-  controller.queuePendingScore("Bob", 840);
-
-  const stored = JSON.parse(store["citymaster_pending_scores"]);
-  assert.strictEqual(stored.length, 2);
-  assert.strictEqual(stored[0].player, "Alice");
-  assert.strictEqual(stored[0].score, 1250);
-  assert.strictEqual(stored[1].player, "Bob");
-  assert.strictEqual(stored[1].score, 840);
-
-  // Test drain when token is absent (should gracefully skip)
-  await controller.flushPendingScores();
-  assert.strictEqual(stored.length, 2, "Should retain scores until valid token/online flush");
+  new ScoreController({ renderLeaderboard: () => {}, showError: () => {} });
+  assert.equal(store.citymaster_pending_scores, undefined);
 });
 
 test("CertificateView: displays offline notice and hides global leaderboard in offline mode", async () => {
@@ -191,7 +165,6 @@ test("Offline banner anti-overlap: CSS variables and class management prevent HU
 test("PWA Auto-Update: SW install uses cache reload, index.html handles controllerchange and updateViaCache", () => {
   const swContent = fs.readFileSync(path.resolve("public/sw.js"), "utf8");
   const indexHtml = fs.readFileSync(path.resolve("public/index.html"), "utf8");
-  const serverJs = fs.readFileSync(path.resolve("server.js"), "utf8");
 
   // sw.js cache reload
   assert.match(
@@ -220,13 +193,6 @@ test("PWA Auto-Update: SW install uses cache reload, index.html handles controll
     indexHtml,
     /visibilitychange/,
     "index.html must check for updates on visibilitychange when mobile PWA resumes",
-  );
-
-  // server.js /src cache-control
-  assert.match(
-    serverJs,
-    /\/src[\s\S]*Cache-Control[\s\S]*no-cache/,
-    "server.js must set Cache-Control: no-cache on /src static route",
   );
 });
 

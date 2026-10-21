@@ -57,6 +57,7 @@ test('Router matches /changelog and /changelog/ routes correctly', async () => {
     true,
     'Router must match and normalize trailing slash /changelog/ route',
   );
+  assert.strictEqual(homeRouteHandled, false, 'la route / ne doit pas être appelée');
 });
 
 test('ChangelogView can be initialized in node environment with fallback', () => {

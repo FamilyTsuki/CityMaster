@@ -1,9 +1,9 @@
 import { I18nService } from "../services/I18nService.js";
+import { escapeHTML } from "../utils/security.js";
 import { isPlaceStreet } from "../services/RouteDifficultyService.js";
 
 export class AdminView {
   #map;
-  #tileLayer;
   #districtsLayer;
   #routesLayer;
   #highlightedRouteLayer;
@@ -22,7 +22,6 @@ export class AdminView {
 
   constructor() {
     this.#map = null;
-    this.#tileLayer = null;
     this.#districtsLayer = null;
     this.#routesLayer = null;
     this.#highlightedRouteLayer = null;
@@ -132,7 +131,6 @@ export class AdminView {
       attachTileErrorRetry(streetLayer);
       attachTileErrorRetry(darkLayer);
 
-      this.#tileLayer = satelliteLayer;
       satelliteLayer.addTo(this.#map);
 
       const routeNamesLayer = L.layerGroup().addTo(this.#map);
@@ -192,7 +190,7 @@ export class AdminView {
         }),
         onEachFeature: (feature, layer) => {
           if (feature.properties && feature.properties.name) {
-            layer.bindTooltip(feature.properties.name, {
+            layer.bindTooltip(escapeHTML(feature.properties.name), {
               permanent: true,
               direction: "center",
               className: "district-tooltip",
@@ -210,7 +208,7 @@ export class AdminView {
         }),
         onEachFeature: (feature, layer) => {
           if (feature.properties && feature.properties.name) {
-            layer.bindTooltip(feature.properties.name, {
+            layer.bindTooltip(escapeHTML(feature.properties.name), {
               permanent: true,
               direction: "center",
               className: "route-tooltip",

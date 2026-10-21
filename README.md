@@ -1,7 +1,7 @@
 # 🌍 CityMaster
 
 [![Play Online](https://img.shields.io/badge/Play%20Online-citymaster.tsuki--dev.fr-4f46e5?style=for-the-badge&logo=google-chrome&logoColor=white)](https://citymaster.tsuki-dev.fr)
-[![Version](https://img.shields.io/badge/version-2.17.5-emerald?style=for-the-badge)](https://github.com/FamilyTsuki/CityMaster/releases)
+[![Version](https://img.shields.io/badge/version-2.19.0-emerald?style=for-the-badge)](https://github.com/FamilyTsuki/CityMaster/releases)
 [![PWA Ready](https://img.shields.io/badge/PWA-installable%20%26%20offline-blue?style=for-the-badge&logo=pwa&logoColor=white)](https://citymaster.tsuki-dev.fr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
@@ -50,75 +50,69 @@ CityMaster is designed as a zero-friction, cross-platform web application:
 
 ---
 
-## 🏗️ Architecture
+## 🛠️ Développement
 
-CityMaster follows a clean, modular **MVC (Model-View-Controller)** pattern with Vanilla JavaScript (ES6+), CSS tokens, and Node.js/Express.
+> Documentation technique (en français) : [architecture et synchronisation](docs/ARCHITECTURE.md) · [conventions, ajout de fonctionnalités, débogage](docs/CONTRIBUER.md).
+
+### Technologies
+
+- **Client** : JavaScript natif (modules ES, pas de framework ni de compilation), Leaflet, Turf.js, service worker (PWA), IndexedDB.
+- **Serveur** : Node.js, Express, PostgreSQL (facultatif), jetons JWT.
+- **Données** : OpenStreetMap via l'API Overpass, recherche de communes via Nominatim.
+
+### Prérequis
+
+- Node.js 20.11 ou plus récent, npm.
+- PostgreSQL (facultatif) : sans base, le serveur démarre en **mode local** (comptes dans `config/users.json`, scores en mémoire, salons multijoueurs indisponibles).
+
+### Installation et lancement
+
+```bash
+git clone https://github.com/FamilyTsuki/CityMaster.git
+cd CityMaster
+npm install
+cp .env.example .env      # puis renseigner au moins JWT_SECRET
+npm run dev               # http://localhost:3000, redémarre à chaque modification
+```
+
+En production : `npm start`. Il n'y a pas d'étape de compilation : les fichiers de `public/` et `src/` sont servis tels quels. Les variables d'environnement sont décrites dans [`.env.example`](.env.example).
+
+Donner les droits d'administration à un compte existant : `npm run make-admin -- <pseudo>`.
+
+### Vérifications
+
+```bash
+npm run lint    # ESLint
+npm test        # tests node:test (données isolées dans un dossier temporaire)
+npm run check   # les deux, à lancer avant chaque commit
+```
+
+### Structure
 
 ```
-CityMaster/
-├── config/              # Server configuration and isolated custom cities data
-├── public/              # Client static assets (PWA manifest, stylesheets, i18n, screens)
-│   ├── assets/i18n/     # Complete English & French localization dictionaries
-│   └── assets/styles/   # Unified neumorphic CSS tokens and responsive themes
-├── src/
-│   ├── backend/         # Express REST API, auth middleware, and PostgreSQL/JSON models
-│   ├── controllers/     # Client MVC controllers (Game, Room, Admin, Auth, Profile)
-│   ├── models/          # Domain entities, session state, and scoring logic
-│   ├── services/        # Centralized ApiService, OverpassService, RouteDifficultyService
-│   └── views/           # Client MVC views (Admin, Game, Map, Room, Certificate)
-├── server.js            # Node.js Express server entry point
-├── CHANGELOG.md         # Full release changelog (v2.0.0 through v2.5.0)
-└── package.json         # Project metadata and dependencies
+server.js            Démarrage du serveur
+src/backend/         API Express : routes, contrôleurs, modèles, stockage
+src/app.js           Démarrage du client (écrans, routes)
+src/controllers/     Logique des écrans
+src/views/           DOM et carte Leaflet
+src/services/        Services du client, dont les règles partagées avec le serveur
+public/              index.html, service worker, écrans HTML, styles, traductions
+public/assets/data/  Données de carte générées (non versionnées)
+config/cities.json   Liste de base des communes
+tests/               Tests automatisés
+docs/                Documentation technique
 ```
 
----
+### Problèmes courants
 
-<details>
-<summary>💻 <b>Self-Hosting & Local Development (Optional)</b></summary>
+| Symptôme | Solution |
+|---|---|
+| `FATAL ERROR: JWT_SECRET ...` | Créer `.env` à partir de `.env.example` |
+| Salons en erreur 503 | PostgreSQL injoignable : vérifier `PG*` dans `.env` et la ligne `[db]` au démarrage |
+| Limite de connexions atteinte pour tout le monde | Serveur derrière un proxy : définir `TRUST_PROXY=1` |
+| Ancienne version affichée | Recharger en vidant le cache ; `CACHE_NAME` de `public/sw.js` doit changer à chaque version |
 
-<br>
-
-If you want to contribute or self-host CityMaster locally:
-
-### Prerequisites
-- **Node.js** v18+ (v20+ recommended)
-- **npm** v9+
-- *(Optional)* PostgreSQL database (automatic fallback to local JSON storage if unconfigured)
-
-### Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/FamilyTsuki/CityMaster.git
-   cd CityMaster
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Configure Environment Variables**:
-   Create a `.env` file in the root folder:
-   ```env
-   PORT=3000
-   JWT_SECRET=your_jwt_secret_key_here
-   # Optional: GOOGLE_CLIENT_ID for Google Sign-In
-   # Optional: DATABASE_URL=postgres://user:password@localhost:5432/citymaster
-   ```
-
-4. **Start the server**:
-   ```bash
-   npm run dev    # Development mode with --watch
-   npm start      # Production mode
-   ```
-
-5. **Run tests**:
-   ```bash
-   npm test       # Run complete test suite (30 tests)
-   ```
-
-</details>
+Plus de cas dans [docs/CONTRIBUER.md](docs/CONTRIBUER.md#déboguer).
 
 ---
 

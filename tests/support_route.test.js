@@ -120,6 +120,7 @@ test('Router matches /support and /support/ routes correctly', async () => {
     true,
     'Router must match and normalize trailing slash /support/ route',
   );
+  assert.strictEqual(homeRouteHandled, false, 'la route / ne doit pas être appelée');
 });
 
 test('footer templates contain accessible links to support screen', () => {

@@ -1,14 +1,12 @@
 import { I18nService } from "../services/I18nService.js";
 
 export class ChangelogView {
-  #container;
   #loadingEl;
   #contentEl;
   #cachedMarkdown = null;
 
   constructor() {
     if (typeof document !== "undefined") {
-      this.#container = document.getElementById("changelog-container");
       this.#loadingEl = document.getElementById("changelog-loading");
       this.#contentEl = document.getElementById("changelog-content");
     }
@@ -16,7 +14,6 @@ export class ChangelogView {
 
   async loadAndRender() {
     if (typeof document !== "undefined") {
-      this.#container = document.getElementById("changelog-container");
       this.#loadingEl = document.getElementById("changelog-loading");
       this.#contentEl = document.getElementById("changelog-content");
     }

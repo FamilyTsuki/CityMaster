@@ -3,6 +3,53 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.19.0] - 2026-10-21
+
+### Corrigé
+- Le routeur ne mettait jamais à jour la route courante : revenir à l'accueil laissait l'ancienne URL affichée.
+- Les réglages admin (places désactivées, mode de difficulté) étaient ignorés par le jeu sans PostgreSQL ; `/difficulties` et `/game/start` classaient les rues différemment, et le mode `center` ne fonctionnait pas côté serveur.
+- Les mots-clés accentués (« allée », « cité », « chaussée ») n'étaient jamais reconnus dans le classement des difficultés.
+- Un jeton de partie pouvait être rejoué (nouveau score, réponse déjà connue) ; double envoi possible en mode sprint ; une distance incalculable valait 100 points.
+- Reprise impossible d'une partie hors-ligne ou d'un autre compte après rechargement ; la déconnexion conservait la partie en cours.
+- Invités autorisés à créer un salon et à envoyer un avatar ; connexion par mot de passe d'un compte Google en erreur 500 ; numéros de test des salons pouvant se répéter.
+- Réponses de salon arrivant après avoir quitté le salon ; `HapticService.js` absent du pré-cache hors-ligne.
+
+### Modifié
+- Le mode de stockage (PostgreSQL ou local) est choisi une fois au démarrage ; plus d'écriture silencieuse dans `users.json` ou en mémoire quand une requête échoue.
+- Jeton de partie chiffré en AES-256-GCM ; la durée de chaque manche est fournie par le serveur et le score cumulé est renvoyé à chaque manche.
+- Les droits admin sont relus dans le stockage des comptes à chaque requête ; les invités ne peuvent pas utiliser un pseudo de `ADMIN_USERS`.
+- Les données de ville en cache (IndexedDB) sont revalidées par ETag, et les fichiers `/assets/data` sont servis sans cache long.
+
+### Amélioré
+- Écritures JSON atomiques et sérialisées ; un fichier corrompu n'est plus écrasé.
+- Règles de score partagées entre serveur et client (`ScoringService`), calcul du mode `center` par grille, option `TRUST_PROXY`, cache Overpass borné en taille, battement SSE.
+- Échappement HTML des messages flash et des noms de rues dans l'administration.
+- Dépendances mises à jour (`npm audit` : 0 vulnérabilité), ESLint et `npm run check`, documentation dans `docs/`.
+
+### Supprimé
+- File d'envoi de scores hors-ligne (jamais alimentée) et route `postScore` non branchée, `CustomLotissementService` et `fetchStreetNearPoint` inutilisés.
+
+### Tests
+- Les tests utilisent des dossiers temporaires et n'écrivent plus dans `public/assets/data/` ni `config/`.
+- Ajout de tests de non-régression : flux de partie, règles de score, cohérence des difficultés, stockage JSON, routes HTTP, routeur, reprise de partie, service worker, salons.
+
+---
+
+## [2.18.0] - 2026-10-21
+
+### Ajouté
+- Animation de racines de rues sur les bords de l'écran avec croissance organique, carrefours et particules lumineuses de circulation réactives au curseur.
+- Simulateur de gameplay interactif au centre de la page d'accueil illustrant la recherche de voies, l'acquisition de cibles, l'illumination verte de réussite et le calcul de score.
+- Plaques toponymiques françaises stylisées flottant le long des ramifications latérales.
+
+### Supprimé
+- Suppression de l'ancienne grille statique de 3 cartes promotionnelles au profit du simulateur immersif.
+
+### Tests
+- Ajout de la suite de tests `tests/landing_screen.test.js` pour valider la structure de la page d'accueil et l'initialisation des composants d'animation.
+
+---
+
 ## [2.17.5] - 2026-10-21
 
 ### Corrigé

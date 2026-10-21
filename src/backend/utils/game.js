@@ -1,26 +1,54 @@
 import crypto from 'crypto';
 import * as turf from '@turf/turf';
 
-const ALGORITHM = 'aes-256-cbc';
+const TOKEN_VERSION = 'v2';
+const TOKEN_ALGORITHM = 'aes-256-gcm';
 
-export function encrypt(text, secret) {
-  const key = crypto.createHash('sha256').update(secret).digest();
-  const iv = crypto.randomBytes(16);
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return iv.toString('hex') + ':' + encrypted;
+function deriveTokenKey(secret) {
+  return crypto.createHash('sha256').update(`citymaster-game-token:${secret}`).digest();
 }
 
-export function decrypt(text, secret) {
-  const parts = text.split(':');
-  const iv = Buffer.from(parts.shift(), 'hex');
-  const encryptedText = Buffer.from(parts.join(':'), 'hex');
-  const key = crypto.createHash('sha256').update(secret).digest();
-  const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+/**
+ * Chiffre l'état d'une partie dans un jeton opaque renvoyé au client.
+ * AES-256-GCM authentifie le contenu : toute modification du jeton est détectée.
+ * @param {object} session
+ * @param {string} secret
+ * @returns {string}
+ */
+export function encryptGameToken(session, secret) {
+  const iv = crypto.randomBytes(12);
+  const cipher = crypto.createCipheriv(TOKEN_ALGORITHM, deriveTokenKey(secret), iv);
+  const encrypted = Buffer.concat([cipher.update(JSON.stringify(session), 'utf8'), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return [TOKEN_VERSION, iv, tag, encrypted]
+    .map((part) => (typeof part === 'string' ? part : part.toString('base64url')))
+    .join('.');
+}
+
+/**
+ * Déchiffre un jeton produit par encryptGameToken.
+ * @param {unknown} token
+ * @param {string} secret
+ * @returns {object} L'état de la partie.
+ * @throws {Error} Si le jeton est absent, mal formé, modifié ou signé avec un autre secret.
+ */
+export function decryptGameToken(token, secret) {
+  if (typeof token !== 'string') throw new Error('Game token must be a string');
+  const [version, iv, tag, encrypted] = token.split('.');
+  if (version !== TOKEN_VERSION || !iv || !tag || !encrypted) {
+    throw new Error('Unsupported game token format');
+  }
+  const decipher = crypto.createDecipheriv(
+    TOKEN_ALGORITHM,
+    deriveTokenKey(secret),
+    Buffer.from(iv, 'base64url'),
+  );
+  decipher.setAuthTag(Buffer.from(tag, 'base64url'));
+  const decrypted = Buffer.concat([
+    decipher.update(Buffer.from(encrypted, 'base64url')),
+    decipher.final(),
+  ]);
+  return JSON.parse(decrypted.toString('utf8'));
 }
 
 export function getDistanceToStreet(latitude, longitude, geometry) {
@@ -46,39 +74,4 @@ export function getDistanceToStreet(latitude, longitude, geometry) {
     console.error('Error calculating distance:', error);
     return null;
   }
-}
-
-export function isPlaceStreet(featureOrName) {
-  if (!featureOrName) return false;
-  const name =
-    typeof featureOrName === 'string'
-      ? featureOrName
-      : (featureOrName.properties?.name ||
-         featureOrName.properties?.originalName ||
-         '');
-  if (!name || typeof name !== 'string') return false;
-
-  const clean = name
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .trim();
-
-  const startsWithPlace =
-    /^(place|places|placette|placettes|square|squares|pl\b|pl\.|esplanade|parvis)\b/i.test(
-      clean,
-    );
-
-  if (typeof featureOrName === 'object' && featureOrName !== null) {
-    const props = featureOrName.properties || {};
-    if (
-      props.place === 'square' ||
-      props.itemType === 'place' ||
-      props.itemType === 'square'
-    ) {
-      return true;
-    }
-  }
-
-  return startsWithPlace;
 }

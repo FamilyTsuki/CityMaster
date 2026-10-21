@@ -94,7 +94,17 @@
     "feature_3_desc": "Play on smartphone, tablet, or desktop: installable in 1 tap without app stores and works offline.",
     "install_guide_btn": "How to install?",
     "feature_4_title": "Team Rooms & Leaderboard",
-    "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard."
+    "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard.",
+    "sim_find_street": "Find on map:",
+    "sim_score_popup": "+500 pts!",
+    "sim_accuracy": "Accuracy 99%",
+    "badge_mode_target": "Interactive Target Mode",
+    "badge_mode_multi": "Multiplayer Rooms & Challenges",
+    "badge_mode_offline": "100% Offline & PWA",
+    "tag_champs_elysees": "Champs-Élysées Ave.",
+    "tag_saint_michel": "Saint-Michel Blvd.",
+    "tag_victor_hugo": "Victor Hugo Ave.",
+    "tag_republique": "Republic Square"
   },
   "auth": {
     "login_title": "Sign In",
@@ -435,7 +445,8 @@
     "user_exists": "Username is already taken.",
     "not_enough_streets_difficulty": "This municipality does not have enough compatible roads for this difficulty level (e.g. not enough major roads for Easy). Please choose another difficulty.",
     "overpass_busy": "The map server (Overpass API) is busy or unavailable. Please try again.",
-    "loading_error": "Loading error."
+    "loading_error": "Loading error.",
+    "game_session_invalid": "This game is no longer valid. Please start a new one."
   },
   "flight": {
     "flight_title": "Flight to destination",
@@ -463,8 +474,6 @@
     "banner_online": "Internet connection restored!",
     "game_requires_connection": "An Internet connection is required to generate the map and start the game.",
     "room_requires_connection": "Multiplayer rooms require an active Internet connection.",
-    "score_saved_locally": "Score saved locally. It will be synchronized once back online.",
-    "scores_synced": "Your pending scores have been successfully synchronized!",
     "leaderboard_requires_connection": "The leaderboard requires an Internet connection.",
     "city_not_cached": "This city is not yet saved for offline mode. Play it at least once with an Internet connection to save it.",
     "certificate_notice": "Offline game: This score remains local and is not recorded on the global leaderboard.",

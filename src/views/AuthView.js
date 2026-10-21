@@ -273,9 +273,6 @@ export class AuthView {
   #mouseIdleTimeoutId = null;
   #themeObserver = null;
 
-  #tailPhase = 0;
-  #tailSpeed = 0.0025;
-  #tailAmplitude = 10;
   #tailSideFactor = 1;
   #greyTailSideFactor = -1;
   #lastAnimTime = 0;
@@ -864,6 +861,12 @@ export class AuthView {
           wr2.setAttribute("y1", (eyeY + 3 + jitter).toFixed(2));
           wr2.setAttribute("x2", (rightWhiskerStartX + 15).toFixed(2));
           wr2.setAttribute("y2", (eyeY + 3 + jitter).toFixed(2));
+        }
+        if (wr3) {
+          wr3.setAttribute("x1", rightWhiskerStartX.toFixed(2));
+          wr3.setAttribute("y1", (eyeY + 8 - jitter).toFixed(2));
+          wr3.setAttribute("x2", (rightWhiskerStartX + 12).toFixed(2));
+          wr3.setAttribute("y2", (eyeY + 11 - jitter).toFixed(2));
         }
       }
 

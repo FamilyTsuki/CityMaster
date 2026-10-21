@@ -6,6 +6,7 @@ export class AuthController {
   #authView;
   #navbarView;
   #isLoginMode = true;
+  #logoutListeners = [];
 
   constructor(router, authView, navbarView) {
     this.#router = router;
@@ -168,12 +169,25 @@ export class AuthController {
     return false;
   }
 
+  /**
+   * Abonne une fonction à la déconnexion (par exemple pour abandonner la partie en cours).
+   * @param {() => void} callback
+   */
+  onLogout(callback) {
+    if (typeof callback === "function") {
+      this.#logoutListeners.push(callback);
+    }
+  }
+
   logout() {
     ApiService.clearToken();
     localStorage.removeItem("username");
     localStorage.removeItem("is_admin");
     localStorage.removeItem("is_guest");
     localStorage.removeItem("citymaster_profile_image");
+    // La partie sauvegardée appartient au compte qui se déconnecte.
+    localStorage.removeItem("citymaster_session");
+    this.#logoutListeners.forEach((listener) => listener());
     this.isAuthenticated();
     this.#router.navigate("/");
   }

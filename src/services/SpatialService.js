@@ -584,7 +584,17 @@ export function stitchStreetFeatures(features = [], options = {}) {
  * @param {Array} customRoutes
  * @returns {Array}
  */
-export function mergeCityStreets(
+/**
+ * Applique les modifications d'administration aux voies d'origine d'une ville :
+ * les voies supprimées (isDeleted) ou remplacées (même id, nom ou nom
+ * d'origine) sont retirées, puis les voies et quartiers personnalisés actifs
+ * sont ajoutés à la fin. Partagé par le serveur et le navigateur.
+ * @param {object[]} defaultFeatures
+ * @param {object[]} customDistricts
+ * @param {object[]} customRoutes
+ * @returns {object[]}
+ */
+export function applyCityCustomizations(
   defaultFeatures = [],
   customDistricts = [],
   customRoutes = [],
@@ -618,6 +628,19 @@ export function mergeCityStreets(
     return true;
   });
 
-  const combined = [...filteredDefaults, ...activeCustom];
-  return stitchStreetFeatures(combined);
+  return [...filteredDefaults, ...activeCustom];
+}
+
+/**
+ * Voies d'une ville prêtes à afficher : modifications d'administration
+ * appliquées, puis tronçons contigus de même nom raccordés.
+ */
+export function mergeCityStreets(
+  defaultFeatures = [],
+  customDistricts = [],
+  customRoutes = [],
+) {
+  return stitchStreetFeatures(
+    applyCityCustomizations(defaultFeatures, customDistricts, customRoutes),
+  );
 }

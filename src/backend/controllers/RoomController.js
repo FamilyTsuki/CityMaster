@@ -1,11 +1,37 @@
 import crypto from "crypto";
 import pool from "../config/database.js";
+import { isValidCityKey } from "../config/paths.js";
 import { City } from "../models/City.js";
+import { User, isUserAdmin } from "../models/User.js";
+import {
+  GAME_DIFFICULTIES,
+  MAX_POINTS_PER_ROUND,
+  normalizeSeriesCount,
+} from "../../services/ScoringService.js";
+
+const MAX_TEST_ID = 2147483647;
+const SSE_HEARTBEAT_MS = 25000;
+
+/**
+ * Numéro de test unique : il sert de graine au tirage des rues et regroupe
+ * les scores du salon. Un numéro déjà utilisé mélangerait les classements.
+ */
+async function generateUniqueTestId() {
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const testId = crypto.randomInt(1, MAX_TEST_ID);
+    const check = await pool.query(
+      "SELECT 1 FROM rooms WHERE test_id = $1 UNION ALL SELECT 1 FROM scores WHERE test_id = $1 LIMIT 1",
+      [testId],
+    );
+    if (check.rows.length === 0) return testId;
+  }
+  return null;
+}
 
 export class RoomController {
   static async createRoom(req, res) {
     try {
-      if (req.user && req.user.isGuest) {
+      if (req.user?.is_guest) {
         return res.status(403).json({
           error:
             "Un compte utilisateur est requis pour créer un salon. Veuillez vous connecter.",
@@ -16,15 +42,13 @@ export class RoomController {
         req.body;
       const username = req.user.username;
 
-      if (!cityKey || !difficulty) {
+      if (!isValidCityKey(cityKey) || !GAME_DIFFICULTIES.includes(difficulty)) {
         return res
           .status(400)
           .json({ error: "cityKey and difficulty are required" });
       }
 
-      const parsed = parseInt(seriesCount, 10);
-      const cleanSeriesCount =
-        !isNaN(parsed) && parsed >= 1 && parsed <= 50 ? parsed : 10;
+      const cleanSeriesCount = normalizeSeriesCount(seriesCount, 10);
       const cleanMode =
         mode === "identify" || mode === "target" ? mode : "target";
 
@@ -56,7 +80,12 @@ export class RoomController {
           .json({ error: "Failed to generate a unique room code" });
       }
 
-      const testId = Math.floor(Math.random() * 1000000) + 1;
+      const testId = await generateUniqueTestId();
+      if (!testId) {
+        return res
+          .status(500)
+          .json({ error: "Failed to generate a unique test id" });
+      }
 
       const roomRes = await pool.query(
         `INSERT INTO rooms (code, city_key, difficulty, test_id, created_by, status, series_count, mode, expires_at)
@@ -295,7 +324,13 @@ export class RoomController {
 
       res.write(`data: ${JSON.stringify(initialPayload)}\n\n`);
 
+      // Commentaire SSE périodique : évite qu'un proxy ferme la connexion inactive.
+      const heartbeat = setInterval(() => {
+        res.write(": ping\n\n");
+      }, SSE_HEARTBEAT_MS);
+
       req.on("close", () => {
+        clearInterval(heartbeat);
         clientSet.delete(res);
         if (clientSet.size === 0) {
           RoomController.#subscribers.delete(upperCode);
@@ -396,12 +431,26 @@ export class RoomController {
 
       const upperCode = code.trim().toUpperCase();
 
+      const roomRes = await pool.query(
+        "SELECT series_count FROM rooms WHERE code = $1",
+        [upperCode],
+      );
+      if (roomRes.rows.length === 0) {
+        return res.status(404).json({ error: "Room not found" });
+      }
+
+      const parsedScore = Number(score);
+      const maxScore = (roomRes.rows[0].series_count || 10) * MAX_POINTS_PER_ROUND;
+      if (!Number.isInteger(parsedScore) || parsedScore < 0 || parsedScore > maxScore) {
+        return res.status(400).json({ error: "Invalid score" });
+      }
+
       const result = await pool.query(
         `UPDATE room_participants 
          SET score = $1, finished = true 
          WHERE room_code = $2 AND username = $3
          RETURNING *`,
-        [parseInt(score, 10), upperCode, username],
+        [parsedScore, upperCode, username],
       );
 
       if (result.rows.length === 0) {
@@ -441,7 +490,6 @@ export class RoomController {
     try {
       const { code } = req.params;
       const username = req.user.username;
-      const isAdmin = req.user.is_admin === true;
 
       if (!code) {
         return res.status(400).json({ error: "Room code is required" });
@@ -458,6 +506,10 @@ export class RoomController {
 
       const room = roomRes.rows[0];
 
+      const isAdmin =
+        room.created_by !== username &&
+        !req.user.is_guest &&
+        isUserAdmin(await User.findById(req.user.id));
       if (room.created_by !== username && !isAdmin) {
         return res.status(403).json({
           error: "Only the room creator or an admin can reset the room",

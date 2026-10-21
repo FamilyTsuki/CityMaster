@@ -372,12 +372,16 @@ export class RoomController {
         this.#sseSource = new EventSource(sseUrl);
 
         this.#sseSource.onmessage = async (event) => {
+          let data;
           try {
-            const data = JSON.parse(event.data);
-            if (data && data.changed !== false) {
-              await this.#processRoomData(data);
-            }
-          } catch (e) {}
+            data = JSON.parse(event.data);
+          } catch (e) {
+            console.warn("Invalid room event:", e);
+            return;
+          }
+          if (data && data.changed !== false) {
+            await this.#processRoomData(data);
+          }
         };
 
         this.#sseSource.onerror = () => {
@@ -411,7 +415,19 @@ export class RoomController {
     }
   }
 
+  /**
+   * Indique si des données reçues concernent encore le salon affiché.
+   * Une réponse peut arriver après que le joueur a quitté ou changé de salon.
+   */
+  #isCurrentRoom(roomData) {
+    return (
+      Boolean(this.#currentRoomCode) &&
+      (roomData?.roomCode || "").toUpperCase() === this.#currentRoomCode
+    );
+  }
+
   async #processRoomData(roomData) {
+    if (!this.#isCurrentRoom(roomData)) return;
     if (roomData.version) {
       this.#lastRoomVersion = roomData.version;
     }
@@ -436,6 +452,7 @@ export class RoomController {
         }
       }
       isAdmin = this.#verifiedAdmin;
+      if (!this.#isCurrentRoom(roomData)) return;
     }
     const isHost = isCreator || isAdmin;
 
@@ -486,6 +503,7 @@ export class RoomController {
         ? `/rooms/${code}?v=${this.#lastRoomVersion}`
         : `/rooms/${code}`;
       const res = await ApiService.get(url);
+      if (code !== this.#currentRoomCode) return;
       if (!res.ok) {
         if (res.status === 404 || res.status === 410) {
           this.stopPolling();
@@ -528,7 +546,4 @@ export class RoomController {
     return Boolean(ApiService.getToken() && localStorage.getItem("username"));
   }
 
-  #isAuthenticated() {
-    return this.#hasAccount();
-  }
 }

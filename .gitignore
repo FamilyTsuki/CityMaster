@@ -10,3 +10,9 @@ config/custom_cities.json
 config/users.json
 AGENTS.md
 GEMINI.md
+
+# Fichiers temporaires des écritures JSON atomiques
+*.tmp
+
+# Avatars envoyés par les joueurs
+uploads/

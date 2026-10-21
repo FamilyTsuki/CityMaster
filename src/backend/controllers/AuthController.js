@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
-import { User } from "../models/User.js";
+import { User, getEnvAdmins } from "../models/User.js";
 
 let googleClientInstance = null;
 
@@ -59,6 +59,7 @@ export class AuthController {
       if (error.code === "23505") {
         return res.status(409).json({ error: "Username already exists" });
       }
+      console.error("Registration error:", error);
       return res
         .status(500)
         .json({ error: "Internal server error during registration" });
@@ -83,7 +84,8 @@ export class AuthController {
         return res.status(401).json({ error: "Invalid username or password" });
       }
       const user = await User.findByUsername(trimmedUsername);
-      if (!user) {
+      // Les comptes créés via Google n'ont pas de mot de passe.
+      if (!user || !user.password) {
         return res.status(401).json({ error: "Invalid username or password" });
       }
 
@@ -111,6 +113,7 @@ export class AuthController {
         isAdmin: user.is_admin,
       });
     } catch (error) {
+      console.error("Login error:", error);
       return res
         .status(500)
         .json({ error: "Internal server error during login" });
@@ -139,14 +142,16 @@ export class AuthController {
 
       const payload = ticket.getPayload();
       const googleId = payload["sub"];
-      const email = payload["email"];
-      const name = payload["name"];
+      const email = payload["email"] || "";
       const picture = payload["picture"];
 
       let user = await User.findByGoogleId(googleId);
 
       if (!user) {
-        let baseUsername = email.split("@")[0].replace(/[^a-zA-Z0-9_-]/g, "");
+        let baseUsername = email
+          .split("@")[0]
+          .replace(/[^a-zA-Z0-9_-]/g, "")
+          .slice(0, 25);
         if (baseUsername.length < 3) baseUsername += "user";
 
         let username = baseUsername;
@@ -199,7 +204,8 @@ export class AuthController {
       }
 
       const existingUser = await User.findByUsername(trimmedUsername);
-      if (existingUser) {
+      const isReservedAdminName = getEnvAdmins().includes(trimmedUsername.toLowerCase());
+      if (existingUser || isReservedAdminName) {
         return res.status(409).json({
           error: "This username is already taken by a registered player",
         });

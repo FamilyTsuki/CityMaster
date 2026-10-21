@@ -209,161 +209,73 @@ test("RouteDifficultyService respects route.properties.difficulty", async () => 
   );
 });
 
-test("GameController.startGame respects difficulty override from difficulty_overrides.json", async () => {
-  const { GameController } = await import(
-    "../src/backend/controllers/GameController.js"
+test("GameController.startGame applique les difficultés forcées par l'administration", async () => {
+  const { GameController } = await import("../src/backend/controllers/GameController.js");
+  const { decryptGameToken } = await import("../src/backend/utils/game.js");
+  const { writeDataFile, makeCity, makeStreet, createMockRes } = await import("./helpers.js");
+
+  await writeDataFile(
+    "override_city.json",
+    makeCity([makeStreet("Chemin de Gobson", { lengthMeters: 120 })]),
   );
-  const { decrypt } = await import("../src/backend/utils/game.js");
-  const fs = await import("fs/promises");
-  const path = await import("path");
+  await writeDataFile("difficulty_overrides.json", {
+    override_city: { "chemin de gobson": "easy" },
+  });
 
-  process.env.JWT_SECRET =
-    process.env.JWT_SECRET || "test_jwt_secret_citymaster_tests_123456789";
-
-  const diffFilePath = path.join(
-    process.cwd(),
-    "public",
-    "assets",
-    "data",
-    "difficulty_overrides.json",
-  );
-  let origContent = "{}";
-  try {
-    origContent = await fs.readFile(diffFilePath, "utf8");
-  } catch (e) {}
-
-  try {
-    let diffData = {};
-    try {
-      diffData = JSON.parse(origContent);
-    } catch (e) {}
-    diffData["saint_cyr"] = diffData["saint_cyr"] || {};
-    
-    diffData["saint_cyr"]["chemin de gobson"] = "easy";
-    await fs.writeFile(diffFilePath, JSON.stringify(diffData, null, 2), "utf8");
-
-    let responseData = null;
-    const req = {
-      body: {
-        cityKey: "saint_cyr",
-        mode: "target",
-        difficulty: "easy",
-        seriesCount: 50,
-      },
+  const res = createMockRes();
+  await GameController.startGame(
+    {
+      body: { cityKey: "override_city", mode: "target", difficulty: "easy", seriesCount: 5 },
       user: { username: "tester" },
-    };
-    const res = {
-      status(code) {
-        this.statusCode = code;
-        return this;
-      },
-      json(data) {
-        responseData = data;
-        return this;
-      },
-    };
+    },
+    res,
+  );
+  assert.equal(res.statusCode, 200, JSON.stringify(res.body));
 
-    await GameController.startGame(req, res);
-    assert.ok(responseData, "startGame should return a response");
-    assert.ok(responseData.gameToken, "startGame should return gameToken");
-
-    const session = JSON.parse(
-      decrypt(responseData.gameToken, process.env.JWT_SECRET),
-    );
-    const gobson = session.streets.find(
-      (s) => s.name.toLowerCase().trim() === "chemin de gobson",
-    );
-    assert.ok(
-      gobson,
-      "Chemin de Gobson should be present in easy session due to override",
-    );
-    assert.equal(
-      gobson.difficulty,
-      "easy",
-      "Difficulty should be overridden to easy",
-    );
-  } finally {
-    await fs.writeFile(diffFilePath, origContent, "utf8");
-  }
+  const session = decryptGameToken(res.body.gameToken, process.env.JWT_SECRET);
+  assert.equal(session.streets.length, 5);
+  assert.equal(
+    session.streets[0].name,
+    "Chemin de Gobson",
+    "la seule rue facile (forcée) doit être tirée en premier",
+  );
+  assert.equal(session.streets[0].difficulty, "easy");
 });
 
-test("AdminController.saveRoute correctly preserves MultiLineString geometry for disconnected streets", async () => {
-  const { AdminController } = await import(
-    "../src/backend/controllers/AdminController.js"
-  );
-  const fs = await import("fs/promises");
-  const path = await import("path");
+test("AdminController.saveRoute conserve une géométrie MultiLineString", async () => {
+  const { AdminController } = await import("../src/backend/controllers/AdminController.js");
+  const { readDataFile, createMockRes } = await import("./helpers.js");
 
-  const routesFilePath = path.join(
-    process.cwd(),
-    "public",
-    "assets",
-    "data",
-    "custom_routes.json",
-  );
-  let origRoutes = "{}";
-  try {
-    origRoutes = await fs.readFile(routesFilePath, "utf8");
-  } catch (e) {}
-
-  try {
-    let responseData = null;
-    const multiSegmentRoute = {
-      name: "Avenue de Paris",
-      difficulty: "easy",
-      geometry: {
-        type: "MultiLineString",
-        coordinates: [
-          [
-            [1.9, 47.76],
-            [1.91, 47.75],
-          ],
-          [
-            [1.92, 47.74],
-            [1.93, 47.73],
-          ],
-        ],
-      },
-    };
-
-    const req = {
+  const res = createMockRes();
+  await AdminController.saveRoute(
+    {
       body: {
         cityKey: "la_ferte_saint_aubin",
-        route: multiSegmentRoute,
+        route: {
+          name: "Avenue de Paris",
+          difficulty: "easy",
+          geometry: {
+            type: "MultiLineString",
+            coordinates: [
+              [[1.9, 47.76], [1.91, 47.75]],
+              [[1.92, 47.74], [1.93, 47.73]],
+            ],
+          },
+        },
       },
-    };
-    const res = {
-      status(code) {
-        this.statusCode = code;
-        return this;
-      },
-      json(data) {
-        responseData = data;
-        return this;
-      },
-    };
+    },
+    res,
+  );
 
-    await AdminController.saveRoute(req, res);
-    assert.ok(responseData, "saveRoute should return a response");
-    assert.ok(responseData.feature, "saveRoute should return saved feature");
-    assert.equal(responseData.feature.geometry.type, "MultiLineString");
-    assert.equal(responseData.feature.geometry.coordinates.length, 2);
-    assert.deepEqual(responseData.feature.geometry.coordinates[0], [
-      [1.9, 47.76],
-      [1.91, 47.75],
-    ]);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.feature.geometry.type, "MultiLineString");
+  assert.equal(res.body.feature.properties.difficulty, "easy");
 
-    const savedFile = JSON.parse(await fs.readFile(routesFilePath, "utf8"));
-    const savedInCity = savedFile["la_ferte_saint_aubin"];
-    assert.ok(Array.isArray(savedInCity));
-    const savedItem = savedInCity.find(
-      (r) => r.properties.name === "Avenue de Paris",
-    );
-    assert.ok(savedItem);
-    assert.equal(savedItem.geometry.type, "MultiLineString");
-    assert.equal(savedItem.geometry.coordinates.length, 2);
-  } finally {
-    await fs.writeFile(routesFilePath, origRoutes, "utf8");
-  }
+  const saved = (await readDataFile("custom_routes.json")).la_ferte_saint_aubin;
+  assert.equal(saved.length, 1);
+  assert.equal(saved[0].geometry.type, "MultiLineString");
+  assert.equal(saved[0].geometry.coordinates.length, 2);
+
+  const overrides = await readDataFile("difficulty_overrides.json");
+  assert.equal(overrides.la_ferte_saint_aubin["avenue de paris"], "easy");
 });
-

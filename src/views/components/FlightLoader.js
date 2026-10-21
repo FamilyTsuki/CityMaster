@@ -16,7 +16,6 @@ export class FlightLoader {
   #cloudPitch = 16;
 
   #progress = 0;
-  #isRunning = false;
   #animationTimer = null;
 
   static #CURVE = {
@@ -224,7 +223,6 @@ export class FlightLoader {
   start({ duration = 4500, onComplete = null } = {}) {
     this.stop();
     this.setProgress(0);
-    this.#isRunning = true;
 
     const intervalMs = 25;
     const step = 100 / (duration / intervalMs);
@@ -251,7 +249,6 @@ export class FlightLoader {
       clearInterval(this.#animationTimer);
       this.#animationTimer = null;
     }
-    this.#isRunning = false;
   }
 
   /**

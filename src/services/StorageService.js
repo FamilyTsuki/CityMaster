@@ -7,42 +7,42 @@ export class StorageService {
   static #DB_NAME = 'citymaster_storage';
   static #DB_VERSION = 1;
   static #STORE_CITIES = 'cached_cities';
-  static #dbInstance = null;
+  static #dbPromise = null;
 
-  static async #getDB() {
+  /**
+   * Ouvre la base une seule fois, même si plusieurs appels arrivent en même temps.
+   * @returns {Promise<IDBDatabase|null>}
+   */
+  static #getDB() {
     if (typeof indexedDB === 'undefined') {
-      return null;
+      return Promise.resolve(null);
     }
+    if (!this.#dbPromise) {
+      this.#dbPromise = new Promise((resolve) => {
+        try {
+          const request = indexedDB.open(this.#DB_NAME, this.#DB_VERSION);
 
-    if (this.#dbInstance) {
-      return this.#dbInstance;
-    }
-
-    return new Promise((resolve) => {
-      try {
-        const request = indexedDB.open(this.#DB_NAME, this.#DB_VERSION);
-
-        request.onupgradeneeded = (event) => {
-          const db = event.target.result;
-          if (!db.objectStoreNames.contains(this.#STORE_CITIES)) {
-            db.createObjectStore(this.#STORE_CITIES, { keyPath: 'key' });
-          }
-        };
-
-        request.onsuccess = (event) => {
-          this.#dbInstance = event.target.result;
-          resolve(this.#dbInstance);
-        };
-
-        request.onerror = (err) => {
-          console.warn('IndexedDB access error:', err);
+          request.onupgradeneeded = (event) => {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains(this.#STORE_CITIES)) {
+              db.createObjectStore(this.#STORE_CITIES, { keyPath: 'key' });
+            }
+          };
+          request.onsuccess = (event) => resolve(event.target.result);
+          request.onerror = (err) => {
+            console.warn('IndexedDB access error:', err);
+            resolve(null);
+          };
+        } catch (err) {
+          console.warn('IndexedDB initialization error:', err);
           resolve(null);
-        };
-      } catch (err) {
-        console.warn('IndexedDB initialization error:', err);
-        resolve(null);
-      }
-    });
+        }
+      }).then((db) => {
+        if (!db) this.#dbPromise = null;
+        return db;
+      });
+    }
+    return this.#dbPromise;
   }
 
   /**
@@ -77,13 +77,15 @@ export class StorageService {
   }
 
   /**
-   * Enregistre les données GeoJSON d'une commune dans IndexedDB avec ses métadonnées.
+   * Enregistre les données GeoJSON d'une commune avec ses métadonnées.
+   * Les métadonnées déjà enregistrées sont conservées si `cityData` n'est pas fourni.
    * @param {string} cityKey
    * @param {any} data
-   * @param {any} [cityData]
-   * @returns {Promise<boolean>}
+   * @param {any} [cityData] Métadonnées affichées hors-ligne (nom, bbox, centre...).
+   * @param {string|null} [etag] ETag HTTP du fichier, pour revalider le cache.
+   * @returns {Promise<boolean>} true une fois la transaction terminée.
    */
-  static async setCity(cityKey, data, cityData = null) {
+  static async setCity(cityKey, data, cityData = null, etag = null) {
     if (!cityKey || !data) return false;
     const db = await this.#getDB();
     if (!db) return false;
@@ -92,20 +94,28 @@ export class StorageService {
       try {
         const tx = db.transaction([this.#STORE_CITIES], 'readwrite');
         const store = tx.objectStore(this.#STORE_CITIES);
-        const resolvedCityData = cityData || {
-          key: cityKey,
-          name: cityKey.charAt(0).toUpperCase() + cityKey.slice(1),
-        };
-        const req = store.put({
-          key: cityKey,
-          name: resolvedCityData.name || cityKey,
-          cityData: resolvedCityData,
-          data,
-          updatedAt: Date.now(),
-        });
+        const existingRequest = store.get(cityKey);
 
-        req.onsuccess = () => resolve(true);
-        req.onerror = () => resolve(false);
+        existingRequest.onsuccess = () => {
+          const existing = existingRequest.result || {};
+          const resolvedCityData = cityData ||
+            existing.cityData || {
+              key: cityKey,
+              name: cityKey.charAt(0).toUpperCase() + cityKey.slice(1),
+            };
+          store.put({
+            key: cityKey,
+            name: resolvedCityData.name || cityKey,
+            cityData: resolvedCityData,
+            data,
+            etag: etag || null,
+            updatedAt: Date.now(),
+          });
+        };
+
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => resolve(false);
+        tx.onabort = () => resolve(false);
       } catch (err) {
         console.warn(`Error storing city ${cityKey} in IndexedDB:`, err);
         resolve(false);

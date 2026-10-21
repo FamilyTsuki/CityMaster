@@ -2,37 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import fs from "fs/promises";
-import path from "path";
 import { AuthController } from "../src/backend/controllers/AuthController.js";
 import { User } from "../src/backend/models/User.js";
-
-function createMockRes() {
-  const res = {
-    statusCode: 200,
-    body: null,
-    status(code) {
-      this.statusCode = code;
-      return this;
-    },
-    json(data) {
-      this.body = data;
-      return this;
-    },
-  };
-  return res;
-}
-
-const createdUsernames = [];
-
-async function cleanupTestUsers() {
-  try {
-    const usersPath = path.join(process.cwd(), "config", "users.json");
-    const content = JSON.parse(await fs.readFile(usersPath, "utf8"));
-    const filtered = content.filter((u) => !createdUsernames.includes(u.username.toLowerCase()));
-    await fs.writeFile(usersPath, JSON.stringify(filtered, null, 2), "utf8");
-  } catch (e) {}
-}
+import { createMockRes } from "./helpers.js";
 
 test("AuthController.register: valider le format des pseudos (3-30 caractères, alphanumériques, hyphens, underscores)", async () => {
   
@@ -84,9 +56,7 @@ test("AuthController.register: valider la politique de mot de passe (min 6 carac
 });
 
 test("AuthController: hachage bcrypt sécurisé et génération de token JWT valide", async () => {
-  process.env.JWT_SECRET = process.env.JWT_SECRET || "test_jwt_secret_key_12345";
   const uniqueUsername = `auth_test_${Date.now()}`;
-  createdUsernames.push(uniqueUsername.toLowerCase());
   const rawPassword = "SuperSecurePassword123!";
 
   const resReg = createMockRes();
@@ -118,7 +88,40 @@ test("AuthController: hachage bcrypt sécurisé et génération de token JWT val
   assert.equal(decoded.username, uniqueUsername);
   assert.equal(decoded.id, userInDb.id);
   assert.equal(decoded.is_admin, userInDb.is_admin);
+});
 
-  await cleanupTestUsers();
+test("AuthController.login: un compte Google (sans mot de passe) renvoie 401, pas 500", async () => {
+  await User.createGoogleUser("google_only_user", "google-sub-123", null);
+
+  const res = createMockRes();
+  await AuthController.login(
+    { body: { username: "google_only_user", password: "anything123" } },
+    res,
+  );
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.error, "Invalid username or password");
+});
+
+test("AuthController.guestLogin: refuse les pseudos réservés aux comptes et aux administrateurs", async () => {
+  await User.create("registered_player", "hash");
+  const taken = createMockRes();
+  await AuthController.guestLogin({ body: { username: "Registered_Player" } }, taken);
+  assert.equal(taken.statusCode, 409);
+
+  process.env.ADMIN_USERS = "env_boss";
+  try {
+    const reserved = createMockRes();
+    await AuthController.guestLogin({ body: { username: "env_boss" } }, reserved);
+    assert.equal(reserved.statusCode, 409);
+  } finally {
+    process.env.ADMIN_USERS = "";
+  }
+
+  const ok = createMockRes();
+  await AuthController.guestLogin({ body: { username: "free_guest" } }, ok);
+  assert.equal(ok.statusCode, 200);
+  const decoded = jwt.verify(ok.body.token, process.env.JWT_SECRET);
+  assert.equal(decoded.is_guest, true);
+  assert.equal(decoded.id, null);
 });
 

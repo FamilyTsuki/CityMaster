@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v85';
+const CACHE_NAME = 'citymaster-v87';
 const STATIC_ASSETS = [
   "/",
   "/index.html",
@@ -71,12 +71,13 @@ const STATIC_ASSETS = [
   "/src/services/ApiService.js",
   "/src/services/AudioService.js",
   "/src/services/ConfettiService.js",
-  "/src/services/CustomLotissementService.js",
   "/src/services/FlashMessageService.js",
+  "/src/services/HapticService.js",
   "/src/services/I18nService.js",
   "/src/services/NetworkService.js",
   "/src/services/OverpassService.js",
   "/src/services/RouteDifficultyService.js",
+  "/src/services/ScoringService.js",
   "/src/services/SpatialService.js",
   "/src/services/StorageService.js",
   "/src/views/AdminView.js",
@@ -89,6 +90,8 @@ const STATIC_ASSETS = [
   "/src/views/RoomView.js",
   "/src/views/ChangelogView.js",
   "/src/views/components/FlightLoader.js",
+  "/src/views/components/StreetRootsAnimation.js",
+  "/src/views/components/LandingSimulator.js",
 ];
 
 self.addEventListener("install", (event) => {
@@ -160,10 +163,17 @@ self.addEventListener("fetch", (event) => {
     url.hostname.endsWith("cartocdn.com") ||
     url.hostname.endsWith("arcgisonline.com");
 
+  // Les fichiers de villes (souvent plusieurs Mo) sont déjà conservés dans
+  // IndexedDB par l'application : inutile de les dupliquer dans ce cache.
+  const isCityDataFile =
+    url.pathname.startsWith("/assets/data/") &&
+    !url.pathname.startsWith("/assets/data/custom_");
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
         const isCacheable =
+          !isCityDataFile &&
           networkResponse &&
           networkResponse.status === 200 &&
           (networkResponse.type === "basic" ||

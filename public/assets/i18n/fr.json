@@ -94,7 +94,17 @@
     "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur : installable en 1 clic sans passer par les stores et jouable hors-ligne.",
     "install_guide_btn": "Comment l'installer ?",
     "feature_4_title": "Salons Équipes & Classement",
-    "feature_4_desc": "Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement."
+    "feature_4_desc": "Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement.",
+    "sim_find_street": "Trouvez sur la carte :",
+    "sim_score_popup": "+500 pts !",
+    "sim_accuracy": "Exactitude 99%",
+    "badge_mode_target": "Mode Cible interactif",
+    "badge_mode_multi": "Salons & Défis multijoueurs",
+    "badge_mode_offline": "100% Hors-ligne & PWA",
+    "tag_champs_elysees": "Av. des Champs-Élysées",
+    "tag_saint_michel": "Bd Saint-Michel",
+    "tag_victor_hugo": "Av. Victor Hugo",
+    "tag_republique": "Pl. de la République"
   },
   "auth": {
     "login_title": "Connexion",
@@ -435,7 +445,8 @@
     "user_exists": "Nom d'utilisateur déjà utilisé.",
     "not_enough_streets_difficulty": "Cette commune ne possède pas assez de routes compatibles avec ce niveau de difficulté (ex: pas assez de grands axes pour Facile). Veuillez choisir une autre difficulté.",
     "overpass_busy": "Le serveur de cartographie (Overpass API) est surchargé ou indisponible. Veuillez réessayer.",
-    "loading_error": "Erreur de chargement."
+    "loading_error": "Erreur de chargement.",
+    "game_session_invalid": "Cette partie n'est plus valide. Veuillez en lancer une nouvelle."
   },
   "flight": {
     "flight_title": "En vol vers la destination",
@@ -463,8 +474,6 @@
     "banner_online": "Connexion Internet rétablie !",
     "game_requires_connection": "Une connexion Internet est requise pour générer la carte et lancer la partie.",
     "room_requires_connection": "Les salons multijoueurs nécessitent une connexion Internet active.",
-    "score_saved_locally": "Score enregistré localement. Il sera synchronisé dès le retour de la connexion.",
-    "scores_synced": "Vos scores en attente ont été synchronisés avec succès !",
     "leaderboard_requires_connection": "Le classement nécessite une connexion Internet.",
     "city_not_cached": "Cette ville n'est pas encore enregistrée pour le mode hors-ligne. Jouez-y d'abord avec une connexion Internet pour la sauvegarder.",
     "certificate_notice": "Partie hors-ligne : Ce score reste local et n'est pas enregistré au classement mondial.",

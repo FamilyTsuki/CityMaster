@@ -2,6 +2,8 @@ import { I18nService } from "../services/I18nService.js";
 import { ApiService } from "../services/ApiService.js";
 import { NetworkService } from "../services/NetworkService.js";
 import { StorageService } from "../services/StorageService.js";
+import { StreetRootsAnimation } from "./components/StreetRootsAnimation.js";
+import { LandingSimulator } from "./components/LandingSimulator.js";
 
 export class GameView {
   #screens;
@@ -11,7 +13,6 @@ export class GameView {
   #identifyContainer;
   #streetInput;
   #submitBtn;
-  #nextModeBtn;
   #quitBtn;
   #gameError;
   #restartBtn;
@@ -72,9 +73,43 @@ export class GameView {
     this.#setupKeyboardShortcuts();
     this.#setupSetupForm();
     this.#setupReportModal();
+    this.#initLandingEffects();
     I18nService.getInstance().onLanguageChange(() => {
       this.refreshSetupDefaults();
     });
+  }
+
+  #streetRoots = null;
+  #landingSimulator = null;
+
+  #initLandingEffects() {
+    if (typeof document === 'undefined') return;
+
+    const rootsCanvas = document.getElementById('street-roots-canvas');
+    if (rootsCanvas) {
+      this.#streetRoots = new StreetRootsAnimation(rootsCanvas);
+    }
+
+    const simContainer = document.querySelector('.game-preview-stage');
+    if (simContainer) {
+      this.#landingSimulator = new LandingSimulator(simContainer);
+    }
+
+    const targetPill = document.getElementById('sim-mode-target-btn');
+    if (targetPill) {
+      targetPill.addEventListener('click', () => {
+        const playBtn = document.getElementById('hero-play-btn');
+        if (playBtn) playBtn.click();
+      });
+    }
+
+    const multiPill = document.getElementById('sim-mode-multi-btn');
+    if (multiPill) {
+      multiPill.addEventListener('click', () => {
+        const roomBtn = document.getElementById('hero-room-btn');
+        if (roomBtn) roomBtn.click();
+      });
+    }
   }
 
   #reportContext = null;
@@ -459,7 +494,6 @@ export class GameView {
           difficultySearch.dataset.value = fallback;
         }
 
-        const { I18nService } = await import("../services/I18nService.js");
         const i18n = I18nService.getInstance();
         difficultySearch.value = i18n.t(`welcome.diff_${currentVal}`);
 
@@ -709,7 +743,6 @@ export class GameView {
           ? difficultyInput.dataset.value
           : "hard";
 
-        const { I18nService } = await import("../services/I18nService.js");
         const i18n = I18nService.getInstance();
 
         if (!cityKey) {
@@ -1016,18 +1049,16 @@ export class GameView {
     tbody.replaceChildren();
 
     if (!leaderboardData || leaderboardData.length === 0) {
-      import("../services/I18nService.js").then(({ I18nService }) => {
-        const noScoresText = I18nService.getInstance().t(
-          "leaderboard.no_scores",
-        );
-        const tr = document.createElement("tr");
-        const td = document.createElement("td");
-        td.colSpan = 4;
-        td.className = "text-center";
-        td.textContent = noScoresText;
-        tr.appendChild(td);
-        tbody.replaceChildren(tr);
-      });
+      const noScoresText = I18nService.getInstance().t(
+        "leaderboard.no_scores",
+      );
+      const tr = document.createElement("tr");
+      const td = document.createElement("td");
+      td.colSpan = 4;
+      td.className = "text-center";
+      td.textContent = noScoresText;
+      tr.appendChild(td);
+      tbody.replaceChildren(tr);
       return;
     }
 
@@ -1058,15 +1089,6 @@ export class GameView {
       tr.append(tdRank, tdUser, tdScore, tdDate);
       tbody.appendChild(tr);
     });
-  }
-
-  #escapeHtml(unsafe) {
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
   }
 
   onMapStyleChange(callback) {

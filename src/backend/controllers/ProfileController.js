@@ -1,19 +1,14 @@
 import sharp from "sharp";
+import fs from "fs/promises";
 import path from "path";
 import { User } from "../models/User.js";
+import { UPLOADS_DIR } from "../config/paths.js";
 import { Score } from "../models/Score.js";
 
 export class ProfileController {
   static async getProfile(req, res) {
     try {
-      let user = null;
-      if (req.user.id) {
-        user = await User.findById(req.user.id);
-      }
-      if (!user && req.user.username) {
-        user = await User.findByUsername(req.user.username);
-      }
-
+      const user = req.user.id ? await User.findById(req.user.id) : null;
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -37,10 +32,17 @@ export class ProfileController {
       return res.status(400).json({ error: "Aucun fichier reçu" });
     }
 
+    const userId = Number(req.user.id);
+    if (!Number.isInteger(userId) || userId <= 0) {
+      return res
+        .status(403)
+        .json({ error: "Un compte est nécessaire pour changer d'avatar" });
+    }
+
     try {
-      const userId = req.user.id;
       const filename = `avatar_${userId}.webp`;
-      const outputPath = path.join(process.cwd(), "uploads", filename);
+      await fs.mkdir(UPLOADS_DIR, { recursive: true });
+      const outputPath = path.join(UPLOADS_DIR, filename);
 
       await sharp(req.file.buffer)
         .resize(256, 256, { fit: "cover" })

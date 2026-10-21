@@ -11,24 +11,46 @@ export class OverpassService {
     this.#apiUrl = apiUrl;
   }
 
-  async fetchStreets(bbox, cityKey = null) {
+  /**
+   * Voies d'une ville. Ordre de priorité :
+   * 1. fichier généré par le serveur (/assets/data/<ville>.json), revalidé par
+   *    ETag : le cache IndexedDB est réutilisé tant que le fichier n'a pas changé ;
+   * 2. cache IndexedDB seul (hors-ligne ou serveur indisponible) ;
+   * 3. requête Overpass dynamique sur la zone `bbox`.
+   * @param {string|null} bbox
+   * @param {string|null} [cityKey]
+   * @param {object|null} [cityMeta] Métadonnées enregistrées avec le cache (nom, bbox, centre).
+   */
+  async fetchStreets(bbox, cityKey = null, cityMeta = null) {
     if (cityKey) {
+      let cached = null;
       try {
-        const cachedData = await StorageService.getCity(cityKey);
-        if (cachedData && cachedData.features && cachedData.features.length > 0) {
-          return cachedData;
-        }
-      } catch (e) {}
-
-      try {
-        const res = await ApiService.get(`/assets/data/${cityKey}.json`, { includeAuth: false });
-        if (res.ok && res.data) {
-          StorageService.setCity(cityKey, res.data).catch(() => {});
-          return res.data;
-        }
-      } catch (err) {
-        console.warn(`Static data unavailable for city ${cityKey}, falling back to dynamic query.`);
+        cached = await StorageService.getCityRecord(cityKey);
+      } catch (e) {
+        console.warn(`Unable to read cached city ${cityKey}:`, e);
       }
+      const hasCachedData = Boolean(cached?.data?.features?.length);
+
+      const res = await ApiService.get(`/assets/data/${cityKey}.json`, {
+        includeAuth: false,
+        headers: hasCachedData && cached.etag ? { 'If-None-Match': cached.etag } : {},
+      });
+
+      if (res.status === 304 && hasCachedData) {
+        if (cityMeta && !cached.cityData?.bbox) {
+          StorageService.setCity(cityKey, cached.data, cityMeta, cached.etag).catch(() => {});
+        }
+        return cached.data;
+      }
+      if (res.ok && res.data?.features) {
+        const etag = res.response?.headers?.get('etag') || null;
+        StorageService.setCity(cityKey, res.data, cityMeta, etag).catch(() => {});
+        return res.data;
+      }
+      if (hasCachedData) {
+        return cached.data;
+      }
+      console.warn(`Static data unavailable for city ${cityKey}, falling back to dynamic query.`);
     }
 
     if (bbox) {
@@ -38,7 +60,7 @@ export class OverpassService {
         if (res.ok && res.data) {
           const geojson = this.#convertToGeoJSON(res.data);
           if (cityKey && geojson && geojson.features && geojson.features.length > 0) {
-            StorageService.setCity(cityKey, geojson).catch(() => {});
+            StorageService.setCity(cityKey, geojson, cityMeta).catch(() => {});
           }
           return geojson;
         }
@@ -48,25 +70,6 @@ export class OverpassService {
     }
 
     throw new Error(I18nService.getInstance().t('errors.network_error'));
-  }
-
-  async fetchStreetNearPoint(lat, lng, radiusMeters = 150, osmId = null, signal = null) {
-    if (osmId instanceof AbortSignal) {
-      signal = osmId;
-      osmId = null;
-    }
-
-    let query;
-    if (osmId) {
-      const relId = osmId > 3600000000 ? osmId - 3600000000 : osmId;
-      query = `[out:json][timeout:25];relation(${relId});map_to_area->.a;(way(around:${radiusMeters},${lat},${lng})(area.a)["highway"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];way(around:${radiusMeters},${lat},${lng})(area.a)["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})(area.a)["place"]["name"];);out geom;`;
-    } else {
-      query = `[out:json][timeout:25];(way(around:${radiusMeters},${lat},${lng})["highway"]["name"];way(around:${radiusMeters},${lat},${lng})["place"]["name"];way(around:${radiusMeters},${lat},${lng})["landuse"="residential"]["name"];node(around:${radiusMeters},${lat},${lng})["place"]["name"];);out geom;`;
-    }
-
-    const res = await ApiService.post('/overpass', { query }, { signal });
-    if (!res.ok || !res.data) return null;
-    return this.#convertToGeoJSON(res.data);
   }
 
   #convertToGeoJSON(data) {

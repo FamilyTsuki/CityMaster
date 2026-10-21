@@ -15,13 +15,11 @@ export class NavbarView {
   #navBurgerBtn;
   #navbarActions;
   #menuThemeToggle;
-  #menuThemeText;
   #currentTheme = 'light';
 
   constructor() {
     this.#themeToggle = document.getElementById('theme-toggle');
     this.#menuThemeToggle = document.getElementById('menu-theme-toggle');
-    this.#menuThemeText = document.getElementById('menu-theme-text');
     this.#langToggle = document.getElementById('lang-toggle');
     this.#langFlag = document.getElementById('lang-flag');
     this.#navAuthLoggedOut = document.getElementById('nav-auth-logged-out');
@@ -326,7 +324,6 @@ export class NavbarView {
           ? i18n.t('nav.light_mode', {}, 'Mode clair')
           : i18n.t('nav.dark_mode', {}, 'Mode sombre');
       this.#menuThemeToggle.appendChild(labelText);
-      this.#menuThemeText = labelText;
       this.#menuThemeToggle.setAttribute('title', label);
       this.#menuThemeToggle.setAttribute('aria-label', label);
     }

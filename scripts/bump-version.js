@@ -1,3 +1,11 @@
+/**
+ * Incrémente la version dans package.json, public/sw.js (CACHE_NAME),
+ * public/index.html (?v=...) et README.md, puis copie CHANGELOG.md dans public/.
+ *
+ * Usage : node scripts/bump-version.js <patch|minor|major> ["Description"] ["Catégorie"]
+ * Si une description est donnée et que l'entrée n'existe pas encore, une entrée
+ * Keep a Changelog est ajoutée (catégorie « Modifié » par défaut).
+ */
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,6 +17,10 @@ const rootDir = path.join(dirname, '..');
 async function bumpVersion() {
   const bumpType = process.argv[2] || 'patch';
   const summary = process.argv[3] || '';
+  const category = process.argv[4] || 'Modifié';
+  if (!['patch', 'minor', 'major'].includes(bumpType)) {
+    throw new Error(`Type de version inconnu : ${bumpType} (patch, minor ou major)`);
+  }
 
   const pkgPath = path.join(rootDir, 'package.json');
   const pkgContent = await fs.readFile(pkgPath, 'utf8');
@@ -57,9 +69,10 @@ async function bumpVersion() {
   let changelogContent = await fs.readFile(changelogPath, 'utf8');
   const today = new Date().toISOString().split('T')[0];
 
-  if (!changelogContent.includes(`## [${newVersion}]`)) {
-    const entry = `## [${newVersion}] - ${today}\n\n### ${summary || 'Amélioré'}\n- Mise à jour et optimisations des composants.\n\n---\n\n`;
-
+  if (changelogContent.includes(`## [${newVersion}]`)) {
+    console.log(`CHANGELOG.md contient déjà l'entrée ${newVersion}.`);
+  } else if (summary) {
+    const entry = `## [${newVersion}] - ${today}\n\n### ${category}\n- ${summary}\n\n---\n\n`;
     const match = changelogContent.search(/\n## \[/);
     if (match !== -1) {
       changelogContent = changelogContent.slice(0, match + 1) + entry + changelogContent.slice(match + 1);
@@ -67,6 +80,8 @@ async function bumpVersion() {
       changelogContent += '\n\n' + entry;
     }
     await fs.writeFile(changelogPath, changelogContent, 'utf8');
+  } else {
+    console.warn(`⚠️  Aucune entrée ${newVersion} dans CHANGELOG.md : ajoutez-la à la main puis relancez la copie (cp CHANGELOG.md public/CHANGELOG.md).`);
   }
 
   await fs.copyFile(changelogPath, path.join(rootDir, 'public', 'CHANGELOG.md'));

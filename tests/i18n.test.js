@@ -137,8 +137,6 @@ test('I18nService.translateDOM(root): translates element trees with data-i18n at
   const { I18nService } = await import('../src/services/I18nService.js');
   const i18n = I18nService.getInstance();
 
-  const frContent = JSON.parse(fs.readFileSync(path.resolve('public/assets/i18n/fr.json'), 'utf8'));
-
   // Manually mock dictionary in private property if needed or rely on fallback
   const mockElements = [
     {
