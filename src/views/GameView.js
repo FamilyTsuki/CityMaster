@@ -2,8 +2,6 @@ import { I18nService } from "../services/I18nService.js";
 import { ApiService } from "../services/ApiService.js";
 import { NetworkService } from "../services/NetworkService.js";
 import { StorageService } from "../services/StorageService.js";
-import { StreetRootsAnimation } from "./components/StreetRootsAnimation.js";
-import { LandingSimulator } from "./components/LandingSimulator.js";
 
 export class GameView {
   #screens;
@@ -73,41 +71,9 @@ export class GameView {
     this.#setupKeyboardShortcuts();
     this.#setupSetupForm();
     this.#setupReportModal();
-    this.#initLandingEffects();
     I18nService.getInstance().onLanguageChange(() => {
       this.refreshSetupDefaults();
     });
-  }
-
-  #initLandingEffects() {
-    if (typeof document === 'undefined') return;
-
-    const rootsCanvas = document.getElementById('street-roots-canvas');
-    if (rootsCanvas) {
-      // L'animation se met en pause seule quand le canevas n'est plus visible.
-      new StreetRootsAnimation(rootsCanvas);
-    }
-
-    const simContainer = document.querySelector('.game-preview-stage');
-    if (simContainer) {
-      new LandingSimulator(simContainer);
-    }
-
-    const targetPill = document.getElementById('sim-mode-target-btn');
-    if (targetPill) {
-      targetPill.addEventListener('click', () => {
-        const playBtn = document.getElementById('hero-play-btn');
-        if (playBtn) playBtn.click();
-      });
-    }
-
-    const multiPill = document.getElementById('sim-mode-multi-btn');
-    if (multiPill) {
-      multiPill.addEventListener('click', () => {
-        const roomBtn = document.getElementById('hero-room-btn');
-        if (roomBtn) roomBtn.click();
-      });
-    }
   }
 
   #reportContext = null;

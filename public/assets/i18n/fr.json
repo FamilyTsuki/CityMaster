@@ -94,17 +94,7 @@
     "feature_3_desc": "Jouez sur smartphone, tablette ou ordinateur : installable en 1 clic sans passer par les stores et jouable hors-ligne.",
     "install_guide_btn": "Comment l'installer ?",
     "feature_4_title": "Salons Équipes & Classement",
-    "feature_4_desc": "Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement.",
-    "sim_find_street": "Trouvez sur la carte :",
-    "sim_score_popup": "+500 pts !",
-    "sim_accuracy": "Exactitude 99%",
-    "badge_mode_target": "Mode Cible interactif",
-    "badge_mode_multi": "Salons & Défis multijoueurs",
-    "badge_mode_offline": "100% Hors-ligne & PWA",
-    "tag_champs_elysees": "Av. des Champs-Élysées",
-    "tag_saint_michel": "Bd Saint-Michel",
-    "tag_victor_hugo": "Av. Victor Hugo",
-    "tag_republique": "Pl. de la République"
+    "feature_4_desc": "Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement."
   },
   "auth": {
     "login_title": "Connexion",

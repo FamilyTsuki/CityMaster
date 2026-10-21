@@ -1,30 +1,13 @@
 <div id="landing-screen" class="screen">
-  <canvas id="street-roots-canvas" class="street-roots-canvas" aria-hidden="true"></canvas>
-
-  <!-- Plaques de rues toponymiques flottantes attachées aux racines latérales -->
-  <div class="street-roots-tags street-roots-tags-left" aria-hidden="true">
-    <div class="street-sign-tag tag-top">
-      <span class="tag-bullet"></span>
-      <span data-i18n="landing.tag_champs_elysees">Av. des Champs-Élysées</span>
-    </div>
-    <div class="street-sign-tag tag-bottom">
-      <span class="tag-bullet"></span>
-      <span data-i18n="landing.tag_saint_michel">Bd Saint-Michel</span>
-    </div>
-  </div>
-
-  <div class="street-roots-tags street-roots-tags-right" aria-hidden="true">
-    <div class="street-sign-tag tag-top">
-      <span class="tag-bullet"></span>
-      <span data-i18n="landing.tag_victor_hugo">Av. Victor Hugo</span>
-    </div>
-    <div class="street-sign-tag tag-bottom">
-      <span class="tag-bullet"></span>
-      <span data-i18n="landing.tag_republique">Pl. de la République</span>
-    </div>
-  </div>
+  <svg width="0" height="0" style="position:absolute; pointer-events:none;" aria-hidden="true">
+    <filter id="paper-wobbly-line">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" result="noise" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
 
   <div class="landing-content">
+
     <div class="hero">
       <h1 class="hero-title" data-i18n="landing.hero_title">Maîtrisez la Géographie de <span class="title-highlight">Votre Ville</span></h1>
       
@@ -40,116 +23,35 @@
       </div>
     </div>
 
-    <!-- Simulateur interactif inspiré du jeu CityMaster -->
-    <div class="game-preview-stage paper-sheet" role="region" aria-label="Aperçu interactif du jeu CityMaster">
-      <!-- Bandeau de consigne du jeu -->
-      <div class="sim-console-header">
-        <div class="sim-prompt-box">
-          <div class="sim-icon-pulse" aria-hidden="true">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-          </div>
-          <div class="sim-prompt-text">
-            <span class="sim-prompt-label" data-i18n="landing.sim_find_street">Trouvez sur la carte :</span>
-            <strong class="sim-street-target">Avenue des Champs-Élysées</strong>
-          </div>
+    <div class="features-grid">
+      <div class="feature-card paper-sheet sheet-tilt-left">
+        <div class="paper-tape" aria-hidden="true"></div>
+        <div class="feature-icon primary" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
         </div>
-
-        <div class="sim-hud-stats" aria-hidden="true">
-          <span class="sim-badge sim-timer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> <span class="sim-timer-val">15s</span></span>
-          <span class="sim-badge sim-streak"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg> <span class="sim-streak-val">Série x5 🔥</span></span>
-          <span class="sim-badge sim-diff">Facile</span>
-        </div>
+        <h2 data-i18n="landing.feature_1_title">Données en Temps Réel</h2>
+        <p data-i18n="landing.feature_1_desc">Explorez n'importe quelle commune grâce aux données géographiques d'OpenStreetMap.</p>
       </div>
 
-      <!-- Viewport de carte stylisée avec simulation de tracé et cible -->
-      <div class="simulator-map-viewport" title="Cliquez sur la carte pour viser une rue !">
-        <svg class="simulator-vector-map" viewBox="0 0 800 360" preserveAspectRatio="none" aria-hidden="true">
-          <defs>
-            <linearGradient id="sim-river-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.18" />
-              <stop offset="100%" stop-color="var(--primary)" stop-opacity="0.08" />
-            </linearGradient>
-            <filter id="sim-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="3.5" result="blur" />
-              <feComposite in="SourceGraphic" in2="blur" operator="over" />
-            </filter>
-          </defs>
-
-          <!-- Tracé du fleuve -->
-          <path d="M 0,260 Q 220,180 400,280 T 800,240 L 800,360 L 0,360 Z" fill="url(#sim-river-grad)" />
-
-          <!-- Blocs urbains de fond -->
-          <g class="sim-blocks" opacity="0.45">
-            <rect x="40" y="30" width="120" height="70" rx="6" />
-            <rect x="180" y="30" width="130" height="70" rx="6" />
-            <rect x="330" y="40" width="100" height="60" rx="6" />
-            <rect x="450" y="30" width="160" height="70" rx="6" />
-            <rect x="630" y="30" width="130" height="70" rx="6" />
-
-            <rect x="40" y="125" width="100" height="85" rx="6" />
-            <rect x="160" y="125" width="110" height="85" rx="6" />
-            <rect x="420" y="125" width="140" height="85" rx="6" />
-            <rect x="580" y="125" width="180" height="85" rx="6" />
-          </g>
-
-          <!-- Réseau de rues interactives -->
-          <!-- Voie 1 : Diagonale Paix -->
-          <path id="sim-road-diag" class="sim-road-line road-secondary" d="M 60,30 L 320,115" />
-          <!-- Voie 2 : Grande Avenue (Champs-Élysées) -->
-          <path id="sim-road-main" class="sim-road-line road-primary" d="M 30,115 L 770,115" />
-          <!-- Voie 3 : Boulevard transversal (Saint-Michel) -->
-          <path id="sim-road-cross" class="sim-road-line road-primary" d="M 360,20 L 360,340" />
-          <!-- Voie 4 : Quai bordant l'eau (Tournelle) -->
-          <path id="sim-road-river" class="sim-road-line road-secondary" d="M 0,250 Q 220,170 400,270 T 800,230" />
-          <!-- Voie 5 : Rond-Point / Place de la République -->
-          <circle id="sim-road-ring" class="sim-road-line road-roundabout" cx="600" cy="115" r="32" />
-
-          <!-- Carrefours / Nœuds -->
-          <circle cx="360" cy="115" r="7" class="sim-node" />
-          <circle cx="600" cy="115" r="6" class="sim-node" />
-          <circle cx="210" cy="115" r="5" class="sim-node" />
-          <circle cx="360" cy="270" r="6" class="sim-node" />
-        </svg>
-
-        <!-- Réticule de visée cible interactif -->
-        <div class="sim-target-reticle" aria-hidden="true">
-          <div class="reticle-ring"></div>
-          <div class="reticle-dot"></div>
-          <div class="reticle-crosshair ch-top"></div>
-          <div class="reticle-crosshair ch-bottom"></div>
-          <div class="reticle-crosshair ch-left"></div>
-          <div class="reticle-crosshair ch-right"></div>
+      <div class="feature-card paper-sheet sheet-straight">
+        <div class="paper-tape" aria-hidden="true"></div>
+        <div class="feature-icon success" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </div>
-
-        <!-- Bulle de score célébration -->
-        <div class="sim-score-burst" aria-hidden="true">
-          <span class="burst-pts" data-i18n="landing.sim_score_popup">+500 pts !</span>
-          <span class="burst-sub" data-i18n="landing.sim_accuracy">Exactitude 99%</span>
-        </div>
-
-        <!-- Indication de clic interactif -->
-        <div class="sim-click-hint" aria-hidden="true">
-          <span>👆 Cliquez sur la carte pour tester</span>
-        </div>
+        <h2 data-i18n="landing.feature_3_title">Multi-Plateforme & App Mobile</h2>
+        <p data-i18n="landing.feature_3_desc">Jouez sur smartphone, tablette ou ordinateur : installable en 1 clic sans passer par les stores et jouable hors-ligne.</p>
+        <button type="button" class="btn secondary sm open-install-modal" style="margin-top: 0.75rem; width: auto; font-size: 0.82rem;" data-i18n="landing.install_guide_btn">Comment l'installer ?</button>
       </div>
 
-      <!-- Barre des modes de jeu phares -->
-      <div class="simulator-features-bar">
-        <button type="button" class="sim-pill sim-pill-target" id="sim-mode-target-btn">
-          <span class="sim-pill-icon" aria-hidden="true">🎯</span>
-          <span data-i18n="landing.badge_mode_target">Mode Cible interactif</span>
-        </button>
-        <button type="button" class="sim-pill sim-pill-multi" id="sim-mode-multi-btn">
-          <span class="sim-pill-icon" aria-hidden="true">🏆</span>
-          <span data-i18n="landing.badge_mode_multi">Salons & Défis multijoueurs</span>
-        </button>
-        <button type="button" class="sim-pill sim-pill-offline open-install-modal">
-          <span class="sim-pill-icon" aria-hidden="true">📴</span>
-          <span data-i18n="landing.badge_mode_offline">100% Hors-ligne & PWA</span>
-        </button>
+      <div class="feature-card paper-sheet sheet-tilt-right">
+        <div class="paper-tape" aria-hidden="true"></div>
+        <div class="feature-icon warning" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path><path d="M4 22h16"></path><path d="M10 14.66V17c0 .55-.45 1-1 1H4v2h16v-2h-5c-.55 0-1-.45-1-1v-2.34"></path><path d="M12 2a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4z"></path></svg>
+        </div>
+        <h2 data-i18n="landing.feature_4_title">Salons Équipes & Classement</h2>
+        <p data-i18n="landing.feature_4_desc">Défiez vos amis en salons multijoueurs, gagnez des diplômes officiels et grimpez au classement.</p>
       </div>
     </div>
-
     <div class="landing-footer-actions">
       <button id="landing-legal-btn" class="legal-footer-link paper-footer-btn" data-i18n="nav.legal">Mentions Légales & RGPD</button>
       <button id="landing-support-btn" class="support-footer-link paper-footer-btn" data-i18n="nav.support">💖 Soutenir le projet</button>

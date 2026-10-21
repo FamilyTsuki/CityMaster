@@ -94,17 +94,7 @@
     "feature_3_desc": "Play on smartphone, tablet, or desktop: installable in 1 tap without app stores and works offline.",
     "install_guide_btn": "How to install?",
     "feature_4_title": "Team Rooms & Leaderboard",
-    "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard.",
-    "sim_find_street": "Find on map:",
-    "sim_score_popup": "+500 pts!",
-    "sim_accuracy": "Accuracy 99%",
-    "badge_mode_target": "Interactive Target Mode",
-    "badge_mode_multi": "Multiplayer Rooms & Challenges",
-    "badge_mode_offline": "100% Offline & PWA",
-    "tag_champs_elysees": "Champs-Élysées Ave.",
-    "tag_saint_michel": "Saint-Michel Blvd.",
-    "tag_victor_hugo": "Victor Hugo Ave.",
-    "tag_republique": "Republic Square"
+    "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard."
   },
   "auth": {
     "login_title": "Sign In",

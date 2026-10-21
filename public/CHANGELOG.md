@@ -16,9 +16,6 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Guide de mise à jour du serveur (`docs/DEPLOIEMENT.md`) : fichiers propres au serveur, sauvegarde, commandes à éviter.
 - Fichier `LICENSE` (MIT), annoncé par le README.
 
-### Supprimé
-- Champs inutilisés de l'écran d'accueil (`GameView`, `LandingSimulator`).
-
 ### Tests
 - `server_upgrade.test.js` : attente de la base, reprise des comptes, contrôle du jeton, suppression d'une rue d'origine, écriture via un lien symbolique ou dans un dossier en lecture seule.
 - Stockage en mémoire pour `localStorage` dans les tests (supprime l'avertissement de Node 25+).
@@ -52,21 +49,6 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ### Tests
 - Les tests utilisent des dossiers temporaires et n'écrivent plus dans `public/assets/data/` ni `config/`.
 - Ajout de tests de non-régression : flux de partie, règles de score, cohérence des difficultés, stockage JSON, routes HTTP, routeur, reprise de partie, service worker, salons.
-
----
-
-## [2.18.0] - 2026-10-21
-
-### Ajouté
-- Animation de racines de rues sur les bords de l'écran avec croissance organique, carrefours et particules lumineuses de circulation réactives au curseur.
-- Simulateur de gameplay interactif au centre de la page d'accueil illustrant la recherche de voies, l'acquisition de cibles, l'illumination verte de réussite et le calcul de score.
-- Plaques toponymiques françaises stylisées flottant le long des ramifications latérales.
-
-### Supprimé
-- Suppression de l'ancienne grille statique de 3 cartes promotionnelles au profit du simulateur immersif.
-
-### Tests
-- Ajout de la suite de tests `tests/landing_screen.test.js` pour valider la structure de la page d'accueil et l'initialisation des composants d'animation.
 
 ---
 

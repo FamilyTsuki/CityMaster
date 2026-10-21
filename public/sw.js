@@ -90,8 +90,6 @@ const STATIC_ASSETS = [
   "/src/views/RoomView.js",
   "/src/views/ChangelogView.js",
   "/src/views/components/FlightLoader.js",
-  "/src/views/components/StreetRootsAnimation.js",
-  "/src/views/components/LandingSimulator.js",
 ];
 
 self.addEventListener("install", (event) => {
