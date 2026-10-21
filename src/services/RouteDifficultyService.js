@@ -31,6 +31,8 @@ export const MAJOR_WAY_TYPES = [
   'tertiary',
 ];
 
+const MOTORWAY_TYPES = new Set(['motorway', 'motorway_link']);
+
 export const MAJOR_TOPONYMS = [
   'boulevard',
   'boulevards',
@@ -444,4 +446,16 @@ export function isPlaceStreet(featureOrName) {
   }
 
   return startsWithPlace;
+}
+
+/**
+ * Autoroute (ex. « L'Arverne », A71) : elle traverse la commune sans en être
+ * une rue, elle n'est donc jamais proposée en jeu.
+ * Les villes générées avant l'ajout de la propriété `highway` ne sont pas concernées.
+ * @param {object} feature GeoJSON Feature
+ * @returns {boolean}
+ */
+export function isMotorway(feature) {
+  const highway = feature?.properties?.highway;
+  return typeof highway === 'string' && MOTORWAY_TYPES.has(highway.toLowerCase());
 }

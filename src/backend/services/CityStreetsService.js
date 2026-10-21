@@ -6,6 +6,7 @@ import { applyCityCustomizations } from '../../services/SpatialService.js';
 import {
   RouteDifficultyService,
   getFeatureLengthMeters,
+  isMotorway,
   isPlaceStreet,
 } from '../../services/RouteDifficultyService.js';
 
@@ -54,7 +55,9 @@ export async function getPlayableStreets(cityKey) {
     Settings.getGameSettings(),
   ]);
 
-  const defaults = geojson.features.filter((f) => hasPlayableName(f) && !isMicroSegment(f));
+  const defaults = geojson.features.filter(
+    (f) => hasPlayableName(f) && !isMicroSegment(f) && !isMotorway(f),
+  );
   const candidates = applyCityCustomizations(defaults, customDistricts, customRoutes).filter(
     (f) => hasPlayableName(f) && f.geometry,
   );

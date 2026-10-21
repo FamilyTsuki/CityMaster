@@ -22,6 +22,22 @@ export class CertificateView {
     this.#lastMode = "target";
   }
 
+  /**
+   * Distance lisible : « 42 m », « 1,3 km », ou le texte donné si aucun clic.
+   * @param {number} meters
+   * @param {string} noAnswerText
+   * @param {string} [lang]
+   * @returns {string}
+   */
+  static formatDistance(meters, noAnswerText, lang = "fr") {
+    if (typeof meters !== "number" || !Number.isFinite(meters) || meters < 0) {
+      return noAnswerText;
+    }
+    if (meters < 1000) return `${Math.round(meters)} m`;
+    const km = (meters / 1000).toLocaleString(lang, { maximumFractionDigits: 1 });
+    return `${km} km`;
+  }
+
   get lastScore() {
     return this.#lastScore;
   }
@@ -94,14 +110,12 @@ export class CertificateView {
       if (mode === "sprint" && sprintHistory && sprintHistory.length > 0) {
         const i18n = I18nService.getInstance();
         this.#recapBody.replaceChildren();
-        sprintHistory.forEach((record) => {
+        sprintHistory.forEach((record, index) => {
           const tr = document.createElement("tr");
-          const distText =
-            record.distance === -1
-              ? i18n.t("sprint.time_out")
-              : `${record.distance}m`;
-          const bonusText =
-            record.timeBonus > 0 ? ` (+${record.timeBonus})` : "";
+
+          const tdRound = document.createElement("td");
+          tdRound.className = "recap-round";
+          tdRound.textContent = String(index + 1);
 
           const tdName = document.createElement("td");
           const strongName = document.createElement("strong");
@@ -109,12 +123,24 @@ export class CertificateView {
           tdName.appendChild(strongName);
 
           const tdDist = document.createElement("td");
-          tdDist.textContent = distText;
+          tdDist.textContent = CertificateView.formatDistance(
+            record.distance,
+            i18n.t("sprint.time_out"),
+            i18n.currentLang,
+          );
 
           const tdPoints = document.createElement("td");
-          tdPoints.textContent = `${record.points} pts${bonusText}`;
+          tdPoints.textContent = `${record.points} pts`;
+          if (record.timeBonus > 0) {
+            const bonus = document.createElement("span");
+            bonus.className = "recap-bonus";
+            bonus.textContent = i18n.t("certificate.time_bonus", {
+              bonus: record.timeBonus,
+            });
+            tdPoints.appendChild(bonus);
+          }
 
-          tr.append(tdName, tdDist, tdPoints);
+          tr.append(tdRound, tdName, tdDist, tdPoints);
           this.#recapBody.appendChild(tr);
         });
         this.#recapContainer.classList.remove("hidden");

@@ -3,6 +3,17 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.19.2] - 2026-10-21
+
+### Corrigé
+- Les autoroutes (ex. « L'Aquitaine » à Tours) pouvaient être tirées comme rues faciles à cause de leur longueur : elles sont exclues du jeu et ne sont plus téléchargées à la génération d'une ville.
+
+### Amélioré
+- Bilan du mode sprint : tableau défilant avec en-tête fixe, numéro de manche, distances arrondies (m/km), bonus de rapidité détaillé et courte légende.
+
+### Tests
+- `sprint_recap_and_motorways.test.js` : exclusion des autoroutes, format des distances du bilan.
+
 ## [2.19.1] - 2026-10-21
 
 ### Corrigé

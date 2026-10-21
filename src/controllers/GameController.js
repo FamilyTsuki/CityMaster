@@ -8,7 +8,10 @@ import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
 import { NetworkService } from "../services/NetworkService.js";
 import { StorageService } from "../services/StorageService.js";
-import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
+import {
+  RouteDifficultyService,
+  isMotorway,
+} from "../services/RouteDifficultyService.js";
 import { HapticService } from "../services/HapticService.js";
 import {
   DEFAULT_SERIES_COUNT,
@@ -203,6 +206,7 @@ export class GameController {
           ) {
             return false;
           }
+          if (isMotorway(f)) return false;
           if (f.geometry.type !== "Point") {
             const len = RouteDifficultyService.getFeatureLengthMeters(f);
             if (len > 0 && len < 15) return false;

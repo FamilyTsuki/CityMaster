@@ -33,8 +33,8 @@ async function fetchOverpassStreets(osmId, bboxLimits, cityKey) {
   const query = `[out:json][timeout:30];
         relation(${relId});map_to_area->.a;
         (
-          way(area.a)["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["name"];
-          way(area.a)["highway"~"motorway|trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["ref"];
+          way(area.a)["highway"~"trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["name"];
+          way(area.a)["highway"~"trunk|primary|secondary|tertiary|unclassified|residential|living_street"]["ref"];
           way(area.a)["place"~"suburb|neighbourhood|quarter|hamlet|isolated_dwelling"]["name"];
           relation(area.a)["place"~"suburb|neighbourhood|quarter|hamlet|isolated_dwelling"]["name"];
           node(area.a)["place"~"suburb|neighbourhood|quarter|hamlet|isolated_dwelling"]["name"];
