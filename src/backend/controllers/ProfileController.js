@@ -8,7 +8,7 @@ import { Score } from "../models/Score.js";
 export class ProfileController {
   static async getProfile(req, res) {
     try {
-      const user = req.user.id ? await User.findById(req.user.id) : null;
+      const user = await User.findForSession(req.user);
       if (!user) {
         return res.status(404).json({ error: "User not found" });
       }
@@ -32,14 +32,20 @@ export class ProfileController {
       return res.status(400).json({ error: "Aucun fichier reçu" });
     }
 
-    const userId = Number(req.user.id);
-    if (!Number.isInteger(userId) || userId <= 0) {
+    if (req.user.is_guest || !req.user.id) {
       return res
         .status(403)
         .json({ error: "Un compte est nécessaire pour changer d'avatar" });
     }
 
     try {
+      const user = await User.findForSession(req.user);
+      if (!user) {
+        return res
+          .status(401)
+          .json({ error: "Session expirée, reconnectez-vous" });
+      }
+      const userId = Number(user.id);
       const filename = `avatar_${userId}.webp`;
       await fs.mkdir(UPLOADS_DIR, { recursive: true });
       const outputPath = path.join(UPLOADS_DIR, filename);

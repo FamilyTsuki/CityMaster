@@ -7,8 +7,6 @@ export class LandingSimulator {
   #container;
   #promptEl;
   #scorePopupEl;
-  #timerEl;
-  #streakEl;
   #svgRoads = [];
   #reticleEl;
   #currentIndex = 0;
@@ -63,8 +61,6 @@ export class LandingSimulator {
   #initDOM() {
     this.#promptEl = this.#container.querySelector('.sim-street-target');
     this.#scorePopupEl = this.#container.querySelector('.sim-score-burst');
-    this.#timerEl = this.#container.querySelector('.sim-timer-val');
-    this.#streakEl = this.#container.querySelector('.sim-streak-val');
     this.#reticleEl = this.#container.querySelector('.sim-target-reticle');
     this.#svgRoads = Array.from(this.#container.querySelectorAll('.sim-road-line'));
 

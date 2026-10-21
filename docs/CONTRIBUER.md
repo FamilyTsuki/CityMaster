@@ -1,6 +1,6 @@
 # Travailler sur CityMaster
 
-Guide pratique : conventions, ajout d'une fonctionnalité, débogage et vérifications avant de terminer. Le fonctionnement général est décrit dans [ARCHITECTURE.md](ARCHITECTURE.md).
+Guide pratique : conventions, ajout d'une fonctionnalité, débogage et vérifications avant de terminer. Le fonctionnement général est décrit dans [ARCHITECTURE.md](ARCHITECTURE.md), la mise à jour du serveur dans [DEPLOIEMENT.md](DEPLOIEMENT.md).
 
 ## Commandes
 
@@ -69,7 +69,7 @@ Ajouter un `ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...` à la fin de `SCHEMA_S
 
 ### Côté serveur
 
-- La première ligne du journal indique le mode de stockage : `PostgreSQL database tables verified.` ou `[db] ... mode local`.
+- La première ligne du journal indique le mode de stockage : `PostgreSQL database tables verified.`, `[db] ... Nouvelles tentatives en arrière-plan` (base attendue) ou `[db] ... Mode local`.
 - Les erreurs 500 sont toujours journalisées avec leur cause (`Controller method error: ...`).
 - Pour reproduire sans toucher à ses données : `CITYMASTER_DATA_DIR=/tmp/cm-data CITYMASTER_STATE_DIR=/tmp/cm-state DB_DISABLED=true PORT=3999 npm start` (copier au préalable les fichiers de ville utiles dans `/tmp/cm-data`).
 - Tester une route : `curl -H "Authorization: Bearer <jeton>" http://localhost:3000/api/...` (le jeton est dans `localStorage.token` du navigateur).
@@ -86,11 +86,13 @@ Ajouter un `ALTER TABLE ... ADD COLUMN IF NOT EXISTS ...` à la fin de `SCHEMA_S
 | Symptôme | Cause probable |
 |---|---|
 | `FATAL ERROR: JWT_SECRET ...` au démarrage | `.env` absent ou incomplet (voir `.env.example`) |
-| Salons en erreur 503 | Mode local : PostgreSQL injoignable ou `DB_DISABLED=true` |
+| Salons en erreur 503 | Mode local (base inexistante, identifiants refusés ou `DB_DISABLED=true`) |
+| Connexion et administration en erreur 503 | PostgreSQL pas encore joignable : le serveur se connecte seul dès qu'il répond |
 | Les scores disparaissent au redémarrage | Mode local (scores en mémoire) |
 | Tous les joueurs bloqués par la limite de connexion | Serveur derrière un proxy sans `TRUST_PROXY` |
 | « Cette partie n'est plus valide » | Jeton de partie refusé (secret changé, mise à jour du serveur, partie d'un autre compte) : comportement normal, relancer une partie |
-| Partie très lente sur une grande ville | Fichier de ville trop gros ou ancien : le supprimer de `public/assets/data/` pour qu'il soit régénéré |
+| Partie très lente sur une grande ville | Fichier de ville trop gros ou ancien : le supprimer de `public/assets/data/` pour qu'il soit régénéré (sur le serveur, sauvegarder avant : [DEPLOIEMENT.md](DEPLOIEMENT.md)) |
+| Une rue supprimée dans l'administration réapparaît | Suppression faite avant la 2.19.1 sur une rue jamais modifiée : la refaire |
 | Ancienne version affichée après un déploiement | `CACHE_NAME` non incrémenté dans `public/sw.js` |
 
 ## Avant de terminer une modification

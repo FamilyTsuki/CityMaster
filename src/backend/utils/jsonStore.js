@@ -52,18 +52,57 @@ export async function readJsonFile(filePath, fallback) {
   }
 }
 
+const DIRECTORY_NOT_WRITABLE = new Set(['EACCES', 'EPERM', 'EROFS']);
+let directWriteWarned = false;
+
+/** Suit un éventuel lien symbolique pour écrire dans le vrai fichier. */
+async function resolveWriteTarget(filePath) {
+  try {
+    return await fs.realpath(filePath);
+  } catch (error) {
+    if (error.code === 'ENOENT') return filePath;
+    throw error;
+  }
+}
+
 /**
  * Écrit un fichier JSON de façon atomique (fichier temporaire + renommage).
+ * - Un lien symbolique est suivi : c'est le fichier pointé qui est remplacé.
+ * - Les droits d'un fichier existant sont conservés.
+ * - Si le serveur peut modifier le fichier mais pas créer de fichier dans son
+ *   dossier, le fichier est réécrit directement (comme avant la v2.19.0).
  * @param {string} filePath
  * @param {unknown} data
  * @returns {Promise<void>}
  */
 export async function writeJsonFile(filePath, data) {
-  await fs.mkdir(path.dirname(filePath), { recursive: true });
-  const tmpPath = `${filePath}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`;
+  const content = JSON.stringify(data, null, 2);
+  const target = await resolveWriteTarget(filePath);
+  await fs.mkdir(path.dirname(target), { recursive: true });
+  const existingMode = await fs.stat(target).then(
+    (stats) => stats.mode & 0o777,
+    () => null,
+  );
+
+  const tmpPath = `${target}.${process.pid}.${crypto.randomBytes(4).toString('hex')}.tmp`;
   try {
-    await fs.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf8');
-    await fs.rename(tmpPath, filePath);
+    await fs.writeFile(tmpPath, content, { encoding: 'utf8', flag: 'wx' });
+  } catch (error) {
+    if (existingMode === null || !DIRECTORY_NOT_WRITABLE.has(error.code)) throw error;
+    if (!directWriteWarned) {
+      directWriteWarned = true;
+      console.warn(
+        `[jsonStore] Dossier ${path.dirname(target)} non modifiable par le serveur : ` +
+          'écriture directe des fichiers JSON (non atomique).',
+      );
+    }
+    await fs.writeFile(target, content, 'utf8');
+    return;
+  }
+
+  try {
+    if (existingMode !== null) await fs.chmod(tmpPath, existingMode);
+    await fs.rename(tmpPath, target);
   } catch (error) {
     await fs.rm(tmpPath, { force: true });
     throw error;

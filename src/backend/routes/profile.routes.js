@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import { ProfileController } from '../controllers/ProfileController.js';
-import { authenticateToken } from '../middleware/auth.js';
+import { authenticateToken, requireAccountStorage } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -22,8 +22,8 @@ const upload = multer({
   limits: { fileSize: 2 * 1024 * 1024 }
 });
 
-router.get('/', authenticateToken, ProfileController.getProfile);
-router.post('/upload', authenticateToken, upload.single('avatar'), ProfileController.uploadAvatar);
+router.get('/', authenticateToken, requireAccountStorage, ProfileController.getProfile);
+router.post('/upload', authenticateToken, requireAccountStorage, upload.single('avatar'), ProfileController.uploadAvatar);
 
 router.use((err, req, res, next) => {
   if (err instanceof multer.MulterError) {

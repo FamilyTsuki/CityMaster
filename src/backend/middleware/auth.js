@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User, isUserAdmin } from '../models/User.js';
+import { isDatabasePending } from '../config/database.js';
 
 /**
  * Extrait le jeton JWT de l'en-tête Authorization.
@@ -50,17 +51,32 @@ export const optionalAuth = (req, res, next) => {
 };
 
 /**
+ * Refuse temporairement (503) les routes qui lisent ou écrivent des comptes ou
+ * des données d'administration tant que PostgreSQL est attendu mais pas encore
+ * joignable (voir isDatabasePending).
+ */
+export const requireAccountStorage = (req, res, next) => {
+  if (isDatabasePending()) {
+    res.set('Retry-After', '10');
+    return res
+      .status(503)
+      .json({ error: 'Service momentanément indisponible, réessayez dans quelques secondes.' });
+  }
+  next();
+};
+
+/**
  * Réservé aux administrateurs. Les droits sont relus dans le stockage des
  * comptes (et non dans le jeton) : un administrateur retiré perd l'accès
  * immédiatement. Les sessions invité ne sont jamais administrateur.
  */
 export const requireAdmin = (req, res, next) => {
-  authenticateToken(req, res, async () => {
+  authenticateToken(req, res, () => requireAccountStorage(req, res, async () => {
     if (!req.user || req.user.is_guest || !req.user.id) {
       return res.status(403).json({ error: 'Admin access required' });
     }
     try {
-      const dbUser = await User.findById(req.user.id);
+      const dbUser = await User.findForSession(req.user);
       if (dbUser && isUserAdmin(dbUser)) {
         req.user.is_admin = true;
         return next();
@@ -70,5 +86,5 @@ export const requireAdmin = (req, res, next) => {
       console.error('Error checking admin status:', err);
       return res.status(500).json({ error: 'Unable to verify admin access' });
     }
-  });
+  }));
 };

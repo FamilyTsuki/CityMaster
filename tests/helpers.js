@@ -8,6 +8,11 @@ export function createMockRes() {
   return {
     statusCode: 200,
     body: null,
+    headers: {},
+    set(name, value) {
+      this.headers[name.toLowerCase()] = value;
+      return this;
+    },
     status(code) {
       this.statusCode = code;
       return this;

@@ -7,7 +7,9 @@ import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
  * - Mode PostgreSQL : la table `users` est la seule source de vérité.
  * - Mode local (sans base) : le fichier users.json la remplace.
  * Les deux sources ne sont jamais mélangées : leurs identifiants numériques
- * se recouvrent et désigneraient des personnes différentes.
+ * se recouvrent et désigneraient des personnes différentes. À chaque connexion
+ * à PostgreSQL, les comptes de users.json absents de la base y sont ajoutés
+ * (importFileUsersIntoDatabase, sans effet sur les comptes déjà présents).
  */
 const PUBLIC_COLUMNS = 'id, username, profile_image_url, is_admin';
 
@@ -145,6 +147,55 @@ export class User {
     }
     const users = await readFileUsers();
     return toPublicUser(users.find((u) => Number(u.id) === numericId));
+  }
+
+  /**
+   * Compte désigné par une session (contenu du JWT), ou null pour un invité.
+   * Le pseudo du jeton doit correspondre : un jeton émis par le mode local
+   * porte un identifiant de users.json qui, dans PostgreSQL, peut désigner
+   * une autre personne.
+   * @param {{ id?: unknown, username?: string, is_guest?: boolean }} session
+   * @returns {Promise<object|null>}
+   */
+  static async findForSession(session) {
+    if (!session || session.is_guest) return null;
+    const user = await this.findById(session.id);
+    if (!user || !sameUsername(user.username, session.username)) return null;
+    return user;
+  }
+
+  /**
+   * Ajoute à PostgreSQL les comptes de users.json qui n'y sont pas (même pseudo,
+   * sans tenir compte de la casse). Les versions précédentes se rabattaient
+   * sur ce fichier quand la base ne répondait pas : ces comptes restent ainsi
+   * utilisables. Ne modifie pas users.json et ne touche pas aux comptes existants.
+   * @returns {Promise<number>} Nombre de comptes ajoutés.
+   */
+  static async importFileUsersIntoDatabase() {
+    if (!isDatabaseEnabled()) return 0;
+    const fileUsers = await readFileUsers();
+    let imported = 0;
+    for (const user of fileUsers) {
+      if (!user || typeof user.username !== 'string' || !user.username.trim()) continue;
+      const result = await pool.query(
+        `INSERT INTO users (username, password, google_id, profile_image_url, is_admin)
+         SELECT $1, $2, $3, $4, $5
+         WHERE NOT EXISTS (SELECT 1 FROM users WHERE LOWER(username) = LOWER($1))
+         ON CONFLICT DO NOTHING`,
+        [
+          user.username.trim(),
+          user.password || null,
+          user.google_id || null,
+          user.profile_image_url || null,
+          user.is_admin === true || user.is_admin === 'true',
+        ],
+      );
+      imported += result.rowCount || 0;
+    }
+    if (imported > 0) {
+      console.log(`[users] ${imported} compte(s) présent(s) seulement dans users.json ajouté(s) à PostgreSQL.`);
+    }
+    return imported;
   }
 
   static async findByGoogleId(googleId) {

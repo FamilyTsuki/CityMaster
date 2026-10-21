@@ -1,5 +1,5 @@
 import path from 'path';
-import { initDB, closeDB } from '../src/backend/config/database.js';
+import { initDB, closeDB, isDatabasePending } from '../src/backend/config/database.js';
 import { ROOT_DIR, USERS_FILE } from '../src/backend/config/paths.js';
 import { User } from '../src/backend/models/User.js';
 
@@ -18,7 +18,13 @@ if (!username || username.startsWith('--')) {
 }
 
 try {
-  const usingDatabase = await initDB();
+  const usingDatabase = await initDB({ reconnect: false });
+  if (isDatabasePending()) {
+    throw new Error(
+      'PostgreSQL est configuré mais injoignable : relancer la commande une fois la base démarrée ' +
+        '(DB_DISABLED=true pour modifier volontairement config/users.json).',
+    );
+  }
   const user = await User.setAdminStatus(username, !revoke);
   const storage = usingDatabase ? 'la base de données' : path.relative(ROOT_DIR, USERS_FILE);
 

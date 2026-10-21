@@ -3,6 +3,26 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.19.1] - 2026-10-21
+
+### Corrigé
+- Si PostgreSQL démarrait après le serveur, celui-ci restait en mode local jusqu'au redémarrage suivant : il attend maintenant la base et s'y connecte dès qu'elle répond (connexion et administration en 503 en attendant).
+- Les comptes enregistrés dans `users.json` par les anciennes versions pendant une panne de la base ne pouvaient plus se connecter : ils sont ajoutés à PostgreSQL au démarrage.
+- Un jeton dont le pseudo ne correspond pas au compte de même identifiant n'ouvre plus de droits (administration, profil, avatar).
+- La suppression d'une rue ou d'un quartier d'origine, jamais modifié, n'avait aucun effet : l'administration envoie maintenant son nom.
+- Les écritures JSON remplaçaient un lien symbolique par un fichier et échouaient si le dossier n'était pas modifiable par le serveur.
+
+### Ajouté
+- Guide de mise à jour du serveur (`docs/DEPLOIEMENT.md`) : fichiers propres au serveur, sauvegarde, commandes à éviter.
+- Fichier `LICENSE` (MIT), annoncé par le README.
+
+### Supprimé
+- Champs inutilisés de l'écran d'accueil (`GameView`, `LandingSimulator`).
+
+### Tests
+- `server_upgrade.test.js` : attente de la base, reprise des comptes, contrôle du jeton, suppression d'une rue d'origine, écriture via un lien symbolique ou dans un dossier en lecture seule.
+- Stockage en mémoire pour `localStorage` dans les tests (supprime l'avertissement de Node 25+).
+
 ## [2.19.0] - 2026-10-21
 
 ### Corrigé

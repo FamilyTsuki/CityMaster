@@ -23,6 +23,41 @@ process.env.JWT_SECRET = 'citymaster-test-secret';
 process.env.ADMIN_USERS = '';
 process.env.ADMINS = '';
 
+/**
+ * Stockage en mémoire équivalent au localStorage d'un navigateur, pour le code
+ * client testé (I18nService, HapticService...). Sans lui, Node 25+ expose un
+ * localStorage expérimental vide qui affiche un avertissement à chaque lecture.
+ * Un test peut le remplacer : global.localStorage = { ... }.
+ */
+class MemoryStorage {
+  #items = new Map();
+  get length() {
+    return this.#items.size;
+  }
+  key(index) {
+    return [...this.#items.keys()][index] ?? null;
+  }
+  getItem(key) {
+    return this.#items.has(String(key)) ? this.#items.get(String(key)) : null;
+  }
+  setItem(key, value) {
+    this.#items.set(String(key), String(value));
+  }
+  removeItem(key) {
+    this.#items.delete(String(key));
+  }
+  clear() {
+    this.#items.clear();
+  }
+}
+
+Object.defineProperty(globalThis, 'localStorage', {
+  value: new MemoryStorage(),
+  writable: true,
+  configurable: true,
+  enumerable: true,
+});
+
 process.on('exit', () => {
   fs.rmSync(sandboxDir, { recursive: true, force: true });
 });

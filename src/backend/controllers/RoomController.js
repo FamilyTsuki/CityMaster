@@ -509,7 +509,7 @@ export class RoomController {
       const isAdmin =
         room.created_by !== username &&
         !req.user.is_guest &&
-        isUserAdmin(await User.findById(req.user.id));
+        isUserAdmin(await User.findForSession(req.user));
       if (room.created_by !== username && !isAdmin) {
         return res.status(403).json({
           error: "Only the room creator or an admin can reset the room",

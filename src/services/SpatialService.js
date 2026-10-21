@@ -585,6 +585,19 @@ export function stitchStreetFeatures(features = [], options = {}) {
  * @returns {Array}
  */
 /**
+ * Identifiant envoyé au serveur pour supprimer une voie ou un quartier depuis
+ * l'administration : l'id d'un élément personnalisé, sinon le nom de la voie
+ * d'origine. Le numéro de position d'une voie d'origine (feature.id) ne
+ * convient pas : applyCityCustomizations ne reconnaît les voies d'origine que
+ * par leur nom, et ce numéro change quand le fichier de la ville est régénéré.
+ * @param {object} feature
+ * @returns {string|number}
+ */
+export function getCustomizationKey(feature) {
+  return feature?.properties?.id ?? feature?.properties?.name ?? '';
+}
+
+/**
  * Applique les modifications d'administration aux voies d'origine d'une ville :
  * les voies supprimées (isDeleted) ou remplacées (même id, nom ou nom
  * d'origine) sont retirées, puis les voies et quartiers personnalisés actifs

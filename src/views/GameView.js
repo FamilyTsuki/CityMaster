@@ -79,20 +79,18 @@ export class GameView {
     });
   }
 
-  #streetRoots = null;
-  #landingSimulator = null;
-
   #initLandingEffects() {
     if (typeof document === 'undefined') return;
 
     const rootsCanvas = document.getElementById('street-roots-canvas');
     if (rootsCanvas) {
-      this.#streetRoots = new StreetRootsAnimation(rootsCanvas);
+      // L'animation se met en pause seule quand le canevas n'est plus visible.
+      new StreetRootsAnimation(rootsCanvas);
     }
 
     const simContainer = document.querySelector('.game-preview-stage');
     if (simContainer) {
-      this.#landingSimulator = new LandingSimulator(simContainer);
+      new LandingSimulator(simContainer);
     }
 
     const targetPill = document.getElementById('sim-mode-target-btn');

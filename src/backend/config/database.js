@@ -15,16 +15,56 @@ pool.on('error', (err) => {
 });
 
 /**
- * Mode de stockage du processus, décidé une seule fois par initDB() :
+ * Mode de stockage du processus, décidé par initDB() :
  * - true  : PostgreSQL est la source de vérité (comptes, scores, salons, signalements).
  * - false : mode local (comptes dans users.json, scores et signalements en mémoire,
  *           salons indisponibles). Utilisé en développement sans base et dans les tests.
  * Tant que initDB() n'a pas réussi, aucune requête n'est envoyée à PostgreSQL.
+ *
+ * Si PostgreSQL ne répond pas encore au démarrage (machine qui redémarre, base
+ * lancée après le serveur), le serveur reste « en attente de la base » et
+ * retente la connexion en arrière-plan, au lieu de basculer en mode local :
+ * voir isDatabasePending().
  */
 let databaseEnabled = false;
+let databasePending = false;
+let reconnectTimer = null;
 
 export function isDatabaseEnabled() {
   return databaseEnabled;
+}
+
+/**
+ * Vrai tant que PostgreSQL est attendu mais pas encore joignable. Les comptes
+ * et l'administration sont alors indisponibles (503) : écrire dans users.json
+ * ou dans les seuls fichiers pendant ce temps ferait diverger les données.
+ */
+export function isDatabasePending() {
+  return databasePending;
+}
+
+/** Erreurs de connexion passagères : serveur pas encore démarré, réseau, DNS. */
+const TRANSIENT_CONNECTION_CODES = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ETIMEDOUT',
+  'EHOSTUNREACH',
+  'ENETUNREACH',
+  'ENOTFOUND',
+  'EAI_AGAIN',
+  '57P03', // « the database system is starting up »
+]);
+
+/**
+ * Indique si l'échec de connexion peut disparaître seul (base en cours de
+ * démarrage) ou s'il vient de la configuration (base inexistante, mot de passe).
+ * @param {Error & { code?: string }} error
+ * @returns {boolean}
+ */
+export function isTransientConnectionError(error) {
+  if (!error) return false;
+  if (TRANSIENT_CONNECTION_CODES.has(error.code)) return true;
+  return /Connection terminated|timeout/i.test(error.message || '');
 }
 
 /**
@@ -112,30 +152,12 @@ const SCHEMA_STATEMENTS = [
   )`,
 ];
 
-/**
- * Vérifie la connexion à PostgreSQL, crée ou met à jour le schéma et fixe le mode de stockage.
- * DB_DISABLED=true force le mode local sans tenter de connexion.
- * @returns {Promise<boolean>} true si PostgreSQL est utilisé.
- */
-export const initDB = async () => {
-  if (process.env.DB_DISABLED === 'true') {
-    databaseEnabled = false;
-    console.warn('[db] DB_DISABLED=true : mode local (sans PostgreSQL).');
-    return false;
-  }
+/** Délais entre deux tentatives de connexion ; le dernier est ensuite répété. */
+const RECONNECT_DELAYS_MS = [2000, 5000, 10000, 30000];
 
-  try {
-    await pool.query('SELECT 1');
-  } catch (error) {
-    databaseEnabled = false;
-    console.warn(
-      `[db] PostgreSQL injoignable (${error.message}). Mode local : comptes dans users.json, ` +
-        'scores et signalements en mémoire (perdus au redémarrage), salons indisponibles.',
-    );
-    return false;
-  }
-
+async function enableDatabase(onReady) {
   databaseEnabled = true;
+  databasePending = false;
   for (const statement of SCHEMA_STATEMENTS) {
     try {
       await pool.query(statement);
@@ -144,9 +166,86 @@ export const initDB = async () => {
     }
   }
   console.log('PostgreSQL database tables verified.');
+  if (onReady) {
+    try {
+      await onReady();
+    } catch (error) {
+      console.error('[db] Post-connection task failed:', error);
+    }
+  }
+}
+
+function scheduleReconnect(attempt, delays, onReady) {
+  const delay = delays[Math.min(attempt, delays.length - 1)];
+  reconnectTimer = setTimeout(async () => {
+    reconnectTimer = null;
+    try {
+      await pool.query('SELECT 1');
+    } catch (error) {
+      if (!isTransientConnectionError(error) || (attempt + 1) % 10 === 0) {
+        console.warn(`[db] Toujours en attente de PostgreSQL (${error.message}).`);
+      }
+      scheduleReconnect(attempt + 1, delays, onReady);
+      return;
+    }
+    console.log(`[db] PostgreSQL joignable après ${attempt + 1} nouvelle(s) tentative(s).`);
+    await enableDatabase(onReady);
+  }, delay);
+  reconnectTimer.unref?.();
+}
+
+/**
+ * Vérifie la connexion à PostgreSQL, crée ou met à jour le schéma et fixe le mode de stockage.
+ * - DB_DISABLED=true : mode local sans tentative de connexion.
+ * - Base injoignable pour une raison passagère : attente de la base (voir
+ *   isDatabasePending) et nouvelles tentatives en arrière-plan si `reconnect` est vrai.
+ * - Autre échec (base inexistante, identifiants refusés) : mode local.
+ *
+ * @param {object} [options]
+ * @param {boolean} [options.reconnect=true] Retenter en arrière-plan (désactivé pour les scripts).
+ * @param {() => Promise<void>} [options.onReady] Appelé une fois PostgreSQL disponible.
+ * @param {number[]} [options.retryDelaysMs] Délais entre les tentatives (tests).
+ * @returns {Promise<boolean>} true si PostgreSQL est utilisé dès maintenant.
+ */
+export const initDB = async ({ reconnect = true, onReady, retryDelaysMs = RECONNECT_DELAYS_MS } = {}) => {
+  databaseEnabled = false;
+  databasePending = false;
+  if (process.env.DB_DISABLED === 'true') {
+    console.warn('[db] DB_DISABLED=true : mode local (sans PostgreSQL).');
+    return false;
+  }
+
+  try {
+    await pool.query('SELECT 1');
+  } catch (error) {
+    if (isTransientConnectionError(error)) {
+      databasePending = true;
+      console.warn(
+        `[db] PostgreSQL injoignable (${error.message}). ` +
+          (reconnect
+            ? 'Nouvelles tentatives en arrière-plan ; connexions et administration indisponibles en attendant.'
+            : 'Abandon.'),
+      );
+      if (reconnect) scheduleReconnect(0, retryDelaysMs, onReady);
+      return false;
+    }
+    console.warn(
+      `[db] PostgreSQL inutilisable (${error.message}). Mode local : comptes dans users.json, ` +
+        'scores et signalements en mémoire (perdus au redémarrage), salons indisponibles.',
+    );
+    return false;
+  }
+
+  await enableDatabase(onReady);
   return true;
 };
 
-export const closeDB = () => pool.end();
+export const closeDB = () => {
+  if (reconnectTimer) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+  return pool.end();
+};
 
 export default pool;

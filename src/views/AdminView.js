@@ -1,6 +1,7 @@
 import { I18nService } from "../services/I18nService.js";
 import { escapeHTML } from "../utils/security.js";
 import { isPlaceStreet } from "../services/RouteDifficultyService.js";
+import { getCustomizationKey } from "../services/SpatialService.js";
 
 export class AdminView {
   #map;
@@ -964,7 +965,7 @@ export class AdminView {
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "btn-delete-item btn-delete-district";
-      deleteBtn.dataset.id = d.properties?.id ?? d.id ?? d.properties?.name ?? '';
+      deleteBtn.dataset.id = getCustomizationKey(d);
       deleteBtn.dataset.name = d.properties?.name ?? '';
       deleteBtn.textContent = I18nService.getInstance().t(
         "admin.delete",
@@ -1133,7 +1134,7 @@ export class AdminView {
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
         deleteBtn.className = "btn-delete-item btn-delete-route";
-        deleteBtn.dataset.id = r.properties?.id ?? r.id ?? r.properties?.name ?? '';
+        deleteBtn.dataset.id = getCustomizationKey(r);
         deleteBtn.dataset.name = r.properties?.name ?? '';
         deleteBtn.textContent = I18nService.getInstance().t(
           "admin.delete",

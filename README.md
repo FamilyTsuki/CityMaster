@@ -1,7 +1,7 @@
 # 🌍 CityMaster
 
 [![Play Online](https://img.shields.io/badge/Play%20Online-citymaster.tsuki--dev.fr-4f46e5?style=for-the-badge&logo=google-chrome&logoColor=white)](https://citymaster.tsuki-dev.fr)
-[![Version](https://img.shields.io/badge/version-2.19.0-emerald?style=for-the-badge)](https://github.com/FamilyTsuki/CityMaster/releases)
+[![Version](https://img.shields.io/badge/version-2.19.1-emerald?style=for-the-badge)](https://github.com/FamilyTsuki/CityMaster/releases)
 [![PWA Ready](https://img.shields.io/badge/PWA-installable%20%26%20offline-blue?style=for-the-badge&logo=pwa&logoColor=white)](https://citymaster.tsuki-dev.fr)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
@@ -52,7 +52,7 @@ CityMaster is designed as a zero-friction, cross-platform web application:
 
 ## 🛠️ Développement
 
-> Documentation technique (en français) : [architecture et synchronisation](docs/ARCHITECTURE.md) · [conventions, ajout de fonctionnalités, débogage](docs/CONTRIBUER.md).
+> Documentation technique (en français) : [architecture et synchronisation](docs/ARCHITECTURE.md) · [conventions, ajout de fonctionnalités, débogage](docs/CONTRIBUER.md) · [mise à jour du serveur](docs/DEPLOIEMENT.md).
 
 ### Technologies
 
@@ -63,7 +63,7 @@ CityMaster is designed as a zero-friction, cross-platform web application:
 ### Prérequis
 
 - Node.js 20.11 ou plus récent, npm.
-- PostgreSQL (facultatif) : sans base, le serveur démarre en **mode local** (comptes dans `config/users.json`, scores en mémoire, salons multijoueurs indisponibles).
+- PostgreSQL (facultatif) : sans base, le serveur démarre en **mode local** (comptes dans `config/users.json`, scores en mémoire, salons multijoueurs indisponibles). Si la base configurée ne répond pas encore au démarrage, le serveur l'attend et s'y connecte dès qu'elle est prête.
 
 ### Installation et lancement
 
@@ -75,7 +75,7 @@ cp .env.example .env      # puis renseigner au moins JWT_SECRET
 npm run dev               # http://localhost:3000, redémarre à chaque modification
 ```
 
-En production : `npm start`. Il n'y a pas d'étape de compilation : les fichiers de `public/` et `src/` sont servis tels quels. Les variables d'environnement sont décrites dans [`.env.example`](.env.example).
+En production : `npm start`. Il n'y a pas d'étape de compilation : les fichiers de `public/` et `src/` sont servis tels quels. Les variables d'environnement sont décrites dans [`.env.example`](.env.example). Pour mettre à jour un serveur existant sans toucher à ses données : [docs/DEPLOIEMENT.md](docs/DEPLOIEMENT.md).
 
 Donner les droits d'administration à un compte existant : `npm run make-admin -- <pseudo>`.
 
@@ -108,7 +108,8 @@ docs/                Documentation technique
 | Symptôme | Solution |
 |---|---|
 | `FATAL ERROR: JWT_SECRET ...` | Créer `.env` à partir de `.env.example` |
-| Salons en erreur 503 | PostgreSQL injoignable : vérifier `PG*` dans `.env` et la ligne `[db]` au démarrage |
+| Salons en erreur 503 | Mode local : vérifier `PG*` dans `.env` et la ligne `[db]` au démarrage |
+| Connexion en erreur 503 | PostgreSQL pas encore joignable : le serveur s'y connecte seul dès qu'il répond |
 | Limite de connexions atteinte pour tout le monde | Serveur derrière un proxy : définir `TRUST_PROXY=1` |
 | Ancienne version affichée | Recharger en vidant le cache ; `CACHE_NAME` de `public/sw.js` doit changer à chaque version |
 

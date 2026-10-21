@@ -89,18 +89,21 @@ Le client ne calcule jamais le score d'une partie en ligne. En mode hors-ligne (
 
 ## Modes de stockage
 
-`initDB()` est appelée une seule fois au démarrage :
+`initDB()` est appelée au démarrage :
 
-- si `DB_DISABLED=true`, ou si PostgreSQL ne répond pas, le serveur passe en **mode local** et l'écrit dans le journal ;
-- sinon il crée/met à jour le schéma et passe en **mode PostgreSQL**.
+- `DB_DISABLED=true`, ou base inutilisable (base inexistante, identifiants refusés) : **mode local**, indiqué dans le journal ;
+- base pas encore joignable (connexion refusée, base en cours de démarrage, réseau) : le serveur **attend la base** (`isDatabasePending()`) et retente en arrière-plan après 2 s, 5 s, 10 s puis toutes les 30 s. En attendant, la connexion (invités compris), le profil, l'administration et les salons répondent 503 ;
+- sinon il crée/met à jour le schéma, passe en **mode PostgreSQL**, puis ajoute à la base les comptes de `users.json` qui n'y sont pas (`User.importFileUsersIntoDatabase`, sans effet sur les comptes existants). Les versions avant 2.19.0 enregistraient les inscriptions dans ce fichier quand la base ne répondait pas.
 
-Le mode ne change plus ensuite. Chaque modèle (`src/backend/models/`) teste `isDatabaseEnabled()` et utilise **soit** la base **soit** le stockage local, jamais les deux pour la même donnée. Conséquences voulues :
+Une fois en mode PostgreSQL, le mode ne change plus. Chaque modèle (`src/backend/models/`) teste `isDatabaseEnabled()` et utilise **soit** la base **soit** le stockage local, jamais les deux pour la même donnée. Conséquences voulues :
 
 - une erreur PostgreSQL en cours de fonctionnement remonte en erreur 500 explicite au lieu d'écrire en silence ailleurs ;
-- les identifiants de `users.json` (qui recouvrent ceux de la base) ne sont jamais utilisés en mode PostgreSQL ;
-- si la base est indisponible au démarrage en production, le serveur reste en mode local jusqu'au redémarrage suivant : surveiller la ligne `[db]` du journal.
+- les identifiants de `users.json` (qui recouvrent ceux de la base) ne sont jamais utilisés en mode PostgreSQL, et un jeton dont le pseudo ne correspond pas au compte de même identifiant n'ouvre aucun droit (`User.findForSession`) ;
+- en attendant la base, rien n'est écrit dans `users.json` ni dans les seuls fichiers de réglages : la base reste la référence quand elle revient.
 
-Les fichiers JSON passent par `src/backend/utils/jsonStore.js` : écriture dans un fichier temporaire puis renommage (pas de fichier à moitié écrit), et mises à jour d'un même fichier exécutées l'une après l'autre (pas de modification perdue). Un fichier JSON illisible provoque une erreur au lieu d'être remplacé par un fichier vide.
+Les fichiers JSON passent par `src/backend/utils/jsonStore.js` : écriture dans un fichier temporaire puis renommage (pas de fichier à moitié écrit), et mises à jour d'un même fichier exécutées l'une après l'autre (pas de modification perdue). Un fichier JSON illisible provoque une erreur au lieu d'être remplacé par un fichier vide. Les liens symboliques sont suivis, les droits du fichier conservés, et si le dossier n'est pas modifiable par le serveur, le fichier est réécrit directement.
+
+Les fichiers de données du serveur sont ignorés par git : voir [DEPLOIEMENT.md](DEPLOIEMENT.md) pour les mettre à jour sans risque.
 
 ## Synchronisation
 
@@ -142,7 +145,7 @@ Le temps écoulé envoyé par le client n'est pas vérifié par le serveur (le s
 ## Sécurité
 
 - **Authentification** : JWT (30 jours, 3 h pour les invités) dans l'en-tête `Authorization`. Le paramètre `?token=` n'est accepté que pour le flux SSE.
-- **Administration** : `requireAdmin` relit les droits dans le stockage des comptes ; les invités ne sont jamais administrateurs et ne peuvent pas prendre un pseudo listé dans `ADMIN_USERS`.
+- **Administration** : `requireAdmin` relit les droits dans le stockage des comptes (identifiant et pseudo du jeton doivent correspondre) ; les invités ne sont jamais administrateurs et ne peuvent pas prendre un pseudo listé dans `ADMIN_USERS`.
 - **Entrées** : clés de ville limitées à `[a-z0-9_]`, modes/difficultés/réglages limités aux valeurs connues, champs de signalement tronqués à la taille des colonnes.
 - **HTML** : tout texte externe (noms de rues OSM, messages du serveur) est soit inséré avec `textContent`, soit passé par `escapeHTML()`.
 - **Limites de débit** : `express-rate-limit` (connexion, global, salons). Derrière un reverse proxy, définir `TRUST_PROXY`.
@@ -151,7 +154,7 @@ Le temps écoulé envoyé par le client n'est pas vérifié par le serveur (le s
 
 ## Limites connues
 
-- `public/assets/data/lyon.json` local pèse 363 Mo (97 975 tronçons, ancien format sans `highway`) : chaque partie à Lyon le relit entièrement côté serveur et le navigateur le télécharge. Le supprimer pour qu'il soit régénéré au format actuel.
+- `public/assets/data/lyon.json` local pèse 363 Mo (97 975 tronçons, ancien format sans `highway`) : chaque partie à Lyon le relit entièrement côté serveur et le navigateur le télécharge. Le supprimer le fait régénérer au format actuel ; les modifications des admins, rangées dans d'autres fichiers et liées aux noms de rues, restent appliquées. Sur le serveur, sauvegarder avant (voir [DEPLOIEMENT.md](DEPLOIEMENT.md)).
 - Le cache anti-rejeu et le cache Overpass sont en mémoire : perdus au redémarrage, non partagés entre plusieurs instances du serveur.
 - En mode local, scores et signalements sont perdus au redémarrage.
 - Le mode `center` compte les voisins dans un rayon de 200 m pour chaque rue : rapide grâce à une grille, mais recalculé à chaque début de partie.
