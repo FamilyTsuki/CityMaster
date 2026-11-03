@@ -11,9 +11,11 @@ export class AdminView {
   #highlightedDistrictLayer;
   #activePolygonLayer;
   #activeLineLayer;
+  #activeLineHitLayer;
   #vertexMarkers;
   #activePoints;
   #activeRouteSegments;
+  #routeHistory = [];
   #activeColor;
   #editingDistrictId;
   #originalDistrictName;
@@ -633,6 +635,7 @@ export class AdminView {
       }
 
       this.#activeRouteSegments = [];
+      this.#routeHistory = [];
       if (routeFeature.geometry) {
         if (routeFeature.geometry.type === "LineString") {
           const coords = routeFeature.geometry.coordinates || [];
@@ -677,6 +680,7 @@ export class AdminView {
       this.#editingRouteId = null;
       this.#originalRouteName = null;
       this.#activeRouteSegments = [[]];
+      this.#routeHistory = [];
       if (titleEl)
         titleEl.textContent = I18nService.getInstance().t(
           "admin.new_route",
@@ -700,6 +704,7 @@ export class AdminView {
         );
         return;
       }
+      this.#saveRouteState();
       this.#activeRouteSegments.push([]);
     }
     this.showToast(
@@ -724,7 +729,57 @@ export class AdminView {
     }
   }
 
+  /** Mémorise le tracé avant une modification, pour Ctrl + Z. */
+  #saveRouteState() {
+    this.#routeHistory.push(
+      this.#activeRouteSegments.map((seg) => seg.map((pt) => [...pt])),
+    );
+    if (this.#routeHistory.length > 100) this.#routeHistory.shift();
+  }
+
+  /**
+   * Coupe le tronçon au niveau de la liaison la plus proche du clic : les deux
+   * points restent, seul le trait qui les relie disparaît.
+   */
+  #cutRouteAt(latlng) {
+    const clicked = this.#map.latLngToLayerPoint(latlng);
+    let best = null;
+    this.#activeRouteSegments.forEach((segment, sIdx) => {
+      for (let i = 0; i < segment.length - 1; i++) {
+        const distance = L.LineUtil.pointToSegmentDistance(
+          clicked,
+          this.#map.latLngToLayerPoint(segment[i]),
+          this.#map.latLngToLayerPoint(segment[i + 1]),
+        );
+        if (!best || distance < best.distance) best = { sIdx, i, distance };
+      }
+    });
+    if (!best) return;
+
+    this.#saveRouteState();
+    const segment = this.#activeRouteSegments[best.sIdx];
+    const pieces = [
+      segment.slice(0, best.i + 1),
+      segment.slice(best.i + 1),
+    ].filter((piece) => piece.length >= 2);
+    this.#activeRouteSegments.splice(best.sIdx, 1, ...pieces);
+    if (this.#activeRouteSegments.length === 0) {
+      this.#activeRouteSegments = [[]];
+    }
+    this.#updateRouteLine();
+    this.#renderRouteVertexMarkers();
+    this.showToast(
+      I18nService.getInstance().t(
+        "admin.segment_cut",
+        {},
+        "Liaison supprimée. Ctrl + Z pour annuler.",
+      ),
+      "info",
+    );
+  }
+
   #addRouteVertex(latlng) {
+    this.#saveRouteState();
     if (this.#activeRouteSegments.length === 0) {
       this.#activeRouteSegments.push([latlng]);
     } else {
@@ -742,6 +797,7 @@ export class AdminView {
     );
     if (this.#activeLineLayer) {
       this.#activeLineLayer.setLatLngs(validSegments);
+      this.#activeLineHitLayer?.setLatLngs(validSegments);
     } else {
       this.#activeLineLayer = L.polyline(validSegments, {
         color: "#f43f5e",
@@ -750,7 +806,20 @@ export class AdminView {
         lineCap: "round",
         lineJoin: "round",
         fill: false,
+        interactive: false,
       }).addTo(this.#map);
+      // Trait invisible plus large que le tracé : plus facile à toucher au doigt.
+      this.#activeLineHitLayer = L.polyline(validSegments, {
+        color: "#f43f5e",
+        weight: 22,
+        opacity: 0,
+        fill: false,
+        bubblingMouseEvents: false,
+      }).addTo(this.#map);
+      this.#activeLineHitLayer.on("click", (e) => {
+        L.DomEvent.stopPropagation(e);
+        this.#cutRouteAt(e.latlng);
+      });
     }
   }
 
@@ -771,6 +840,7 @@ export class AdminView {
           this.#map,
         );
 
+        marker.on("dragstart", () => this.#saveRouteState());
         marker.on("drag", (e) => {
           const newPos = e.target.getLatLng();
           this.#activeRouteSegments[sIdx][pIdx] = [newPos.lat, newPos.lng];
@@ -778,6 +848,7 @@ export class AdminView {
         });
 
         const removeVertex = () => {
+          this.#saveRouteState();
           this.#activeRouteSegments[sIdx].splice(pIdx, 1);
           if (
             this.#activeRouteSegments[sIdx].length === 0 &&
@@ -805,32 +876,25 @@ export class AdminView {
   }
 
   undoRoute() {
-    if (this.#activeRouteSegments.length > 0) {
-      let lastSeg =
-        this.#activeRouteSegments[this.#activeRouteSegments.length - 1];
-      if (lastSeg.length === 0 && this.#activeRouteSegments.length > 1) {
-        this.#activeRouteSegments.pop();
-        lastSeg =
-          this.#activeRouteSegments[this.#activeRouteSegments.length - 1];
-      }
-      if (lastSeg.length > 0) {
-        lastSeg.pop();
-      }
-      if (lastSeg.length === 0 && this.#activeRouteSegments.length > 1) {
-        this.#activeRouteSegments.pop();
-      }
-      this.#updateRouteLine();
-      this.#renderRouteVertexMarkers();
-    }
+    const previous = this.#routeHistory.pop();
+    if (!previous) return;
+    this.#activeRouteSegments = previous;
+    this.#updateRouteLine();
+    this.#renderRouteVertexMarkers();
   }
 
   clearActiveRouteDrawing() {
     this.#activeRouteSegments = [];
+    this.#routeHistory = [];
     this.#vertexMarkers.forEach((m) => m.remove());
     this.#vertexMarkers = [];
     if (this.#activeLineLayer) {
       this.#activeLineLayer.remove();
       this.#activeLineLayer = null;
+    }
+    if (this.#activeLineHitLayer) {
+      this.#activeLineHitLayer.remove();
+      this.#activeLineHitLayer = null;
     }
     this.#editingRouteId = null;
     this.#originalRouteName = null;

@@ -3,6 +3,20 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.20.0] - 2026-11-03
+
+### Ajouté
+- Éditeur de rues : un clic sur un trait supprime la liaison entre deux points et coupe le tronçon à cet endroit.
+
+### Modifié
+- Éditeur de rues : Ctrl + Z annule la dernière action (ajout, déplacement, suppression, coupe) et plus seulement le dernier point ajouté.
+
+### Corrigé
+- Les rues à plusieurs tronçons modifiées avant la v2.6.0 avaient été enregistrées en une seule ligne : de longs traits reliaient les tronçons, en jeu comme dans l'éditeur. Elles sont recoupées à la lecture, sans modifier les fichiers enregistrés.
+
+### Tests
+- `flattened_routes.test.js` : découpe des rues aplaties, points ajoutés par un administrateur conservés.
+
 ## [2.19.2] - 2026-10-21
 
 ### Corrigé

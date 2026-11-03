@@ -597,6 +597,77 @@ export function getCustomizationKey(feature) {
   return feature?.properties?.id ?? feature?.properties?.name ?? '';
 }
 
+const VERTEX_MATCH_METERS = 1;
+const STITCH_TOLERANCE_METERS = 10;
+
+/**
+ * Avant la v2.6.0, l'éditeur enregistrait une voie à plusieurs tronçons comme
+ * une seule ligne qui enchaînait les tronçons bout à bout : de fausses
+ * liaisons traversaient le quartier. La ligne est recoupée entre deux points
+ * de la voie d'origine qui n'appartiennent pas au même tronçon (ou qui en
+ * sont les deux extrémités). Les points ajoutés ou déplacés par un
+ * administrateur ne sont jamais recoupés.
+ * @param {object} customRoute Voie personnalisée (LineString)
+ * @param {object} originalFeature Voie d'origine de même nom (MultiLineString)
+ * @returns {object} La voie corrigée, ou la même voie si rien n'est à recouper.
+ */
+export function splitFlattenedRoute(customRoute, originalFeature) {
+  if (
+    customRoute?.geometry?.type !== "LineString" ||
+    originalFeature?.geometry?.type !== "MultiLineString"
+  ) {
+    return customRoute;
+  }
+
+  const vertices = [];
+  originalFeature.geometry.coordinates.forEach((part, partIndex) => {
+    if (!Array.isArray(part)) return;
+    part.forEach((point, index) =>
+      vertices.push({ point, partIndex, index, partLength: part.length }),
+    );
+  });
+  const placesOf = (point) =>
+    vertices.filter((v) => pointDistanceMeters(v.point, point) <= VERTEX_MATCH_METERS);
+
+  const isFakeLink = (a, b) => {
+    if (pointDistanceMeters(a, b) <= STITCH_TOLERANCE_METERS) return false;
+    const from = placesOf(a);
+    const to = placesOf(b);
+    if (from.length === 0 || to.length === 0) return false;
+    return !from.some((va) =>
+      to.some((vb) => {
+        if (va.partIndex !== vb.partIndex || va.index === vb.index) return false;
+        const spansWholePart =
+          va.partLength > 2 &&
+          Math.min(va.index, vb.index) === 0 &&
+          Math.max(va.index, vb.index) === va.partLength - 1;
+        return !spansWholePart;
+      }),
+    );
+  };
+
+  const coords = customRoute.geometry.coordinates;
+  const lines = [[coords[0]]];
+  for (let i = 1; i < coords.length; i++) {
+    if (isFakeLink(coords[i - 1], coords[i])) {
+      lines.push([coords[i]]);
+    } else {
+      lines[lines.length - 1].push(coords[i]);
+    }
+  }
+  if (lines.length === 1) return customRoute;
+  const kept = lines.filter((line) => line.length >= 2);
+  if (kept.length === 0) return customRoute;
+
+  return {
+    ...customRoute,
+    geometry:
+      kept.length === 1
+        ? { type: "LineString", coordinates: kept[0] }
+        : { type: "MultiLineString", coordinates: kept },
+  };
+}
+
 /**
  * Applique les modifications d'administration aux voies d'origine d'une ville :
  * les voies supprimées (isDeleted) ou remplacées (même id, nom ou nom
@@ -628,7 +699,21 @@ export function applyCityCustomizations(
     }
   });
 
-  const activeCustom = [...customDistricts, ...customRoutes].filter(
+  const defaultsByName = new Map();
+  defaultFeatures.forEach((f) => {
+    const name = f?.properties?.name;
+    if (name && !defaultsByName.has(name)) defaultsByName.set(name, f);
+  });
+  const repairRoute = (route) =>
+    splitFlattenedRoute(
+      route,
+      defaultsByName.get(route.properties.originalName || route.properties.name),
+    );
+
+  const activeCustom = [
+    ...customDistricts,
+    ...customRoutes.map((f) => (f?.properties ? repairRoute(f) : f)),
+  ].filter(
     (f) => f && f.properties && !f.properties.isDeleted && f.properties.name,
   );
 
