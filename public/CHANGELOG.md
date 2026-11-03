@@ -3,6 +3,13 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.20.1] - 2026-11-03
+
+### Corrigé
+- Résolution de l'alerte npm audit sur minimatch (< 11.0.1) via une surcharge de dépendance (`overrides`) dans package.json.
+
+---
+
 ## [2.20.0] - 2026-11-03
 
 ### Ajouté

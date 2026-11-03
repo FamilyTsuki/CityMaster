@@ -1,6 +1,6 @@
 {
   "name": "citymaster",
-  "version": "2.20.0",
+  "version": "2.20.1",
   "description": "Geographic serious game using OpenStreetMap and Turf.js",
   "type": "module",
   "main": "server.js",
@@ -30,8 +30,11 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "eslint": "^9.39.1",
+    "eslint": "^10.14.0",
     "globals": "^16.5.0"
+  },
+  "overrides": {
+    "minimatch": "^11.0.4"
   },
   "engines": {
     "node": ">=20.11"
