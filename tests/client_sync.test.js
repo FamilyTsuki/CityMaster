@@ -156,3 +156,19 @@ test('Messages flash : le texte est affiché sans être interprété comme du HT
   assert.ok(flash.html.includes('&lt;img src=x onerror=alert(1)&gt;'));
   assert.ok(!flash.html.includes('<img'));
 });
+
+test('Recherche de ville : le loader est masqué lors du clic ou quand la recherche est vide', () => {
+  const gameViewCode = fs.readFileSync('src/views/GameView.js', 'utf8');
+  const roomViewCode = fs.readFileSync('src/views/RoomView.js', 'utf8');
+  const adminControllerCode = fs.readFileSync('src/controllers/AdminController.js', 'utf8');
+
+  // Vérification que le loader est désactivé au clic d'une ville
+  assert.ok(gameViewCode.includes('hideCityLoader();'), 'GameView masque le loader');
+  assert.ok(roomViewCode.includes('hideCityLoader();'), 'RoomView masque le loader');
+  assert.ok(adminControllerCode.includes('hideLoader();'), 'AdminController masque le loader');
+
+  // Vérification que le timer de debounce est annulé au clic pour éviter qu'une requête tardive ne réactive le loader
+  assert.ok(gameViewCode.includes('clearTimeout(cityDebounceTimer);'), 'GameView annule le timer au clic');
+  assert.ok(roomViewCode.includes('clearTimeout(cityDebounceTimer);'), 'RoomView annule le timer au clic');
+  assert.ok(adminControllerCode.includes('clearTimeout(debounceTimer);'), 'AdminController annule le timer au clic');
+});

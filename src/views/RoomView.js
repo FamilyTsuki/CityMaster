@@ -157,6 +157,20 @@ export class RoomView {
     const modeInput = this.#modeInput;
     const modeDropdown = this.#modeDropdown;
 
+    let cityDebounceTimer = null;
+    const getCityLoader = () =>
+      cityInput && cityInput.parentElement
+        ? cityInput.parentElement.querySelector('.search-loader')
+        : null;
+    const hideCityLoader = () => {
+      const loader = getCityLoader();
+      if (loader) loader.classList.remove('active');
+    };
+    const showCityLoader = () => {
+      const loader = getCityLoader();
+      if (loader) loader.classList.add('active');
+    };
+
     if (diffInput && diffDropdown) {
       diffInput.addEventListener("click", (e) => {
         e.stopPropagation();
@@ -195,27 +209,26 @@ export class RoomView {
     }
 
     if (cityInput && cityDropdown) {
-      let debounceTimer = null;
       const citySearchCache = new Map();
 
       const searchCities = async (query = "") => {
         const cleanQuery = query.trim().toLowerCase();
         if (citySearchCache.has(cleanQuery)) {
+          hideCityLoader();
           return citySearchCache.get(cleanQuery);
         }
-        const loader = cityInput.parentElement.querySelector('.search-loader');
-        if (loader && query.length > 0) loader.classList.add("active");
+        if (query.trim().length > 0) showCityLoader();
         try {
           const res = await ApiService.get(
             `/cities?q=${encodeURIComponent(query)}`,
           );
-          if (loader) loader.classList.remove("active");
           if (!res.ok || !res.data) return [];
           citySearchCache.set(cleanQuery, res.data);
           return res.data;
         } catch (e) {
-          if (loader) loader.classList.remove("active");
           return [];
+        } finally {
+          hideCityLoader();
         }
       };
 
@@ -246,6 +259,8 @@ export class RoomView {
             li.appendChild(badge);
           }
           li.addEventListener("click", () => {
+            clearTimeout(cityDebounceTimer);
+            hideCityLoader();
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;
             cityDropdown.classList.add("hidden");
@@ -262,13 +277,18 @@ export class RoomView {
       });
 
       cityInput.addEventListener("input", () => {
-        const loader = cityInput.parentElement.querySelector('.search-loader');
-        if (loader && cityInput.value.trim().length > 0) loader.classList.add("active");
-        
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          const query = cityInput.value.trim();
-          const cities = await searchCities(query);
+        const query = cityInput.value.trim();
+        if (query.length === 0) {
+          clearTimeout(cityDebounceTimer);
+          hideCityLoader();
+          cityDropdown.classList.add("hidden");
+          return;
+        }
+        showCityLoader();
+
+        clearTimeout(cityDebounceTimer);
+        cityDebounceTimer = setTimeout(async () => {
+          const cities = await searchCities(cityInput.value.trim());
           renderCityMatches(cities);
         }, 400);
       });
@@ -299,6 +319,8 @@ export class RoomView {
         !cityInput.contains(e.target) &&
         !cityDropdown.contains(e.target)
       ) {
+        clearTimeout(cityDebounceTimer);
+        hideCityLoader();
         cityDropdown.classList.add("hidden");
       }
       if (

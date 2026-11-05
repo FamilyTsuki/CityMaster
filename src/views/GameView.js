@@ -89,6 +89,16 @@ export class GameView {
       "difficulty-dropdown-list",
     );
 
+    let cityDebounceTimer = null;
+    const hideCityLoader = () => {
+      const loader = document.getElementById("city-search-loader");
+      if (loader) loader.classList.remove("active");
+    };
+    const showCityLoader = () => {
+      const loader = document.getElementById("city-search-loader");
+      if (loader) loader.classList.add("active");
+    };
+
     if (modeInput) {
       const lastMode = localStorage.getItem("citymaster_last_mode") || "target";
       const targetMode = modeDropdown
@@ -124,15 +134,13 @@ export class GameView {
     }
 
     if (cityInput && cityDropdown) {
-      let debounceTimer = null;
       const citySearchCache = new Map();
 
       const searchCities = async (query = "") => {
         const cleanQuery = query.trim().toLowerCase();
 
         if (!NetworkService.getInstance().isOnline()) {
-          const loader = document.getElementById("city-search-loader");
-          if (loader) loader.classList.remove("active");
+          hideCityLoader();
           const cached = await StorageService.getAllCachedCities();
           if (!cleanQuery) return cached;
           return cached.filter(
@@ -143,15 +151,14 @@ export class GameView {
         }
 
         if (citySearchCache.has(cleanQuery)) {
+          hideCityLoader();
           return citySearchCache.get(cleanQuery);
         }
-        const loader = document.getElementById("city-search-loader");
-        if (loader && query.length > 0) loader.classList.add("active");
+        if (query.trim().length > 0) showCityLoader();
         try {
           const res = await ApiService.get(
             `/cities?q=${encodeURIComponent(query)}`,
           );
-          if (loader) loader.classList.remove("active");
           if (res.status === 401 || res.status === 403) {
             ApiService.clearToken();
             localStorage.removeItem("username");
@@ -163,8 +170,9 @@ export class GameView {
           citySearchCache.set(cleanQuery, res.data);
           return res.data;
         } catch (e) {
-          if (loader) loader.classList.remove("active");
           return [];
+        } finally {
+          hideCityLoader();
         }
       };
 
@@ -223,6 +231,8 @@ export class GameView {
           }
 
           li.addEventListener("click", () => {
+            clearTimeout(cityDebounceTimer);
+            hideCityLoader();
             cityInput.value = city.name;
             cityInput.dataset.value = city.key;
             window.citymaster_selected_city_data = city;
@@ -245,13 +255,19 @@ export class GameView {
       });
 
       cityInput.addEventListener("input", () => {
-        const loader = document.getElementById("city-search-loader");
-        if (loader && cityInput.value.trim().length > 0) loader.classList.add("active");
-        
-        clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(async () => {
-          const query = cityInput.value.trim();
-          const cities = await searchCities(query);
+        const query = cityInput.value.trim();
+        if (query.length === 0) {
+          clearTimeout(cityDebounceTimer);
+          hideCityLoader();
+          cityDropdown.classList.add("hidden");
+          cityInput.setAttribute("aria-expanded", "false");
+          return;
+        }
+        showCityLoader();
+
+        clearTimeout(cityDebounceTimer);
+        cityDebounceTimer = setTimeout(async () => {
+          const cities = await searchCities(cityInput.value.trim());
           renderCityMatches(cities);
         }, 400);
       });
@@ -315,6 +331,8 @@ export class GameView {
         !cityInput.contains(e.target) &&
         !cityDropdown.contains(e.target)
       ) {
+        clearTimeout(cityDebounceTimer);
+        hideCityLoader();
         cityDropdown.classList.add("hidden");
         cityInput.setAttribute("aria-expanded", "false");
       }

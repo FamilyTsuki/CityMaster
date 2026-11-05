@@ -3,6 +3,27 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.20.3] - 2026-11-03
+
+### Corrigé
+- Les trois points animés de recherche restaient affichés après avoir choisi une commune dans la liste ou cliqué en dehors du champ : ils sont désormais masqués immédiatement et les requêtes différées sont annulées.
+
+### Tests
+- Ajout d'un test vérifiant l'extinction du loader et l'annulation du délai d'attente lors du choix d'une commune dans `tests/client_sync.test.js`.
+
+---
+
+## [2.20.2] - 2026-11-03
+
+### Modifié
+- Fenêtre d'installation : seules les étapes de l'appareil détecté sont affichées (iPhone/iPad, Android, ordinateur, Mac), avec un lien vers les autres appareils. Un message indique quand le navigateur ne permet pas l'installation.
+- Boutons d'installation masqués lorsque l'application est déjà ouverte en mode installé.
+
+### Corrigé
+- La page d'accueil annonçait une installation « en 1 clic », ce qui n'est vrai que sur certains navigateurs.
+
+---
+
 ## [2.20.1] - 2026-11-03
 
 ### Corrigé

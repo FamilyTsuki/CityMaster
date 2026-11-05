@@ -140,24 +140,34 @@ export class AdminController {
       let debounceTimer = null;
       const citySearchCache = new Map();
 
+      const getLoader = () => input.parentElement.querySelector('.search-loader');
+      const hideLoader = () => {
+        const loader = getLoader();
+        if (loader) loader.classList.remove('active');
+      };
+      const showLoader = () => {
+        const loader = getLoader();
+        if (loader) loader.classList.add('active');
+      };
+
       const searchCities = async (query = "") => {
         const cleanQuery = query.trim().toLowerCase();
         if (citySearchCache.has(cleanQuery)) {
+          hideLoader();
           return citySearchCache.get(cleanQuery);
         }
-        const loader = input.parentElement.querySelector('.search-loader');
-        if (loader && query.length > 0) loader.classList.add("active");
+        if (query.trim().length > 0) showLoader();
         try {
           const res = await ApiService.get(
             `/cities?q=${encodeURIComponent(query)}`,
           );
-          if (loader) loader.classList.remove("active");
           if (!res.ok || !Array.isArray(res.data)) return [];
           citySearchCache.set(cleanQuery, res.data);
           return res.data;
         } catch (e) {
-          if (loader) loader.classList.remove("active");
           return [];
+        } finally {
+          hideLoader();
         }
       };
 
@@ -186,6 +196,8 @@ export class AdminController {
           }
 
           li.addEventListener("click", async () => {
+            clearTimeout(debounceTimer);
+            hideLoader();
             input.value = city.name;
             dropdown.classList.add("hidden");
             await this.selectCity(city);
@@ -202,14 +214,28 @@ export class AdminController {
       });
 
       input.addEventListener("input", () => {
-        const loader = input.parentElement.querySelector('.search-loader');
-        if (loader && input.value.trim().length > 0) loader.classList.add("active");
-        
+        const query = input.value.trim();
+        if (query.length === 0) {
+          clearTimeout(debounceTimer);
+          hideLoader();
+          dropdown.classList.add("hidden");
+          return;
+        }
+        showLoader();
+
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(async () => {
           const cities = await searchCities(input.value.trim());
           renderCityMatches(cities);
         }, 400);
+      });
+
+      document.addEventListener("click", (e) => {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+          clearTimeout(debounceTimer);
+          hideLoader();
+          dropdown.classList.add("hidden");
+        }
       });
     };
 

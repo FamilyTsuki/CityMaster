@@ -30,34 +30,34 @@
     <meta name="apple-mobile-web-app-title" content="CityMaster" />
     <title>CityMaster - Jeu Géographique Interactif</title>
 
-    <link rel="manifest" href="/manifest.json?v=2.20.1" />
+    <link rel="manifest" href="/manifest.json?v=2.20.3" />
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
-      href="/favicon.png?v=2.20.1"
+      href="/favicon.png?v=2.20.3"
       id="dynamic-favicon"
     />
     <link
       rel="icon"
       type="image/svg+xml"
-      href="/assets/images/icon.svg?v=2.20.1"
+      href="/assets/images/icon.svg?v=2.20.3"
     />
     <link
       rel="icon"
       type="image/png"
       sizes="192x192"
-      href="/assets/images/icon-192.png?v=2.20.1"
+      href="/assets/images/icon-192.png?v=2.20.3"
     />
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="/favicon.ico?v=2.20.1"
+      href="/favicon.ico?v=2.20.3"
     />
     <link
       rel="apple-touch-icon"
       sizes="180x180"
-      href="/assets/images/apple-touch-icon.png?v=2.20.1"
+      href="/assets/images/apple-touch-icon.png?v=2.20.3"
     />
 
     <script>
@@ -75,7 +75,7 @@
 
         const fav = document.getElementById("dynamic-favicon");
         if (fav) {
-          fav.href = "/favicon.png?v=2.20.1";
+          fav.href = "/favicon.png?v=2.20.3";
         }
 
         let savedLang = null;
@@ -117,7 +117,7 @@
       rel="stylesheet"
     />
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <link rel="stylesheet" href="/assets/styles/style.css?v=2.20.1" />
+    <link rel="stylesheet" href="/assets/styles/style.css?v=2.20.3" />
   </head>
   <body>
     <a href="#app" class="skip-link" data-i18n="nav.skip_link"
@@ -486,9 +486,9 @@
       src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js"
       crossorigin=""
     ></script>
-    <script type="module" src="/src/app.js?v=2.20.1"></script>
+    <script type="module" src="/src/app.js?v=2.20.3"></script>
 
-    <!-- Modale d'installation de l'application -->
+    <!-- Modale d'installation : seules les étapes de la plateforme détectée sont affichées -->
     <div
       id="install-modal"
       class="modal-overlay hidden"
@@ -499,19 +499,10 @@
       <div class="modal-dialog glass-card install-modal-dialog">
         <div class="install-modal-header">
           <div class="install-modal-title-group">
-            <img
-              src="/favicon.png"
-              alt="CityMaster Icon"
-              class="install-modal-logo"
-            />
-            <div>
-              <h2 id="install-modal-title" class="install-modal-title" data-i18n="install_modal.title">
-                Installer CityMaster
-              </h2>
-              <p class="install-modal-subtitle" data-i18n="install_modal.subtitle">
-                Application rapide, légère &amp; disponible hors-ligne
-              </p>
-            </div>
+            <img src="/favicon.png" alt="" class="install-modal-logo" />
+            <h2 id="install-modal-title" class="install-modal-title" data-i18n="install_modal.title">
+              Installer CityMaster
+            </h2>
           </div>
           <button
             id="install-modal-close-btn"
@@ -525,103 +516,58 @@
         </div>
 
         <div class="install-modal-content">
-          <div class="install-card-platform">
-            <div class="install-card-platform-title">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="install-platform-icon"
-              >
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                <line x1="12" y1="18" x2="12.01" y2="18"></line>
-              </svg>
-              <span data-i18n="install_modal.ios_platform">Sur iPhone &amp; iPad (Safari)</span>
-            </div>
+          <section class="install-card-platform" data-install-platform="ios">
+            <h3 class="install-card-platform-title" data-i18n="install_modal.ios_platform">iPhone et iPad</h3>
             <ol class="install-steps-list">
               <li data-i18n="install_modal.ios_step_1">
-                Appuyez sur le bouton <strong>Partager</strong> en bas de Safari
-                (icône carrée avec une flèche vers le haut).
+                Touchez le bouton <strong>Partager</strong> (carré avec une flèche).
               </li>
               <li data-i18n="install_modal.ios_step_2">
-                Faites défiler vers le bas et appuyez sur
-                <strong>« Sur l'écran d'accueil »</strong> 📲.
-              </li>
-              <li data-i18n="install_modal.ios_step_3">
-                Touchez <strong>« Ajouter »</strong> en haut à droite. L'icône
-                apparaît sur votre écran d'accueil !
+                Choisissez <strong>« Sur l'écran d'accueil »</strong>, puis <strong>« Ajouter »</strong>.
               </li>
             </ol>
-          </div>
+          </section>
 
-          <div class="install-card-platform">
-            <div class="install-card-platform-title">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="install-platform-icon"
-              >
-                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
-                <line x1="12" y1="18" x2="12.01" y2="18"></line>
-              </svg>
-              <span data-i18n="install_modal.android_platform">Sur Android (Chrome)</span>
-            </div>
+          <section class="install-card-platform" data-install-platform="android">
+            <h3 class="install-card-platform-title" data-i18n="install_modal.android_platform">Android</h3>
             <ol class="install-steps-list">
               <li data-i18n="install_modal.android_step_1">
-                Appuyez sur le menu <strong>⋮</strong> (trois points en haut à
-                droite).
+                Ouvrez le menu <strong>⋮</strong> du navigateur.
               </li>
               <li data-i18n="install_modal.android_step_2">
-                Sélectionnez <strong>« Installer l'application »</strong> ou
-                <strong>« Ajouter à l'écran d'accueil »</strong>.
+                Choisissez <strong>« Installer l'application »</strong> ou <strong>« Ajouter à l'écran d'accueil »</strong>.
               </li>
             </ol>
-          </div>
+          </section>
 
-          <div class="install-card-platform">
-            <div class="install-card-platform-title">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="install-platform-icon"
-              >
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-                <line x1="8" y1="21" x2="16" y2="21"></line>
-                <line x1="12" y1="17" x2="12" y2="21"></line>
-              </svg>
-              <span data-i18n="install_modal.desktop_platform">Sur Ordinateur (Chrome / Edge)</span>
-            </div>
+          <section class="install-card-platform" data-install-platform="desktop">
+            <h3 class="install-card-platform-title" data-i18n="install_modal.desktop_platform">Ordinateur (Chrome, Edge)</h3>
             <ol class="install-steps-list">
               <li data-i18n="install_modal.desktop_step_1">
-                Cliquez sur l'icône d'installation à droite dans la barre
-                d'adresse du navigateur.
+                Cliquez sur l'icône d'installation à droite de la barre d'adresse.
               </li>
               <li data-i18n="install_modal.desktop_step_2">
-                Cliquez sur <strong>« Installer »</strong> pour lancer
-                CityMaster comme une application indépendante.
+                Si elle n'apparaît pas, cherchez <strong>« Installer »</strong> dans le menu du navigateur.
               </li>
             </ol>
-          </div>
+          </section>
 
-          <div class="install-card-footer-tip" data-i18n="install_modal.footer_tip">
-            <strong>Inutile de chercher sur l'App Store ou Google Play</strong>
-            : CityMaster s'installe directement depuis votre navigateur, sans
-            publicité et sans saturer l'espace de votre téléphone.
-          </div>
+          <section class="install-card-platform" data-install-platform="mac">
+            <h3 class="install-card-platform-title" data-i18n="install_modal.mac_platform">Mac (Safari)</h3>
+            <ol class="install-steps-list">
+              <li data-i18n="install_modal.mac_step_1">
+                Menu <strong>Fichier</strong> › <strong>Ajouter au Dock</strong>.
+              </li>
+            </ol>
+          </section>
+
+          <p class="install-unsupported" data-install-platform="unsupported" data-i18n="install_modal.unsupported">
+            Ce navigateur ne permet pas d'installer CityMaster. Ouvrez le site dans Chrome, Edge ou Safari, ou continuez à jouer ici.
+          </p>
+
+          <button type="button" id="install-show-all-btn" class="install-show-all-btn" data-i18n="install_modal.show_all">
+            Autre appareil ?
+          </button>
         </div>
       </div>
     </div>
@@ -638,7 +584,7 @@
 
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("/sw.js?v=2.20.1", { updateViaCache: "none" })
+            .register("/sw.js?v=2.20.3", { updateViaCache: "none" })
             .then((reg) => {
               if (reg.waiting) {
                 reg.waiting.postMessage({ type: "SKIP_WAITING" });
@@ -691,6 +637,41 @@
       const installCloseBtn = document.getElementById(
         "install-modal-close-btn",
       );
+      const installShowAllBtn = document.getElementById("install-show-all-btn");
+
+      // Déjà lancée comme application installée : les boutons d'installation sont masqués.
+      const isStandalone =
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true;
+      if (isStandalone) {
+        document.documentElement.classList.add("is-standalone");
+      }
+
+      const detectInstallPlatform = () => {
+        const ua = navigator.userAgent;
+        const isIOS =
+          /iPad|iPhone|iPod/.test(ua) ||
+          (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+        if (isIOS) return "ios";
+        if (/Android/.test(ua)) return "android";
+        if (/Firefox\//.test(ua)) return "unsupported";
+        if (/Chrome\/|Chromium\/|Edg\//.test(ua)) return "desktop";
+        if (/Macintosh/.test(ua) && /Safari\//.test(ua)) return "mac";
+        return "unsupported";
+      };
+
+      const showInstallPlatforms = (platform) => {
+        if (!installModal) return;
+        installModal
+          .querySelectorAll("[data-install-platform]")
+          .forEach((el) => {
+            const p = el.getAttribute("data-install-platform");
+            el.hidden = platform
+              ? p !== platform
+              : p === "unsupported";
+          });
+        if (installShowAllBtn) installShowAllBtn.hidden = !platform;
+      };
 
       const openInstallModal = () => {
         if (deferredPrompt) {
@@ -699,9 +680,14 @@
             deferredPrompt = null;
           });
         } else if (installModal) {
+          showInstallPlatforms(detectInstallPlatform());
           installModal.classList.remove("hidden");
         }
       };
+
+      if (installShowAllBtn) {
+        installShowAllBtn.onclick = () => showInstallPlatforms(null);
+      }
 
       if (installBtn) {
         installBtn.onclick = (e) => {
@@ -725,6 +711,7 @@
       });
 
       window.addEventListener("appinstalled", () => {
+        document.documentElement.classList.add("is-standalone");
         if (installModal) installModal.classList.add("hidden");
       });
     </script>
