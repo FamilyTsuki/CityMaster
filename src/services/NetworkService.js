@@ -123,10 +123,14 @@ export class NetworkService {
   async #probe() {
     if (!this.#browserOnline || typeof fetch !== "function") return;
     try {
+      // AbortSignal.timeout n'existe pas avant iOS 16 : sans lui, la sonde
+      // échouerait toujours et le jeu resterait hors-ligne.
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
       const res = await fetch(PROBE_URL, {
         cache: "no-store",
-        signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
-      });
+        signal: controller.signal,
+      }).finally(() => clearTimeout(timer));
       if (!res.headers.get("X-CityMaster-Offline")) {
         this.reportReachable();
       }

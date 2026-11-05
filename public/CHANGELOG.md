@@ -3,6 +3,17 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.21.1] - 2026-11-05
+
+### Corrigé
+- Hors-ligne, un fichier de corrections servi par le cache du service worker faisait croire que le serveur répondait de nouveau : seules les réponses de `/api` remettent le jeu en ligne.
+- Sur iOS avant la version 16, la vérification du retour de la connexion échouait toujours (`AbortSignal.timeout` absent) et le jeu restait hors-ligne.
+
+### Tests
+- `offline_fallback.test.js` : une réponse venant du cache ne remet pas le jeu en ligne.
+
+---
+
 ## [2.21.0] - 2026-11-05
 
 ### Ajouté

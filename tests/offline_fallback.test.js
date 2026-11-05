@@ -71,6 +71,10 @@ test('ApiService : un serveur injoignable passe l’application hors-ligne, une 
   assert.equal(fallback.offline, true, 'réponse de repli du service worker');
   assert.equal(network.isOnline(), false);
 
+  global.fetch = async () => jsonResponse({ customRoutes: {} });
+  await ApiService.get('/assets/data/custom_routes.json');
+  assert.equal(network.isOnline(), false, 'un fichier servi par le cache ne prouve pas que le serveur répond');
+
   network.reportReachable();
 });
 

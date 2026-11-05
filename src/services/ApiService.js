@@ -117,6 +117,9 @@ export class ApiService {
     }
 
     const isOwnServer = !/^https?:\/\//.test(url);
+    // Le service worker peut servir /assets depuis son cache quand le réseau
+    // est coupé : seule une réponse de /api prouve que le serveur répond.
+    const provesReachable = url.startsWith("/api/");
 
     try {
       const res = await fetch(url, config);
@@ -124,7 +127,7 @@ export class ApiService {
       if (isOwnServer) {
         if (offline) {
           NetworkService.getInstance().reportUnreachable();
-        } else {
+        } else if (provesReachable) {
           NetworkService.getInstance().reportReachable();
         }
       }
