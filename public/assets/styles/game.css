@@ -31,11 +31,6 @@
   --game-top-offset: calc(4.25rem + max(0.5rem, env(safe-area-inset-top)));
 }
 
-body.has-offline-banner,
-body.is-offline {
-  --game-top-offset: calc(4.25rem + var(--offline-banner-height, 2.35rem) + max(0.5rem, env(safe-area-inset-top)));
-}
-
 .ui-overlay-top {
   position: absolute;
   top: var(--game-top-offset);
@@ -721,11 +716,6 @@ body.is-offline {
 @media (max-width: 640px) {
   :root {
     --game-top-offset: calc(3.75rem + max(0.5rem, env(safe-area-inset-top)));
-  }
-
-  body.has-offline-banner,
-  body.is-offline {
-    --game-top-offset: calc(3.75rem + var(--offline-banner-height, 2.2rem) + max(0.5rem, env(safe-area-inset-top)));
   }
 
   .ui-overlay-top {

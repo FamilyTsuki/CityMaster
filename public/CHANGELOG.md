@@ -5,6 +5,9 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ## [2.20.4] - 2026-11-05
 
+### Modifié
+- Perte et retour de connexion signalés par un message flash au lieu du bandeau sous la barre de navigation ; le HUD de jeu n'est plus décalé hors-ligne.
+
 ### Supprimé
 
 - Page d'accueil : les trois cartes de présentation (données, plateformes, salons) sont retirées. Le guide d'installation reste accessible depuis le menu.

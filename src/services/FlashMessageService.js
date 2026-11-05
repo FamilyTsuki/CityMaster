@@ -17,8 +17,11 @@ export class FlashMessageService {
     return this.#containerElement;
   }
 
+  /**
+   * @returns {() => void} Fonction qui ferme le message
+   */
   static show(message, type = 'error', duration = 4000) {
-    if (!message) return;
+    if (!message) return () => {};
 
     const container = this.#ensureContainer();
     const flashElement = document.createElement('div');
@@ -71,17 +74,18 @@ export class FlashMessageService {
     if (duration > 0) {
       setTimeout(dismissHandler, duration);
     }
+    return dismissHandler;
   }
 
   static error(message, duration = 4000) {
-    this.show(message, 'error', duration);
+    return this.show(message, 'error', duration);
   }
 
   static success(message, duration = 4000) {
-    this.show(message, 'success', duration);
+    return this.show(message, 'success', duration);
   }
 
   static info(message, duration = 4000) {
-    this.show(message, 'info', duration);
+    return this.show(message, 'info', duration);
   }
 }

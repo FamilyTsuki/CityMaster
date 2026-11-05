@@ -1,17 +1,16 @@
 import { I18nService } from "./I18nService.js";
+import { FlashMessageService } from "./FlashMessageService.js";
 
 /**
  * Service de gestion et de surveillance du statut réseau (en ligne / hors-ligne).
- * Gère les écouteurs natifs, met à jour la bannière globale et avertit les composants.
+ * Gère les écouteurs natifs, affiche un message flash et avertit les composants.
  */
 export class NetworkService {
   static #instance = null;
 
   #isOnline = true;
   #listeners = new Set();
-  #bannerElement = null;
-  #bannerTextElement = null;
-  #restoreTimeout = null;
+  #dismissOfflineFlash = null;
 
   constructor() {
     if (typeof navigator !== "undefined" && typeof navigator.onLine === "boolean") {
@@ -42,18 +41,9 @@ export class NetworkService {
   }
 
   /**
-   * Initialise les liaisons DOM avec la bannière réseau globale.
-   * @param {HTMLElement} [bannerEl]
-   * @param {HTMLElement} [bannerTextEl]
+   * Affiche l'état réseau initial (message flash si l'appareil est hors-ligne).
    */
-  init(bannerEl = null, bannerTextEl = null) {
-    if (typeof document === "undefined") return;
-
-    this.#bannerElement =
-      bannerEl || document.getElementById("offline-banner");
-    this.#bannerTextElement =
-      bannerTextEl || document.getElementById("offline-banner-text");
-
+  init() {
     this.#renderState();
   }
 
@@ -98,49 +88,30 @@ export class NetworkService {
   #renderState() {
     if (typeof document === "undefined") return;
 
-    if (this.#restoreTimeout) {
-      clearTimeout(this.#restoreTimeout);
-      this.#restoreTimeout = null;
-    }
-
+    const i18n = I18nService.getInstance();
     if (!this.#isOnline) {
-      document.body.classList.add("is-offline", "has-offline-banner");
-      if (this.#bannerElement) {
-        this.#bannerElement.classList.remove("hidden", "online-restored");
-        this.#bannerElement.classList.add("active");
-      }
-      if (this.#bannerTextElement) {
-        this.#bannerTextElement.textContent = I18nService.getInstance().t(
-          "offline.banner_offline",
-          {},
-          "Mode hors-ligne : Connexion requise pour jouer et synchroniser.",
+      document.body.classList.add("is-offline");
+      if (!this.#dismissOfflineFlash) {
+        this.#dismissOfflineFlash = FlashMessageService.error(
+          i18n.t(
+            "offline.banner_offline",
+            {},
+            "Mode hors-ligne : Connexion requise pour jouer et synchroniser.",
+          ),
+          0,
         );
       }
-    } else {
-      document.body.classList.remove("is-offline");
-      if (this.#bannerElement && this.#bannerElement.classList.contains("active")) {
-        document.body.classList.add("has-offline-banner");
-        this.#bannerElement.classList.add("online-restored");
-        if (this.#bannerTextElement) {
-          this.#bannerTextElement.textContent = I18nService.getInstance().t(
-            "offline.banner_online",
-            {},
-            "Connexion Internet rétablie !",
-          );
-        }
-        this.#restoreTimeout = setTimeout(() => {
-          document.body.classList.remove("has-offline-banner");
-          if (this.#bannerElement) {
-            this.#bannerElement.classList.remove("active", "online-restored");
-            this.#bannerElement.classList.add("hidden");
-          }
-        }, 3000);
-      } else {
-        document.body.classList.remove("has-offline-banner");
-        if (this.#bannerElement) {
-          this.#bannerElement.classList.add("hidden");
-        }
-      }
+      return;
+    }
+
+    document.body.classList.remove("is-offline");
+    if (this.#dismissOfflineFlash) {
+      this.#dismissOfflineFlash();
+      this.#dismissOfflineFlash = null;
+      FlashMessageService.success(
+        i18n.t("offline.banner_online", {}, "Connexion Internet rétablie !"),
+        3000,
+      );
     }
   }
 }

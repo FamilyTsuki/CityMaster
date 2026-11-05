@@ -27,29 +27,13 @@ test("Service Worker: returns HTTP 503 on offline API fallback and caches OSM ti
   );
 });
 
-test("index.html: contains accessible #offline-banner with ARIA attributes", () => {
+test("Statut réseau : message flash à la place du bandeau hors-ligne", () => {
   const indexHtml = fs.readFileSync(path.resolve("public/index.html"), "utf8");
+  const networkSource = fs.readFileSync(path.resolve("src/services/NetworkService.js"), "utf8");
 
-  assert.match(
-    indexHtml,
-    /id=["']offline-banner["']/,
-    "index.html must contain #offline-banner element",
-  );
-  assert.match(
-    indexHtml,
-    /role=["']status["']/,
-    "offline-banner must have role='status' for screen readers",
-  );
-  assert.match(
-    indexHtml,
-    /aria-live=["']polite["']/,
-    "offline-banner must have aria-live='polite'",
-  );
-  assert.match(
-    indexHtml,
-    /data-i18n=["']offline\.banner_offline["']/,
-    "offline-banner must have data-i18n attribute for localization",
-  );
+  assert.doesNotMatch(indexHtml, /offline-banner/, "index.html ne doit plus contenir de bandeau hors-ligne");
+  assert.match(networkSource, /FlashMessageService\.error\(/, "la perte de connexion affiche un flash d'erreur");
+  assert.match(networkSource, /FlashMessageService\.success\(/, "le retour de connexion affiche un flash de succès");
 });
 
 test("NetworkService: subscribes to status changes and updates state", () => {
@@ -131,23 +115,10 @@ test("badges.css: defines .city-offline-badge style for offline ready cities", (
   assert.match(css, /\.city-offline-badge\s*\{/, ".city-offline-badge must be defined in badges.css");
 });
 
-test("Offline banner anti-overlap: CSS variables and class management prevent HUD collision", () => {
+test("HUD de jeu : positionné sous la barre de navigation", () => {
   const gameCss = fs.readFileSync(path.resolve("public/assets/styles/game.css"), "utf8");
-  const messagesCss = fs.readFileSync(path.resolve("public/assets/styles/components/messages.css"), "utf8");
 
-  // Vérifier la déclaration de --offline-banner-height
-  assert.match(
-    messagesCss,
-    /--offline-banner-height:\s*[\d.]+rem/,
-    "messages.css must declare --offline-banner-height",
-  );
-
-  // Vérifier le décalage dynamique lors de l'activation de la bannière
-  assert.match(
-    gameCss,
-    /body\.has-offline-banner.*--game-top-offset/s,
-    "game.css must shift --game-top-offset when body has .has-offline-banner or .is-offline",
-  );
+  assert.doesNotMatch(gameCss, /offline-banner/, "game.css ne doit plus décaler le HUD pour le bandeau");
 
   assert.match(
     gameCss,
