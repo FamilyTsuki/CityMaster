@@ -1,5 +1,16 @@
-const CACHE_NAME = 'citymaster-v94';
+const CACHE_NAME = 'citymaster-v95';
+// Caches conservés d'une version à l'autre : le fond de carte et les
+// corrections d'administration doivent rester disponibles hors-ligne.
+const TILE_CACHE = 'citymaster-tiles-v1';
+const DATA_CACHE = 'citymaster-data-v1';
+const MAX_TILES = 4000;
+const TILE_TRIM_EVERY = 50;
+const KEPT_CACHES = [CACHE_NAME, TILE_CACHE, DATA_CACHE];
+
 const STATIC_ASSETS = [
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
+  "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
+  "https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js",
   "/",
   "/index.html",
   "/manifest.json",
@@ -122,7 +133,7 @@ self.addEventListener("activate", (event) => {
       .then((keys) => {
         return Promise.all(
           keys.map((key) => {
-            if (key !== CACHE_NAME) {
+            if (!KEPT_CACHES.includes(key)) {
               return caches.delete(key);
             }
           }),
@@ -144,7 +155,10 @@ self.addEventListener("fetch", (event) => {
           {
             status: 503,
             statusText: "Service Unavailable",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "X-CityMaster-Offline": "1",
+            },
           },
         );
       }),
@@ -152,20 +166,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  const isTile =
+    url.hostname.endsWith("tile.openstreetmap.org") ||
+    url.hostname.endsWith("cartocdn.com") ||
+    url.hostname.endsWith("arcgisonline.com");
+
+  if (isTile) {
+    event.respondWith(serveTile(event.request));
+    return;
+  }
+
   const isAllowedCdn =
     url.hostname === "unpkg.com" ||
     url.hostname.endsWith(".unpkg.com") ||
     url.hostname === "cdn.jsdelivr.net" ||
-    url.hostname.endsWith(".jsdelivr.net") ||
-    url.hostname.endsWith("tile.openstreetmap.org") ||
-    url.hostname.endsWith("cartocdn.com") ||
-    url.hostname.endsWith("arcgisonline.com");
+    url.hostname.endsWith(".jsdelivr.net");
 
   // Les fichiers de villes (souvent plusieurs Mo) sont déjà conservés dans
   // IndexedDB par l'application : inutile de les dupliquer dans ce cache.
   const isCityDataFile =
     url.pathname.startsWith("/assets/data/") &&
     !url.pathname.startsWith("/assets/data/custom_");
+  const isCustomDataFile = url.pathname.startsWith("/assets/data/custom_");
 
   event.respondWith(
     fetch(event.request)
@@ -180,7 +202,7 @@ self.addEventListener("fetch", (event) => {
         if (isCacheable) {
           const responseToCache = networkResponse.clone();
           caches
-            .open(CACHE_NAME)
+            .open(isCustomDataFile ? DATA_CACHE : CACHE_NAME)
             .then((cache) => cache.put(event.request, responseToCache));
         }
         return networkResponse;
@@ -198,3 +220,38 @@ self.addEventListener("fetch", (event) => {
       }),
   );
 });
+
+let tilePutCount = 0;
+
+/**
+ * Tuiles de carte : servies depuis le cache quand elles y sont (elles changent
+ * rarement), sinon téléchargées puis conservées. Le cache est borné à
+ * MAX_TILES entrées, les plus anciennes étant supprimées en premier.
+ */
+async function serveTile(request) {
+  const cache = await caches.open(TILE_CACHE);
+  const cached = await cache.match(request, { ignoreSearch: true });
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response && response.status === 200 && response.type === "cors") {
+      await cache.put(request, response.clone());
+      tilePutCount++;
+      if (tilePutCount % TILE_TRIM_EVERY === 0) {
+        trimTileCache(cache).catch(() => {});
+      }
+    }
+    return response;
+  } catch (err) {
+    return Response.error();
+  }
+}
+
+async function trimTileCache(cache) {
+  const keys = await cache.keys();
+  const excess = keys.length - MAX_TILES;
+  for (let i = 0; i < excess; i++) {
+    await cache.delete(keys[i]);
+  }
+}

@@ -1,3 +1,5 @@
+import { NetworkService } from "./NetworkService.js";
+
 /**
  * Centralized API client service.
  * Handles base URLs, JWT authentication headers, JSON encoding/decoding,
@@ -82,7 +84,9 @@ export class ApiService {
    * Dispatches a fetch request with automatic headers and JSON body serialization.
    * @param {string} endpoint
    * @param {RequestInit & { includeAuth?: boolean, body?: any }} options
-   * @returns {Promise<{ ok: boolean, status: number, data: any, response: Response|null, error?: string }>}
+   * `offline` vaut true quand le serveur n'a pas pu être joint (réseau coupé,
+   * ou réponse de repli du service worker).
+   * @returns {Promise<{ ok: boolean, status: number, data: any, response: Response|null, offline: boolean, error?: string }>}
    */
   static async request(endpoint, options = {}) {
     const url = this.formatEndpoint(endpoint);
@@ -112,8 +116,18 @@ export class ApiService {
       }
     }
 
+    const isOwnServer = !/^https?:\/\//.test(url);
+
     try {
       const res = await fetch(url, config);
+      const offline = Boolean(res.headers.get("X-CityMaster-Offline"));
+      if (isOwnServer) {
+        if (offline) {
+          NetworkService.getInstance().reportUnreachable();
+        } else {
+          NetworkService.getInstance().reportReachable();
+        }
+      }
 
       let data = null;
       const contentType = res.headers.get("content-type") || "";
@@ -136,14 +150,17 @@ export class ApiService {
         status: res.status,
         data,
         response: res,
+        offline,
       };
     } catch (err) {
+      if (isOwnServer) NetworkService.getInstance().reportUnreachable();
       return {
         ok: false,
         status: 0,
         data: null,
         error: err.message,
         response: null,
+        offline: isOwnServer,
       };
     }
   }

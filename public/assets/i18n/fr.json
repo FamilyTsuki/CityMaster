@@ -460,6 +460,7 @@
   "offline": {
     "banner_offline": "Mode hors-ligne : Connexion requise pour jouer et synchroniser.",
     "banner_online": "Connexion Internet rétablie !",
+    "game_continues_offline": "Connexion perdue : la partie continue hors-ligne. Le score ne sera pas enregistré au classement.",
     "game_requires_connection": "Une connexion Internet est requise pour générer la carte et lancer la partie.",
     "room_requires_connection": "Les salons multijoueurs nécessitent une connexion Internet active.",
     "leaderboard_requires_connection": "Le classement nécessite une connexion Internet.",

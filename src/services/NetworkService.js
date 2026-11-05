@@ -1,23 +1,32 @@
 import { I18nService } from "./I18nService.js";
 import { FlashMessageService } from "./FlashMessageService.js";
 
+const PROBE_URL = "/api/version";
+const PROBE_INTERVAL_MS = 15000;
+const PROBE_TIMEOUT_MS = 5000;
+
 /**
  * Service de gestion et de surveillance du statut réseau (en ligne / hors-ligne).
- * Gère les écouteurs natifs, affiche un message flash et avertit les composants.
+ * L'appareil est considéré hors-ligne quand le navigateur le signale, mais aussi
+ * quand le serveur ne répond plus (Wi-Fi sans Internet, réseau trop faible) ;
+ * le serveur est alors interrogé régulièrement jusqu'à ce qu'il réponde.
+ * Affiche un message flash et avertit les composants.
  */
 export class NetworkService {
   static #instance = null;
 
   #isOnline = true;
+  #browserOnline = true;
+  #serverReachable = true;
   #listeners = new Set();
   #dismissOfflineFlash = null;
+  #probeTimer = null;
 
   constructor() {
     if (typeof navigator !== "undefined" && typeof navigator.onLine === "boolean") {
-      this.#isOnline = navigator.onLine;
-    } else {
-      this.#isOnline = true;
+      this.#browserOnline = navigator.onLine;
     }
+    this.#isOnline = this.#browserOnline;
     this.#setupListeners();
   }
 
@@ -48,6 +57,26 @@ export class NetworkService {
   }
 
   /**
+   * Signale qu'une requête n'a pas pu joindre le serveur.
+   */
+  reportUnreachable() {
+    if (!this.#serverReachable) return;
+    this.#serverReachable = false;
+    this.#updateStatus();
+    this.#scheduleProbe();
+  }
+
+  /**
+   * Signale qu'une requête a reçu une réponse du serveur.
+   */
+  reportReachable() {
+    if (this.#serverReachable) return;
+    this.#serverReachable = true;
+    this.#stopProbe();
+    this.#updateStatus();
+  }
+
+  /**
    * S'abonne aux changements d'état réseau.
    * @param {(isOnline: boolean) => void} callback
    * @returns {() => void} Fonction de désinscription
@@ -65,16 +94,51 @@ export class NetworkService {
     if (typeof window === "undefined") return;
 
     window.addEventListener("online", () => {
-      this.#handleStatusChange(true);
+      this.#browserOnline = true;
+      if (this.#serverReachable) {
+        this.#updateStatus();
+      } else {
+        this.#probe();
+      }
     });
 
     window.addEventListener("offline", () => {
-      this.#handleStatusChange(false);
+      this.#browserOnline = false;
+      this.#updateStatus();
     });
   }
 
-  #handleStatusChange(online) {
-    this.#isOnline = Boolean(online);
+  #scheduleProbe() {
+    if (typeof window === "undefined" || this.#probeTimer) return;
+    this.#probeTimer = setInterval(() => this.#probe(), PROBE_INTERVAL_MS);
+  }
+
+  #stopProbe() {
+    if (this.#probeTimer) {
+      clearInterval(this.#probeTimer);
+      this.#probeTimer = null;
+    }
+  }
+
+  async #probe() {
+    if (!this.#browserOnline || typeof fetch !== "function") return;
+    try {
+      const res = await fetch(PROBE_URL, {
+        cache: "no-store",
+        signal: AbortSignal.timeout(PROBE_TIMEOUT_MS),
+      });
+      if (!res.headers.get("X-CityMaster-Offline")) {
+        this.reportReachable();
+      }
+    } catch {
+      // Toujours injoignable : nouvel essai au prochain intervalle.
+    }
+  }
+
+  #updateStatus() {
+    const online = this.#browserOnline && this.#serverReachable;
+    if (online === this.#isOnline) return;
+    this.#isOnline = online;
     this.#renderState();
     for (const callback of this.#listeners) {
       try {

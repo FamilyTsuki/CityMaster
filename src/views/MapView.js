@@ -1,6 +1,15 @@
 import { I18nService } from '../services/I18nService.js';
 import { sanitizeStreetFeature } from '../services/SpatialService.js';
 
+const ONLINE_MAX_NATIVE_ZOOM = 18;
+// Tuiles téléchargées d'avance pour jouer hors-ligne : au-delà, Leaflet agrandit
+// les tuiles du dernier niveau disponible.
+const PREFETCH_MIN_ZOOM = 13;
+const PREFETCH_MAX_ZOOM = 16;
+const PREFETCH_MAX_TILES = 800;
+const PREFETCH_CONCURRENCY = 4;
+const TILE_SUBDOMAINS = 'abcd';
+
 export class MapView {
   #map;
   #streetLayer;
@@ -16,6 +25,7 @@ export class MapView {
   #isSatellite;
   #currentStyle;
   #resizeObserver;
+  #prefetchedTemplates;
 
   constructor() {
     this.#map = null;
@@ -32,6 +42,7 @@ export class MapView {
     this.#isSatellite = false;
     this.#currentStyle = 'street';
     this.#resizeObserver = null;
+    this.#prefetchedTemplates = new Set();
 
     this.#initThemeObserver();
     this.#initSatelliteButton();
@@ -120,6 +131,79 @@ export class MapView {
     return this.#hideLabels
       ? `https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png?key=${key}`
       : `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${key}`;
+  }
+
+  /**
+   * Hors-ligne, la carte n'affiche que les niveaux de zoom téléchargés d'avance
+   * (agrandis au-delà) au lieu de tuiles grises.
+   * @param {boolean} offline
+   */
+  setOfflineMode(offline) {
+    if (!this.#tileLayer) return;
+    const maxNativeZoom = offline ? PREFETCH_MAX_ZOOM : ONLINE_MAX_NATIVE_ZOOM;
+    if (this.#tileLayer.options.maxNativeZoom === maxNativeZoom) return;
+    this.#tileLayer.options.maxNativeZoom = maxNativeZoom;
+    this.#tileLayer.redraw();
+  }
+
+  /**
+   * Télécharge en arrière-plan les tuiles du style courant couvrant la ville,
+   * pour qu'elle reste jouable hors-ligne. Le service worker les conserve.
+   * Les niveaux de zoom sont ajoutés tant que le total reste sous
+   * PREFETCH_MAX_TILES ; rien n'est fait en mode économie de données.
+   * @param {string|null} bboxString "sud,ouest,nord,est"
+   */
+  async prefetchCityTiles(bboxString) {
+    if (!bboxString || typeof L === 'undefined') return;
+    if (typeof navigator !== 'undefined' && navigator.connection?.saveData) return;
+
+    const parts = bboxString.split(',').map(Number);
+    if (parts.length !== 4 || parts.some((n) => !Number.isFinite(n))) return;
+    const south = Math.min(parts[0], parts[2]);
+    const north = Math.max(parts[0], parts[2]);
+    const west = Math.min(parts[1], parts[3]);
+    const east = Math.max(parts[1], parts[3]);
+
+    const template = this.#getTileUrl();
+    const prefetchKey = `${template}|${bboxString}`;
+    if (this.#prefetchedTemplates.has(prefetchKey)) return;
+    this.#prefetchedTemplates.add(prefetchKey);
+
+    const urls = [];
+    for (let z = PREFETCH_MIN_ZOOM; z <= PREFETCH_MAX_ZOOM; z++) {
+      const xMin = lngToTileX(west, z);
+      const xMax = lngToTileX(east, z);
+      const yMin = latToTileY(north, z);
+      const yMax = latToTileY(south, z);
+      const count = (xMax - xMin + 1) * (yMax - yMin + 1);
+      if (urls.length + count > PREFETCH_MAX_TILES) break;
+      for (let x = xMin; x <= xMax; x++) {
+        for (let y = yMin; y <= yMax; y++) {
+          urls.push(
+            L.Util.template(template, {
+              s: TILE_SUBDOMAINS[Math.abs(x + y) % TILE_SUBDOMAINS.length],
+              x,
+              y,
+              z,
+              r: L.Browser.retina ? '@2x' : '',
+            }),
+          );
+        }
+      }
+    }
+
+    let next = 0;
+    const worker = async () => {
+      while (next < urls.length) {
+        const url = urls[next++];
+        try {
+          await fetch(url, { mode: 'cors', credentials: 'omit' });
+        } catch {
+          return;
+        }
+      }
+    };
+    await Promise.all(Array.from({ length: PREFETCH_CONCURRENCY }, worker));
   }
 
   updateTileUrl() {
@@ -225,7 +309,7 @@ export class MapView {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
       subdomains: 'abcd',
       maxZoom: 20,
-      maxNativeZoom: 18,
+      maxNativeZoom: ONLINE_MAX_NATIVE_ZOOM,
       keepBuffer: 8,
       updateWhenIdle: false,
       updateInterval: 100,
@@ -529,4 +613,15 @@ export class MapView {
       setTimeout(onTilesLoaded, 1500);
     });
   }
+}
+
+function lngToTileX(lng, zoom) {
+  return Math.floor(((lng + 180) / 360) * 2 ** zoom);
+}
+
+function latToTileY(lat, zoom) {
+  const rad = (lat * Math.PI) / 180;
+  return Math.floor(
+    ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * 2 ** zoom,
+  );
 }

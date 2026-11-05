@@ -7,6 +7,7 @@ import {
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
 import { NetworkService } from "../services/NetworkService.js";
+import { FlashMessageService } from "../services/FlashMessageService.js";
 import { StorageService } from "../services/StorageService.js";
 import {
   RouteDifficultyService,
@@ -55,6 +56,8 @@ export class GameController {
   #offlineRoundIndex;
   #offlineScores;
   #offlineStreakCount;
+  #offlineRoundOffset;
+  #offlineBaseScore;
 
   constructor(
     gameView,
@@ -85,6 +88,8 @@ export class GameController {
     this.#offlineRoundIndex = 0;
     this.#offlineScores = [];
     this.#offlineStreakCount = 0;
+    this.#offlineRoundOffset = 0;
+    this.#offlineBaseScore = 0;
 
     this.#initEvents();
   }
@@ -108,6 +113,9 @@ export class GameController {
     this.#gameView.onReportClose(() => this.#resumeRoundTimer());
 
     this.#mapView.onClickMap((lat, lng) => this.#handleMapClick(lat, lng));
+    NetworkService.getInstance().onStatusChange((online) =>
+      this.#mapView.setOfflineMode(!online),
+    );
   }
 
   async #startGame(
@@ -155,9 +163,48 @@ export class GameController {
       }
 
       const i18n = I18nService.getInstance();
-      const isOnline = NetworkService.getInstance().isOnline();
+      let isOnline = NetworkService.getInstance().isOnline();
       let startData = null;
       let geojson = null;
+
+      if (isOnline) {
+        this.#gameView.updateComboBadge(1);
+        this.#gameView.showLoading(i18n.t("loading.generating_city"));
+
+        const generateResponse = await ApiService.post("/cities/generate", {
+          cityKey: cityKey,
+          name: cityData.name,
+          osmId: cityData.osmId || cityData.osm_id,
+          osm_id: cityData.osm_id || cityData.osmId,
+          bbox: bbox,
+        });
+
+        let startResponse = generateResponse;
+        if (generateResponse.ok) {
+          this.#gameView.showLoading(i18n.t("loading.init_session"));
+          startResponse = await ApiService.post("/game/start", {
+            cityKey,
+            mode,
+            difficulty: diff,
+            testNumber,
+            seriesCount,
+          });
+        }
+
+        // Serveur injoignable : la partie est jouée sans lui si la ville est
+        // enregistrée (pas en salon, dont le classement dépend du serveur).
+        if (startResponse.offline && !this.roomCode) {
+          isOnline = false;
+        } else if (!startResponse.ok) {
+          if (startResponse.status === 401 || startResponse.status === 403) {
+            this.#handleAuthError();
+            return;
+          }
+          throw new Error(i18n.formatError(startResponse.data?.error));
+        } else {
+          startData = startResponse.data;
+        }
+      }
 
       if (!isOnline) {
         const cached = await StorageService.getCityRecord(cityKey);
@@ -184,6 +231,7 @@ export class GameController {
 
         const hideLabels = selectedMode === "target";
         await this.#mapView.initMap(center, 14, bbox, hideLabels);
+        this.#mapView.setOfflineMode(true);
 
         const [customDistricts, customRoutes] = await Promise.all([
           this.#fetchCustomDistricts(cityKey),
@@ -196,77 +244,7 @@ export class GameController {
           customRoutes,
         );
 
-        let eligibleStreets = this.#allCityStreets.filter((f) => {
-          if (
-            !f ||
-            !f.properties ||
-            !f.properties.name ||
-            f.properties.name.trim().length === 0 ||
-            !f.geometry
-          ) {
-            return false;
-          }
-          if (isMotorway(f)) return false;
-          if (f.geometry.type !== "Point") {
-            const len = RouteDifficultyService.getFeatureLengthMeters(f);
-            if (len > 0 && len < 15) return false;
-          }
-          return true;
-        });
-
-        const disablePlaces =
-          localStorage.getItem("citymaster_disable_places") === "true";
-        if (disablePlaces) {
-          const nonPlaces = eligibleStreets.filter(
-            (s) => !RouteDifficultyService.isPlaceStreet(s),
-          );
-          if (nonPlaces.length >= 5) {
-            eligibleStreets = nonPlaces;
-          }
-        }
-
-        if (diff === "lotissement") {
-          eligibleStreets = this.#allCityStreets.filter(
-            (f) =>
-              f &&
-              f.properties &&
-              f.properties.isLotissement &&
-              (f.geometry.type === "Polygon" ||
-                f.geometry.type === "MultiPolygon"),
-          );
-        } else if (diff === "easy" || diff === "medium" || diff === "hard") {
-          const matching = eligibleStreets.filter((f) => {
-            const d = RouteDifficultyService.getRouteDifficulty(
-              f,
-              center ? center[0] : 0,
-              center ? center[1] : 0,
-            );
-            return diff === "hard" || d === diff;
-          });
-          const targetNeeded = Math.min(
-            seriesCount || DEFAULT_SERIES_COUNT,
-            eligibleStreets.length,
-          );
-          if (matching.length >= targetNeeded) {
-            eligibleStreets = matching;
-          } else {
-            const fallbackDiff = diff === "easy" ? "medium" : "easy";
-            const fallbackMatching = eligibleStreets.filter((f) => {
-              const d = RouteDifficultyService.getRouteDifficulty(
-                f,
-                center ? center[0] : 0,
-                center ? center[1] : 0,
-              );
-              return d === fallbackDiff;
-            });
-            const combined = [...matching, ...fallbackMatching];
-            if (combined.length >= targetNeeded) {
-              eligibleStreets = combined;
-            } else if (matching.length > 0) {
-              eligibleStreets = matching;
-            }
-          }
-        }
+        const eligibleStreets = this.#getEligibleStreets(diff, center, seriesCount);
 
         const targetCount = Math.min(
           seriesCount || DEFAULT_SERIES_COUNT,
@@ -277,6 +255,8 @@ export class GameController {
         this.#offlineRoundIndex = 0;
         this.#offlineScores = [];
         this.#offlineStreakCount = 0;
+        this.#offlineRoundOffset = 0;
+        this.#offlineBaseScore = 0;
 
         if (this.#offlineStreets.length === 0) {
           throw new Error(i18n.t("errors.network_error"));
@@ -289,47 +269,6 @@ export class GameController {
         };
       } else {
         this.#isOfflineGame = false;
-        this.#gameView.updateComboBadge(1);
-        this.#gameView.showLoading(i18n.t("loading.generating_city"));
-
-        const generateResponse = await ApiService.post("/cities/generate", {
-          cityKey: cityKey,
-          name: cityData.name,
-          osmId: cityData.osmId || cityData.osm_id,
-          osm_id: cityData.osm_id || cityData.osmId,
-          bbox: bbox,
-        });
-
-        if (!generateResponse.ok) {
-          if (
-            generateResponse.status === 401 ||
-            generateResponse.status === 403
-          ) {
-            this.#handleAuthError();
-            return;
-          }
-          throw new Error(i18n.formatError(generateResponse.data?.error));
-        }
-
-        this.#gameView.showLoading(i18n.t("loading.init_session"));
-
-        const startResponse = await ApiService.post("/game/start", {
-          cityKey,
-          mode,
-          difficulty: diff,
-          testNumber,
-          seriesCount,
-        });
-
-        if (!startResponse.ok) {
-          if (startResponse.status === 401 || startResponse.status === 403) {
-            this.#handleAuthError();
-            return;
-          }
-          throw new Error(i18n.formatError(startResponse.data?.error));
-        }
-
-        startData = startResponse.data;
         if (startData && startData.disablePlaces !== undefined) {
           localStorage.setItem(
             "citymaster_disable_places",
@@ -362,6 +301,10 @@ export class GameController {
             this.#fetchCustomRoutes(cityKey),
           ]);
         geojson = loadedGeojson;
+        this.#mapView.setOfflineMode(false);
+        this.#mapView
+          .prefetchCityTiles(bbox || cityData.bbox)
+          .catch(() => {});
 
         this.#allCityStreets = mergeCityStreets(
           geojson.features,
@@ -618,6 +561,8 @@ export class GameController {
     this.#offlineRoundIndex = 0;
     this.#offlineScores = [];
     this.#offlineStreakCount = 0;
+    this.#offlineRoundOffset = 0;
+    this.#offlineBaseScore = 0;
   }
 
   async #fetchCustomDistricts(cityKey) {
@@ -869,6 +814,10 @@ export class GameController {
       elapsedSeconds,
     });
 
+    if (res.offline && this.#switchToOfflineGame()) {
+      return this.#evaluateOfflineRound(guess, elapsedSeconds);
+    }
+
     if (!res.ok) {
       const code = res.data?.code;
       if (!code && (res.status === 401 || res.status === 403)) {
@@ -885,11 +834,161 @@ export class GameController {
     return res.data;
   }
 
+  /**
+   * Rues pouvant être tirées pour une partie jouée sans le serveur, filtrées
+   * selon la difficulté comme le fait le serveur.
+   */
+  #getEligibleStreets(diff, center, seriesCount) {
+    let eligibleStreets = this.#allCityStreets.filter((f) => {
+      if (
+        !f ||
+        !f.properties ||
+        !f.properties.name ||
+        f.properties.name.trim().length === 0 ||
+        !f.geometry
+      ) {
+        return false;
+      }
+      if (isMotorway(f)) return false;
+      if (f.geometry.type !== "Point") {
+        const len = RouteDifficultyService.getFeatureLengthMeters(f);
+        if (len > 0 && len < 15) return false;
+      }
+      return true;
+    });
+
+    const disablePlaces =
+      localStorage.getItem("citymaster_disable_places") === "true";
+    if (disablePlaces) {
+      const nonPlaces = eligibleStreets.filter(
+        (s) => !RouteDifficultyService.isPlaceStreet(s),
+      );
+      if (nonPlaces.length >= 5) {
+        eligibleStreets = nonPlaces;
+      }
+    }
+
+    if (diff === "lotissement") {
+      eligibleStreets = this.#allCityStreets.filter(
+        (f) =>
+          f &&
+          f.properties &&
+          f.properties.isLotissement &&
+          (f.geometry.type === "Polygon" ||
+            f.geometry.type === "MultiPolygon"),
+      );
+    } else if (diff === "easy" || diff === "medium" || diff === "hard") {
+      const matching = eligibleStreets.filter((f) => {
+        const d = RouteDifficultyService.getRouteDifficulty(
+          f,
+          center ? center[0] : 0,
+          center ? center[1] : 0,
+        );
+        return diff === "hard" || d === diff;
+      });
+      const targetNeeded = Math.min(
+        seriesCount || DEFAULT_SERIES_COUNT,
+        eligibleStreets.length,
+      );
+      if (matching.length >= targetNeeded) {
+        eligibleStreets = matching;
+      } else {
+        const fallbackDiff = diff === "easy" ? "medium" : "easy";
+        const fallbackMatching = eligibleStreets.filter((f) => {
+          const d = RouteDifficultyService.getRouteDifficulty(
+            f,
+            center ? center[0] : 0,
+            center ? center[1] : 0,
+          );
+          return d === fallbackDiff;
+        });
+        const combined = [...matching, ...fallbackMatching];
+        if (combined.length >= targetNeeded) {
+          eligibleStreets = combined;
+        } else if (matching.length > 0) {
+          eligibleStreets = matching;
+        }
+      }
+    }
+
+    return eligibleStreets;
+  }
+
+  /**
+   * Connexion perdue en cours de partie : la manche en cours et les suivantes
+   * sont jouées sans le serveur, à partir des rues déjà chargées. Le score
+   * acquis est conservé mais ne sera pas enregistré au classement.
+   * Impossible en salon, ou si la rue de la manche en cours est introuvable.
+   * @returns {boolean} true si la partie continue hors-ligne.
+   */
+  #switchToOfflineGame() {
+    const prompt = this.#session?.currentPrompt;
+    if (this.roomCode || !prompt) return false;
+
+    const currentStreet = this.#findPromptStreet(prompt);
+    if (!currentStreet) return false;
+
+    const roundIndex = typeof prompt.roundIndex === "number" ? prompt.roundIndex : 0;
+    const totalRounds =
+      typeof prompt.totalRounds === "number" ? prompt.totalRounds : roundIndex + 1;
+    const remaining = Math.max(1, totalRounds - roundIndex);
+    const center = this.#session.city?.center;
+    const others = this.#getEligibleStreets(this.#session.difficulty, center, remaining)
+      .filter((f) => f.properties.name !== currentStreet.properties.name)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, remaining - 1);
+
+    this.#isOfflineGame = true;
+    this.#offlineStreets = [currentStreet, ...others];
+    this.#offlineRoundIndex = 0;
+    this.#offlineScores = [];
+    this.#offlineStreakCount = 0;
+    this.#offlineRoundOffset = roundIndex;
+    this.#offlineBaseScore = this.#session.score || 0;
+    this.#mapView.setOfflineMode(true);
+
+    FlashMessageService.info(
+      I18nService.getInstance().t(
+        "offline.game_continues_offline",
+        {},
+        "Connexion perdue : la partie continue hors-ligne. Le score ne sera pas enregistré au classement.",
+      ),
+      6000,
+    );
+    return true;
+  }
+
+  /**
+   * Retrouve parmi les rues chargées celle de la manche en cours : par son nom,
+   * ou par sa géométrie en mode identification (le nom n'est pas fourni).
+   */
+  #findPromptStreet(prompt) {
+    if (prompt.streetName) {
+      return (
+        this.#allCityStreets.find(
+          (f) => f?.properties?.name === prompt.streetName && f.geometry,
+        ) || null
+      );
+    }
+    if (prompt.geometry) {
+      const target = JSON.stringify(prompt.geometry.coordinates);
+      return (
+        this.#allCityStreets.find(
+          (f) =>
+            f?.properties?.name &&
+            f.geometry?.type === prompt.geometry.type &&
+            JSON.stringify(f.geometry.coordinates) === target,
+        ) || null
+      );
+    }
+    return null;
+  }
+
   #buildOfflinePrompt(roundIndex, mode, difficulty) {
     const street = this.#offlineStreets[roundIndex];
     const prompt = {
-      roundIndex,
-      totalRounds: this.#offlineStreets.length,
+      roundIndex: this.#offlineRoundOffset + roundIndex,
+      totalRounds: this.#offlineRoundOffset + this.#offlineStreets.length,
       mode,
       timeLimit: getRoundTimeLimit(difficulty),
     };
@@ -952,7 +1051,8 @@ export class GameController {
             this.#session.difficulty,
           ),
       isFinished,
-      totalScore: this.#offlineScores.reduce((a, b) => a + b, 0),
+      totalScore:
+        this.#offlineBaseScore + this.#offlineScores.reduce((a, b) => a + b, 0),
       feedback: buildRoundFeedback(result, street),
       sprintHistory: this.#session.sprintHistory,
     };

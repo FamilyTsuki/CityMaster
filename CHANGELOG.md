@@ -3,6 +3,26 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.21.0] - 2026-11-05
+
+### Ajouté
+- Les tuiles de la carte d'une ville sont téléchargées en arrière-plan au début d'une partie en ligne (zooms 13 à 16, 800 tuiles au plus, rien en mode économie de données).
+- Si la connexion coupe en cours de partie, la manche et les suivantes sont jouées sans le serveur ; le score acquis est conservé mais n'est pas envoyé au classement.
+
+### Modifié
+- Le jeu passe hors-ligne quand le serveur ne répond plus, et pas seulement quand le navigateur signale la perte du réseau ; le serveur est ensuite interrogé toutes les 15 s.
+- Une partie lancée alors que le serveur ne répond pas démarre hors-ligne si la ville est enregistrée.
+- Hors-ligne, la carte agrandit les tuiles du zoom 16 au lieu d'afficher des cases grises.
+
+### Corrigé
+- Le cache des tuiles et des corrections d'administration était vidé à chaque nouvelle version ; il est désormais conservé (4000 tuiles au plus).
+- Leaflet et Turf n'étaient pas pré-cachés : la carte pouvait ne pas s'afficher hors-ligne.
+
+### Tests
+- `offline_fallback.test.js` : détection d'un serveur injoignable, démarrage et poursuite d'une partie hors-ligne, caches du service worker.
+
+---
+
 ## [2.20.4] - 2026-11-05
 
 ### Modifié
