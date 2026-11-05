@@ -3,40 +3,17 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-test("landing screen template exists and contains valid structure with the 3 feature cards", () => {
+test("landing screen template exists and contains valid structure without feature cards", () => {
   const landingHtml = fs.readFileSync(
     path.resolve("public/screens/landing.html"),
     "utf8",
   );
 
-  // Verify the 3 feature cards and features-grid are present
-  assert.ok(
-    landingHtml.includes("features-grid"),
-    "Must include .features-grid",
-  );
-  const cardMatches = landingHtml.match(/class="feature-card/g);
+  // Verify feature cards are absent
   assert.equal(
-    cardMatches ? cardMatches.length : 0,
-    3,
-    "Must include exactly 3 feature-card elements",
-  );
-
-  // Verify cards contain their paper styling and icons
-  assert.ok(
-    landingHtml.includes("sheet-tilt-left"),
-    "Must include sheet-tilt-left",
-  );
-  assert.ok(
-    landingHtml.includes("sheet-straight"),
-    "Must include sheet-straight",
-  );
-  assert.ok(
-    landingHtml.includes("sheet-tilt-right"),
-    "Must include sheet-tilt-right",
-  );
-  assert.ok(
-    landingHtml.includes("open-install-modal"),
-    "Must include install guide button",
+    landingHtml.includes("feature-card"),
+    false,
+    "Should not include .feature-card",
   );
 
   // Verify paper filter

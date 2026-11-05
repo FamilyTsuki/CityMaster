@@ -3,12 +3,22 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.20.4] - 2026-11-05
+
+### Supprimé
+
+- Page d'accueil : les trois cartes de présentation (données, plateformes, salons) sont retirées. Le guide d'installation reste accessible depuis le menu.
+
+---
+
 ## [2.20.3] - 2026-11-03
 
 ### Corrigé
+
 - Les trois points animés de recherche restaient affichés après avoir choisi une commune dans la liste ou cliqué en dehors du champ : ils sont désormais masqués immédiatement et les requêtes différées sont annulées.
 
 ### Tests
+
 - Ajout d'un test vérifiant l'extinction du loader et l'annulation du délai d'attente lors du choix d'une commune dans `tests/client_sync.test.js`.
 
 ---
@@ -16,10 +26,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.20.2] - 2026-11-03
 
 ### Modifié
+
 - Fenêtre d'installation : seules les étapes de l'appareil détecté sont affichées (iPhone/iPad, Android, ordinateur, Mac), avec un lien vers les autres appareils. Un message indique quand le navigateur ne permet pas l'installation.
 - Boutons d'installation masqués lorsque l'application est déjà ouverte en mode installé.
 
 ### Corrigé
+
 - La page d'accueil annonçait une installation « en 1 clic », ce qui n'est vrai que sur certains navigateurs.
 
 ---
@@ -27,6 +39,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.20.1] - 2026-11-03
 
 ### Corrigé
+
 - Résolution de l'alerte npm audit sur minimatch (< 11.0.1) via une surcharge de dépendance (`overrides`) dans package.json.
 
 ---
@@ -34,31 +47,39 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.20.0] - 2026-11-03
 
 ### Ajouté
+
 - Éditeur de rues : un clic sur un trait supprime la liaison entre deux points et coupe le tronçon à cet endroit.
 
 ### Modifié
+
 - Éditeur de rues : Ctrl + Z annule la dernière action (ajout, déplacement, suppression, coupe) et plus seulement le dernier point ajouté.
 
 ### Corrigé
+
 - Les rues à plusieurs tronçons modifiées avant la v2.6.0 avaient été enregistrées en une seule ligne : de longs traits reliaient les tronçons, en jeu comme dans l'éditeur. Elles sont recoupées à la lecture, sans modifier les fichiers enregistrés.
 
 ### Tests
+
 - `flattened_routes.test.js` : découpe des rues aplaties, points ajoutés par un administrateur conservés.
 
 ## [2.19.2] - 2026-10-21
 
 ### Corrigé
+
 - Les autoroutes (ex. « L'Aquitaine » à Tours) pouvaient être tirées comme rues faciles à cause de leur longueur : elles sont exclues du jeu et ne sont plus téléchargées à la génération d'une ville.
 
 ### Amélioré
+
 - Bilan du mode sprint : tableau défilant avec en-tête fixe, numéro de manche, distances arrondies (m/km), bonus de rapidité détaillé et courte légende.
 
 ### Tests
+
 - `sprint_recap_and_motorways.test.js` : exclusion des autoroutes, format des distances du bilan.
 
 ## [2.19.1] - 2026-10-21
 
 ### Corrigé
+
 - Si PostgreSQL démarrait après le serveur, celui-ci restait en mode local jusqu'au redémarrage suivant : il attend maintenant la base et s'y connecte dès qu'elle répond (connexion et administration en 503 en attendant).
 - Les comptes enregistrés dans `users.json` par les anciennes versions pendant une panne de la base ne pouvaient plus se connecter : ils sont ajoutés à PostgreSQL au démarrage.
 - Un jeton dont le pseudo ne correspond pas au compte de même identifiant n'ouvre plus de droits (administration, profil, avatar).
@@ -66,16 +87,19 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Les écritures JSON remplaçaient un lien symbolique par un fichier et échouaient si le dossier n'était pas modifiable par le serveur.
 
 ### Ajouté
+
 - Guide de mise à jour du serveur (`docs/DEPLOIEMENT.md`) : fichiers propres au serveur, sauvegarde, commandes à éviter.
 - Fichier `LICENSE` (MIT), annoncé par le README.
 
 ### Tests
+
 - `server_upgrade.test.js` : attente de la base, reprise des comptes, contrôle du jeton, suppression d'une rue d'origine, écriture via un lien symbolique ou dans un dossier en lecture seule.
 - Stockage en mémoire pour `localStorage` dans les tests (supprime l'avertissement de Node 25+).
 
 ## [2.19.0] - 2026-10-21
 
 ### Corrigé
+
 - Le routeur ne mettait jamais à jour la route courante : revenir à l'accueil laissait l'ancienne URL affichée.
 - Les réglages admin (places désactivées, mode de difficulté) étaient ignorés par le jeu sans PostgreSQL ; `/difficulties` et `/game/start` classaient les rues différemment, et le mode `center` ne fonctionnait pas côté serveur.
 - Les mots-clés accentués (« allée », « cité », « chaussée ») n'étaient jamais reconnus dans le classement des difficultés.
@@ -85,21 +109,25 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - Réponses de salon arrivant après avoir quitté le salon ; `HapticService.js` absent du pré-cache hors-ligne.
 
 ### Modifié
+
 - Le mode de stockage (PostgreSQL ou local) est choisi une fois au démarrage ; plus d'écriture silencieuse dans `users.json` ou en mémoire quand une requête échoue.
 - Jeton de partie chiffré en AES-256-GCM ; la durée de chaque manche est fournie par le serveur et le score cumulé est renvoyé à chaque manche.
 - Les droits admin sont relus dans le stockage des comptes à chaque requête ; les invités ne peuvent pas utiliser un pseudo de `ADMIN_USERS`.
 - Les données de ville en cache (IndexedDB) sont revalidées par ETag, et les fichiers `/assets/data` sont servis sans cache long.
 
 ### Amélioré
+
 - Écritures JSON atomiques et sérialisées ; un fichier corrompu n'est plus écrasé.
 - Règles de score partagées entre serveur et client (`ScoringService`), calcul du mode `center` par grille, option `TRUST_PROXY`, cache Overpass borné en taille, battement SSE.
 - Échappement HTML des messages flash et des noms de rues dans l'administration.
 - Dépendances mises à jour (`npm audit` : 0 vulnérabilité), ESLint et `npm run check`, documentation dans `docs/`.
 
 ### Supprimé
+
 - File d'envoi de scores hors-ligne (jamais alimentée) et route `postScore` non branchée, `CustomLotissementService` et `fetchStreetNearPoint` inutilisés.
 
 ### Tests
+
 - Les tests utilisent des dossiers temporaires et n'écrivent plus dans `public/assets/data/` ni `config/`.
 - Ajout de tests de non-régression : flux de partie, règles de score, cohérence des difficultés, stockage JSON, routes HTTP, routeur, reprise de partie, service worker, salons.
 
@@ -108,10 +136,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.17.5] - 2026-10-21
 
 ### Corrigé
+
 - Harmonisation du calcul de difficulté des voies en utilisant `RouteDifficultyService` comme référence unique dans l'administration et le moteur de jeu.
 - Correction du seuil de difficulté et de la détection toponymique dans la page d'administration qui affichait à tort les boulevards et avenues comme moyens ou difficiles.
 
 ### Tests
+
 - Ajout de tests validant la cohérence de classification des voies majeures et des surcharges manuelles dans `tests/route_difficulty_easy.test.js`.
 
 ---
@@ -119,11 +149,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.17.4] - 2026-10-21
 
 ### Corrigé
+
 - Prise en charge du rechargement automatique lors de l'activation d'un nouveau Service Worker via l'écoute de `controllerchange`.
 - Forçage du contournement du cache HTTP (`updateViaCache: 'none'` et `cache: 'reload'`) pour le Service Worker et les modules statiques `/src`.
 - Déclenchement de la vérification de mise à jour lors de la reprise de l'application mobile (`visibilitychange` et `online`).
 
 ### Tests
+
 - Ajout de tests vérifiant la configuration de mise à jour PWA et les en-têtes de cache dans `tests/offline_sync.test.js`.
 
 ---
@@ -131,11 +163,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.17.3] - 2026-10-21
 
 ### Corrigé
+
 - Prise en charge des identifiants numériques et toponymes alternatifs lors du clic sur le bouton Éditer des routes et quartiers.
 - Défilement automatique vers le formulaire d'édition et focus du champ lors de la sélection d'un élément dans la barre latérale.
 - Ajout d'une action directe d'édition du tracé dans le popup de sélection des routes sur la carte.
 
 ### Tests
+
 - Ajout de tests de non-régression pour la résolution des entités administratives et le repli fichier des paramètres système.
 
 ---
@@ -143,6 +177,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.17.2] - 2026-10-20
 
 ### Modifié
+
 - Affichage conditionnel de l'illustration Ko-fi selon le thème : utilisation de `kofi-cat.png` en mode clair et de `kofi-cat2.png` en mode sombre.
 
 ---
@@ -150,6 +185,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.17.1] - 2026-10-20
 
 ### Modifié
+
 - Repositionnement en absolu de l'illustration de chat dans le coin supérieur de la carte Ko-fi afin de préserver la hauteur uniforme et l'alignement des deux cartes.
 - Ajout d'un contour adapté au thème sombre pour garantir la lisibilité de l'illustration sans altérer les dimensions des cartes.
 
@@ -158,10 +194,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.17.0] - 2026-10-20
 
 ### Ajouté
+
 - Création de la page et route `/moderation` (`public/screens/moderation.html`, `public/assets/styles/moderation.css`) avec bandeau épuré « Coming Soon » et bouton de retour.
 - Redirection du bouton « Rejoindre la modération » de la page Support vers la nouvelle page de modération.
 
 ### Tests
+
 - Ajout des tests unitaires de structure du template et de résolution de route pour `/moderation` dans `tests/support_route.test.js`.
 
 ---
@@ -169,6 +207,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.22] - 2026-10-20
 
 ### Ajouté
+
 - Intégration de l'illustration de chat avec fleur dans l'encadré de soutien Ko-fi (`public/assets/images/kofi-cat.png`).
 - Remplissage blanc du corps de l'illustration pour garantir un contraste optimal en thèmes clair et sombre, avec animation interactive au survol.
 
@@ -177,6 +216,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.21] - 2026-10-20
 
 ### Ajouté
+
 - Prise en charge complète du mode clair sur la page Support (palette parchemin, bulles d'ambiance pastel abricot/ambre et cartes claires contrastées).
 - Adaptation dynamique des variables de thème de la page Support via les sélecteurs `[data-theme="light"]` et `[data-theme="dark"]`.
 
@@ -185,6 +225,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.20] - 2026-10-20
 
 ### Modifié
+
 - Harmonisation des bordures, rayons et ombres des conteneurs de la page Support (suppression de la bordure en tirets et des bordures supérieures asymétriques).
 - Alignement typographique des titres de la page Support sur la police de l'application (Lilita One).
 - Intégration de la barre de navigation au thème chaud lors de l'affichage de l'écran de support.
@@ -194,6 +235,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.19] - 2026-10-20
 
 ### Modifié
+
 - Rectification de l'origine du projet sur la page Support : genèse créée pour aider les pompiers à mémoriser leur secteur tout en s'amusant.
 - Révision de la description du soutien Ko-fi (don amical et libre, sans mention de coûts d'infrastructure ou de matériel).
 - Synchronisation des dictionnaires de traduction français et anglais (`fr.json`, `en.json`).
@@ -203,6 +245,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.18] - 2026-10-20
 
 ### Modifié
+
 - Mise à jour des directives de versioning et conventions du projet (`AGENTS.md`, `GEMINI.md`, `.agents/rules/versioning.md`).
 - Définition des règles strictes de rédaction du changelog (style sobre, standard Keep a Changelog, exclusion des formulations verbeuses).
 
@@ -211,6 +254,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.17] - 2026-10-20
 
 ### Modifié
+
 - Harmonisation et simplification du journal des modifications selon les conventions [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/).
 - Retrait des formulations superflues et normalisation technique des notes de version antérieures.
 - Mise à jour du script d'incrément de version (`scripts/bump-version.js`).
@@ -220,6 +264,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.16] - 2026-10-20
 
 ### Corrigé
+
 - **Positionnement du header & marges des écrans** : Résolution du problème de chevauchement où le haut des pages passait sous la barre de navigation fixe.
 - **Variables de mise en page réactives (`variables.css` & `navbar.css`)** : Introduction de `--screen-padding-top` et `--screen-padding-bottom` synchronisés dynamiquement avec la hauteur réelle et la position du header.
 - **Uniformisation des vues** : Application des marges adaptatives sur l'Accueil, les Salons, la Configuration, l'Authentification, les Notes de version, les Mentions légales, le Profil, le Certificat et l'Administration.
@@ -230,14 +275,16 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.15] - 2026-10-20
 
 ### Modifié
+
 - **Boutons de contribution sur la page Support (`support.css`)** : Remplacement des dégradés saturés par un style sobre et net, aligné avec la charte graphique de l'application (couleur principale du jeu pour Ko-fi, teinte foncée contrastée pour la modération).
-- **Internationalisation (`fr.json`, `en.json`)** : Clarification et simplification des libellés d'action pour la page Support (*« Soutenir sur Ko-fi »* et *« Rejoindre la modération »*).
+- **Internationalisation (`fr.json`, `en.json`)** : Clarification et simplification des libellés d'action pour la page Support (_« Soutenir sur Ko-fi »_ et _« Rejoindre la modération »_).
 
 ---
 
 ## [2.16.14] - 2026-10-20
 
 ### Ajouté
+
 - **Animation d'arrière-plan de la page Support (`support.css`)** : Ajout d'une animation d'ambiance avec sphères lumineuses ascendantes et flou diffus créant un effet chaleureux continu derrière les cartes.
 
 ---
@@ -245,6 +292,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.13] - 2026-10-20
 
 ### Amélioré
+
 - **Arrière-plan d'ambiance de la page Support** : Intégration des éléments flottants et ajustement des transitions lumineuses.
 
 ---
@@ -252,6 +300,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.12] - 2026-10-20
 
 ### Amélioré
+
 - **Intégration plein écran du header (`navbar.css`)** : Passage de la barre de navigation en positionnement fixe au-dessus du contenu, permettant à l'arrière-plan personnalisé de s'étendre sur toute la hauteur de la fenêtre sans rupture visuelle.
 
 ---
@@ -259,9 +308,10 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.11] - 2026-10-20
 
 ### Amélioré
+
 - **Habillage de la page Support (`support.css`)** :
   - Dégradés sombres aux nuances chaleureuses (tons café et ambre).
-  - Typographie soignée avec police avec empattement (*Georgia*) pour les titres et contrastes optimisés pour la lecture.
+  - Typographie soignée avec police avec empattement (_Georgia_) pour les titres et contrastes optimisés pour la lecture.
   - Cartes aux angles arrondis avec effet verre dépoli (`backdrop-filter`).
 
 ---
@@ -269,6 +319,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.10] - 2026-10-20
 
 ### Amélioré
+
 - **Harmonisation visuelle de la page Support (`support.css`)** :
   - Déploiement de l'arrière-plan d'ambiance sur l'ensemble de la fenêtre via `#app-backdrop`.
   - Prise en charge des thèmes clair et sombre avec contrastes adaptés.
@@ -278,6 +329,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.9] - 2026-10-20
 
 ### Modifié
+
 - **Cohérence des styles de l'écran Support (`support.css`)** :
   - Utilisation des variables de thème globales (`--bg-card`, `--border-color`, `--text-main`).
   - Suppression des bordures superflues et intégration naturelle avec le reste de l'application.
@@ -287,6 +339,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.7] - 2026-10-20
 
 ### Corrigé
+
 - Résolution des problèmes de superposition et d'artéfacts sur l'animation GIF de la page Support (coalescence des frames).
 - Mise à jour du cache Service Worker (`citymaster-v64`).
 
@@ -295,6 +348,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.6] - 2026-10-20
 
 ### Amélioré
+
 - Intégration inline en Base64 du GIF animé sur la page Support pour éliminer la requête réseau additionnelle.
 - Mise à jour du cache Service Worker (`citymaster-v63`).
 
@@ -303,6 +357,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.5] - 2026-10-20
 
 ### Modifié
+
 - Simplification des textes de la page Support et retrait des sections intermédiaires d'infrastructure.
 - Mise à jour du cache Service Worker (`citymaster-v62`).
 
@@ -311,6 +366,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.4] - 2026-10-20
 
 ### Modifié
+
 - Intégration du GIF animé de la mascotte sur la page Support et suppression de l'effet de zoom au survol.
 - Mise en cache hors-ligne de la mascotte (`citymaster-v61`).
 
@@ -319,6 +375,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.3] - 2026-10-20
 
 ### Modifié
+
 - Restructuration du conteneur de la page Support pour poser directement les cartes sur l'arrière-plan d'ambiance.
 - Mise à jour du cache Service Worker (`citymaster-v60`).
 
@@ -327,6 +384,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.2] - 2026-10-20
 
 ### Modifié
+
 - Allègement de l'écran Support : suppression de la barre de liens secondaires et du bouton de retour redondant.
 - Mise à jour du cache Service Worker (`citymaster-v59`).
 
@@ -335,6 +393,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.1] - 2026-10-20
 
 ### Ajouté
+
 - Habillage graphique chaleureux pour la page Support (palette ambrée et typographie sérif).
 - Options de contribution : don Ko-fi et candidature à la modération cartographique.
 - Mise à jour du cache Service Worker (`citymaster-v58`).
@@ -344,11 +403,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.16.0] - 2026-10-20
 
 ### Ajouté
+
 - Nouvelle page « Soutenir le projet » accessible depuis le pied de page (`/support`).
 - Bouton de contribution Ko-fi et options de participation au projet.
 - Prise en charge multilingue (français / anglais) et mise en cache hors-ligne (`citymaster-v57`).
 
 ### Tests
+
 - Tests unitaires pour la route et les composants de la page Support (`tests/support_route.test.js`).
 
 ---
@@ -356,6 +417,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.15.3] - 2026-10-20
 
 ### Tests
+
 - Refactoring et optimisation de la suite de tests unitaires pour une meilleure maintenabilité.
 
 ---
@@ -363,11 +425,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.15.2] - 2026-10-20
 
 ### Corrigé
+
 - Assainissement géométrique des voies OSM : suppression des boucles fermées parasites sur les voies linéaires.
 - Préservation des véritables carrefours giratoires et ronds-points (`isRoundaboutFeature`).
 - Découpage automatique des sauts anormaux (> 1200 m) entre coordonnées consécutives d'une même voie.
 
 ### Tests
+
 - Tests unitaires d'assainissement géométrique des rues (`tests/street_stitching_and_haptics.test.js`).
 
 ---
@@ -375,10 +439,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.15.1] - 2026-10-20
 
 ### Corrigé
+
 - Décalage dynamique du bandeau de jeu supérieur lorsque la bannière hors-ligne est affichée pour éviter les chevauchements.
 - Repositionnement des contrôles de zoom Leaflet au-dessus de la barre d'action inférieure.
 
 ### Tests
+
 - Tests unitaires pour l'espacement adaptatif de la bannière hors-ligne (`tests/offline_sync.test.js`).
 
 ---
@@ -386,10 +452,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.15.0] - 2026-10-19
 
 ### Ajouté
+
 - Fusion automatique des tronçons contigus d'une même artère (Street Stitching) avec protection contre les homonymes distants.
 - Retour haptique (vibrations) sur mobile lors des sélections et validations de jeu (`HapticService`).
 
 ### Tests
+
 - Tests unitaires pour la fusion toponymique et le retour haptique (`tests/street_stitching_and_haptics.test.js`).
 
 ---
@@ -397,10 +465,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.14.3] - 2026-10-19
 
 ### Corrigé
+
 - Filtrage des micro-segments de voies OSM (< 15 mètres) pour éviter les voies non cliquables ou imperceptibles sur la carte.
 - Ajout du calcul métrique de distance via `RouteDifficultyService.getFeatureLengthMeters`.
 
 ### Tests
+
 - Tests unitaires pour le filtrage des micro-voies (`tests/micro_streets_filter.test.js`).
 
 ---
@@ -408,11 +478,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.14.2] - 2026-10-19
 
 ### Amélioré
+
 - Mécanisme de nouvelle tentative automatique en cas d'erreur de chargement de tuile cartographique (`tileerror`).
 - Agrandissement du tampon de tuiles (`keepBuffer: 8`) et invalidation automatique de la taille de carte lors des redimensionnements.
 - Mise en cache Service Worker des tuiles CartoDB et ArcGIS.
 
 ### Tests
+
 - Tests unitaires pour la résilience du chargement des tuiles (`tests/map_tile_reliability.test.js`).
 
 ---
@@ -420,9 +492,11 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.14.1] - 2026-10-19
 
 ### Corrigé
+
 - Rééquilibrage du mode facile : exclusion des ruelles courtes de centre-ville et priorisation des grands axes toponymiques (boulevards, avenues, quais).
 
 ### Tests
+
 - Tests unitaires pour la classification de difficulté des rues (`tests/route_difficulty_easy.test.js`).
 
 ---
@@ -430,10 +504,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.14.0] - 2026-10-19
 
 ### Ajouté
+
 - Célébration adaptative de fin de partie : volume de confettis modulé selon le score obtenu (Bronze, Argent, Or, Légendaire).
 - Désactivation des confettis en cas de score insuffisant pour éviter les fausses célébrations.
 
 ### Tests
+
 - Tests unitaires pour le calcul des paliers de confettis (`tests/confetti_score.test.js`).
 
 ---
@@ -441,9 +517,11 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.13.1] - 2026-10-19
 
 ### Amélioré
+
 - Déplacement adaptatif du sélecteur de thème dans le menu burger sur mobile pour libérer de l'espace dans la barre de navigation.
 
 ### Tests
+
 - Tests unitaires pour l'affichage responsive de la barre de navigation (`tests/navbar_responsive.test.js`).
 
 ---
@@ -451,10 +529,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.13.0] - 2026-10-19
 
 ### Ajouté
+
 - Paramètre d'administration pour autoriser ou désactiver les places et squares dans les parties.
 - Filtrage des places dans la sélection des rues et affichage d'un badge dédié dans l'administration.
 
 ### Tests
+
 - Tests unitaires pour le filtrage et la configuration des places (`tests/places_setting.test.js`).
 
 ---
@@ -462,10 +542,12 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.12.1] - 2026-10-19
 
 ### Amélioré
+
 - Élimination du flash de contenu non traduit (FOUC) au chargement de l'application grâce à la détection précoce de langue.
 - Pré-traduction des gabarits HTML avant insertion dans le DOM.
 
 ### Tests
+
 - Tests unitaires pour le mécanisme anti-FOUC et la traduction synchrone.
 
 ---
@@ -473,11 +555,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.12.0] - 2026-10-19
 
 ### Ajouté
+
 - Sauvegarde locale automatique des villes jouées dans IndexedDB (`StorageService`).
 - Moteur de jeu autonome permettant de jouer hors-ligne sur les villes en cache.
 - Badge hors-ligne dans la recherche de villes et mention dédiée sur le certificat de fin de partie.
 
 ### Tests
+
 - Tests unitaires pour le jeu et le stockage hors-ligne.
 
 ---
@@ -485,15 +569,18 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.11.0] - 2026-10-19
 
 ### Ajouté
+
 - Détection de l'état de connexion et bannière d'information hors-ligne (`NetworkService`).
 - Mise en cache Service Worker des tuiles OpenStreetMap consultées.
 - File d'attente locale pour la synchronisation différée des scores hors-ligne.
 
 ### Corrigé
+
 - Gestion explicite des erreurs 503 dans le Service Worker au lieu d'un statut 200 en cas de perte de réseau.
 - Reconnexion automatique au flux SSE et retry sur la soumission des salons multijoueurs.
 
 ### Tests
+
 - Tests unitaires pour la résilience réseau et le mode hors-ligne (`tests/offline_sync.test.js`).
 
 ---
@@ -501,6 +588,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.10.2] - 2026-10-19
 
 ### Modifié
+
 - Nettoyage et suppression des fichiers de suivi des tâches achevées (`TODO_API_OPTIMIZATION.md` et `TODO_CODE_IMPROVEMENTS.md`).
 
 ---
@@ -508,6 +596,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.10.1] - 2026-10-19
 
 ### Amélioré
+
 - Ajustement des bulles d'ambiance en bas d'écran (`landing.css`) et correction de la hauteur minimale sur mobile (`100dvh`).
 
 ---
@@ -515,11 +604,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.10.0] - 2026-10-19
 
 ### Ajouté
+
 - Écran dédié au journal des modifications (`/changelog`) accessible via le badge de version dans la barre de navigation.
 - Parser Markdown client pour l'affichage des notes de version (`ChangelogView.js`).
 - Route API serveur `GET /api/changelog` et fallback hors-ligne PWA.
 
 ### Tests
+
 - Tests unitaires pour la route du journal des modifications (`tests/changelog_route.test.js`).
 
 ---
@@ -527,6 +618,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.9.1] - 2026-10-19
 
 ### Amélioré
+
 - Arrière-plan d'ambiance global (`#app-backdrop`) étendu à l'ensemble des pages de l'application.
 - Intégration du bouton de retour circulaire standardisé sur les pages d'authentification et de mentions légales.
 
@@ -535,6 +627,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.9.0] - 2026-10-19
 
 ### Ajouté
+
 - Palette adaptative des bulles d'ambiance selon le thème actif (teintes ambrées en sombre, bleutées en clair).
 - Traduction complète de la modale d'installation PWA et synchronisation multilingue du sélecteur de thème.
 
@@ -543,9 +636,11 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.20] - 2026-10-15
 
 ### Ajouté
+
 - Bouton d'installation PWA dans la barre de navigation et le menu mobile.
 
 ### Corrigé
+
 - Correction du contraste du bouton d'installation en mode clair.
 
 ---
@@ -553,6 +648,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.19] - 2026-10-14
 
 ### Amélioré
+
 - Ajustement de l'échelle et de la position du globe terrestre sur l'écran de chargement.
 
 ---
@@ -560,6 +656,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.18] - 2026-10-13
 
 ### Amélioré
+
 - Intégration de l'illustration du globe terrestre (`earth.png`) et lissage des contours sur l'écran de chargement.
 
 ---
@@ -567,6 +664,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.17] - 2026-10-13
 
 ### Amélioré
+
 - Ajustement de la ligne d'horizon terrestre sur l'écran de chargement et retrait des masques de découpe superflus.
 
 ---
@@ -574,6 +672,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.16] - 2026-10-13
 
 ### Amélioré
+
 - Harmonisation de la grille céleste et répartition des étoiles sur l'écran de chargement.
 
 ---
@@ -581,6 +680,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.15] - 2026-10-13
 
 ### Corrigé
+
 - Espacement vertical entre le texte et les monuments sur l'écran de chargement.
 - Extension de l'horizon terrestre pour couvrir toute la largeur d'écran.
 
@@ -589,6 +689,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.14] - 2026-10-13
 
 ### Amélioré
+
 - Adoucissement de la trajectoire de vol et inclinaison dynamique de l'avion sur l'écran de chargement.
 
 ---
@@ -596,6 +697,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.13] - 2026-10-13
 
 ### Amélioré
+
 - Affichage plein écran de la scène de vol et alignement de la courbure terrestre avec la trajectoire.
 
 ---
@@ -603,6 +705,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.12] - 2026-10-13
 
 ### Amélioré
+
 - Détourage et intégration panoramique du globe terrestre le long de l'horizon.
 
 ---
@@ -610,6 +713,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.11] - 2026-10-13
 
 ### Ajouté
+
 - Illustration du globe terrestre avec halo atmosphérique et mise en cache hors-ligne (`earth.png`).
 
 ---
@@ -617,6 +721,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.10] - 2026-10-13
 
 ### Ajouté
+
 - Ambiance visuelle inspirée de Peek pour l'écran de chargement : grille céleste, double tracé de trajectoire et nuage cumulus d'arrivée.
 
 ---
@@ -624,6 +729,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.9] - 2026-10-13
 
 ### Amélioré
+
 - Animation d'apparition des monuments au-dessus de la trajectoire de vol.
 
 ---
@@ -631,6 +737,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.8] - 2026-10-13
 
 ### Amélioré
+
 - Apparition différée du point d'interrogation après l'entrée de l'avion dans le nuage.
 - Stabilisation de l'affichage du nuage de destination.
 
@@ -639,6 +746,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.7] - 2026-10-13
 
 ### Amélioré
+
 - Animation de transition vaporeuse pour l'apparition du nuage de destination.
 - Retrait des traits de repère orphelins sous les monuments.
 
@@ -647,6 +755,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.6] - 2026-10-13
 
 ### Amélioré
+
 - Apparition progressive du nuage de destination à mi-parcours (50%).
 - Réduction de la taille du nuage et orientation dynamique le long de la courbe de descente.
 
@@ -655,6 +764,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.5] - 2026-10-13
 
 ### Modifié
+
 - Remplacement de la séquence de crash au sol par l'entrée de l'avion dans le nuage mystère.
 - Inclinaison dynamique des monuments selon la pente locale de la trajectoire.
 
@@ -663,6 +773,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.4] - 2026-10-13
 
 ### Ajouté
+
 - Intégration des icônes de monuments réels (Arc de Triomphe, Louvre, Tour Eiffel) le long du vol.
 
 ---
@@ -670,6 +781,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.3] - 2026-10-13
 
 ### Amélioré
+
 - Orientation continue de l'avion le long de la pente de la trajectoire.
 - Nettoyage des contrôles de test temporaires de l'écran de chargement.
 
@@ -678,6 +790,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.2] - 2026-10-13
 
 ### Amélioré
+
 - Épuration graphique de l'écran de chargement : typographie allégée, silhouette d'aéronef modernisée et capsules de monuments en verre dépoli.
 
 ---
@@ -685,6 +798,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.1] - 2026-10-13
 
 ### Ajouté
+
 - Trajectoire de vol en courbe parabolique Bézier avec calcul du tangage en temps réel.
 - Apparition séquentielle des monuments au franchissement de chaque étape.
 
@@ -693,11 +807,13 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.8.0] - 2026-10-13
 
 ### Ajouté
+
 - Nouveau composant de chargement de vol interactif (`FlightLoader`).
 - Animation d'avion avec progression, étapes de monuments et arrivée mystère.
 - Prise en charge multilingue (français / anglais) et mise en cache hors-ligne (`citymaster-v18`).
 
 ### Tests
+
 - Tests unitaires pour la logique et le cycle de vie du composant de vol (`tests/load_route.test.js`).
 
 ---
@@ -705,6 +821,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.7.1] - 2026-10-13
 
 ### Corrections de bugs & Affichage
+
 - **Positionnement et visibilité de l'écran de chargement (`loaders.css`, `landing.css`)** :
   - Résolution du problème d'écran blanc où `#load-screen` était repoussé 500 px sous la ligne de flottaison à cause de l'héritage `position: relative` cumulé avec `#landing-screen`.
   - Application stricte de `position: absolute !important; inset: 0 !important; z-index: 100 !important;` sur `.load-screen` pour garantir un affichage plein écran parfaitement centré au premier plan.
@@ -714,6 +831,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
   - Sécurisation de l'initialisation de l'application dans `app.js` avec vérification de `document.readyState` pour déclencher immédiatement `startApp` si le DOM est déjà chargé.
 
 ### Cache & Cycle de vie
+
 - Incrémentation du cache Service Worker en `citymaster-v17` dans `public/sw.js`.
 - Synchronisation des chaînes de cache-busting `?v=2.7.1` dans `public/index.html` et mise à jour du badge `README.md`.
 
@@ -722,6 +840,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.7.0] - 2026-10-13
 
 ### Nouveautés & Nouvelles fonctionnalités
+
 - **Création de la page et route dédiée `/load` (`public/screens/load.html`, `src/app.js`, `src/views/GameView.js`)** :
   - Mise en place d'un écran de chargement dédié et isolé (`#load-screen`), conçu pour permettre le redesign et la mise au point visuelle du composant de chargement sans fermeture automatique.
   - Enregistrement de la route `/load` (et `/#/load`) au sein du routeur frontend SPA.
@@ -729,6 +848,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
   - Masquage automatique de la barre de navigation principale (`#main-nav`) lors de l'accès à `/load` pour offrir une vue plein écran 100% consacrée au chargement, et restauration immédiate de la barre lors du retour sur toute autre route.
 
 ### Optimisations & Architecture
+
 - **Robustesse du routeur (`src/Router.js`)** :
   - Normalisation des chemins avec tolérance pour les slashes finaux (ex: `/load/` pris en charge de manière identique à `/load`).
   - Sécurisation des accès aux variables globales navigateur (`window`, `document`, `history`) avec des gardes `typeof` pour garantir une compatibilité totale dans les environnements de tests Node.js et SSR.
@@ -736,6 +856,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
   - Ajout des règles CSS pour `.load-screen` et `.loading-message` avec centrage complet dans la fenêtre d'affichage (100dvh) et support fluide des modes clair et sombre.
 
 ### Tests unitaires & Non-régression
+
 - **Suite de tests pour la route `/load` (`tests/load_route.test.js`)** :
   - Validation de l'existence et du balisage du template `load.html` (`#load-screen`, `.loader-container`, `.loader-spinner`, `#load-page-message`).
   - Test du déclenchement du gestionnaire de route sur `/load` et `/load/`.
@@ -743,6 +864,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 - **Validation globale** : 30 tests unitaires validés avec succès (30/30).
 
 ### Cache & Cycle de vie
+
 - Ajout de `/screens/load.html` dans les assets statiques mis en cache par le Service Worker.
 - Incrémentation du cache Service Worker en `citymaster-v16` dans `public/sw.js`.
 - Mise à jour des chaînes de cache-busting `?v=2.7.0` dans `public/index.html` et synchronisation du badge de version dans `README.md`.
@@ -752,13 +874,14 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.6.0] - 2026-10-11
 
 ### Nouveautés & Ergonomie
+
 - **Support complet des tronçons multiples (MultiLineString) dans l'édition cartographique (`AdminView.js`, `AdminController.js`)** :
-  - Résolution définitive du problème de tracé sur les rues fractionnées en plusieurs segments disjoints (ex: *Avenue de Paris* / RD 2020) où les tronçons étaient auparavant aplatis en une seule ligne continue, créant des diagonales géantes à travers toute la ville.
+  - Résolution définitive du problème de tracé sur les rues fractionnées en plusieurs segments disjoints (ex: _Avenue de Paris_ / RD 2020) où les tronçons étaient auparavant aplatis en une seule ligne continue, créant des diagonales géantes à travers toute la ville.
   - L'éditeur gère désormais nativement des tableaux de segments indépendants (`#activeRouteSegments`). Chaque tronçon est représenté distinctement sur la carte sans liaison intempestive.
   - Ajout d'un bouton d'action « + Ajouter un tronçon » permettant d'étendre une rue avec des segments disjoints supplémentaires.
   - Sauvegarde et persistance au format standard GeoJSON `MultiLineString` (ou `LineString` si tronçon unique).
 - **Gestion de la visibilité des noms de rues lors de l'édition (`admin.css`, `AdminView.js`, `AdminController.js`)** :
-  - Amélioration de l'ergonomie des étiquettes permanentes de rues (`.route-tooltip`), qui masquaient le tracé et les poignées de manipulation sur les petites rues denses (ex: *Rue de l'Écureuil du Bois-Bourru*).
+  - Amélioration de l'ergonomie des étiquettes permanentes de rues (`.route-tooltip`), qui masquaient le tracé et les poignées de manipulation sur les petites rues denses (ex: _Rue de l'Écureuil du Bois-Bourru_).
   - Ajout d'un bouton flottant d'action sur la carte permettant de masquer ou réafficher toutes les étiquettes de rues en un clic (`toggleRouteLabels()`).
   - En mode édition active, l'étiquette de la rue en cours d'édition est automatiquement masquée pour dégager la vue, et les autres étiquettes s'estompent à 35% d'opacité avec `pointer-events: none` pour ne pas gêner les clics.
 - **Accès direct au mode clair / sombre sur smartphone (`index.html`, `navbar.css`, `NavbarView.js`)** :
@@ -770,15 +893,18 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
   - Intégration d'un bouton d'accès au guide sur la page d'accueil dans la section Multi-Plateforme.
 
 ### Corrections de bugs & Refactoring
+
 - **Filtrage de difficulté solo (`GameController.js`)** : Priorisation des rues correspondant exactement à la difficulté demandée en mode solo avant de compléter avec les rues de secours, alignant le comportement solo sur les salons multijoueurs.
 - **Nettoyage du balisage HTML (`index.html`)** : Suppression de blocs scripts redondants avant la modale d'installation.
 
 ### Tests unitaires & Non-régression
+
 - **Nouveau test MultiLineString (`tests/city_modifications.test.js`)** : Validation de la persistance et de l'intégrité des géométries `MultiLineString` dans `AdminController.saveRoute`.
 - **Validation i18n** : Maintien de la parité stricte des dictionnaires i18n (`fr.json` et `en.json`) pour les nouvelles clés.
 - **Suite de tests** : 27 tests validés avec succès (27/27).
 
 ### Cache & Cycle de vie
+
 - Incrémentation du cache Service Worker en `citymaster-v15` dans `public/sw.js`.
 - Mise à jour des chaînes de cache-busting `?v=2.6.0` dans `public/index.html` et synchronisation du badge de version dans `README.md`.
 
@@ -787,6 +913,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.5.3] - 2026-10-11
 
 ### Corrections de bugs & Prise en compte de la difficulté des routes dans le jeu
+
 - **Prise en compte des surcharges de difficulté en jeu (`GameController.js`)** :
   - Intégration de `readDifficultyOverridesFile(cityKey)` au sein de `GameController.startGame` afin de charger les modifications manuelles de difficulté (table PostgreSQL `route_difficulties` et fichier `difficulty_overrides.json`).
   - Priorisation de la difficulté manuelle (`difficultyOverrides[nameLower]`, `difficultyOverrides[origNameLower]` ou `feature.properties.difficulty`) sur le calcul automatique géométrique/toponymique OSM dans la fonction `getStreetDifficulty`.
@@ -808,6 +935,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.5.2] - 2026-10-08
 
 ### Ergonomie, Taille & Haute Visibilité du Bouton Google Sign-In
+
 - **Mise à l'Échelle & Alignement Réactif (`AuthView.js`)** :
   - Rehaussement de la taille du bouton Google Identity Services (`renderButton`) de `"medium"` (32px) vers `"large"` (40px), s'harmonisant avec la hauteur standardisée des champs de saisie et du bouton de soumission.
   - Calcul dynamique et adaptatif de la largeur (`width`) calé sur la largeur effective du conteneur parent (`clientWidth`, borné entre 200px et 400px), assurant un alignement parfait avec le formulaire sur desktop comme sur mobile.
@@ -825,6 +953,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.5.1] - 2026-10-07
 
 ### Automatisation du Versioning & Conventions de Release
+
 - **Directives & Conventions du Projet (`AGENTS.md`, `.agents/rules/versioning.md`)** : Mise en place des règles de gouvernance du code : respect strict de SemVer, synchronisation des en-têtes d'assets (`public/index.html`, `public/sw.js`), journalisation dans `CHANGELOG.md` et validation systématique de la suite de tests (`npm test`).
 - **Script Automatisé d'Incrément (`scripts/bump-version.js` & `npm run version:bump`)** : Utilitaire Node.js permettant de mettre à jour de manière synchronisée et atomique `package.json`, le cache Service Worker (`public/sw.js`), les versions d'icônes/manifeste (`public/index.html`), le badge `README.md` et d'initialiser la section correspondante dans `CHANGELOG.md`.
 
@@ -833,6 +962,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.5.0] - 2026-10-07
 
 ### Performance Réseau, Optimisations API & Architecture Sécurisée
+
 - **Cache Local Haute Performance (IndexedDB & `StorageService`)** : Introduction de la persistance locale IndexedDB sans contrainte de quota de 5 Mo pour les fichiers GeoJSON de communes. Les parties rejouées démarrent instantanément (0 ms de latence réseau, 0 octet consommé).
 - **Suppression du Cache-Busting & En-têtes HTTP de Longue Durée** : Retrait du paramètre systématique `?t=${Date.now()}` sur le chargement des communes et des fichiers de personnalisation. Configuration d'en-têtes HTTP `Cache-Control: public, max-age=86400, stale-while-revalidate=604800` sur `/assets/data/*.json`.
 - **Synchronisation Salons Temps Réel (Server-Sent Events & Polling Conditionnel ETag)** :
@@ -869,6 +999,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.4.0] - 2026-10-07
 
 ### Authentification Google GIS, UX Salons & Architecture Modèle
+
 - **Bouton Google Sign-In Dynamique & Thématique** : Intégration complète de Google Identity Services avec gestion réactive du mode sombre et clair via un `MutationObserver` (`theme: "filled_black"` en mode sombre, `theme: "outline"` avec bordure nette et texte foncé en mode clair).
 - **Suppression des Conflits de Rendu Google** : Élimination du cadre blanc artificiel grâce à `color-scheme: light` et suppression des styles CSS intrusifs altérant l'aspect natif du composant Google.
 - **Espacement & Ergonomie des Formulaires** : Ajustement des marges entre le bouton Google et le séparateur "OU / OR", élimination des chevauchements d'éléments sur mobile et bureau.
@@ -887,6 +1018,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.3.0] - 2026-10-05
 
 ### Refonte Stylistique Neumorphique, Tokens CSS & Internationalisation Globale (i18n)
+
 - **Tokens Sémantiques CSS** : Remplacement de l'ensemble des couleurs hexadécimales par des variables CSS (`var(--color-...)`), introduction des teintes dérivées claires (`--color-danger-light`, `--color-success-light`, `--color-warning-light`, `--color-accent-light`) pour un contraste optimal en thème sombre et clair.
 - **Harmonisation Neumorphique Globale** : Uniformisation des ombres portées, bordures et effets de relief (`box-shadow`, `inset`) sur l'ensemble des composants (boutons, cartes, badges, formulaires, messages flash, navigation et profil).
 - **Généralisation de l'i18n sur Toutes les Vues** : Traduction intégrale (FR/EN) intégrée dans `AdminView`, `MapView`, `RoomView`, `GameView`, `CertificateView`, `AuthView` et `FlashMessageService`.
@@ -902,7 +1034,8 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.2.0] - 2026-09-27
 
 ### Moteur de Difficulté des Voies, Couche API Centralisée & Sécurité Administrateur
-- **Calcul Dynamique de la Difficulté des Voies (`RouteDifficultyService`)** : Algorithme d'analyse géographique basé sur la longueur cumulée et la typologie OpenStreetMap des voies (`primary`, `secondary`, `residential`, `living_street`, etc.) par rapport au centroïde de la commune pour classifier chaque voie en *Facile, Moyen ou Difficile*.
+
+- **Calcul Dynamique de la Difficulté des Voies (`RouteDifficultyService`)** : Algorithme d'analyse géographique basé sur la longueur cumulée et la typologie OpenStreetMap des voies (`primary`, `secondary`, `residential`, `living_street`, etc.) par rapport au centroïde de la commune pour classifier chaque voie en _Facile, Moyen ou Difficile_.
 - **Surcharge des Difficultés dans l'Administration** : Interface et routes dédiées (`/api/admin/cities/:slug/difficulty`) permettant de personnaliser le niveau de difficulté attribué à chaque voie.
 - **Centralisation des Requêtes HTTP (`ApiService`)** : Service unifié gérant les verbes HTTP (`GET`, `POST`, `PUT`, `PATCH`, `DELETE`), l'injection transparente du token JWT et la gestion centralisée des erreurs de session.
 - **Renforcement de la Persistance Administrateur** : Middleware `requireAdmin` sécurisé avec vérification croisée du JWT et de la persistance en base PostgreSQL (`User.setAdminStatus`, `User.findByUsername`).
@@ -914,6 +1047,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.1.0] - 2026-09-17
 
 ### Fusion des Tronçons de Voies & Cycle des Sessions de Jeu
+
 - **Tests Automatisés de Fusion Spatiale (`tests/city_modifications.test.js`)** : Tests validant la fusion Turf.js des tronçons de rues OSM, la gestion des renommages, l'ajout de voies personnalisées et la suppression sans doublons.
 - **Cycle de Vie et Sérialisation des Sessions (`GameSession.js`)** : Préservation du prompt courant et de l'index de manche lors des phases de feedback (`nextPrompt`), sérialisation rétrocompatible et tests unitaires (`tests/game_session.test.js`).
 - **Refactoring & Optimisation de MapView** : Simplification des méthodes de rendu cartographique, suppression des redondances et meilleure gestion des couches de tracés.
@@ -923,6 +1057,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [2.0.0] - 2026-09-13
 
 ### Refonte Graphique Majeure, PWA & Support Bilingue (i18n)
+
 - **Nouvelle Identité Visuelle Neumorphique** : Refonte stylistique complète avec tokens CSS unifiés, ombres douces, cartes flottantes et prise en charge native du thème sombre/clair.
 - **Écran d'Authentification Interactif & Mascottes** : Introduction des mascottes vectorielles interactives (Kiko et le chat gris) dotées d'une animation physique de queue dynamique et réagissant aux interactions de l'utilisateur.
 - **Internationalisation Initiale (i18n)** : Architecture bilingue français/anglais avec système de chargement dynamique des dictionnaires (`I18nService`), persistance du choix et bascule instantanée.
@@ -934,6 +1069,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.9.1] - 2026-08-28
 
 ### Ergonomie Administration & Inspection des Voies
+
 - **Centrage et Surbrillance au Clic dans l'Admin** : Le clic sur un nom de rue ou de quartier dans les menus latéraux d'administration déplace et ajuste la caméra (`fitBounds`) directement sur le tracé de la voie et l'affiche avec une surbrillance colorée (`#f43f5e`, épaisseur 8px), sans ouvrir le mode d'édition de la géométrie.
 - **Bouton Éditer Dédié** : Le mode d'édition avec poignées de sommet reste réservé exclusivement au clic explicite sur le bouton "Éditer".
 - **Feedback Visuel de Sélection** : Ajout du style de sélection (`.route-list-item.selected`) mettant en évidence la ligne active dans le panneau latéral.
@@ -943,13 +1079,14 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.9.0] - 2026-08-28
 
 ### Salons Multijoueurs, Gestion Invités & Filtrage des Voies
+
 - **Rejointure Invités sans Compte** : Écran dédié avec saisie du Pseudo et du Code de la Room pour les joueurs non connectés, avec lien secondaire vers la connexion.
 - **Création de Salon Réservée** : Exigence d'un compte utilisateur enregistré pour la création de salon (contrôle frontend et rejet HTTP 403 backend).
-- **Synchronisation de la Difficulté Multijoueur** : Prise en compte exacte de la difficulté sélectionnée par l'hôte (*Facile, Moyen, Difficile, Lotissements*) et mélange déterministe identique pour tous les participants.
+- **Synchronisation de la Difficulté Multijoueur** : Prise en compte exacte de la difficulté sélectionnée par l'hôte (_Facile, Moyen, Difficile, Lotissements_) et mélange déterministe identique pour tous les participants.
 - **Filtrage Strict des Voies Overpass** : Exclusion systématique des accès de service, sentiers et impasses privées (`highway=service|track|footway|path`), conservation exclusive des axes carrossables nommés.
 - **Photos de Profil et Dédoublonnage** : Extraction et affichage dynamique des avatars des joueurs avec dédoublonnage strict par pseudo.
-- **Fluidité Visuelle & Zéro Sursaut** : Empreinte mémoire (*signature*) empêchant le clignotement de la liste des joueurs pendant le rafraîchissement périodique (polling).
-- **Actions Simplifiées sur l'Écran de Fin** : Boutons d'action épurés (*Recommencer la Room* réservé à l'hôte, *Quitter le Salon*, *Accueil*).
+- **Fluidité Visuelle & Zéro Sursaut** : Empreinte mémoire (_signature_) empêchant le clignotement de la liste des joueurs pendant le rafraîchissement périodique (polling).
+- **Actions Simplifiées sur l'Écran de Fin** : Boutons d'action épurés (_Recommencer la Room_ réservé à l'hôte, _Quitter le Salon_, _Accueil_).
 - **Responsivité Mobile & Safe-Area Padding** : Alignement flexbox vertical (`flex-direction: column; align-items: center`) avec prise en compte des encoches de smartphones (`env(safe-area-inset-top)`).
 
 ---
@@ -957,6 +1094,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.8.0] - 2026-08-27
 
 ### Cartographie, Validation Villes & Accessibilité RGAA
+
 - **Système de Villes Validées Admin** : Bouton de validation coche verte (`✓ Ville validée`) dans l'onglet Routes Admin et affichage en vert (`#10b981`) avec badge `✓ Validée` dans tous les déroulants de sélection de communes.
 - **Vue Satellite Unique** : Passage à 100% sur l'imagerie Esri World Imagery (Vue Satellite) par défaut partout (Jeu, Salons, Administration).
 - **Conformité RGAA / WCAG 2.1 AA** : Ratios de contraste au survol (`:hover`) et focus réhaussés (> 6.8:1) en mode sombre.
@@ -969,6 +1107,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.7.0] - 2026-08-26
 
 ### Ergonomie UI & Clean Code
+
 - **Adaptation Thème Sombre & Clair** : Harmonisation CSS globale et basculement dynamique des tuiles de carte CARTO.
 - **Boutons Propres & Navigation SPA** : Conversion des liens `<a>` en `<button>` sans aperçu d'URL `#` au survol.
 - **Suppression des Popups Bloquants** : Remplacement des `alert()` et `confirm()` par des toasts et modales personnalisées.
@@ -980,6 +1119,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.6.0] - 2026-08-26
 
 ### Refactoring & Clean Code
+
 - **Code Auto-Documenté** : Suppression intégrale de tous les commentaires dans le code source JavaScript.
 - **Pattern MVC Strict** : Séparation totale entre la logique de contrôle et le rendu visuel. Rendu DOM déplacé vers `AdminView.js`.
 - **Suppression du HTML et CSS Brut** : Remplacement des `innerHTML` et styles en ligne `style="..."` par la création d'éléments DOM natifs et de classes CSS.
@@ -991,6 +1131,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.9] - 2026-08-15
 
 ### UI & Modales
+
 - **Suppression des Alertes Natives** : Remplacement de l'ensemble des `alert()` du navigateur par des modales sur-mesure et notifications toast (`#admin-toast`).
 - **Gestion des Salons Expirés** : Notification d'expiration fluide lors des fins de sessions multijoueur.
 
@@ -999,6 +1140,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.8] - 2026-08-14
 
 ### Ergonomie Mobile
+
 - **Panneau Administrateur Responsive** : Ajustement plein écran du tableau de bord d'administration (`#admin-screen`).
 - **Cartes et Diplômes** : Contraintes de largeur et adaptations tactiles sur smartphones.
 
@@ -1007,6 +1149,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.7] - 2026-08-14
 
 ### Correctifs
+
 - **Fix Affichage Firefox Android** : Correctif d'opacité et de visibilité sur les bannières d'action (`#top-banner`, `#bottom-actions`).
 
 ---
@@ -1014,6 +1157,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.6] - 2026-08-14
 
 ### Interface Utilisateur
+
 - **Modale de Confirmation** : Fenêtre modale glassmorphe (`#room-confirm-modal`) remplaçant les fenêtres `confirm()` du navigateur.
 
 ---
@@ -1021,6 +1165,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.5] - 2026-08-14
 
 ### Responsive Multijoueur
+
 - **Disposition Mobile des Salons** : Alignement vertical des boutons et ajustement du panneau d'administration en volet inférieur.
 
 ---
@@ -1028,6 +1173,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.4] - 2026-08-14
 
 ### Correctifs
+
 - **Correction JS** : Correction de l'appel à la méthode publique `stopPolling()` dans `RoomController.js`.
 
 ---
@@ -1035,6 +1181,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.3] - 2026-08-14
 
 ### Multijoueur & Salons
+
 - **Gestion de la Validité** : Option de sélection de durée d'expiration des salons (1h, 24h, 7 jours).
 - **Relance des Salons** : Réinitialisation et relance d'une session avec la même série de rues (`test_id`).
 
@@ -1043,6 +1190,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.2] - 2026-08-10
 
 ### Administration & Signalements
+
 - **Module de Signalement** : Prise en charge des retours joueurs pour anomalies cartographiques.
 - **Gestion des Communes** : Outils d'administration pour la gestion des découpages géographiques.
 
@@ -1051,6 +1199,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.1] - 2026-08-05
 
 ### Correctifs & Thèmes
+
 - **Gestion du Timer** : Harmonisation du décompte du temps et des points.
 - **Thème Visuel** : Basculement fluide et mémorisation du mode sombre / clair.
 
@@ -1059,6 +1208,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.5.0] - 2026-07-28
 
 ### Fonctionnalités Majeures
+
 - **Mode Multijoueur** : Création de salons de jeu privés et classements en direct.
 - **Connexion Google OAuth 2.0** : Authentification rapide et synchronisation du profil joueur.
 
@@ -1067,6 +1217,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.4.0] - 2026-07-15
 
 ### Certificats & Classements
+
 - **Certificat de Réussite** : Diplôme personnalisé avec effets de confettis et sonores.
 - **Classements Généraux** : Palmarès mensuels et globaux par ville et difficulté.
 
@@ -1075,14 +1226,16 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.3.0] - 2026-06-30
 
 ### Persistance & Backend
+
 - **Base de Données PostgreSQL** : Gestion de la persistance des comptes, scores et salons.
-- **Proxy Overpass API** : Serveur proxy avec basculement automatique (*failover*) multi-serveurs.
+- **Proxy Overpass API** : Serveur proxy avec basculement automatique (_failover_) multi-serveurs.
 
 ---
 
 ## [1.2.0] - 2026-06-10
 
 ### Administration & Multilingue
+
 - **Panneau d'Édition** : Outils d'édition des itinéraires et quartiers sur carte Leaflet.
 - **Support I18n** : Internationalisation complète en Français et Anglais.
 
@@ -1091,6 +1244,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.1.0] - 2026-05-20
 
 ### Gameplay
+
 - **Modes de Jeu Cartographiques** : Modes Trouver la rue, Nommer la rue et Quiz géométrique.
 - **Effets Sonores** : Intégration du service audio (`AudioService`).
 
@@ -1099,4 +1253,5 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 ## [1.0.0] - 2026-05-01
 
 ### Lancement Initial
+
 - **Version Initiale de CityMaster** : Application cartographique interactive basée sur Leaflet.js et OpenStreetMap.

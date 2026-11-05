@@ -373,100 +373,6 @@ body:has(#load-screen.active) .app-backdrop {
   box-shadow: var(--shadow-xs);
 }
 
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: clamp(1rem, 2.5vw, 1.5rem);
-  width: 100%;
-  animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.28s forwards;
-  opacity: 0;
-  padding-top: 0.875rem;
-}
-
-.paper-sheet {
-  position: relative;
-  background-color: var(--bg-card);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-lg);
-  padding: clamp(1.25rem, 2.5dvh, 1.875rem) clamp(1rem, 2.5vw, 1.5rem);
-  text-align: left;
-  box-shadow: var(--shadow-md);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
-  opacity: 1;
-}
-
-.paper-tape {
-  display: none !important;
-}
-
-.sheet-tilt-left,
-.sheet-tilt-right,
-.sheet-straight {
-  transform: none;
-}
-
-.paper-sheet:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-color-focus);
-}
-
-.feature-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: var(--border-radius-sm);
-  border: 1px solid var(--border-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem;
-  flex-shrink: 0;
-  box-shadow: var(--neu-flat);
-  opacity: 1;
-}
-
-.feature-icon svg {
-  width: 1.5rem;
-  height: 1.5rem;
-  min-width: 1.5rem;
-  min-height: 1.5rem;
-  flex-shrink: 0;
-}
-
-.feature-icon.primary {
-  background: var(--surface);
-  color: var(--primary);
-}
-
-.feature-icon.success {
-  background: var(--surface);
-  color: var(--success);
-}
-
-.feature-icon.warning {
-  background: var(--surface);
-  color: var(--warning);
-}
-
-.feature-card h3 {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-  letter-spacing: -0.01em;
-}
-
-.feature-card p {
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: var(--text-secondary);
-  margin: 0;
-  font-weight: 500;
-}
-
 .landing-footer-actions {
   display: flex;
   align-items: center;
@@ -652,14 +558,5 @@ body:has(#load-screen.active) .app-backdrop {
   .hero-btn {
     width: 100%;
     justify-content: center;
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-  }
-
-  .sheet-tilt-left, .sheet-tilt-right, .sheet-straight {
-    transform: rotate(0deg);
   }
 }

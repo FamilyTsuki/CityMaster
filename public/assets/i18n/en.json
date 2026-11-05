@@ -88,14 +88,7 @@
     "hero_title": "Master the Geography of <span class=\"title-highlight\">YOUR CITY</span>",
     "hero_subtitle": "Test your knowledge of streets, housing estates, and neighborhoods in real-time with OpenStreetMap.",
     "play_now": "Play Now",
-    "team_rooms": "Team Competition",
-    "feature_1_title": "Real-Time Data",
-    "feature_1_desc": "Explore any municipality using live OpenStreetMap geographical data.",
-    "feature_3_title": "Cross-Platform & Mobile App",
-    "feature_3_desc": "Play on smartphone, tablet or desktop. CityMaster can be added to your home screen from the browser, without app stores, and works offline.",
-    "install_guide_btn": "How to install?",
-    "feature_4_title": "Team Rooms & Leaderboard",
-    "feature_4_desc": "Challenge your friends in multiplayer team rooms, earn official certificates, and climb the leaderboard."
+    "team_rooms": "Team Competition"
   },
   "auth": {
     "login_title": "Sign In",
