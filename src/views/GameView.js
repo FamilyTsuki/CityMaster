@@ -1046,7 +1046,12 @@ export class GameView {
 
     leaderboardData.forEach((scoreData, index) => {
       const tr = document.createElement("tr");
-      const date = new Date(scoreData.created_at).toLocaleDateString("fr-FR");
+      const createdAt = new Date(scoreData.created_at);
+      const date = createdAt.toLocaleDateString("fr-FR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      });
 
       const currentUser = localStorage.getItem("username");
       if (currentUser && scoreData.username === currentUser) {
@@ -1068,6 +1073,7 @@ export class GameView {
       const tdDate = document.createElement("td");
       tdDate.className = "text-muted";
       tdDate.textContent = date;
+      tdDate.title = createdAt.toLocaleDateString("fr-FR");
 
       tr.append(tdRank, tdUser, tdScore, tdDate);
       tbody.appendChild(tr);
