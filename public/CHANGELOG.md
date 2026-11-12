@@ -3,6 +3,13 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.21.2] - 2026-11-12
+
+### Amélioré
+- Classement de l'accueil : colonnes Rang, Score et Date à largeur fixe pour laisser plus de place aux pseudos ; un pseudo trop long est coupé avec « … » et s'affiche en entier au survol.
+
+---
+
 ## [2.21.1] - 2026-11-05
 
 ### Corrigé

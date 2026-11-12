@@ -398,6 +398,30 @@
   font-weight: 600;
 }
 
+/* Colonnes étroites fixes : le pseudo prend tout l'espace restant */
+.leaderboard-table th:nth-child(1) {
+  width: 3.5rem;
+}
+
+.leaderboard-table th:nth-child(3) {
+  width: 5.75rem;
+}
+
+.leaderboard-table th:nth-child(4) {
+  width: 6.75rem;
+}
+
+.leaderboard-table td:nth-child(2) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderboard-table td:nth-child(3),
+.leaderboard-table td:nth-child(4) {
+  white-space: nowrap;
+}
+
 .leaderboard-table tr:hover td {
   background: var(--surface-hover);
 }

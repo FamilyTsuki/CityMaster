@@ -1059,6 +1059,7 @@ export class GameView {
       const tdUser = document.createElement("td");
       const strongUser = document.createElement("strong");
       strongUser.textContent = scoreData.username || "";
+      tdUser.title = scoreData.username || "";
       tdUser.appendChild(strongUser);
 
       const tdScore = document.createElement("td");
