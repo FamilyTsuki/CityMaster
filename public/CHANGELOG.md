@@ -7,7 +7,7 @@ Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/)
 
 ### Amélioré
 - Classement de l'accueil : colonnes Rang, Score et Date à largeur fixe pour laisser plus de place aux pseudos ; un pseudo trop long est coupé avec « … » et s'affiche en entier au survol.
-- La date du classement est affichée au format court (`12/11/26`) pour réduire sa colonne.
+- La date du classement est affichée au format court (`12/11/26`) pour réduire sa colonne ; elle est masquée quand le tableau fait moins de 22rem de large.
 
 ---
 

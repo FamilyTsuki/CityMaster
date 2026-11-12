@@ -365,6 +365,7 @@
   border: 1px solid var(--border-color);
   box-shadow: var(--neu-inset);
   -webkit-overflow-scrolling: touch;
+  container-type: inline-size;
 }
 
 .leaderboard-table {
@@ -426,6 +427,14 @@
 .leaderboard-table td:nth-child(3),
 .leaderboard-table td:nth-child(4) {
   white-space: nowrap;
+}
+
+/* Tableau étroit : la date est masquée pour garder de la place au pseudo */
+@container (max-width: 22rem) {
+  .leaderboard-table th:nth-child(4),
+  .leaderboard-table td:nth-child(4) {
+    display: none;
+  }
 }
 
 .leaderboard-table tr:hover td {
