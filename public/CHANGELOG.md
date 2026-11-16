@@ -3,6 +3,13 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.21.3] - 2026-11-16
+
+### Corrigé
+- Classement de la page setup : l'ascenseur ne chevauche plus l'en-tête du tableau, seul le corps du tableau défile.
+
+---
+
 ## [2.21.2] - 2026-11-12
 
 ### Amélioré
