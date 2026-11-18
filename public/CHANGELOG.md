@@ -3,6 +3,20 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.22.0] - 2026-11-18
+
+### Modifié
+- Accueil : titre en casse normale, sous-titre explicatif, boutons côte à côte et aperçu d'une manche (plaque de rue, tracé de la rue cible, distance).
+- Ombres neutres à la place des ombres néomorphiques, suppression des halos, des dégradés de boutons et des bulles animées en arrière-plan (accueil et page de soutien).
+- Typographie : Bricolage Grotesque remplace Lilita One pour les titres (variable `--font-display`), graisses limitées à 600, plus de libellés en majuscules.
+- Thème sombre : texte foncé sur les boutons orange pour atteindre un contraste lisible (variable `--on-primary`).
+
+### Supprimé
+- Emojis de l'interface (médailles du classement, préfixes de consigne, boutons et badges) et points d'exclamation en fin de message.
+- Effets de soulèvement au survol et courbes d'animation à rebond.
+
+---
+
 ## [2.21.3] - 2026-11-16
 
 ### Corrigé

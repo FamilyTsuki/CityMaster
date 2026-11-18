@@ -31,7 +31,7 @@
   box-sizing: border-box;
   text-align: center;
   flex-shrink: 0;
-  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .profile-card > * {
@@ -72,7 +72,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   user-select: none;
 }
 
@@ -80,7 +80,6 @@
   background: var(--surface-hover);
   color: var(--primary);
   border-color: var(--primary) !important;
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm) !important;
 }
 
@@ -120,7 +119,7 @@
   bottom: 0;
   right: 0;
   background: var(--primary);
-  color: var(--white);
+  color: var(--on-primary);
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
@@ -130,12 +129,11 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: 0.15s cubic-bezier(0.22, 1, 0.36, 1); transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   z-index: 5;
 }
 
 .upload-btn:hover {
-  transform: scale(1.08);
   background: var(--primary-hover);
   box-shadow: var(--shadow-md);
 }
@@ -155,9 +153,9 @@
 }
 
 #profile-page-name {
-  font-family: 'Lilita One', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.45rem, 4vw, 1.85rem);
-  font-weight: 900;
+  font-weight: 600;
   color: var(--text-main);
   margin-top: 0.25rem;
   margin-bottom: 0;
@@ -197,7 +195,6 @@
 }
 
 .stat-box:hover {
-  transform: translateY(-2px);
   box-shadow: var(--neu-raised) !important;
   border-color: var(--border-color-focus) !important;
 }
@@ -206,18 +203,17 @@
   display: block;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   margin-bottom: 4px;
 }
 
 .stat-value {
   display: block;
-  font-family: 'Lilita One', 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.6rem, 5vw, 2.1rem);
-  font-weight: 900;
+  font-weight: 600;
   color: var(--primary);
   line-height: 1.1;
 }
@@ -264,7 +260,7 @@
 .setting-label {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
   flex: 1;
   text-align: left;
@@ -294,7 +290,7 @@
   font-weight: 600;
   cursor: pointer;
   box-shadow: var(--neu-flat);
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .custom-select-trigger:hover {
@@ -350,7 +346,7 @@
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-weight: 600;
   font-size: 0.88rem;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -364,7 +360,7 @@
 .custom-select-item.selected {
   background-color: var(--primary-light);
   color: var(--primary);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .switch {
@@ -392,7 +388,7 @@
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-pill);
   box-shadow: var(--neu-inset);
-  transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .slider.round::before {
@@ -405,7 +401,7 @@
   background-color: var(--white);
   border-radius: 50%;
   box-shadow: var(--neu-flat);
-  transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 input:checked + .slider {
@@ -423,7 +419,7 @@ input:checked + .slider::before {
   margin-top: 0.625rem;
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--danger);
   text-decoration: underline;
   text-underline-offset: 0.25rem;
@@ -432,12 +428,11 @@ input:checked + .slider::before {
   background: transparent;
   border: none !important;
   box-shadow: none !important;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .profile-logout-link:hover {
   opacity: 0.82;
-  transform: translateY(-1px);
 }
 
 .profile-footer-links {

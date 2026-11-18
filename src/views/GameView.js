@@ -225,7 +225,7 @@ export class GameView {
             offlineBadge.textContent = I18nService.getInstance().t(
               "offline.offline_ready_badge",
               {},
-              "💾 Hors-ligne",
+              "Hors-ligne",
             );
             li.appendChild(offlineBadge);
           }

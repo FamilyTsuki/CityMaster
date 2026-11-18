@@ -15,8 +15,7 @@
   border: 0.25rem solid var(--primary-light);
   border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 0.9s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: var(--shadow-glow);
+  animation: spin 0.9s infinite linear;
   will-change: transform;
 }
 
@@ -107,8 +106,7 @@
   border: 0.25rem solid var(--primary-light);
   border-top-color: var(--primary);
   border-radius: 50%;
-  animation: spin 0.9s infinite cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  box-shadow: var(--shadow-glow);
+  animation: spin 0.9s infinite linear;
   will-change: transform;
 }
 

@@ -22,7 +22,7 @@
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-lg);
   box-shadow: var(--shadow-lg) !important;
-  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   padding: var(--card-compact-y) var(--card-compact-x);
   width: var(--container-lg);
   max-width: 100%;
@@ -57,7 +57,7 @@
   color: var(--text-main);
   cursor: pointer;
   box-shadow: var(--shadow-xs);
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   flex-shrink: 0;
 }
 
@@ -65,7 +65,6 @@
   background: var(--surface-hover);
   color: var(--primary);
   border-color: var(--primary);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
@@ -107,7 +106,7 @@
   display: block;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.88rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
   margin-bottom: 0.375rem;
 }
@@ -127,7 +126,7 @@
   font-size: 0.92rem;
   font-weight: 600;
   box-shadow: none;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 #setup-screen .setup-card input:focus,
@@ -200,7 +199,7 @@
   padding: 0.5rem 0.75rem;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 0.75rem;
   text-align: left;
 }
@@ -216,21 +215,20 @@
   padding: 0.5rem 1rem;
   margin-top: 0.5rem;
   background: var(--primary);
-  color: var(--white);
+  color: var(--on-primary);
   border: 1px solid transparent;
   border-radius: var(--border-radius-sm);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 1rem;
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 0.01em;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: 0.15s cubic-bezier(0.22, 1, 0.36, 1); transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 #start-btn:hover {
   background: var(--primary-hover);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
@@ -264,17 +262,16 @@
   border-radius: var(--border-radius-sm);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow-xs);
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: 0.15s cubic-bezier(0.22, 1, 0.36, 1); transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 #setup-room-btn:hover {
   background: var(--surface-hover);
   color: var(--primary);
   border-color: var(--primary);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 
@@ -300,9 +297,9 @@
 }
 
 .leaderboard-section h2 {
-  font-family: "Lilita One", "Plus Jakarta Sans", cursive, sans-serif;
+  font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--text-main);
   text-align: center;
   display: flex;
@@ -331,14 +328,14 @@
   padding: 0.5rem 0.875rem;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-secondary);
   background: var(--surface);
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius-xs);
   cursor: pointer;
   box-shadow: var(--neu-flat);
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .setup-leaderboard-tab-btn:hover {
@@ -350,10 +347,10 @@
 .setup-leaderboard-tab-btn.active,
 .btn.secondary.active.setup-leaderboard-tab-btn {
   background: var(--primary) !important;
-  color: var(--white) !important;
+  color: var(--on-primary) !important;
   border-color: var(--primary) !important;
   box-shadow: var(--neu-pressed) !important;
-  font-weight: 800 !important;
+  font-weight: 600 !important;
 }
 
 .leaderboard-container {
@@ -410,10 +407,9 @@
 .leaderboard-table th {
   background: var(--surface);
   color: var(--text-secondary);
-  font-weight: 700;
-  text-transform: uppercase;
+  font-weight: 600;
   font-size: 0.75rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0;
   padding: 0.625rem 0.75rem;
   text-align: left;
 }
@@ -480,7 +476,7 @@
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.78rem;
   border: 1px solid var(--border-color);
   box-shadow: var(--shadow-xs);
@@ -575,5 +571,5 @@
 /* Leaderboard current user highlighting */
 .current-user-row {
   background-color: var(--surface-hover);
-  font-weight: 700;
+  font-weight: 600;
 }

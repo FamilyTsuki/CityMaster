@@ -767,10 +767,7 @@ export class RoomView {
 
     this.#resultsTableBody.replaceChildren();
     sorted.forEach((p, idx) => {
-      let rankDisplay = `${idx + 1}`;
-      if (idx === 0) rankDisplay = "🥇";
-      else if (idx === 1) rankDisplay = "🥈";
-      else if (idx === 2) rankDisplay = "🥉";
+      const rankDisplay = `${idx + 1}`;
 
       const tr = document.createElement("tr");
 

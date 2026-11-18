@@ -549,7 +549,7 @@ export class AdminController {
           <button type="button" class="btn-popup-diff diff-medium" data-diff="medium">Moyen</button>
           <button type="button" class="btn-popup-diff diff-hard" data-diff="hard">Difficile</button>
           <button type="button" class="btn-popup-diff diff-auto" data-diff="auto">Auto</button>
-          <button type="button" class="btn-popup-diff btn-popup-edit">✏️ Éditer</button>
+          <button type="button" class="btn-popup-diff btn-popup-edit">Éditer</button>
         </div>
       `;
 

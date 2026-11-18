@@ -78,7 +78,7 @@
 .city-option-verified,
 .dropdown-item.city-option-verified {
   color: var(--success) !important;
-  font-weight: 700 !important;
+  font-weight: 600 !important;
 }
 
 .city-verified-badge {
@@ -89,7 +89,7 @@
   color: var(--success);
   border: 1px solid var(--success-light);
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 2px 8px;
   border-radius: 999px;
   margin-left: 6px;
@@ -104,7 +104,7 @@
 
 .admin-dashboard-title {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
   margin: 0;
 }
@@ -251,7 +251,7 @@
 
 .admin-sidebar-title {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
   margin: 0;
   display: flex;
@@ -333,7 +333,7 @@
 }
 
 .admin-mode-value {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--primary);
 }
 
@@ -395,7 +395,7 @@
   flex: 1;
   padding: 10px 16px;
   font-size: 0.95rem;
-  font-weight: 700;
+  font-weight: 600;
   justify-content: center;
 }
 
@@ -548,7 +548,7 @@
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
-  transition: all var(--transition-fast, 0.15s);
+  transition: var(--transition-fast, 0.15s); transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .btn-filter-tab:hover {
@@ -558,7 +558,7 @@
 
 .btn-filter-tab.active {
   background: var(--primary);
-  color: var(--white);
+  color: var(--on-primary);
   border-color: var(--primary);
 }
 
@@ -587,9 +587,8 @@
   align-items: center;
   gap: 3px;
   font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
+  font-weight: 600;
+  letter-spacing: 0;
   padding: 2px 6px;
   border-radius: 4px;
   background: rgba(139, 92, 246, 0.15);
@@ -613,7 +612,7 @@
   background-position: right 4px center;
   background-repeat: no-repeat;
   background-size: 14px 14px;
-  transition: all var(--transition-fast, 0.15s);
+  transition: var(--transition-fast, 0.15s); transition-property: color, background-color, border-color, box-shadow, opacity, transform;
   max-width: 125px;
 }
 
@@ -639,7 +638,7 @@
 }
 
 .route-diff-select.is-manual {
-  font-weight: 700;
+  font-weight: 600;
   background-color: rgba(139, 92, 246, 0.1);
   border-color: var(--purple);
   color: var(--purple);
@@ -653,7 +652,7 @@
 .admin-route-popup h4 {
   margin: 0 0 6px 0;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
 }
 
@@ -678,7 +677,7 @@
   font-weight: 600;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: 0.15s; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .btn-popup-diff.diff-easy {
@@ -709,20 +708,18 @@
   background: var(--primary-light, rgba(59, 130, 246, 0.15));
   color: var(--primary-color, #2563eb);
   border-color: var(--primary-color, #2563eb);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .btn-popup-diff:hover {
   filter: brightness(0.95);
-  transform: translateY(-1px);
 }
 
 .route-difficulty-header {
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   margin: 8px 0 4px 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
   border-bottom: 1px solid var(--border-color);
   padding-bottom: 4px;
 }
@@ -815,12 +812,12 @@
   padding: 6px 12px;
   font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   cursor: pointer;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 [data-theme="dark"] .btn-floating-map-toggle {
@@ -831,7 +828,6 @@
 }
 
 .btn-floating-map-toggle:hover {
-  transform: translateY(-1px);
   border-color: var(--primary, #3b82f6);
   color: var(--primary, #3b82f6);
 }
@@ -1043,7 +1039,7 @@
   padding: 0 6px;
   border-radius: 9999px;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   margin-left: auto;
   box-shadow: none !important;
@@ -1118,7 +1114,7 @@
   font-size: 0.8rem;
   cursor: pointer;
   margin-left: 6px;
-  transition: all 0.2s;
+  transition: 0.2s; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .btn-copy-street:hover {
@@ -1152,7 +1148,6 @@
 }
 
 .report-card:hover {
-  transform: translateY(-2px);
   border-color: var(--primary);
 }
 
@@ -1165,9 +1160,8 @@
 
 .report-category-tag {
   font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  letter-spacing: 0;
   padding: 4px 8px;
   border-radius: 6px;
   background: var(--primary-light);
@@ -1177,7 +1171,7 @@
 
 .report-status-badge {
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 600;
   padding: 4px 10px;
   border-radius: 9999px;
   text-transform: capitalize;
@@ -1248,7 +1242,7 @@
   height: 40px;
   padding: 0 8px;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1;
   white-space: nowrap;
   box-sizing: border-box;
@@ -1257,7 +1251,7 @@
 
 .report-card-actions .btn-resolve-report {
   background: var(--primary);
-  color: var(--white);
+  color: var(--on-primary);
   border: none;
 }
 

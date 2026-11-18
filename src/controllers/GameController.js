@@ -648,7 +648,7 @@ export class GameController {
         name: safeStreetName,
       });
       this.#gameView.setInstruction(
-        mode === "sprint" ? `⚡ ${promptText}` : `📍 ${promptText}`,
+        promptText,
       );
     } else if (mode === "identify") {
       if (prompt && prompt.geometry) {
@@ -660,7 +660,7 @@ export class GameController {
       }
       this.#gameView.showBanner(true);
       this.#gameView.setInstruction(
-        `🔎 ${I18nService.getInstance().t("feedback.prompt_identify")}`,
+        I18nService.getInstance().t("feedback.prompt_identify"),
       );
     }
 

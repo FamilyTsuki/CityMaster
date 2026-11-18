@@ -25,7 +25,7 @@
   box-shadow: var(--shadow-lg) !important;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
   padding: var(--card-padding-y) var(--card-padding-x);
   max-width: var(--container-lg);
   width: 100%;
@@ -62,9 +62,9 @@
 }
 
 .legal-header h1 {
-  font-family: 'Lilita One', 'Plus Jakarta Sans', cursive, sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.65rem, 4vw, 2.1rem);
-  font-weight: 900;
+  font-weight: 600;
   color: var(--text-main);
   margin-top: 0;
   margin-bottom: 0.375rem;
@@ -95,9 +95,9 @@
 }
 
 .legal-section h2 {
-  font-family: 'Lilita One', 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-display);
   font-size: 1.15rem;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--text-main);
   margin-top: 0;
   margin-bottom: 0.5rem;
@@ -118,7 +118,7 @@
 }
 
 .legal-section strong {
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
 }
 
@@ -126,7 +126,7 @@
   color: var(--primary);
   text-decoration: underline;
   text-underline-offset: 3px;
-  font-weight: 700;
+  font-weight: 600;
   transition: color 0.15s ease;
 }
 
@@ -155,17 +155,16 @@
   border-radius: var(--border-radius-xs);
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
   box-shadow: var(--shadow-xs);
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 #legal-back-btn:hover {
   background: var(--surface-hover);
   color: var(--primary);
   border-color: var(--primary);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
 }
 

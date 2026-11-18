@@ -118,7 +118,7 @@ select:focus {
 
 .dropdown-list li.selected {
   background-color: var(--primary);
-  color: var(--white);
+  color: var(--on-primary);
 }
 
 .dropdown-list li.selected .select-icon {

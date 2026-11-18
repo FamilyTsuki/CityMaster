@@ -88,7 +88,7 @@
   border: 1px solid var(--border-color) !important;
   border-radius: var(--border-radius-sm) !important;
   box-shadow: var(--neu-flat) !important;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .leaflet-control-layers-toggle:hover {
@@ -152,7 +152,7 @@
   background-color: var(--bg-card-solid) !important;
   color: var(--text-main) !important;
   border-bottom: 1px solid var(--border-color) !important;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .leaflet-bar a:last-child {
@@ -273,7 +273,7 @@
   gap: 1rem !important;
   text-align: left !important;
   margin: auto !important;
-  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .install-modal-header {
@@ -300,9 +300,9 @@
 }
 
 .install-modal-title {
-  font-family: 'Lilita One', 'Plus Jakarta Sans', cursive, sans-serif;
+  font-family: var(--font-display);
   font-size: 1.35rem;
-  font-weight: 900;
+  font-weight: 600;
   color: var(--text-main);
   margin: 0 0 0.15rem 0;
   line-height: 1.2;
@@ -340,7 +340,7 @@
 }
 
 .install-card-platform-title {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 0.92rem;
   color: var(--text-main);
   margin: 0 0 0.5rem 0;

@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "CityMaster - Jeu Géographique Interactif",
-    "description": "CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville !"
+    "description": "CityMaster - Jeu géographique éducatif et interactif basé sur OpenStreetMap. Maîtrisez la carte de votre ville"
   },
   "common": {
     "back": "Retour",
@@ -32,14 +32,14 @@
     "login": "Se connecter",
     "logout": "Se déconnecter",
     "admin": "Admin",
-    "legal": "Mentions Légales & RGPD",
+    "legal": "Mentions légales et RGPD",
     "light_mode": "Mode clair",
     "dark_mode": "Mode sombre",
     "switch_to_light": "Passer en mode clair",
     "switch_to_dark": "Passer en mode sombre",
     "changelog_title": "Voir les notes de version",
     "changelog_aria": "Historique des versions de CityMaster",
-    "support": "💖 Soutenir le projet",
+    "support": "Soutenir le projet",
     "support_title": "Soutenir le développement de CityMaster"
   },
   "changelog": {
@@ -85,10 +85,10 @@
     "a11y_desc": "CityMaster s'engage pour l'accessibilité numérique en appliquant les recommandations du RGAA et les directives WCAG 2.1 AA (navigation clavier, contrastes stricts, balisage sémantique ARIA, réduction des mouvements). En cas de difficulté, contactez support.tsuki.dev@gmail.com."
   },
   "landing": {
-    "hero_title": "Maîtrisez la Géographie de <span class=\"title-highlight\">VOTRE VILLE</span>",
-    "hero_subtitle": "Testez vos connaissances sur les rues, lotissements et quartiers en temps réel grâce à OpenStreetMap.",
+    "hero_title": "Retrouvez chaque rue de <span class=\"title-highlight\">votre ville</span>",
+    "hero_subtitle": "Un nom de rue s'affiche, vous la pointez sur la carte. Seul ou en salon avec vos amis, sur n'importe quelle commune de France.",
     "play_now": "Jouer maintenant",
-    "team_rooms": "Compétition Équipe"
+    "team_rooms": "Jouer entre amis"
   },
   "auth": {
     "login_title": "Connexion",
@@ -213,7 +213,7 @@
     "time_bonus": " Bonus de temps : +{bonus} pts."
   },
   "leaderboard": {
-    "no_scores": "Aucun score enregistré. Soyez le premier !"
+    "no_scores": "Aucun score enregistré. Soyez le premier"
   },
   "sprint": {
     "time_out": "Temps écoulé"
@@ -259,11 +259,11 @@
     "invite_link_label": "Lien d'invitation (cliquer pour copier) :",
     "copy_link_title": "Cliquer pour copier le lien d'invitation",
     "invite_url": "Lien d'invitation au salon",
-    "link_copied": "Lien d'invitation copié !",
+    "link_copied": "Lien d'invitation copié",
     "code_label_click": "Code du Salon (cliquer pour copier) :",
     "copy_code_title": "Cliquer pour copier le code",
     "copy_code": "Copier le code du salon",
-    "code_copied": "Code copié !",
+    "code_copied": "Code copié",
     "players_present": "Joueurs Présents",
     "session_status": "Statut de la Session",
     "waiting_launch": "En attente du lancement...",
@@ -272,7 +272,7 @@
     "series_label": "Nombre de séries :",
     "expires_label": "Expiration :",
     "start_test": "Démarrer le Test",
-    "waiting_host_launch": "L'organisateur va lancer le test sous peu. Préparez-vous !",
+    "waiting_host_launch": "L'organisateur va lancer le test sous peu. Préparez-vous",
     "results_title": "Classement Final du Salon",
     "status_col": "Statut",
     "restart_room": "Recommencer la Room",
@@ -291,7 +291,7 @@
     "you": "Vous",
     "host_badge": "Hôte",
     "playing_badge": "Joue...",
-    "game_in_progress": "Partie en cours !",
+    "game_in_progress": "Partie en cours",
     "in_progress": "En cours...",
     "finished": "Terminé"
   },
@@ -380,13 +380,13 @@
     "copy_btn": "Copier",
     "mark_resolved": "Marquer résolu",
     "dismiss": "Ignorer",
-    "city_verified_success": "✓ Commune marquée comme validée avec succès !",
+    "city_verified_success": "Commune marquée comme validée",
     "city_verification_removed": "Validation retirée pour cette commune.",
     "select_city_first": "Veuillez d'abord sélectionner une commune.",
     "district_draw_error": "Veuillez saisir un nom et placer au moins 3 points sur la carte.",
-    "route_saved_success": "Route sauvegardée avec succès !",
+    "route_saved_success": "Route sauvegardée avec succès",
     "reports_load_error": "Erreur lors du chargement des signalements.",
-    "copied_name": "Nom \"{name}\" copié !",
+    "copied_name": "Nom \"{name}\" copié",
     "resolved": "Résolu",
     "dismissed": "Ignoré",
     "dashboard_title": "Administration",
@@ -410,7 +410,7 @@
     "diff_easy": "Facile (Grands axes)",
     "diff_medium": "Moyen (Rues standard)",
     "diff_hard": "Difficile (Petites voies / Impasses)",
-    "add_segment": "➕ Ajouter un tronçon séparé",
+    "add_segment": "Ajouter un tronçon séparé",
     "street_names_toggle": "Afficher ou masquer les noms des rues sur la carte",
     "street_names_label": "Noms des rues",
     "user_reports_title": "Signalements Utilisateurs",
@@ -447,7 +447,7 @@
     "monument_eiffel": "Tour Eiffel - Paris",
     "monument_chambord": "Château de la Loire",
     "monument_mont": "Mont-Saint-Michel",
-    "turbulence": "Alerte : fortes turbulences !",
+    "turbulence": "Alerte : fortes turbulences",
     "crashed": "Destination inconnue... Où sommes-nous ?",
     "mystery": "Où sommes-nous ?",
     "replay": "Rejouer",
@@ -459,7 +459,7 @@
   },
   "offline": {
     "banner_offline": "Mode hors-ligne : Connexion requise pour jouer et synchroniser.",
-    "banner_online": "Connexion Internet rétablie !",
+    "banner_online": "Connexion Internet rétablie",
     "game_continues_offline": "Connexion perdue : la partie continue hors-ligne. Le score ne sera pas enregistré au classement.",
     "game_requires_connection": "Une connexion Internet est requise pour générer la carte et lancer la partie.",
     "room_requires_connection": "Les salons multijoueurs nécessitent une connexion Internet active.",
@@ -473,7 +473,7 @@
     "title": "Soutenir le projet",
     "subtitle": "Développement indépendant & passionné de CityMaster",
     "welcome_intro": "Bienvenue ! CityMaster est né d'une idée pour aider les pompiers à apprendre et mémoriser leur secteur tout en s'amusant. Je continue aujourd'hui à développer et enrichir le jeu sur mon temps libre par passion.",
-    "welcome_costs": "Le jeu est complètement gratuit et sans publicité. Si vous appréciez le jeu et souhaitez soutenir son évolution, vous êtes au bon endroit !",
+    "welcome_costs": "Le jeu est complètement gratuit et sans publicité. Si vous appréciez le jeu et souhaitez soutenir son évolution, vous êtes au bon endroit",
     "contribute_title": "Envie de contribuer ?",
     "contribute_desc": "Il n'y a absolument aucune obligation, mais si vous souhaitez soutenir le projet, il existe deux manières concrètes de participer à l'aventure :",
     "way_kofi_title": "2. Offrir un café (Ko-fi)",

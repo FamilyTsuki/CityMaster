@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "CityMaster - Interactive Geography Game",
-    "description": "CityMaster - Educational and interactive geography game based on OpenStreetMap. Master your city map!"
+    "description": "CityMaster - Educational and interactive geography game based on OpenStreetMap. Master your city map"
   },
   "common": {
     "back": "Back",
@@ -32,14 +32,14 @@
     "login": "Sign In",
     "logout": "Sign Out",
     "admin": "Admin",
-    "legal": "Legal Notice & Privacy",
+    "legal": "Legal notice and privacy",
     "light_mode": "Light mode",
     "dark_mode": "Dark mode",
     "switch_to_light": "Switch to light mode",
     "switch_to_dark": "Switch to dark mode",
     "changelog_title": "View release notes",
     "changelog_aria": "CityMaster version history",
-    "support": "💖 Support the Project",
+    "support": "Support the project",
     "support_title": "Support CityMaster's development"
   },
   "changelog": {
@@ -85,10 +85,10 @@
     "a11y_desc": "CityMaster is dedicated to digital accessibility in accordance with RGAA and WCAG 2.1 AA standards (keyboard navigation, high contrast ratios, ARIA semantic landmarks, and motion reduction). In case of accessibility barriers, please contact support.tsuki.dev@gmail.com."
   },
   "landing": {
-    "hero_title": "Master the Geography of <span class=\"title-highlight\">YOUR CITY</span>",
-    "hero_subtitle": "Test your knowledge of streets, housing estates, and neighborhoods in real-time with OpenStreetMap.",
-    "play_now": "Play Now",
-    "team_rooms": "Team Competition"
+    "hero_title": "Find every street in <span class=\"title-highlight\">your city</span>",
+    "hero_subtitle": "A street name appears, you point to it on the map. Play solo or in a room with friends, on any commune in France.",
+    "play_now": "Play now",
+    "team_rooms": "Play with friends"
   },
   "auth": {
     "login_title": "Sign In",
@@ -213,7 +213,7 @@
     "time_bonus": " Time bonus: +{bonus} pts."
   },
   "leaderboard": {
-    "no_scores": "No scores recorded yet. Be the first!"
+    "no_scores": "No scores recorded yet. Be the first"
   },
   "sprint": {
     "time_out": "Time's up"
@@ -259,11 +259,11 @@
     "invite_link_label": "Invite link (click to copy):",
     "copy_link_title": "Click to copy invite link",
     "invite_url": "Room invite link",
-    "link_copied": "Invite link copied!",
+    "link_copied": "Invite link copied",
     "code_label_click": "Room code (click to copy):",
     "copy_code_title": "Click to copy code",
     "copy_code": "Copy room code",
-    "code_copied": "Code copied!",
+    "code_copied": "Code copied",
     "players_present": "Players Present",
     "session_status": "Session Status",
     "waiting_launch": "Waiting for launch...",
@@ -272,7 +272,7 @@
     "series_label": "Number of rounds:",
     "expires_label": "Expires in:",
     "start_test": "Start Test",
-    "waiting_host_launch": "The host will launch the test shortly. Get ready!",
+    "waiting_host_launch": "The host will launch the test shortly. Get ready",
     "results_title": "Final Room Leaderboard",
     "status_col": "Status",
     "restart_room": "Restart Room",
@@ -291,7 +291,7 @@
     "you": "You",
     "host_badge": "Host",
     "playing_badge": "Playing...",
-    "game_in_progress": "Game in progress!",
+    "game_in_progress": "Game in progress",
     "in_progress": "In progress...",
     "finished": "Finished"
   },
@@ -380,13 +380,13 @@
     "copy_btn": "Copy",
     "mark_resolved": "Mark resolved",
     "dismiss": "Dismiss",
-    "city_verified_success": "✓ City successfully marked as verified!",
+    "city_verified_success": "City marked as verified",
     "city_verification_removed": "Verification removed for this city.",
     "select_city_first": "Please select a city first.",
     "district_draw_error": "Please enter a name and place at least 3 points on the map.",
-    "route_saved_success": "Route saved successfully!",
+    "route_saved_success": "Route saved successfully",
     "reports_load_error": "Error loading reports.",
-    "copied_name": "Name \"{name}\" copied!",
+    "copied_name": "Name \"{name}\" copied",
     "resolved": "Resolved",
     "dismissed": "Dismissed",
     "dashboard_title": "Administration",
@@ -410,7 +410,7 @@
     "diff_easy": "Easy (Major axes)",
     "diff_medium": "Medium (Standard streets)",
     "diff_hard": "Hard (Small lanes / Dead ends)",
-    "add_segment": "➕ Add separate segment",
+    "add_segment": "Add separate segment",
     "street_names_toggle": "Show or hide street names on the map",
     "street_names_label": "Street names",
     "user_reports_title": "User Reports",
@@ -447,7 +447,7 @@
     "monument_eiffel": "Eiffel Tower - Paris",
     "monument_chambord": "Loire Castle",
     "monument_mont": "Mont-Saint-Michel",
-    "turbulence": "Warning: severe turbulence!",
+    "turbulence": "Warning: severe turbulence",
     "crashed": "Unknown destination... Where are we?",
     "mystery": "Where are we?",
     "replay": "Replay",
@@ -459,7 +459,7 @@
   },
   "offline": {
     "banner_offline": "Offline mode: Connection required to play and sync.",
-    "banner_online": "Internet connection restored!",
+    "banner_online": "Internet connection restored",
     "game_continues_offline": "Connection lost: the game continues offline. The score will not be saved to the leaderboard.",
     "game_requires_connection": "An Internet connection is required to generate the map and start the game.",
     "room_requires_connection": "Multiplayer rooms require an active Internet connection.",
@@ -473,7 +473,7 @@
     "title": "Support the Project",
     "subtitle": "Independent & passionate development of CityMaster",
     "welcome_intro": "Welcome! CityMaster was born from an idea to help firefighters learn and memorize their territory while having fun. I continue to develop and expand the game in my spare time out of passion.",
-    "welcome_costs": "The game is completely free and ad-free. If you enjoy the game and want to support its evolution, you're in the right place!",
+    "welcome_costs": "The game is completely free and ad-free. If you enjoy the game and want to support its evolution, you're in the right place",
     "contribute_title": "Want to contribute?",
     "contribute_desc": "There's absolutely no obligation, but if you'd like to support the project, there are two great ways to participate:",
     "way_kofi_title": "2. Buy a Coffee (Ko-fi)",

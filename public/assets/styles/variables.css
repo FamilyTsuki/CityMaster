@@ -1,20 +1,26 @@
 :root,
 [data-theme="light"] {
   color-scheme: light;
-  --bg-main: #fbf7f0;
+  --bg-main: #f7f4ee;
   --bg-card: rgba(255, 255, 255, 0.94);
   --bg-card-solid: #ffffff;
-  --bg-sidebar: #f8f2e7;
+  --bg-sidebar: #f2ede4;
   --bg-glass: rgba(255, 255, 255, 0.88);
-  --glass-border: rgba(214, 184, 148, 0.35);
+  --glass-border: rgba(31, 27, 22, 0.1);
 
   --white: #ffffff;
+  --on-primary: #ffffff;
+
+  --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --black: #000000;
   --purple: #8b5cf6;
   --primary: #c2410c;
   --primary-hover: #9a3412;
   --primary-light: rgba(194, 65, 12, 0.08);
-  --primary-glow: rgba(194, 65, 12, 0.22);
+  --primary-glow: transparent;
 
   --secondary: #f5ede1;
   --secondary-hover: #ebdccf;
@@ -23,7 +29,7 @@
   --accent: #0284c7;
   --accent-light: rgba(2, 132, 199, 0.15);
   --accent-hover: #0369a1;
-  --accent-glow: rgba(2, 132, 199, 0.22);
+  --accent-glow: transparent;
 
   --success: #15803d;
   --success-light: rgba(21, 128, 61, 0.15);
@@ -34,25 +40,25 @@
   --danger-light: rgba(220, 38, 38, 0.15);
   --danger-hover: #b91c1c;
 
-  --text-main: #2b2118;
-  --text-secondary: #57534e;
-  --text-muted: #6e5e52;
-  --border-color: rgba(214, 184, 148, 0.32);
+  --text-main: #1f1b16;
+  --text-secondary: #5e554a;
+  --text-muted: #6e6458;
+  --border-color: rgba(31, 27, 22, 0.1);
 
-  --shadow-sm: -2px -2px 6px rgba(255, 255, 255, 0.8), 2px 3px 8px rgba(50, 35, 20, 0.06);
-  --shadow-md: -4px -4px 12px rgba(255, 255, 255, 0.9), 4px 6px 16px rgba(50, 35, 20, 0.08);
-  --shadow-lg: -6px -6px 18px rgba(255, 255, 255, 0.95), 8px 12px 28px rgba(50, 35, 20, 0.1);
-  --shadow-glow: 0 12px 32px -4px rgba(194, 65, 12, 0.16);
+  --shadow-sm: 0 1px 2px rgba(31, 27, 22, 0.05);
+  --shadow-md: 0 4px 12px rgba(31, 27, 22, 0.06);
+  --shadow-lg: 0 8px 24px rgba(31, 27, 22, 0.08);
+  --shadow-glow: none;
 
   /* Neumorphic Soft UI Tokens - Light */
-  --neu-flat: -3px -3px 8px rgba(255, 255, 255, 0.85), 3px 3px 10px rgba(50, 35, 20, 0.07);
-  --neu-raised: -5px -5px 14px rgba(255, 255, 255, 0.95), 5px 6px 16px rgba(50, 35, 20, 0.09);
-  --neu-floating: -8px -8px 22px rgba(255, 255, 255, 0.95), 8px 14px 30px rgba(50, 35, 20, 0.11);
-  --neu-inset: inset 2px 2px 5px rgba(50, 35, 20, 0.07), inset -2px -2px 5px rgba(255, 255, 255, 0.85);
-  --neu-inset-deep: inset 3px 3px 7px rgba(50, 35, 20, 0.1), inset -3px -3px 7px rgba(255, 255, 255, 0.9);
-  --neu-pressed: inset 2px 2px 5px rgba(50, 35, 20, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+  --neu-flat: var(--shadow-sm);
+  --neu-raised: var(--shadow-md);
+  --neu-floating: var(--shadow-lg);
+  --neu-inset: inset 0 0 0 1px var(--border-color);
+  --neu-inset-deep: inset 0 0 0 1px var(--border-color);
+  --neu-pressed: inset 0 1px 2px rgba(31, 27, 22, 0.08);
 
-  --landing-bg-gradient: radial-gradient(circle at 12% 18%, rgba(254, 240, 138, 0.35) 0%, transparent 45%), radial-gradient(circle at 88% 82%, rgba(253, 186, 116, 0.3) 0%, transparent 50%), linear-gradient(150deg, #fefbf6 0%, #fbf5eb 40%, #f6edd9 100%);
+  --landing-bg-gradient: none;
   --landing-card-bg: #ffffff;
   --navbar-bg: rgba(255, 255, 255, 0.88);
   --landing-ink: #2b2118;
@@ -131,15 +137,16 @@
   --bg-card-solid: #1a1f2c;
   --bg-sidebar: #161b27;
   --bg-glass: rgba(26, 31, 44, 0.85);
-  --glass-border: rgba(255, 255, 255, 0.09);
+  --glass-border: rgba(238, 240, 245, 0.08);
 
   --white: #ffffff;
+  --on-primary: #1a1208;
   --black: #000000;
   --purple: #8b5cf6;
   --primary: #f97316;
   --primary-hover: #ea580c;
   --primary-light: rgba(249, 115, 22, 0.15);
-  --primary-glow: rgba(249, 115, 22, 0.35);
+  --primary-glow: transparent;
 
   --secondary: #232a3b;
   --secondary-hover: #2e374d;
@@ -148,7 +155,7 @@
   --accent: #38bdf8;
   --accent-light: rgba(56, 189, 248, 0.15);
   --accent-hover: #0284c7;
-  --accent-glow: rgba(56, 189, 248, 0.35);
+  --accent-glow: transparent;
 
   --success: #4ade80;
   --success-light: rgba(74, 222, 128, 0.15);
@@ -159,25 +166,25 @@
   --danger-light: rgba(248, 113, 113, 0.15);
   --danger-hover: #ef4444;
 
-  --text-main: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --border-color: rgba(255, 255, 255, 0.1);
+  --text-main: #eef0f5;
+  --text-secondary: #b4bac8;
+  --text-muted: #8b93a6;
+  --border-color: rgba(238, 240, 245, 0.08);
 
-  --shadow-sm: -2px -2px 6px rgba(255, 255, 255, 0.035), 2px 3px 8px rgba(0, 0, 0, 0.45);
-  --shadow-md: -4px -4px 12px rgba(255, 255, 255, 0.045), 4px 6px 16px rgba(0, 0, 0, 0.55);
-  --shadow-lg: -6px -6px 18px rgba(255, 255, 255, 0.05), 8px 12px 30px rgba(0, 0, 0, 0.65);
-  --shadow-glow: 0 12px 32px -4px rgba(249, 115, 22, 0.25);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --shadow-glow: none;
 
   /* Neumorphic Soft UI Tokens - Dark */
-  --neu-flat: -3px -3px 8px rgba(255, 255, 255, 0.04), 3px 3px 10px rgba(0, 0, 0, 0.45);
-  --neu-raised: -5px -5px 14px rgba(255, 255, 255, 0.05), 5px 6px 16px rgba(0, 0, 0, 0.55);
-  --neu-floating: -8px -8px 22px rgba(255, 255, 255, 0.055), 8px 14px 30px rgba(0, 0, 0, 0.7);
-  --neu-inset: inset 2px 2px 5px rgba(0, 0, 0, 0.5), inset -2px -2px 5px rgba(255, 255, 255, 0.04);
-  --neu-inset-deep: inset 3px 3px 7px rgba(0, 0, 0, 0.65), inset -3px -3px 7px rgba(255, 255, 255, 0.05);
-  --neu-pressed: inset 2px 2px 5px rgba(0, 0, 0, 0.65), inset -2px -2px 5px rgba(255, 255, 255, 0.035);
+  --neu-flat: var(--shadow-sm);
+  --neu-raised: var(--shadow-md);
+  --neu-floating: var(--shadow-lg);
+  --neu-inset: inset 0 0 0 1px var(--border-color);
+  --neu-inset-deep: inset 0 0 0 1px var(--border-color);
+  --neu-pressed: inset 0 1px 2px rgba(0, 0, 0, 0.4);
 
-  --landing-bg-gradient: radial-gradient(circle at 15% 15%, rgba(249, 115, 22, 0.1) 0%, transparent 40%), radial-gradient(circle at 85% 85%, rgba(56, 189, 248, 0.08) 0%, transparent 45%), linear-gradient(155deg, #0e1118 0%, #151923 50%, #1c2230 100%);
+  --landing-bg-gradient: none;
   --landing-card-bg: #1a1f2c;
   --navbar-bg: rgba(26, 31, 44, 0.88);
   --landing-ink: #f8fafc;

@@ -38,7 +38,7 @@
   -webkit-backdrop-filter: blur(16px);
   box-sizing: border-box;
   margin: 0 auto;
-  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .auth-wrapper > * {
@@ -194,7 +194,6 @@
 
 .toggle-password-btn:hover {
   opacity: 1;
-  transform: scale(1.1);
 }
 
 .eye-svg {
@@ -230,18 +229,18 @@
 }
 
 .auth-header h1 {
-  font-family: "Lilita One", "Titan One", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.6rem, 3.5vw, 1.95rem);
-  font-weight: 900;
+  font-weight: 600;
   margin: 0;
   color: var(--landing-ink);
   letter-spacing: -0.01em;
 }
 
 .auth-form-container h1 {
-  font-family: "Lilita One", "Titan One", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(1.6rem, 3.5vw, 1.95rem);
-  font-weight: 900;
+  font-weight: 600;
   margin-top: 0;
   margin-bottom: 0.125rem;
   color: var(--landing-ink);
@@ -251,7 +250,7 @@
 .auth-form-container #auth-subtitle {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.92rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--landing-ink-muted);
   margin-bottom: 0.875rem;
 }
@@ -285,7 +284,7 @@
   padding: 0.25rem 0.75rem;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-secondary);
   background: var(--surface);
   border: 1px solid var(--border-color);
@@ -309,7 +308,7 @@
   gap: var(--space-sm);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--text-main);
 }
 
@@ -334,7 +333,7 @@
   font-size: 0.92rem;
   font-weight: 600;
   box-shadow: none;
-  transition: all 0.15s ease;
+  transition: 0.15s ease; transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 .input-premium:focus {
@@ -357,7 +356,7 @@
   padding: 0.5rem 0.75rem;
   font-family: "Plus Jakarta Sans", system-ui, sans-serif;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 0.75rem;
   text-align: left;
 }
@@ -375,22 +374,21 @@
   min-height: 2.75rem;
   height: auto;
   background: var(--primary);
-  color: var(--white) !important;
+  color: var(--on-primary) !important;
   border: 1px solid transparent !important;
   border-radius: var(--border-radius-sm);
   font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
   font-size: 1rem !important;
-  font-weight: 800 !important;
+  font-weight: 600 !important;
   letter-spacing: 0.01em;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: 0.15s cubic-bezier(0.22, 1, 0.36, 1); transition-property: color, background-color, border-color, box-shadow, opacity, transform;
 }
 
 #auth-main-btn:hover {
   background: var(--primary-hover);
   color: var(--white) !important;
-  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
@@ -412,7 +410,7 @@
 .auth-link-container .text-muted {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
   font-size: 0.88rem !important;
-  font-weight: 800 !important;
+  font-weight: 600 !important;
   color: var(--landing-ink-muted);
 }
 
@@ -427,7 +425,7 @@
 .auth-link {
   font-family: "Plus Jakarta Sans", system-ui, sans-serif !important;
   font-size: 0.92rem !important;
-  font-weight: 900 !important;
+  font-weight: 600 !important;
   letter-spacing: 0.01em;
   color: var(--landing-ink);
   text-decoration: underline;
@@ -443,7 +441,6 @@
 
 .auth-link:hover {
   color: var(--paper-primary-hover);
-  transform: translateY(-1px);
 }
 
 @media (min-width: 768px) {
@@ -580,8 +577,7 @@
 
 [data-theme="dark"] #auth-screen::before {
   background:
-    radial-gradient(circle at 20% 20%, var(--warning-light), transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(124, 45, 18, 0.25), transparent 50%);
+    none;
 }
 
 [data-theme="dark"] #auth-screen {
