@@ -20,6 +20,8 @@ import { ChangelogView } from "./views/ChangelogView.js";
 import { NetworkService } from "./services/NetworkService.js";
 import { HapticService } from "./services/HapticService.js";
 import { Router } from "./Router.js";
+import { ModerationController } from "./controllers/ModerationController.js";
+import { canOpenEditor, setModeratorCities } from "./utils/roles.js";
 
 class App {
   #gameView;
@@ -36,6 +38,7 @@ class App {
   #authController;
   #profileController;
   #adminController;
+  #moderationController;
   #roomController;
   #audioService;
   #flightLoader;
@@ -94,6 +97,7 @@ class App {
     );
     this.#authController.onLogout(() => this.#controller.abandonSession());
     this.#adminController = new AdminController(this.#adminView);
+    this.#moderationController = new ModerationController();
     this.#roomController = new RoomController(
       null,
       this.#roomView,
@@ -146,6 +150,11 @@ class App {
               const data = await res.json();
               if (data && data.isAdmin) {
                 localStorage.setItem("is_admin", "true");
+              } else {
+                localStorage.removeItem("is_admin");
+              }
+              setModeratorCities(data?.moderatorCities);
+              if (canOpenEditor()) {
                 this.#showAdmin();
                 return;
               }
@@ -169,6 +178,7 @@ class App {
       },
       "/moderation": () => {
         this.#gameView.showScreen("moderation");
+        this.#moderationController.load();
       },
       "/load": () => {
         this.#showLoad();
@@ -197,13 +207,13 @@ class App {
     this.#controller.setRouter(this.#router);
     this.#roomController.setRouter(this.#router);
     this.#adminController.setRouter(this.#router);
+    this.#moderationController.setRouter(this.#router);
 
     if (this.#authController.isAuthenticated()) {
       const username = localStorage.getItem("username");
       const cachedAvatar = localStorage.getItem("citymaster_profile_image");
-      const isAdmin = localStorage.getItem("is_admin") === "true";
       this.#gameView.setPlayerName(username);
-      this.#navbarView.setLoggedIn(username, cachedAvatar, isAdmin);
+      this.#navbarView.setLoggedIn(username, cachedAvatar, canOpenEditor());
       this.#profileController.fetchNavAvatar();
     }
 

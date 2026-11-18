@@ -6,44 +6,73 @@
 >
   <div class="moderation-container">
     <div class="moderation-header">
-      <div class="moderation-header-top">
-        <button
-          id="moderation-back-btn"
-          class="btn-back-round"
-          title="Retour"
-          data-i18n-title="common.back"
-          aria-label="Retour"
-          data-i18n-aria-label="common.back"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="action-icon"
-            aria-hidden="true"
-          >
-            <line x1="19" y1="12" x2="5" y2="12"></line>
-            <polyline points="12 19 5 12 12 5"></polyline>
-          </svg>
-        </button>
-      </div>
+      <button
+        id="moderation-back-btn"
+        class="btn-back-round"
+        title="Retour"
+        data-i18n-title="common.back"
+        aria-label="Retour"
+        data-i18n-aria-label="common.back"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="action-icon" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </button>
+      <h1 id="moderation-title" class="moderation-title" data-i18n="moderation.title">Modérer une commune</h1>
     </div>
 
-    <div class="moderation-body">
-      <div class="moderation-card">
-        <h1
-          id="moderation-title"
-          class="coming-soon-title"
-          data-i18n="moderation.coming_soon"
-        >
-          Coming Soon
-        </h1>
+    <p class="moderation-intro" data-i18n="moderation.intro">Les modérateurs gardent la carte de leur commune juste. Une fois votre candidature acceptée, vous ouvrez l'éditeur de carte pour cette commune.</p>
+
+    <ul class="moderation-tasks">
+      <li data-i18n="moderation.task_routes">Corriger le tracé et le nom des rues</li>
+      <li data-i18n="moderation.task_districts">Délimiter les quartiers et lotissements</li>
+      <li data-i18n="moderation.task_difficulty">Régler la difficulté des rues</li>
+    </ul>
+
+    <section id="moderation-editor-access" class="moderation-panel hidden">
+      <h2 class="moderation-panel-title" data-i18n="moderation.editor_title">Vos communes</h2>
+      <p id="moderation-editor-cities" class="moderation-muted"></p>
+      <button id="moderation-open-editor-btn" type="button" class="btn moderation-btn" data-i18n="moderation.open_editor">Ouvrir l'éditeur</button>
+    </section>
+
+    <section id="moderation-guest" class="moderation-panel hidden">
+      <p class="moderation-muted" data-i18n="moderation.login_required">Connectez-vous avec un compte joueur pour candidater.</p>
+      <button id="moderation-login-btn" type="button" class="btn moderation-btn" data-i18n="nav.login">Se connecter</button>
+    </section>
+
+    <form id="moderation-form" class="moderation-panel hidden" novalidate>
+      <h2 class="moderation-panel-title" data-i18n="moderation.form_title">Candidater</h2>
+
+      <label class="moderation-label" for="moderation-city-input" data-i18n="moderation.city_label">Commune</label>
+      <div class="moderation-city-field">
+        <input
+          id="moderation-city-input"
+          class="input"
+          type="text"
+          autocomplete="off"
+          placeholder="Rechercher une commune"
+          data-i18n-placeholder="moderation.city_placeholder"
+          aria-autocomplete="list"
+          aria-controls="moderation-city-results"
+        />
+        <ul id="moderation-city-results" class="moderation-city-results hidden" role="listbox"></ul>
       </div>
-    </div>
+
+      <label class="moderation-label" for="moderation-motivation" data-i18n="moderation.motivation_label">Pourquoi cette commune (facultatif)</label>
+      <textarea
+        id="moderation-motivation"
+        class="input moderation-textarea"
+        rows="4"
+        maxlength="1000"
+        placeholder="Vous y habitez, vous y travaillez, vous connaissez ses rues…"
+        data-i18n-placeholder="moderation.motivation_placeholder"
+      ></textarea>
+
+      <p id="moderation-form-message" class="moderation-form-message" role="status" aria-live="polite"></p>
+      <button id="moderation-submit-btn" type="submit" class="btn moderation-btn" data-i18n="moderation.submit">Envoyer la candidature</button>
+    </form>
+
+    <section id="moderation-mine" class="moderation-panel hidden">
+      <h2 class="moderation-panel-title" data-i18n="moderation.mine_title">Mes candidatures</h2>
+      <ul id="moderation-mine-list" class="moderation-mine-list"></ul>
+    </section>
   </div>
 </div>
-

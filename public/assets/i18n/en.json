@@ -420,7 +420,16 @@
     "status_resolved": "Resolved",
     "status_dismissed": "Dismissed",
     "refresh": "Refresh",
-    "no_reports_found": "No reports found."
+    "no_reports_found": "No reports found.",
+    "moderation_dashboard_title": "Moderation",
+    "applications_title": "Moderators",
+    "applications_desc": "Pending applications and active moderators, by commune.",
+    "applications_empty": "No applications",
+    "application_approve": "Accept",
+    "application_reject": "Decline",
+    "application_revoke": "Remove",
+    "application_active": "Moderator",
+    "application_error": "Action failed"
   },
   "errors": {
     "fill_fields": "Please fill in all fields.",
@@ -487,7 +496,29 @@
     "mod_admin_link": "Access route management dashboard"
   },
   "moderation": {
-    "title": "Moderation",
-    "coming_soon": "Coming Soon"
+    "title": "Moderate a commune",
+    "intro": "Moderators keep the map of their commune accurate. Once your application is accepted, you open the map editor for that commune.",
+    "task_routes": "Fix street paths and names",
+    "task_districts": "Draw neighborhoods and housing estates",
+    "task_difficulty": "Set street difficulty",
+    "editor_title": "Your communes",
+    "editor_admin": "Administrator: every commune",
+    "open_editor": "Open the editor",
+    "login_required": "Sign in with a player account to apply.",
+    "form_title": "Apply",
+    "city_label": "Commune",
+    "city_placeholder": "Search for a commune",
+    "motivation_label": "Why this commune (optional)",
+    "motivation_placeholder": "You live there, work there, know its streets…",
+    "submit": "Send application",
+    "sent": "Application sent for {city}",
+    "error_city": "Pick a commune from the list",
+    "error_duplicate": "You already have an application for this commune",
+    "error_generic": "The application could not be sent",
+    "mine_title": "My applications",
+    "status_pending": "Pending",
+    "status_approved": "Accepted",
+    "status_rejected": "Declined",
+    "status_revoked": "Rights removed"
   }
 }

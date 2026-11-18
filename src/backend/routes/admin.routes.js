@@ -1,32 +1,32 @@
 import express from "express";
 import { AdminController } from "../controllers/AdminController.js";
-import { requireAdmin } from "../middleware/auth.js";
+import { requireAdmin, requireCityEditor } from "../middleware/auth.js";
 
 const router = express.Router();
 
-router.get("/districts", requireAdmin, AdminController.getDistricts);
-router.post("/districts", requireAdmin, AdminController.saveDistrict);
+router.get("/districts", requireCityEditor, AdminController.getDistricts);
+router.post("/districts", requireCityEditor, AdminController.saveDistrict);
 router.delete(
   "/districts/:cityKey/:id",
-  requireAdmin,
+  requireCityEditor,
   AdminController.deleteDistrict,
 );
 
-router.get("/routes", requireAdmin, AdminController.getRoutes);
-router.post("/routes", requireAdmin, AdminController.saveRoute);
+router.get("/routes", requireCityEditor, AdminController.getRoutes);
+router.post("/routes", requireCityEditor, AdminController.saveRoute);
 router.delete(
   "/routes/:cityKey/:id",
-  requireAdmin,
+  requireCityEditor,
   AdminController.deleteRoute,
 );
 router.get(
   "/routes/difficulties",
-  requireAdmin,
+  requireCityEditor,
   AdminController.getRouteDifficulties,
 );
 router.post(
   "/routes/difficulty",
-  requireAdmin,
+  requireCityEditor,
   AdminController.setRouteDifficulty,
 );
 

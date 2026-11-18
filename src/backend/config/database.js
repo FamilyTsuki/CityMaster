@@ -150,6 +150,18 @@ const SCHEMA_STATEMENTS = [
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (city_key, street_name)
   )`,
+  `CREATE TABLE IF NOT EXISTS moderator_applications (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    city_key VARCHAR(255) NOT NULL,
+    city_name VARCHAR(255) NOT NULL,
+    motivation TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    reviewed_by VARCHAR(255),
+    reviewed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  'CREATE INDEX IF NOT EXISTS moderator_applications_user_idx ON moderator_applications (LOWER(username))',
 ];
 
 /** Délais entre deux tentatives de connexion ; le dernier est ensuite répété. */

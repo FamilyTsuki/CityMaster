@@ -17,6 +17,144 @@
   backface-visibility: visible !important;
 }
 
+/* Bulles de couleur en arrière-plan */
+.app-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  will-change: opacity;
+}
+
+body.in-game-session .app-backdrop,
+body:has(#game-screen.active) .app-backdrop,
+body:has(#load-screen.active) .app-backdrop {
+  display: none !important;
+}
+
+
+.ambient-bubbles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.bubble {
+  position: absolute;
+  border-radius: 50%;
+  border: none;
+  box-shadow: none;
+  will-change: transform, opacity;
+}
+
+/* Rising organic bubbles starting directly near the bottom */
+.bubble-1 {
+  width: 190px;
+  height: 190px;
+  left: 6%;
+  bottom: -40px;
+  filter: blur(42px);
+  background: var(--landing-bubble-1);
+  animation: floatOrganicA 15.2s linear infinite;
+  animation-delay: -3.5s;
+}
+
+.bubble-2 {
+  width: 260px;
+  height: 260px;
+  left: 26%;
+  bottom: -50px;
+  filter: blur(55px);
+  background: var(--landing-bubble-2);
+  animation: floatOrganicB 19.8s linear infinite;
+  animation-delay: -12.0s;
+}
+
+.bubble-3 {
+  width: 160px;
+  height: 160px;
+  left: 48%;
+  bottom: -35px;
+  filter: blur(36px);
+  background: var(--landing-bubble-3);
+  animation: floatOrganicC 13.4s linear infinite;
+  animation-delay: -1.2s;
+}
+
+.bubble-4 {
+  width: 240px;
+  height: 240px;
+  left: 68%;
+  bottom: -45px;
+  filter: blur(50px);
+  background: var(--landing-bubble-4);
+  animation: floatOrganicA 17.6s linear infinite;
+  animation-delay: -14.5s;
+}
+
+.bubble-5 {
+  width: 180px;
+  height: 180px;
+  left: 85%;
+  bottom: -40px;
+  filter: blur(42px);
+  background: var(--landing-bubble-5);
+  animation: floatOrganicB 14.1s linear infinite;
+  animation-delay: -6.8s;
+}
+
+/* Dedicated lower & bottom floating ambient bubbles (always present at bottom of page) */
+.bubble-6 {
+  width: 270px;
+  height: 270px;
+  left: 8%;
+  bottom: -25px;
+  filter: blur(54px);
+  background: var(--landing-bubble-6);
+  opacity: 0.8;
+  animation: floatDriftBottomA 13s ease-in-out infinite alternate;
+  animation-delay: -2s;
+}
+
+.bubble-7 {
+  width: 300px;
+  height: 300px;
+  left: 58%;
+  bottom: -35px;
+  filter: blur(60px);
+  background: var(--landing-bubble-7);
+  opacity: 0.75;
+  animation: floatDriftBottomB 16s ease-in-out infinite alternate;
+  animation-delay: -5s;
+}
+
+.bubble-8 {
+  width: 220px;
+  height: 220px;
+  left: 36%;
+  bottom: 20px;
+  filter: blur(48px);
+  background: var(--landing-bubble-8);
+  opacity: 0.72;
+  animation: floatDriftBottomC 11s ease-in-out infinite alternate;
+  animation-delay: -7s;
+}
+
+
 :root,
 [data-theme="light"] {
   --landing-ink: var(--text-main);
@@ -43,6 +181,15 @@
   --map-water: #c9d9e3;
   --plate-bg: #1f3a68;
   --plate-text: #ffffff;
+
+  --landing-bubble-1: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.65), rgba(2, 132, 199, 0.32), transparent 75%);
+  --landing-bubble-2: radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.6), rgba(37, 99, 235, 0.28), transparent 75%);
+  --landing-bubble-3: radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.65), rgba(14, 165, 233, 0.3), transparent 75%);
+  --landing-bubble-4: radial-gradient(circle at 50% 50%, rgba(147, 197, 253, 0.6), rgba(59, 130, 246, 0.28), transparent 75%);
+  --landing-bubble-5: radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.55), rgba(6, 182, 212, 0.25), transparent 75%);
+  --landing-bubble-6: radial-gradient(circle at 50% 50%, rgba(186, 230, 253, 0.65), rgba(2, 132, 199, 0.3), transparent 75%);
+  --landing-bubble-7: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.7), rgba(14, 165, 233, 0.35), transparent 75%);
+  --landing-bubble-8: radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.65), rgba(37, 99, 235, 0.32), transparent 75%);
 }
 
 [data-theme="dark"] {
@@ -69,7 +216,21 @@
   --map-water: #172334;
   --plate-bg: #2a4a80;
   --plate-text: #ffffff;
+
+  --landing-bubble-1: radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.7), rgba(194, 65, 12, 0.45), transparent 75%);
+  --landing-bubble-2: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.65), rgba(220, 38, 38, 0.38), transparent 75%);
+  --landing-bubble-3: radial-gradient(circle at 50% 50%, rgba(251, 146, 60, 0.7), rgba(234, 88, 12, 0.4), transparent 75%);
+  --landing-bubble-4: radial-gradient(circle at 50% 50%, rgba(248, 113, 113, 0.65), rgba(185, 28, 28, 0.38), transparent 75%);
+  --landing-bubble-5: radial-gradient(circle at 50% 50%, rgba(253, 186, 116, 0.65), rgba(234, 88, 12, 0.38), transparent 75%);
+  --landing-bubble-6: radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.65), rgba(225, 29, 72, 0.4), transparent 75%);
+  --landing-bubble-7: radial-gradient(circle at 50% 50%, rgba(249, 115, 22, 0.75), rgba(234, 88, 12, 0.45), transparent 75%);
+  --landing-bubble-8: radial-gradient(circle at 50% 50%, rgba(239, 68, 68, 0.7), rgba(220, 38, 38, 0.42), transparent 75%);
 }
+
+[data-theme="dark"] .ambient-bubbles {
+  mix-blend-mode: screen;
+}
+
 
 .landing-content {
   position: relative;
@@ -96,14 +257,24 @@
   align-items: flex-start;
 }
 
+.hero-brand {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 5.5rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--text-main);
+  margin: 0 0 16px;
+}
+
 .hero-title {
   font-family: var(--font-display);
-  font-size: clamp(2.25rem, 4.6vw, 3.5rem);
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
   color: var(--text-main);
-  margin: 0 0 20px;
+  margin: 0 0 16px;
   text-wrap: balance;
 }
 
@@ -312,6 +483,118 @@
   color: var(--text-main);
 }
 
+@keyframes floatOrganicA {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.7) rotate(0deg);
+    opacity: 0.55;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  35% {
+    transform: translate3d(32px, -45vh, 0) scale(0.92) rotate(45deg);
+  }
+  65% {
+    transform: translate3d(-38px, -90vh, 0) scale(1.15) rotate(110deg);
+    opacity: 0.85;
+  }
+  88% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(24px, -135vh, 0) scale(1.35) rotate(190deg);
+    opacity: 0;
+  }
+}
+@keyframes floatOrganicB {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.68) rotate(0deg);
+    opacity: 0.5;
+  }
+  15% {
+    opacity: 0.82;
+  }
+  35% {
+    transform: translate3d(-45px, -48vh, 0) scale(0.95) rotate(-55deg);
+  }
+  65% {
+    transform: translate3d(35px, -95vh, 0) scale(1.2) rotate(-125deg);
+    opacity: 0.8;
+  }
+  88% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: translate3d(-30px, -140vh, 0) scale(1.32) rotate(-200deg);
+    opacity: 0;
+  }
+}
+@keyframes floatOrganicC {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.75) rotate(0deg);
+    opacity: 0.55;
+  }
+  15% {
+    opacity: 0.85;
+  }
+  35% {
+    transform: translate3d(-25px, -44vh, 0) scale(0.88) rotate(35deg);
+  }
+  65% {
+    transform: translate3d(48px, -88vh, 0) scale(1.1) rotate(95deg);
+    opacity: 0.8;
+  }
+  88% {
+    opacity: 0.6;
+  }
+  100% {
+    transform: translate3d(-18px, -130vh, 0) scale(1.28) rotate(175deg);
+    opacity: 0;
+  }
+}
+@keyframes floatDriftBottomA {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.95);
+    opacity: 0.72;
+  }
+  50% {
+    transform: translate3d(45px, -30px, 0) scale(1.1);
+    opacity: 0.88;
+  }
+  100% {
+    transform: translate3d(-35px, 15px, 0) scale(1);
+    opacity: 0.7;
+  }
+}
+@keyframes floatDriftBottomB {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate3d(-50px, -35px, 0) scale(1.15);
+    opacity: 0.85;
+  }
+  100% {
+    transform: translate3d(40px, 20px, 0) scale(0.92);
+    opacity: 0.68;
+  }
+}
+@keyframes floatDriftBottomC {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.92);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translate3d(30px, -25px, 0) scale(1.08);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate3d(-25px, 18px, 0) scale(0.98);
+    opacity: 0.65;
+  }
+}
+
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -324,8 +607,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hero {
-    animation: none;
+  .hero,
+  .bubble {
+    animation: none !important;
   }
 }
 
@@ -341,8 +625,12 @@
     gap: 32px;
   }
 
+  .hero-brand {
+    font-size: 3rem;
+  }
+
   .hero-title {
-    font-size: 2.125rem;
+    font-size: 1.5rem;
   }
 
   .hero-subtitle {

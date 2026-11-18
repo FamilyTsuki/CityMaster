@@ -14,6 +14,7 @@ import citiesRoutes from './routes/cities.routes.js';
 import gameRoutes from './routes/game.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import roomRoutes from './routes/room.routes.js';
+import moderationRoutes from './routes/moderation.routes.js';
 import reportsRoutes from './routes/reports.routes.js';
 
 /**
@@ -81,6 +82,13 @@ export function createApp() {
     },
     express.static(path.join(ROOT_DIR, 'src')),
   );
+  // Turf.js servi depuis node_modules : le jeu ne dépend plus d'un CDN tiers
+  // pour détecter la rue cliquée.
+  app.get('/vendor/turf.min.js', (req, res) => {
+    res.sendFile(path.join(ROOT_DIR, 'node_modules/@turf/turf/turf.min.js'), {
+      maxAge: '7d',
+    });
+  });
   app.use(
     '/uploads',
     express.static(UPLOADS_DIR, {
@@ -97,6 +105,7 @@ export function createApp() {
   app.use('/api/admin', adminRoutes);
   app.use('/api/rooms', roomRoutes);
   app.use('/api/reports', reportsRoutes);
+  app.use('/api/moderation', moderationRoutes);
 
   app.get('/api/version', (req, res) => {
     try {

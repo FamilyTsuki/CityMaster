@@ -142,7 +142,7 @@ test('footer templates contain accessible links to support screen', () => {
   );
 });
 
-test('moderation screen template exists and contains coming soon structure', () => {
+test('moderation screen template contains the application form', () => {
   const moderationHtmlPath = path.resolve('public/screens/moderation.html');
   assert.ok(fs.existsSync(moderationHtmlPath), 'public/screens/moderation.html must exist');
 
@@ -155,10 +155,10 @@ test('moderation screen template exists and contains coming soon structure', () 
     content.includes('id="moderation-back-btn"'),
     'moderation.html must contain #moderation-back-btn',
   );
-  assert.ok(
-    content.includes('coming-soon-title'),
-    'moderation.html must contain .coming-soon-title',
-  );
+  for (const id of ['moderation-form', 'moderation-city-input', 'moderation-motivation', 'moderation-mine-list']) {
+    assert.ok(content.includes(`id="${id}"`), `moderation.html must contain #${id}`);
+  }
+  assert.equal(content.includes('coming-soon-title'), false, 'Coming Soon placeholder must be gone');
 });
 
 test('Router matches /moderation and /moderation/ routes correctly', async () => {

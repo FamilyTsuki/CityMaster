@@ -1,5 +1,6 @@
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
+import { canOpenEditor, setModeratorCities } from "../utils/roles.js";
 
 export class AuthController {
   #router;
@@ -69,6 +70,17 @@ export class AuthController {
     this.#authView.setMode(isLogin);
   }
 
+  /**
+   * Recharge les communes confiées au joueur, pour afficher l'accès à
+   * l'éditeur dès la connexion.
+   */
+  async #refreshEditorAccess() {
+    const res = await ApiService.get("/profile");
+    if (!res.ok || !res.data) return;
+    setModeratorCities(res.data.moderatorCities);
+    this.isAuthenticated();
+  }
+
   #persistAuthSession(data) {
     localStorage.removeItem("is_guest");
     ApiService.setToken(data.token);
@@ -78,6 +90,8 @@ export class AuthController {
     } else {
       localStorage.removeItem("is_admin");
     }
+    setModeratorCities([]);
+    this.#refreshEditorAccess();
     const avatar = data.profileImageUrl || data.profile_image_url;
     if (avatar) {
       localStorage.setItem("citymaster_profile_image", avatar);
@@ -158,10 +172,8 @@ export class AuthController {
     const username = localStorage.getItem("username");
     const isGuest = localStorage.getItem("is_guest") === "true";
     const profileImageUrl = localStorage.getItem("citymaster_profile_image");
-    const isAdmin = localStorage.getItem("is_admin") === "true";
-
     if (token && username && !isGuest) {
-      this.#navbarView.setLoggedIn(username, profileImageUrl, isAdmin);
+      this.#navbarView.setLoggedIn(username, profileImageUrl, canOpenEditor());
       return true;
     }
 
@@ -183,6 +195,7 @@ export class AuthController {
     ApiService.clearToken();
     localStorage.removeItem("username");
     localStorage.removeItem("is_admin");
+    setModeratorCities([]);
     localStorage.removeItem("is_guest");
     localStorage.removeItem("citymaster_profile_image");
     // La partie sauvegardée appartient au compte qui se déconnecte.

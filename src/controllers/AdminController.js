@@ -3,6 +3,12 @@ import { escapeHTML } from "../utils/security.js";
 import { I18nService } from "../services/I18nService.js";
 import { RouteDifficultyService } from "../services/RouteDifficultyService.js";
 import { mergeCityStreets } from "../services/SpatialService.js";
+import {
+  isAdminSession,
+  getModeratorCities,
+  canOpenEditor,
+  canEditCity,
+} from "../utils/roles.js";
 
 export class AdminController {
   #adminView;
@@ -35,6 +41,29 @@ export class AdminController {
 
   setRouter(router) {
     this.#router = router;
+  }
+
+  /**
+   * Les modérateurs ne voient que les communes qu'on leur a confiées.
+   */
+  #editableCities(cities) {
+    if (isAdminSession()) return cities;
+    const allowed = new Set(getModeratorCities().map((c) => c.key));
+    return cities.filter((c) => allowed.has(c.key));
+  }
+
+  /**
+   * Commune à ouvrir par défaut : la dernière utilisée si elle est
+   * modifiable, sinon la première commune confiée au modérateur.
+   */
+  #defaultCity() {
+    try {
+      const lastCity = JSON.parse(localStorage.getItem("citymaster_last_city") || "null");
+      if (lastCity && canEditCity(lastCity.key)) return lastCity;
+    } catch (e) {}
+    if (isAdminSession()) return null;
+    const first = getModeratorCities()[0];
+    return first ? { key: first.key, name: first.name } : null;
   }
 
   #initEvents() {
@@ -162,8 +191,9 @@ export class AdminController {
             `/cities?q=${encodeURIComponent(query)}`,
           );
           if (!res.ok || !Array.isArray(res.data)) return [];
-          citySearchCache.set(cleanQuery, res.data);
-          return res.data;
+          const cities = this.#editableCities(res.data);
+          citySearchCache.set(cleanQuery, cities);
+          return cities;
         } catch (e) {
           return [];
         } finally {
@@ -633,7 +663,7 @@ export class AdminController {
     const verifyBtn = document.getElementById("admin-city-verify-btn");
     if (!verifyBtn) return;
 
-    if (!this.#selectedCity) {
+    if (!this.#selectedCity || !isAdminSession()) {
       verifyBtn.classList.add("hidden");
       return;
     }
@@ -657,6 +687,7 @@ export class AdminController {
   }
 
   async selectCity(city) {
+    if (!city || !canEditCity(city.key)) return;
     this.#selectedCity = city;
     localStorage.setItem("citymaster_last_city", JSON.stringify(city));
     this.updateVerifyButtonState();
@@ -671,8 +702,7 @@ export class AdminController {
   }
 
   async loadDistricts() {
-    if (!this.#selectedCity || localStorage.getItem("is_admin") !== "true")
-      return;
+    if (!this.#selectedCity || !canEditCity(this.#selectedCity.key)) return;
     try {
       const defaultRes = await ApiService.get(
         `/assets/data/${this.#selectedCity.key}.json`,
@@ -710,8 +740,7 @@ export class AdminController {
   }
 
   async loadRoutes() {
-    if (!this.#selectedCity || localStorage.getItem("is_admin") !== "true")
-      return;
+    if (!this.#selectedCity || !canEditCity(this.#selectedCity.key)) return;
     try {
       const defaultRes = await ApiService.get(
         `/assets/data/${this.#selectedCity.key}.json`,
@@ -984,7 +1013,17 @@ export class AdminController {
   }
 
   async showDashboard() {
-    if (localStorage.getItem("is_admin") !== "true") return;
+    if (!canOpenEditor()) return;
+    const isAdmin = isAdminSession();
+    document
+      .querySelectorAll("#admin-screen .admin-only")
+      .forEach((el) => el.classList.toggle("hidden", !isAdmin));
+    const title = document.querySelector("#admin-screen .admin-dashboard-title");
+    if (title) {
+      title.textContent = isAdmin
+        ? I18nService.getInstance().t("admin.dashboard_title", {}, "Administration")
+        : I18nService.getInstance().t("admin.moderation_dashboard_title", {}, "Modération");
+    }
 
     const dashboard = document.getElementById("admin-dashboard-view");
     const districts = document.getElementById("admin-districts-view");
@@ -997,16 +1036,100 @@ export class AdminController {
 
     this.#loadSettings();
     this.#loadPendingReportsCount();
+    this.#loadApplications();
 
     if (!this.#selectedCity) {
-      const lastCityRaw = localStorage.getItem("citymaster_last_city");
-      if (lastCityRaw) {
-        try {
-          const lastCity = JSON.parse(lastCityRaw);
-          await this.selectCity(lastCity);
-        } catch (e) {}
-      }
+      const city = this.#defaultCity();
+      if (city) await this.selectCity(city);
     }
+  }
+
+  async #loadApplications() {
+    if (!isAdminSession()) return;
+    const list = document.getElementById("admin-applications-list");
+    const badge = document.getElementById("admin-pending-applications-badge");
+    if (!list) return;
+    const res = await ApiService.get("/moderation/applications");
+    if (!res.ok || !Array.isArray(res.data)) return;
+
+    const i18n = I18nService.getInstance();
+    const visible = res.data.filter((a) => a.status === "pending" || a.status === "approved");
+    const pendingCount = visible.filter((a) => a.status === "pending").length;
+    if (badge) {
+      badge.textContent = `${pendingCount}`;
+      badge.classList.toggle("badge-has-pending", pendingCount > 0);
+      badge.classList.toggle("badge-zero", pendingCount === 0);
+    }
+
+    list.replaceChildren();
+    if (visible.length === 0) {
+      const empty = document.createElement("li");
+      empty.className = "admin-application-empty";
+      empty.textContent = i18n.t("admin.applications_empty", {}, "Aucune candidature");
+      list.appendChild(empty);
+      return;
+    }
+
+    const actionsByStatus = {
+      pending: [
+        ["approved", i18n.t("admin.application_approve", {}, "Accepter"), "primary"],
+        ["rejected", i18n.t("admin.application_reject", {}, "Refuser"), "secondary"],
+      ],
+      approved: [["revoked", i18n.t("admin.application_revoke", {}, "Retirer")]],
+    };
+
+    visible.forEach((application) => {
+      const li = document.createElement("li");
+      li.className = `admin-application admin-application-${application.status}`;
+
+      const who = document.createElement("div");
+      who.className = "admin-application-who";
+      const name = document.createElement("strong");
+      name.textContent = application.username;
+      const city = document.createElement("span");
+      city.textContent = application.city_name;
+      who.append(name, city);
+      li.appendChild(who);
+
+      if (application.status === "approved") {
+        const status = document.createElement("span");
+        status.className = "admin-application-status";
+        status.textContent = i18n.t("admin.application_active", {}, "Modérateur");
+        who.appendChild(status);
+      }
+
+      if (application.motivation) {
+        const motivation = document.createElement("p");
+        motivation.className = "admin-application-motivation";
+        motivation.textContent = application.motivation;
+        li.appendChild(motivation);
+      }
+
+      const actions = document.createElement("div");
+      actions.className = "admin-application-actions";
+      actionsByStatus[application.status].forEach(([status, label, variant]) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = variant === "primary" ? "btn" : "btn secondary";
+        button.textContent = label;
+        button.addEventListener("click", async () => {
+          button.disabled = true;
+          const result = await ApiService.patch(`/moderation/applications/${application.id}`, { status });
+          if (!result.ok) {
+            button.disabled = false;
+            this.#adminView.showToast(
+              result.data?.error || i18n.t("admin.application_error", {}, "Action impossible"),
+              "error",
+            );
+            return;
+          }
+          this.#loadApplications();
+        });
+        actions.appendChild(button);
+      });
+      li.appendChild(actions);
+      list.appendChild(li);
+    });
   }
 
   async #loadPendingReportsCount() {
@@ -1053,13 +1176,8 @@ export class AdminController {
 
     this.#adminView.initMap();
     if (!this.#selectedCity) {
-      const lastCityRaw = localStorage.getItem("citymaster_last_city");
-      if (lastCityRaw) {
-        try {
-          const lastCity = JSON.parse(lastCityRaw);
-          await this.selectCity(lastCity);
-        } catch (e) {}
-      }
+      const city = this.#defaultCity();
+      if (city) await this.selectCity(city);
     }
   }
 
@@ -1085,13 +1203,8 @@ export class AdminController {
     this.#adminView.initMap();
 
     if (!this.#selectedCity) {
-      const lastCityRaw = localStorage.getItem("citymaster_last_city");
-      if (lastCityRaw) {
-        try {
-          const lastCity = JSON.parse(lastCityRaw);
-          await this.selectCity(lastCity);
-        } catch (e) {}
-      }
+      const city = this.#defaultCity();
+      if (city) await this.selectCity(city);
     }
 
     await this.#loadSettings();

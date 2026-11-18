@@ -420,7 +420,16 @@
     "status_resolved": "Résolus",
     "status_dismissed": "Ignorés",
     "refresh": "Actualiser",
-    "no_reports_found": "Aucun signalement trouvé."
+    "no_reports_found": "Aucun signalement trouvé.",
+    "moderation_dashboard_title": "Modération",
+    "applications_title": "Modérateurs",
+    "applications_desc": "Candidatures en attente et modérateurs actifs, par commune.",
+    "applications_empty": "Aucune candidature",
+    "application_approve": "Accepter",
+    "application_reject": "Refuser",
+    "application_revoke": "Retirer",
+    "application_active": "Modérateur",
+    "application_error": "Action impossible"
   },
   "errors": {
     "fill_fields": "Veuillez remplir tous les champs.",
@@ -487,7 +496,29 @@
     "mod_admin_link": "Accéder à l'espace de gestion des routes"
   },
   "moderation": {
-    "title": "Modération",
-    "coming_soon": "Coming Soon"
+    "title": "Modérer une commune",
+    "intro": "Les modérateurs gardent la carte de leur commune juste. Une fois votre candidature acceptée, vous ouvrez l'éditeur de carte pour cette commune.",
+    "task_routes": "Corriger le tracé et le nom des rues",
+    "task_districts": "Délimiter les quartiers et lotissements",
+    "task_difficulty": "Régler la difficulté des rues",
+    "editor_title": "Vos communes",
+    "editor_admin": "Administrateur : toutes les communes",
+    "open_editor": "Ouvrir l'éditeur",
+    "login_required": "Connectez-vous avec un compte joueur pour candidater.",
+    "form_title": "Candidater",
+    "city_label": "Commune",
+    "city_placeholder": "Rechercher une commune",
+    "motivation_label": "Pourquoi cette commune (facultatif)",
+    "motivation_placeholder": "Vous y habitez, vous y travaillez, vous connaissez ses rues…",
+    "submit": "Envoyer la candidature",
+    "sent": "Candidature envoyée pour {city}",
+    "error_city": "Choisissez une commune dans la liste",
+    "error_duplicate": "Vous avez déjà une candidature pour cette commune",
+    "error_generic": "La candidature n'a pas pu être envoyée",
+    "mine_title": "Mes candidatures",
+    "status_pending": "En attente",
+    "status_approved": "Acceptée",
+    "status_rejected": "Refusée",
+    "status_revoked": "Droits retirés"
   }
 }

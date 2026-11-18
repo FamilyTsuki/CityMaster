@@ -3,6 +3,47 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.23.0] - 2026-11-18
+
+### Ajouté
+- Candidatures de modération : la page « Modérer une commune » remplace l'écran « Coming Soon ». Un joueur connecté choisit une commune, ajoute une motivation facultative et suit l'état de ses candidatures.
+- Rôle de modérateur par commune : une candidature acceptée ouvre l'éditeur de carte (rues, quartiers, difficulté) pour cette seule commune. Les réglages, les signalements et la validation des communes restent réservés aux administrateurs.
+- Tableau de bord admin : carte « Modérateurs » pour accepter, refuser ou retirer une candidature.
+- API `/api/moderation/applications` et table `moderator_applications` (fichier `moderator_applications.json` sans PostgreSQL).
+
+### Tests
+- Tests de l'API de modération : dépôt, doublon, traitement par un administrateur, accès limité à la commune confiée et retrait des droits.
+
+---
+
+## [2.22.3] - 2026-11-18
+
+### Modifié
+- Accueil : le nom CityMaster redevient le titre principal (`h1`), l'accroche passe en dessous.
+
+---
+
+## [2.22.2] - 2026-11-18
+
+### Corrigé
+- Désactivation des en-têtes HSTS et de la directive de mise à niveau HTTPS en environnement de développement local, évitant le blocage SSL sur `http://localhost:3000`.
+
+---
+
+## [2.22.1] - 2026-11-18
+
+### Modifié
+- Retour des bulles de couleur animées en arrière-plan (accueil et page de soutien), figées si l'option « réduire les animations » est active.
+
+### Corrigé
+- La rue cliquée ne se colorait plus quand le CDN jsDelivr était injoignable : Turf.js est désormais servi par le serveur (`/vendor/turf.min.js`).
+- Le service worker renvoie une erreur réseau propre au lieu d'une réponse vide quand une ressource n'est ni en ligne ni en cache.
+
+### Tests
+- Le test de pré-cache du service worker vérifie le chemin local de Turf.js.
+
+---
+
 ## [2.22.0] - 2026-11-18
 
 ### Modifié

@@ -1,5 +1,6 @@
 import { I18nService } from "../services/I18nService.js";
 import { ApiService } from "../services/ApiService.js";
+import { canOpenEditor, setModeratorCities } from "../utils/roles.js";
 
 export class ProfileController {
   #router;
@@ -63,6 +64,7 @@ export class ProfileController {
     localStorage.removeItem("username");
     localStorage.removeItem("citymaster_profile_image");
     localStorage.removeItem("is_admin");
+    setModeratorCities([]);
     this.#navbarView.setLoggedOut();
     this.#router.navigate("/");
   }
@@ -76,10 +78,10 @@ export class ProfileController {
 
     if (profileImageUrl) {
       localStorage.setItem("citymaster_profile_image", profileImageUrl);
-      this.#navbarView.setLoggedIn(username, profileImageUrl, isAdmin);
+      this.#navbarView.setLoggedIn(username, profileImageUrl, canOpenEditor());
     } else {
       localStorage.removeItem("citymaster_profile_image");
-      this.#navbarView.setLoggedIn(username, null, isAdmin);
+      this.#navbarView.setLoggedIn(username, null, canOpenEditor());
     }
   }
 
@@ -117,6 +119,7 @@ export class ProfileController {
         currentLang,
       );
 
+      setModeratorCities(data.moderatorCities);
       this.#updateNavUser(
         data.username,
         data.profileImageUrl,
@@ -138,11 +141,8 @@ export class ProfileController {
       if (res.ok && res.data) {
         const data = res.data;
         const username = localStorage.getItem("username");
-        this.#updateNavUser(
-          username,
-          data.profileImageUrl,
-          data.isAdmin === true,
-        );
+        setModeratorCities(data.moderatorCities);
+        this.#updateNavUser(username, data.profileImageUrl, data.isAdmin === true);
       }
     } catch (e) {
       console.error("Error prefetching avatar", e);

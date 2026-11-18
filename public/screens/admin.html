@@ -80,7 +80,7 @@
         </button>
       </div>
 
-      <div class="glass-card admin-card">
+      <div class="glass-card admin-card admin-only">
         <div class="admin-card-header">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -110,7 +110,7 @@
         </button>
       </div>
 
-      <div class="glass-card admin-card">
+      <div class="glass-card admin-card admin-only">
         <div class="admin-card-header">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -175,6 +175,16 @@
             </option>
           </select>
         </div>
+      </div>
+
+      <div class="glass-card admin-card admin-only admin-applications-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><polyline points="16 11 18 13 22 9"></polyline></svg>
+          <h2 class="admin-card-title" data-i18n="admin.applications_title">Modérateurs</h2>
+          <span id="admin-pending-applications-badge" class="admin-pending-badge badge-zero">0</span>
+        </div>
+        <p class="admin-card-desc" data-i18n="admin.applications_desc">Candidatures en attente et modérateurs actifs, par commune.</p>
+        <ul id="admin-applications-list" class="admin-applications-list"></ul>
       </div>
     </div>
   </div>

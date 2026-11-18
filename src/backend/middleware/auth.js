@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { User, isUserAdmin } from '../models/User.js';
+import { ModeratorApplication } from '../models/ModeratorApplication.js';
 import { isDatabasePending } from '../config/database.js';
 
 /**
@@ -85,6 +86,37 @@ export const requireAdmin = (req, res, next) => {
     } catch (err) {
       console.error('Error checking admin status:', err);
       return res.status(500).json({ error: 'Unable to verify admin access' });
+    }
+  }));
+};
+
+/**
+ * Réservé aux personnes qui peuvent corriger la carte d'une commune : les
+ * administrateurs, et les modérateurs dont la candidature pour cette commune a
+ * été acceptée. La commune est lue dans les paramètres, la requête ou le corps.
+ */
+export const requireCityEditor = (req, res, next) => {
+  authenticateToken(req, res, () => requireAccountStorage(req, res, async () => {
+    if (!req.user || req.user.is_guest || !req.user.id) {
+      return res.status(403).json({ error: 'Editor access required' });
+    }
+    try {
+      const dbUser = await User.findForSession(req.user);
+      if (!dbUser) {
+        return res.status(403).json({ error: 'Editor access required' });
+      }
+      if (isUserAdmin(dbUser)) {
+        req.user.is_admin = true;
+        return next();
+      }
+      const cityKey = req.params?.cityKey || req.query?.cityKey || req.body?.cityKey;
+      if (await ModeratorApplication.canModerate(dbUser.username, cityKey)) {
+        return next();
+      }
+      return res.status(403).json({ error: 'Editor access required' });
+    } catch (err) {
+      console.error('Error checking editor access:', err);
+      return res.status(500).json({ error: 'Unable to verify editor access' });
     }
   }));
 };

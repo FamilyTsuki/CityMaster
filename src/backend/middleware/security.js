@@ -1,29 +1,33 @@
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 
-export const configureHelmet = () => helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
-      scriptSrcAttr: ["'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://accounts.google.com"],
-      imgSrc: ["'self'", "data:", "blob:", "https://*.global.ssl.fastly.net", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://unpkg.com", "https://*.googleusercontent.com"],
-      fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
-      connectSrc: ["'self'", "https://*.global.ssl.fastly.net", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://overpass-api.de", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://accounts.google.com", "https://*.googleusercontent.com"],
-      frameSrc: ["'self'", "https://accounts.google.com"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
+export const configureHelmet = () => {
+  const isProd = process.env.NODE_ENV === 'production';
+  return helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://accounts.google.com"],
+        scriptSrcAttr: ["'unsafe-inline'"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://fonts.googleapis.com", "https://accounts.google.com"],
+        imgSrc: ["'self'", "data:", "blob:", "https://*.global.ssl.fastly.net", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://unpkg.com", "https://*.googleusercontent.com"],
+        fontSrc: ["'self'", "data:", "https://fonts.gstatic.com", "https://fonts.googleapis.com"],
+        connectSrc: ["'self'", "https://*.global.ssl.fastly.net", "https://*.cartocdn.com", "https://*.tile.openstreetmap.org", "https://*.openstreetmap.org", "https://overpass-api.de", "https://unpkg.com", "https://cdn.jsdelivr.net", "https://server.arcgisonline.com", "https://*.arcgisonline.com", "https://fonts.googleapis.com", "https://fonts.gstatic.com", "https://accounts.google.com", "https://*.googleusercontent.com"],
+        frameSrc: ["'self'", "https://accounts.google.com"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: isProd ? [] : null,
+      },
     },
-  },
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-  crossOriginOpenerPolicy: false,
-  crossOriginEmbedderPolicy: false,
-  frameguard: { action: 'deny' },
-  xssFilter: true,
-  noSniff: true,
-  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
-});
+    hsts: isProd ? { maxAge: 31536000, includeSubDomains: true } : false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    frameguard: { action: 'deny' },
+    xssFilter: true,
+    noSniff: true,
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
+  });
+};
 
 export const loginRateLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,

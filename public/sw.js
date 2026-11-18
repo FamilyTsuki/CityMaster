@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v99';
+const CACHE_NAME = 'citymaster-v103';
 // Caches conservés d'une version à l'autre : le fond de carte et les
 // corrections d'administration doivent rester disponibles hors-ligne.
 const TILE_CACHE = 'citymaster-tiles-v1';
@@ -10,7 +10,7 @@ const KEPT_CACHES = [CACHE_NAME, TILE_CACHE, DATA_CACHE];
 const STATIC_ASSETS = [
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css",
   "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js",
-  "https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js",
+  "/vendor/turf.min.js",
   "/",
   "/index.html",
   "/manifest.json",
@@ -73,6 +73,8 @@ const STATIC_ASSETS = [
   "/src/Router.js",
   "/src/models/GameSession.js",
   "/src/utils/security.js",
+  "/src/utils/roles.js",
+  "/src/controllers/ModerationController.js",
   "/src/controllers/AdminController.js",
   "/src/controllers/AuthController.js",
   "/src/controllers/GameController.js",
@@ -216,7 +218,7 @@ self.addEventListener("fetch", (event) => {
           const indexPage = await caches.match("/index.html");
           if (indexPage) return indexPage;
         }
-        return caches.match(url.pathname);
+        return (await caches.match(url.pathname)) || Response.error();
       }),
   );
 });

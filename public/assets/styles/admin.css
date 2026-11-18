@@ -1273,3 +1273,84 @@
   font-size: 1rem;
   color: var(--text-muted);
 }
+
+/* Candidatures de modération (tableau de bord admin) */
+.admin-applications-card {
+  grid-column: 1 / -1;
+}
+
+.admin-applications-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-application {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.admin-application:first-child {
+  border-top: 0;
+}
+
+.admin-application-who {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  color: var(--text-main);
+}
+
+.admin-application-who span {
+  color: var(--text-secondary);
+}
+
+.admin-application-who .admin-application-status {
+  font-size: 0.8125rem;
+  color: var(--success);
+}
+
+.admin-application-motivation {
+  grid-column: 1;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.admin-application-actions {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  gap: 8px;
+}
+
+.admin-application-actions .btn {
+  width: auto;
+  min-height: 2.25rem;
+  padding: 0 14px;
+  font-size: 0.875rem;
+}
+
+.admin-application-empty {
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .admin-application {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-application-actions {
+    grid-column: 1;
+    grid-row: auto;
+  }
+}

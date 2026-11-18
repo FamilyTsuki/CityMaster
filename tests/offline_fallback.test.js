@@ -189,7 +189,7 @@ test('Service worker : carte et corrections conservées entre les versions, bibl
   assert.match(sw, /KEPT_CACHES = \[CACHE_NAME, TILE_CACHE, DATA_CACHE\]/);
   assert.match(sw, /!KEPT_CACHES\.includes\(key\)/, 'seuls les caches inconnus sont supprimés à l’activation');
   assert.match(sw, /"https:\/\/unpkg\.com\/leaflet@1\.9\.4\/dist\/leaflet\.js"/);
-  assert.match(sw, /"https:\/\/cdn\.jsdelivr\.net\/npm\/@turf\/turf@6\/turf\.min\.js"/);
+  assert.match(sw, /"\/vendor\/turf\.min\.js"/);
   assert.match(sw, /"X-CityMaster-Offline": "1"/, 'réponse de repli identifiable par le client');
   assert.match(sw, /isCustomDataFile \? DATA_CACHE : CACHE_NAME/);
 });
