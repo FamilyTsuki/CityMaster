@@ -162,6 +162,9 @@ const SCHEMA_STATEMENTS = [
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`,
   'CREATE INDEX IF NOT EXISTS moderator_applications_user_idx ON moderator_applications (LOWER(username))',
+  `CREATE UNIQUE INDEX IF NOT EXISTS moderator_applications_active_idx
+    ON moderator_applications (LOWER(username), city_key)
+    WHERE status IN ('pending', 'approved')`,
 ];
 
 /** Délais entre deux tentatives de connexion ; le dernier est ensuite répété. */

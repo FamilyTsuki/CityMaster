@@ -179,8 +179,8 @@ export class User {
       if (!user || typeof user.username !== 'string' || !user.username.trim()) continue;
       const result = await pool.query(
         `INSERT INTO users (username, password, google_id, profile_image_url, is_admin)
-         SELECT $1, $2, $3, $4, $5
-         WHERE NOT EXISTS (SELECT 1 FROM users WHERE LOWER(username) = LOWER($1))
+         SELECT $1::text, $2::text, $3::text, $4::text, $5::boolean
+         WHERE NOT EXISTS (SELECT 1 FROM users WHERE LOWER(username) = LOWER($1::text))
          ON CONFLICT DO NOTHING`,
         [
           user.username.trim(),

@@ -136,6 +136,10 @@ export class ModerationController {
       this.#setMessage(this.#t("moderation.error_duplicate", "Vous avez déjà une candidature pour cette commune"), true);
       return;
     }
+    if (res.status === 429) {
+      this.#setMessage(this.#t("moderation.error_limit", "Vous avez déjà 5 candidatures en attente"), true);
+      return;
+    }
     if (!res.ok) {
       this.#setMessage(this.#t("moderation.error_generic", "La candidature n'a pas pu être envoyée"), true);
       return;

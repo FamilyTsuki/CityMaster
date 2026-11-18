@@ -3,6 +3,22 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.23.1] - 2026-11-18
+
+### Corrigé
+- Modération : un modérateur pouvait modifier une autre commune en indiquant deux communes différentes dans la même requête (adresse et corps). Toutes les communes citées doivent maintenant lui être confiées.
+- Modération : deux envois simultanés pouvaient créer deux candidatures actives pour la même commune (index unique partiel côté PostgreSQL, contrôle atomique côté fichier).
+- Modération : une candidature refusée ou retirée ne peut plus être acceptée de nouveau ; seuls les passages en attente → acceptée/refusée et acceptée → retirée sont permis.
+- Import des comptes de users.json vers PostgreSQL au démarrage : l'erreur « inconsistent types deduced for parameter $1 » empêchait l'import.
+
+### Ajouté
+- Limite de 5 candidatures de modération en attente par joueur.
+
+### Tests
+- Tests de contournement du contrôle éditeur, d'envois simultanés, de l'ordre des statuts et de la limite de candidatures.
+
+---
+
 ## [2.23.0] - 2026-11-18
 
 ### Ajouté

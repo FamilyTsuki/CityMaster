@@ -519,6 +519,7 @@
     "status_pending": "En attente",
     "status_approved": "Acceptée",
     "status_rejected": "Refusée",
-    "status_revoked": "Droits retirés"
+    "status_revoked": "Droits retirés",
+    "error_limit": "Vous avez déjà 5 candidatures en attente"
   }
 }

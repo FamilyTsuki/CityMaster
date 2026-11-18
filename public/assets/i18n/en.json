@@ -519,6 +519,7 @@
     "status_pending": "Pending",
     "status_approved": "Accepted",
     "status_rejected": "Declined",
-    "status_revoked": "Rights removed"
+    "status_revoked": "Rights removed",
+    "error_limit": "You already have 5 pending applications"
   }
 }

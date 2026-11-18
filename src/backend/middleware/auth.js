@@ -109,8 +109,17 @@ export const requireCityEditor = (req, res, next) => {
         req.user.is_admin = true;
         return next();
       }
-      const cityKey = req.params?.cityKey || req.query?.cityKey || req.body?.cityKey;
-      if (await ModeratorApplication.canModerate(dbUser.username, cityKey)) {
+      // Chaque commune citée dans la requête (chemin, paramètres, corps) doit
+      // être confiée au modérateur : le contrôleur peut lire n'importe laquelle.
+      const cityKeys = [req.params?.cityKey, req.query?.cityKey, req.body?.cityKey].filter(
+        (value) => value !== undefined && value !== null && value !== '',
+      );
+      if (cityKeys.length === 0 || cityKeys.some((value) => typeof value !== 'string')) {
+        return res.status(403).json({ error: 'Editor access required' });
+      }
+      const cities = await ModeratorApplication.getModeratedCities(dbUser.username);
+      const allowed = new Set(cities.map((c) => c.key));
+      if (cityKeys.every((value) => allowed.has(value))) {
         return next();
       }
       return res.status(403).json({ error: 'Editor access required' });

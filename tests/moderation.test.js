@@ -91,3 +91,60 @@ test("le retrait des droits ferme l'éditeur de la commune", async () => {
   const reapply = await call('POST', '/api/moderation/applications', playerHeaders, { cityKey: 'paris' });
   assert.equal(reapply.status, 201);
 });
+
+test('un modérateur ne peut pas viser une autre commune en mélangeant les paramètres', async () => {
+  const fresh = await User.create('mod_bypass', 'hash');
+  const headers = headersFor(fresh);
+  const created = await (await call('POST', '/api/moderation/applications', headers, { cityKey: 'paris' })).json();
+  await call('PATCH', `/api/moderation/applications/${created.application.id}`, adminHeaders, { status: 'approved' });
+
+  const route = { name: 'Rue pirate', coordinates: [[2.35, 48.85], [2.36, 48.86]] };
+  const res = await call('POST', '/api/admin/routes?cityKey=paris', headers, { cityKey: 'lyon', route });
+  assert.equal(res.status, 403);
+});
+
+test('deux envois simultanés ne créent qu’une candidature active', async () => {
+  const racer = await User.create('mod_racer', 'hash');
+  const headers = headersFor(racer);
+  const results = await Promise.all(
+    [1, 2, 3].map(() => call('POST', '/api/moderation/applications', headers, { cityKey: 'lyon' })),
+  );
+  const statuses = results.map((r) => r.status).sort();
+  assert.deepEqual(statuses, [201, 409, 409]);
+});
+
+test('les changements de statut suivent un ordre fixe', async () => {
+  const player2 = await User.create('mod_transitions', 'hash');
+  const headers = headersFor(player2);
+  const { application } = await (
+    await call('POST', '/api/moderation/applications', headers, { cityKey: 'paris' })
+  ).json();
+  const patch = (status) => call('PATCH', `/api/moderation/applications/${application.id}`, adminHeaders, { status });
+
+  assert.equal((await patch('revoked')).status, 409);
+  assert.equal((await patch('rejected')).status, 200);
+  assert.equal((await patch('approved')).status, 409);
+  assert.equal((await call('PATCH', '/api/moderation/applications/999999', adminHeaders, { status: 'approved' })).status, 404);
+
+  const editor = await call('GET', '/api/admin/routes?cityKey=paris', headers);
+  assert.equal(editor.status, 403);
+});
+
+test('un joueur ne peut pas avoir plus de 5 candidatures en attente', async () => {
+  const spammer = await User.create('mod_spammer', 'hash');
+  const headers = headersFor(spammer);
+  const { City } = await import('../src/backend/models/City.js');
+  const keys = (await City.getAll()).slice(0, 6).map((c) => c.key);
+  assert.equal(keys.length, 6);
+  for (const cityKey of keys.slice(0, 5)) {
+    assert.equal((await call('POST', '/api/moderation/applications', headers, { cityKey })).status, 201);
+  }
+  assert.equal((await call('POST', '/api/moderation/applications', headers, { cityKey: keys[5] })).status, 429);
+});
+
+test('une commune absente ou de type inattendu ne passe pas le contrôle éditeur', async () => {
+  const noCity = await call('GET', '/api/admin/routes', playerHeaders);
+  assert.equal(noCity.status, 403);
+  const arrayCity = await call('GET', '/api/admin/routes?cityKey=paris&cityKey=lyon', playerHeaders);
+  assert.equal(arrayCity.status, 403);
+});

@@ -1,4 +1,8 @@
-import { ModeratorApplication } from '../models/ModeratorApplication.js';
+import {
+  ApplicationError,
+  MAX_PENDING_PER_USER,
+  ModeratorApplication,
+} from '../models/ModeratorApplication.js';
 import { City } from '../models/City.js';
 import { User } from '../models/User.js';
 import { isValidCityKey } from '../config/paths.js';
@@ -32,11 +36,6 @@ export class ModerationController {
         return res.status(404).json({ error: 'City not found' });
       }
 
-      const existing = await ModeratorApplication.findActive(user.username, cityKey);
-      if (existing) {
-        return res.status(409).json({ error: 'Application already exists', application: existing });
-      }
-
       const cleanMotivation =
         typeof motivation === 'string' && motivation.trim()
           ? motivation.trim().slice(0, MAX_MOTIVATION_LENGTH)
@@ -50,6 +49,14 @@ export class ModerationController {
       });
       return res.status(201).json({ application });
     } catch (err) {
+      if (err instanceof ApplicationError && err.code === 'DUPLICATE') {
+        return res.status(409).json({ error: 'Application already exists' });
+      }
+      if (err instanceof ApplicationError && err.code === 'TOO_MANY_PENDING') {
+        return res
+          .status(429)
+          .json({ error: `At most ${MAX_PENDING_PER_USER} pending applications per player` });
+      }
       console.error('ModerationController apply error:', err);
       return res.status(500).json({ error: 'Failed to create application' });
     }
@@ -90,11 +97,14 @@ export class ModerationController {
         return res.status(400).json({ error: 'Invalid status provided' });
       }
       const application = await ModeratorApplication.updateStatus(id, status, req.user.username);
-      if (!application) {
-        return res.status(404).json({ error: 'Application not found' });
-      }
       return res.json({ application });
     } catch (err) {
+      if (err instanceof ApplicationError && err.code === 'NOT_FOUND') {
+        return res.status(404).json({ error: 'Application not found' });
+      }
+      if (err instanceof ApplicationError && err.code === 'INVALID_TRANSITION') {
+        return res.status(409).json({ error: 'Status change not allowed' });
+      }
       console.error('ModerationController review error:', err);
       return res.status(500).json({ error: 'Failed to update application' });
     }

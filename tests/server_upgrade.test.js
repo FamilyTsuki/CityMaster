@@ -162,7 +162,7 @@ test('accounts stored only in users.json are copied into PostgreSQL without touc
   const originalQuery = pool.query;
   const inserted = [];
   pool.query = async (sql, params) => {
-    assert.match(sql, /WHERE NOT EXISTS \(SELECT 1 FROM users WHERE LOWER\(username\) = LOWER\(\$1\)\)/);
+    assert.match(sql, /WHERE NOT EXISTS \(SELECT 1 FROM users WHERE LOWER\(username\) = LOWER\(\$1::text\)\)/);
     if (params[0].toLowerCase() === 'deja_en_base') return { rows: [], rowCount: 0 };
     inserted.push(params);
     return { rows: [], rowCount: 1 };
