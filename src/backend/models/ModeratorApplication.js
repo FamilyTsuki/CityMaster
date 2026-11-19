@@ -1,6 +1,7 @@
 import pool, { isDatabaseEnabled } from '../config/database.js';
 import { MODERATOR_APPLICATIONS_FILE } from '../config/paths.js';
 import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
+import { sameUsername } from '../utils/identifiers.js';
 
 /**
  * Candidatures de modération. Une candidature acceptée ajoute sa commune à la
@@ -31,10 +32,6 @@ export class ApplicationError extends Error {
     super(code);
     this.code = code;
   }
-}
-
-function sameUsername(a, b) {
-  return (a || '').toLowerCase().trim() === (b || '').toLowerCase().trim();
 }
 
 async function readFileApplications() {

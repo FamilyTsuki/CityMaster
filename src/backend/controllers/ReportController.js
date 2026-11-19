@@ -1,12 +1,8 @@
 import { Report } from '../models/Report.js';
+import { parsePositiveId } from '../utils/identifiers.js';
 
 const VALID_STATUSES = ['pending', 'resolved', 'dismissed'];
 const MAX_DESCRIPTION_LENGTH = 2000;
-
-function parseReportId(value) {
-  const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : null;
-}
 
 /**
  * Normalise un champ texte optionnel : chaîne non vide tronquée, sinon null.
@@ -72,7 +68,7 @@ export class ReportController {
 
   static async updateReportStatus(req, res) {
     try {
-      const id = parseReportId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       const { status } = req.body || {};
 
       if (!id) {
@@ -99,7 +95,7 @@ export class ReportController {
 
   static async deleteReport(req, res) {
     try {
-      const id = parseReportId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       if (!id) {
         return res.status(400).json({ error: 'Invalid report id' });
       }

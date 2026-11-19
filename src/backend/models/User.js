@@ -1,6 +1,7 @@
 import pool, { isDatabaseEnabled } from '../config/database.js';
 import { USERS_FILE } from '../config/paths.js';
 import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
+import { sameUsername } from '../utils/identifiers.js';
 
 /**
  * Comptes joueurs.
@@ -64,10 +65,6 @@ function toPublicUser(user) {
     is_admin: Boolean(user.is_admin),
     role: user.role,
   });
-}
-
-function sameUsername(a, b) {
-  return (a || '').toLowerCase().trim() === (b || '').toLowerCase().trim();
 }
 
 function duplicateUsernameError() {

@@ -17,7 +17,6 @@ import { Report } from '../models/Report.js';
  * L'état avant sert à détecter les conflits (l'élément a changé entre la
  * proposition et sa validation) et à annuler.
  */
-export const ITEM_TYPES = ['district', 'route', 'difficulty'];
 const COLLECTION_TYPES = ['district', 'route'];
 
 /**
@@ -46,7 +45,7 @@ function canonical(value) {
   return JSON.stringify(value ?? null);
 }
 
-export function sameState(a, b) {
+function sameState(a, b) {
   return canonical(a) === canonical(b);
 }
 
@@ -54,12 +53,12 @@ function targetId(edit) {
   return edit.action === 'save' ? edit.payload.feature.properties.id : String(edit.payload.id);
 }
 
-export function elementKey(edit) {
+function elementKey(edit) {
   if (edit.itemType === 'difficulty') return `difficulty:${normalizeStreetName(edit.payload.streetName)}`;
   return `${edit.itemType}:${targetId(edit)}`;
 }
 
-export function editLabel(edit) {
+function editLabel(edit) {
   if (edit.itemType === 'difficulty') return edit.payload.streetName;
   if (edit.action === 'save') return edit.payload.feature.properties.name;
   return String(edit.payload.id);
@@ -74,7 +73,7 @@ function touchesDifficulty(edit) {
   return edit.itemType === 'route' && edit.action === 'save' && 'difficulty' in edit.payload;
 }
 
-export async function readState(edit) {
+async function readState(edit) {
   const { cityKey, itemType, action, payload } = edit;
   if (itemType === 'difficulty') {
     return { difficulty: await difficultyOf(cityKey, payload.streetName) };
@@ -171,7 +170,7 @@ async function applyAndRecord(edit, { author, validator = null, proposalId = nul
  * super-modérateur dans sa zone.
  * @param {{ role: string, cities: Array<{key: string}> }} access
  */
-export function canReview(access, cityKey) {
+function canReview(access, cityKey) {
   if (access.role === 'admin') return true;
   return access.role === 'super_moderator' && access.cities.some((c) => c.key === cityKey);
 }

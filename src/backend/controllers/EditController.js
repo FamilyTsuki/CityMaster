@@ -1,5 +1,6 @@
 import { EditError, EditService } from '../services/EditService.js';
 import { isValidCityKey } from '../config/paths.js';
+import { parsePositiveId } from '../utils/identifiers.js';
 
 const PROPOSAL_STATUSES = ['pending', 'accepted', 'rejected'];
 
@@ -10,11 +11,6 @@ const ERROR_RESPONSES = {
   REASON_REQUIRED: [400, 'A reason is required'],
   ALREADY_UNDONE: [409, 'Change already undone'],
 };
-
-function parseId(value) {
-  const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : null;
-}
 
 function optionalCityKey(value) {
   return isValidCityKey(value) ? value : undefined;
@@ -51,7 +47,7 @@ export class EditController {
 
   static getProposal(req, res) {
     return handle(res, 'getProposal', async () => {
-      const id = parseId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       if (!id) return res.status(400).json({ error: 'Invalid id' });
       return res.json(await EditService.getProposal(id, req.access, req.user.username));
     });
@@ -59,7 +55,7 @@ export class EditController {
 
   static acceptProposal(req, res) {
     return handle(res, 'acceptProposal', async () => {
-      const id = parseId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       if (!id) return res.status(400).json({ error: 'Invalid id' });
       return res.json(await EditService.accept(id, req.access, req.user.username));
     });
@@ -67,7 +63,7 @@ export class EditController {
 
   static rejectProposal(req, res) {
     return handle(res, 'rejectProposal', async () => {
-      const id = parseId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       if (!id) return res.status(400).json({ error: 'Invalid id' });
       const proposal = await EditService.reject(id, req.access, req.user.username, req.body?.reason);
       return res.json({ proposal });
@@ -83,7 +79,7 @@ export class EditController {
 
   static undo(req, res) {
     return handle(res, 'undo', async () => {
-      const id = parseId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       if (!id) return res.status(400).json({ error: 'Invalid id' });
       const entry = await EditService.undo(id, req.user.username, { force: req.body?.force === true });
       return res.json({ entry });

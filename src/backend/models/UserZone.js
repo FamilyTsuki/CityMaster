@@ -1,6 +1,7 @@
 import pool, { isDatabaseEnabled } from '../config/database.js';
 import { USER_ZONES_FILE } from '../config/paths.js';
 import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
+import { sameUsername } from '../utils/identifiers.js';
 
 /**
  * Communes confiées à un modérateur ou super-modérateur (sa « zone »).
@@ -9,9 +10,6 @@ import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
  * Une candidature acceptée ajoute sa commune ; un administrateur peut aussi
  * en ajouter ou en retirer directement.
  */
-function sameUsername(a, b) {
-  return (a || '').toLowerCase().trim() === (b || '').toLowerCase().trim();
-}
 
 async function readFileZones() {
   const items = await readJsonFile(USER_ZONES_FILE, []);

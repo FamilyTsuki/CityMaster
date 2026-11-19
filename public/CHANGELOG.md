@@ -3,6 +3,14 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.25.1] - 2026-11-19
+
+### Amélioré
+- `sameUsername` et la lecture des identifiants numériques regroupés dans `utils/identifiers.js` (six copies supprimées).
+- Exports inutilisés retirés de `EditService` et `roles.js`.
+
+---
+
 ## [2.25.0] - 2026-11-19
 
 ### Ajouté

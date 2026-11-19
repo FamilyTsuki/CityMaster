@@ -7,22 +7,14 @@ import { City } from '../models/City.js';
 import { User, ROLES } from '../models/User.js';
 import { StaffService } from '../services/StaffService.js';
 import { isValidCityKey } from '../config/paths.js';
+import { sameUsername, parsePositiveId } from '../utils/identifiers.js';
 
 const MAX_MOTIVATION_LENGTH = 1000;
 const REVIEW_STATUSES = ['approved', 'rejected', 'revoked'];
 
-function sameUsername(a, b) {
-  return (a || '').toLowerCase().trim() === (b || '').toLowerCase().trim();
-}
-
 async function staffEntry(user) {
   const access = await StaffService.getAccess(user);
   return { id: user.id, username: user.username, role: access.role, cities: access.cities };
-}
-
-function parseId(value) {
-  const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : null;
 }
 
 export class ModerationController {
@@ -98,7 +90,7 @@ export class ModerationController {
 
   static async review(req, res) {
     try {
-      const id = parseId(req.params.id);
+      const id = parsePositiveId(req.params.id);
       const { status } = req.body || {};
       if (!id) {
         return res.status(400).json({ error: 'Invalid application id' });

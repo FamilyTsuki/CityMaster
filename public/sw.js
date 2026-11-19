@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v106';
+const CACHE_NAME = 'citymaster-v107';
 // Caches conservés d'une version à l'autre : le fond de carte et les
 // corrections d'administration doivent rester disponibles hors-ligne.
 const TILE_CACHE = 'citymaster-tiles-v1';

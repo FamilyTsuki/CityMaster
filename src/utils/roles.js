@@ -33,7 +33,7 @@ export function setModeratorCities(cities) {
 /**
  * @returns {'player'|'moderator'|'super_moderator'|'admin'}
  */
-export function getSessionRole() {
+function getSessionRole() {
   if (isAdminSession()) return 'admin';
   const role = localStorage.getItem(ROLE_KEY);
   return ROLES.includes(role) ? role : 'player';
@@ -66,9 +66,4 @@ export function canValidateCity(cityKey) {
 
 export function canReviewProposals() {
   return isAdminSession() || getSessionRole() === 'super_moderator';
-}
-
-/** Un modérateur propose ; super-modérateur et administrateur appliquent directement. */
-export function editsNeedReview() {
-  return getSessionRole() === 'moderator';
 }
