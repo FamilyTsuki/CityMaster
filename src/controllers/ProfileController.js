@@ -1,6 +1,6 @@
 import { I18nService } from "../services/I18nService.js";
 import { ApiService } from "../services/ApiService.js";
-import { canOpenEditor, setModeratorCities } from "../utils/roles.js";
+import { canOpenEditor, setModeratorCities, setSessionRole } from "../utils/roles.js";
 
 export class ProfileController {
   #router;
@@ -65,6 +65,7 @@ export class ProfileController {
     localStorage.removeItem("citymaster_profile_image");
     localStorage.removeItem("is_admin");
     setModeratorCities([]);
+    setSessionRole(null);
     this.#navbarView.setLoggedOut();
     this.#router.navigate("/");
   }
@@ -120,6 +121,7 @@ export class ProfileController {
       );
 
       setModeratorCities(data.moderatorCities);
+      setSessionRole(data.role);
       this.#updateNavUser(
         data.username,
         data.profileImageUrl,
@@ -142,6 +144,7 @@ export class ProfileController {
         const data = res.data;
         const username = localStorage.getItem("username");
         setModeratorCities(data.moderatorCities);
+        setSessionRole(data.role);
         this.#updateNavUser(username, data.profileImageUrl, data.isAdmin === true);
       }
     } catch (e) {

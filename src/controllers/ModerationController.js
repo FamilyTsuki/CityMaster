@@ -1,6 +1,6 @@
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
-import { getModeratorCities, isAdminSession, setModeratorCities } from "../utils/roles.js";
+import { getModeratorCities, isAdminSession, setModeratorCities, setSessionRole } from "../utils/roles.js";
 
 const STATUS_KEYS = {
   pending: ["moderation.status_pending", "En attente"],
@@ -158,6 +158,7 @@ export class ModerationController {
     const res = await ApiService.get("/moderation/applications/mine");
     if (!res.ok || !res.data) return;
     setModeratorCities(res.data.cities);
+    setSessionRole(res.data.role);
     this.#renderEditorAccess();
 
     const section = this.#el("moderation-mine");

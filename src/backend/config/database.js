@@ -86,6 +86,9 @@ const SCHEMA_STATEMENTS = [
   'ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR(255) UNIQUE',
   'ALTER TABLE users ALTER COLUMN password DROP NOT NULL',
   'ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE',
+  "ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'player'",
+  // Comptes d'avant les rôles : is_admin devient le rôle admin (is_admin reste synchronisé).
+  "UPDATE users SET role = 'admin' WHERE is_admin = TRUE AND role = 'player'",
   `CREATE TABLE IF NOT EXISTS global_settings (
     key VARCHAR(50) PRIMARY KEY,
     value VARCHAR(255) NOT NULL
@@ -165,6 +168,15 @@ const SCHEMA_STATEMENTS = [
   `CREATE UNIQUE INDEX IF NOT EXISTS moderator_applications_active_idx
     ON moderator_applications (LOWER(username), city_key)
     WHERE status IN ('pending', 'approved')`,
+  `CREATE TABLE IF NOT EXISTS user_zones (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(255) NOT NULL,
+    city_key VARCHAR(255) NOT NULL,
+    city_name VARCHAR(255) NOT NULL,
+    granted_by VARCHAR(255),
+    granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  'CREATE UNIQUE INDEX IF NOT EXISTS user_zones_user_city_idx ON user_zones (LOWER(username), city_key)',
 ];
 
 /** Délais entre deux tentatives de connexion ; le dernier est ensuite répété. */

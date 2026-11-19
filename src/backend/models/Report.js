@@ -64,6 +64,17 @@ export class Report {
   /**
    * @returns {Promise<object|null>} null si le signalement n'existe pas.
    */
+  static async findById(id) {
+    if (isDatabaseEnabled()) {
+      const result = await pool.query('SELECT * FROM reports WHERE id = $1', [id]);
+      return result.rows[0] || null;
+    }
+    return memoryReports.find((r) => r.id === Number(id)) || null;
+  }
+
+  /**
+   * @returns {Promise<object|null>} null si le signalement n'existe pas.
+   */
   static async updateStatus(id, status) {
     if (isDatabaseEnabled()) {
       const result = await pool.query(

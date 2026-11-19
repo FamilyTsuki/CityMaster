@@ -21,7 +21,7 @@ import { NetworkService } from "./services/NetworkService.js";
 import { HapticService } from "./services/HapticService.js";
 import { Router } from "./Router.js";
 import { ModerationController } from "./controllers/ModerationController.js";
-import { canOpenEditor, setModeratorCities } from "./utils/roles.js";
+import { canOpenEditor, setModeratorCities, setSessionRole } from "./utils/roles.js";
 
 class App {
   #gameView;
@@ -154,6 +154,7 @@ class App {
                 localStorage.removeItem("is_admin");
               }
               setModeratorCities(data?.moderatorCities);
+              setSessionRole(data?.role);
               if (canOpenEditor()) {
                 this.#showAdmin();
                 return;

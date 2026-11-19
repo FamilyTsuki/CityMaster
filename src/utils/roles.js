@@ -3,6 +3,8 @@
  * seulement à l'affichage : le serveur revérifie chaque droit à chaque appel.
  */
 const MODERATOR_CITIES_KEY = 'moderator_cities';
+const ROLE_KEY = 'role';
+const ROLES = ['player', 'moderator', 'super_moderator', 'admin'];
 
 export function isAdminSession() {
   return localStorage.getItem('is_admin') === 'true';
@@ -25,6 +27,23 @@ export function setModeratorCities(cities) {
     localStorage.setItem(MODERATOR_CITIES_KEY, JSON.stringify(cities));
   } else {
     localStorage.removeItem(MODERATOR_CITIES_KEY);
+  }
+}
+
+/**
+ * @returns {'player'|'moderator'|'super_moderator'|'admin'}
+ */
+export function getSessionRole() {
+  if (isAdminSession()) return 'admin';
+  const role = localStorage.getItem(ROLE_KEY);
+  return ROLES.includes(role) ? role : 'player';
+}
+
+export function setSessionRole(role) {
+  if (ROLES.includes(role) && role !== 'player') {
+    localStorage.setItem(ROLE_KEY, role);
+  } else {
+    localStorage.removeItem(ROLE_KEY);
   }
 }
 

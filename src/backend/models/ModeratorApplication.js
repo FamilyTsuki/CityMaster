@@ -3,9 +3,8 @@ import { MODERATOR_APPLICATIONS_FILE } from '../config/paths.js';
 import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
 
 /**
- * Candidatures de modération. Une candidature acceptée donne à son auteur le
- * droit de corriger les rues et quartiers d'une seule commune : il n'existe
- * pas d'autre trace du rôle de modérateur.
+ * Candidatures de modération. Une candidature acceptée ajoute sa commune à la
+ * zone du candidat (UserZone) et en fait un modérateur (voir StaffService).
  * - Mode PostgreSQL : table `moderator_applications`.
  * - Mode local : fichier moderator_applications.json.
  *
@@ -168,21 +167,29 @@ export class ModeratorApplication {
   }
 
   /**
-   * Communes que ce joueur peut modérer.
-   * @returns {Promise<Array<{key: string, name: string}>>}
+   * Passe en « revoked » les candidatures acceptées d'un joueur, pour une
+   * commune ou (cityKey null) pour toutes. Appelé quand l'administrateur retire
+   * une commune ou le rôle, pour que l'import des candidatures acceptées
+   * (StaffService.importApprovedApplications) ne les redonne pas.
    */
-  static async getModeratedCities(username) {
-    if (!username) return [];
-    const items = await ModeratorApplication.findByUsername(username);
-    const seen = new Set();
-    return items
-      .filter((a) => a.status === 'approved' && !seen.has(a.city_key) && seen.add(a.city_key))
-      .map((a) => ({ key: a.city_key, name: a.city_name }));
-  }
-
-  static async canModerate(username, cityKey) {
-    if (!username || !cityKey) return false;
-    const cities = await ModeratorApplication.getModeratedCities(username);
-    return cities.some((c) => c.key === cityKey);
+  static async revokeApproved(username, cityKey, reviewer) {
+    if (isDatabaseEnabled()) {
+      await pool.query(
+        `UPDATE moderator_applications
+         SET status = 'revoked', reviewed_by = $3, reviewed_at = CURRENT_TIMESTAMP
+         WHERE LOWER(username) = LOWER($1) AND status = 'approved' AND ($2::text IS NULL OR city_key = $2::text)`,
+        [username, cityKey, reviewer],
+      );
+      return;
+    }
+    await updateJsonFile(MODERATOR_APPLICATIONS_FILE, [], (items) => {
+      for (const item of items) {
+        if (sameUsername(item.username, username) && item.status === 'approved' && (!cityKey || item.city_key === cityKey)) {
+          item.status = 'revoked';
+          item.reviewed_by = reviewer;
+          item.reviewed_at = new Date().toISOString();
+        }
+      }
+    });
   }
 }

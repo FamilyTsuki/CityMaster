@@ -111,6 +111,7 @@ export class AuthController {
         token,
         username: user.username,
         isAdmin: user.is_admin,
+        role: user.role || "player",
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -176,6 +177,7 @@ export class AuthController {
         username: user.username,
         profile_image_url: user.profile_image_url || picture,
         isAdmin: user.is_admin,
+        role: user.role || "player",
       });
     } catch (error) {
       console.error("Google Auth Error:", error);

@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { User, isUserAdmin } from '../models/User.js';
-import { ModeratorApplication } from '../models/ModeratorApplication.js';
+import { User, ZONE_ROLES } from '../models/User.js';
+import { StaffService } from '../services/StaffService.js';
 import { isDatabasePending } from '../config/database.js';
 
 /**
@@ -67,65 +67,63 @@ export const requireAccountStorage = (req, res, next) => {
 };
 
 /**
- * Réservé aux administrateurs. Les droits sont relus dans le stockage des
- * comptes (et non dans le jeton) : un administrateur retiré perd l'accès
- * immédiatement. Les sessions invité ne sont jamais administrateur.
+ * Communes visées par la requête : chemin (:cityKey ou :key), paramètres et corps.
+ * @returns {unknown[]}
  */
-export const requireAdmin = (req, res, next) => {
+function requestedCityKeys(req) {
+  return [req.params?.cityKey, req.params?.key, req.query?.cityKey, req.body?.cityKey].filter(
+    (value) => value !== undefined && value !== null && value !== '',
+  );
+}
+
+/**
+ * Réserve une route à certains rôles ; les administrateurs passent toujours.
+ * Les droits sont relus dans le stockage des comptes (et non dans le jeton) :
+ * un rôle retiré prend effet immédiatement. Les invités n'ont aucun rôle.
+ *
+ * Avec `zone: true`, la requête doit citer au moins une commune, et chaque
+ * commune citée doit être dans la zone du compte (un administrateur n'a pas
+ * de limite). Sans `zone`, le contrôleur filtre lui-même avec req.access.cities.
+ *
+ * Renseigne req.access = { role, cities, isAdmin }.
+ *
+ * @param {string[]} roles Rôles admis en plus de admin.
+ * @param {{ zone?: boolean }} [options]
+ */
+export const requireRole = (roles, { zone = false } = {}) => (req, res, next) => {
+  const denied = () => res.status(403).json({ error: 'Access denied' });
   authenticateToken(req, res, () => requireAccountStorage(req, res, async () => {
-    if (!req.user || req.user.is_guest || !req.user.id) {
-      return res.status(403).json({ error: 'Admin access required' });
-    }
+    if (!req.user || req.user.is_guest || !req.user.id) return denied();
     try {
       const dbUser = await User.findForSession(req.user);
-      if (dbUser && isUserAdmin(dbUser)) {
-        req.user.is_admin = true;
-        return next();
+      if (!dbUser) return denied();
+      const access = await StaffService.getAccess(dbUser);
+      const isAdmin = access.role === 'admin';
+      if (!isAdmin && !roles.includes(access.role)) return denied();
+      if (zone && !isAdmin) {
+        const cityKeys = requestedCityKeys(req);
+        if (cityKeys.length === 0 || cityKeys.some((value) => typeof value !== 'string')) return denied();
+        const allowed = new Set(access.cities.map((c) => c.key));
+        if (!cityKeys.every((value) => allowed.has(value))) return denied();
       }
-      return res.status(403).json({ error: 'Admin access required' });
+      req.user.is_admin = isAdmin;
+      req.access = { ...access, isAdmin };
+      return next();
     } catch (err) {
-      console.error('Error checking admin status:', err);
-      return res.status(500).json({ error: 'Unable to verify admin access' });
+      console.error('Error checking access rights:', err);
+      return res.status(500).json({ error: 'Unable to verify access rights' });
     }
   }));
 };
 
-/**
- * Réservé aux personnes qui peuvent corriger la carte d'une commune : les
- * administrateurs, et les modérateurs dont la candidature pour cette commune a
- * été acceptée. La commune est lue dans les paramètres, la requête ou le corps.
- */
-export const requireCityEditor = (req, res, next) => {
-  authenticateToken(req, res, () => requireAccountStorage(req, res, async () => {
-    if (!req.user || req.user.is_guest || !req.user.id) {
-      return res.status(403).json({ error: 'Editor access required' });
-    }
-    try {
-      const dbUser = await User.findForSession(req.user);
-      if (!dbUser) {
-        return res.status(403).json({ error: 'Editor access required' });
-      }
-      if (isUserAdmin(dbUser)) {
-        req.user.is_admin = true;
-        return next();
-      }
-      // Chaque commune citée dans la requête (chemin, paramètres, corps) doit
-      // être confiée au modérateur : le contrôleur peut lire n'importe laquelle.
-      const cityKeys = [req.params?.cityKey, req.query?.cityKey, req.body?.cityKey].filter(
-        (value) => value !== undefined && value !== null && value !== '',
-      );
-      if (cityKeys.length === 0 || cityKeys.some((value) => typeof value !== 'string')) {
-        return res.status(403).json({ error: 'Editor access required' });
-      }
-      const cities = await ModeratorApplication.getModeratedCities(dbUser.username);
-      const allowed = new Set(cities.map((c) => c.key));
-      if (cityKeys.every((value) => allowed.has(value))) {
-        return next();
-      }
-      return res.status(403).json({ error: 'Editor access required' });
-    } catch (err) {
-      console.error('Error checking editor access:', err);
-      return res.status(500).json({ error: 'Unable to verify editor access' });
-    }
-  }));
-};
+/** Réservé aux administrateurs. */
+export const requireAdmin = requireRole([]);
+
+/** Correction de la carte d'une commune : administrateurs, modérateurs et super-modérateurs de la commune. */
+export const requireCityEditor = requireRole(ZONE_ROLES, { zone: true });
+
+/** Validation d'une commune : administrateurs et super-modérateurs de la commune. */
+export const requireCityValidator = requireRole(['super_moderator'], { zone: true });
+
+/** Signalements : administrateurs, modérateurs et super-modérateurs (filtrés par zone dans le contrôleur). */
+export const requireReportReviewer = requireRole(ZONE_ROLES);

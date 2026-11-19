@@ -4,7 +4,7 @@ import path from "path";
 import { User } from "../models/User.js";
 import { UPLOADS_DIR } from "../config/paths.js";
 import { Score } from "../models/Score.js";
-import { ModeratorApplication } from "../models/ModeratorApplication.js";
+import { StaffService } from "../services/StaffService.js";
 
 export class ProfileController {
   static async getProfile(req, res) {
@@ -14,17 +14,18 @@ export class ProfileController {
         return res.status(404).json({ error: "User not found" });
       }
 
-      const [totalScore, moderatorCities] = await Promise.all([
+      const [totalScore, access] = await Promise.all([
         Score.getTotalScoreByPlayer(user.username),
-        ModeratorApplication.getModeratedCities(user.username),
+        StaffService.getAccess(user),
       ]);
 
       res.json({
         username: user.username,
         profileImageUrl: user.profile_image_url,
         totalScore: totalScore || 0,
-        isAdmin: user.is_admin || false,
-        moderatorCities,
+        isAdmin: access.role === "admin",
+        role: access.role,
+        moderatorCities: access.cities,
       });
     } catch (error) {
       console.error("ProfileController getProfile error:", error);

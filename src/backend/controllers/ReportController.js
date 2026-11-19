@@ -18,6 +18,16 @@ function optionalText(value, maxLength) {
   return trimmed ? trimmed.slice(0, maxLength) : null;
 }
 
+/**
+ * Un modérateur ne voit et ne traite que les signalements de ses communes ;
+ * un signalement sans commune reste dans la file de l'administrateur.
+ * @param {{ isAdmin: boolean, cities: Array<{key: string}> }} access req.access
+ */
+function canReview(access, report) {
+  if (access?.isAdmin) return true;
+  return Boolean(report?.city_key) && access?.cities?.some((c) => c.key === report.city_key);
+}
+
 export class ReportController {
   static async createReport(req, res) {
     try {
@@ -53,7 +63,7 @@ export class ReportController {
   static async getReports(req, res) {
     try {
       const reports = await Report.getAll(req.query.status);
-      return res.json(reports);
+      return res.json(reports.filter((report) => canReview(req.access, report)));
     } catch (err) {
       console.error('ReportController getReports error:', err);
       return res.status(500).json({ error: 'Failed to retrieve reports' });
@@ -72,6 +82,10 @@ export class ReportController {
         return res.status(400).json({ error: 'Invalid status provided' });
       }
 
+      const report = await Report.findById(id);
+      if (!report || !canReview(req.access, report)) {
+        return res.status(404).json({ error: 'Report not found' });
+      }
       const updatedReport = await Report.updateStatus(id, status);
       if (!updatedReport) {
         return res.status(404).json({ error: 'Report not found' });

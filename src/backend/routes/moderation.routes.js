@@ -9,4 +9,9 @@ router.get('/applications/mine', authenticateToken, requireAccountStorage, Moder
 router.get('/applications', requireAdmin, ModerationController.getAll);
 router.patch('/applications/:id', requireAdmin, ModerationController.review);
 
+router.get('/staff', requireAdmin, ModerationController.getStaff);
+router.patch('/staff/:username/role', requireAdmin, ModerationController.setRole);
+router.post('/staff/:username/cities', requireAdmin, ModerationController.grantCity);
+router.delete('/staff/:username/cities/:cityKey', requireAdmin, ModerationController.revokeCity);
+
 export default router;

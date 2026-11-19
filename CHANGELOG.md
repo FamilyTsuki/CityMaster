@@ -3,6 +3,23 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.24.0] - 2026-11-18
+
+### Ajouté
+- Rôles de compte : joueur, modérateur, super-modérateur, administrateur (colonne `role`, `is_admin` reste synchronisé). Les comptes existants gardent leurs droits.
+- Zones : table `user_zones` (fichier `user_zones.json` sans PostgreSQL) avec les communes confiées à chaque modérateur. Les candidatures déjà acceptées y sont reprises au démarrage.
+- API admin `/api/moderation/staff` : liste de l'équipe, changement de rôle, ajout et retrait d'une commune.
+
+### Modifié
+- Les super-modérateurs peuvent valider les communes de leur zone.
+- Les modérateurs voient et traitent les signalements de leurs communes ; les signalements sans commune et la suppression restent réservés à l'administrateur.
+- Le profil et la connexion renvoient le rôle du compte.
+
+### Tests
+- Rôles, zones, signalements filtrés, validation des communes et reprise des candidatures acceptées.
+
+---
+
 ## [2.23.1] - 2026-11-18
 
 ### Corrigé

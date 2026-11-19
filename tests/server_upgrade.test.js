@@ -170,7 +170,7 @@ test('accounts stored only in users.json are copied into PostgreSQL without touc
   setDatabaseEnabled(true);
   try {
     assert.equal(await User.importFileUsersIntoDatabase(), 1);
-    assert.deepEqual(inserted, [['ancien_admin', 'hash-1', null, '/uploads/avatar_1.webp', true]]);
+    assert.deepEqual(inserted, [['ancien_admin', 'hash-1', null, '/uploads/avatar_1.webp', true, 'admin']]);
   } finally {
     setDatabaseEnabled(false);
     pool.query = originalQuery;

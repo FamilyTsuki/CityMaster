@@ -11,7 +11,15 @@ import { readJsonFile, updateJsonFile } from '../utils/jsonStore.js';
  * à PostgreSQL, les comptes de users.json absents de la base y sont ajoutés
  * (importFileUsersIntoDatabase, sans effet sur les comptes déjà présents).
  */
-const PUBLIC_COLUMNS = 'id, username, profile_image_url, is_admin';
+const PUBLIC_COLUMNS = 'id, username, profile_image_url, is_admin, role';
+
+/**
+ * Rôles, du moins au plus étendu. `role` est la référence ; la colonne
+ * `is_admin` reste tenue à jour (is_admin = role admin) pour les anciennes
+ * versions et les comptes de users.json écrits avant l'ajout des rôles.
+ */
+export const ROLES = ['player', 'moderator', 'super_moderator', 'admin'];
+export const ZONE_ROLES = ['moderator', 'super_moderator'];
 
 export function getEnvAdmins() {
   const envAdmins = process.env.ADMIN_USERS || process.env.ADMINS || '';
@@ -23,16 +31,28 @@ export function getEnvAdmins() {
 
 export function isUserAdmin(user) {
   if (!user) return false;
+  if (user.role === 'admin') return true;
   if (user.is_admin === true || user.is_admin === 'true') return true;
   const username = (user.username || '').toLowerCase().trim();
   return getEnvAdmins().includes(username);
 }
 
+/**
+ * Rôle effectif d'un compte. Un compte sans champ `role` (users.json d'avant
+ * les rôles) est administrateur si is_admin est vrai, joueur sinon.
+ * @returns {'player'|'moderator'|'super_moderator'|'admin'}
+ */
+export function getUserRole(user) {
+  if (!user) return 'player';
+  if (isUserAdmin(user)) return 'admin';
+  return ZONE_ROLES.includes(user.role) ? user.role : 'player';
+}
+
 function withAdminFlag(user) {
-  if (user && !user.is_admin && isUserAdmin(user)) {
-    user.is_admin = true;
-  }
-  return user || null;
+  if (!user) return null;
+  user.role = getUserRole(user);
+  user.is_admin = user.role === 'admin';
+  return user;
 }
 
 function toPublicUser(user) {
@@ -42,6 +62,7 @@ function toPublicUser(user) {
     username: user.username,
     profile_image_url: user.profile_image_url || null,
     is_admin: Boolean(user.is_admin),
+    role: user.role,
   });
 }
 
@@ -73,6 +94,7 @@ function insertFileUser(fields) {
       google_id: fields.google_id || null,
       profile_image_url: fields.profile_image_url || null,
       is_admin: Boolean(fields.is_admin),
+      role: fields.is_admin ? 'admin' : 'player',
     };
     users.push(user);
     return toPublicUser(user);
@@ -93,8 +115,8 @@ export class User {
     const isAdmin = isUserAdmin({ username });
     if (isDatabaseEnabled()) {
       const result = await pool.query(
-        `INSERT INTO users (username, password, is_admin) VALUES ($1, $2, $3) RETURNING ${PUBLIC_COLUMNS}`,
-        [username, hashedPassword, isAdmin],
+        `INSERT INTO users (username, password, is_admin, role) VALUES ($1, $2, $3, $4) RETURNING ${PUBLIC_COLUMNS}`,
+        [username, hashedPassword, isAdmin, isAdmin ? 'admin' : 'player'],
       );
       return withAdminFlag(result.rows[0]);
     }
@@ -105,8 +127,8 @@ export class User {
     const isAdmin = isUserAdmin({ username });
     if (isDatabaseEnabled()) {
       const result = await pool.query(
-        `INSERT INTO users (username, google_id, profile_image_url, is_admin) VALUES ($1, $2, $3, $4) RETURNING ${PUBLIC_COLUMNS}`,
-        [username, googleId, profileImageUrl, isAdmin],
+        `INSERT INTO users (username, google_id, profile_image_url, is_admin, role) VALUES ($1, $2, $3, $4, $5) RETURNING ${PUBLIC_COLUMNS}`,
+        [username, googleId, profileImageUrl, isAdmin, isAdmin ? 'admin' : 'player'],
       );
       return withAdminFlag(result.rows[0]);
     }
@@ -178,8 +200,8 @@ export class User {
     for (const user of fileUsers) {
       if (!user || typeof user.username !== 'string' || !user.username.trim()) continue;
       const result = await pool.query(
-        `INSERT INTO users (username, password, google_id, profile_image_url, is_admin)
-         SELECT $1::text, $2::text, $3::text, $4::text, $5::boolean
+        `INSERT INTO users (username, password, google_id, profile_image_url, is_admin, role)
+         SELECT $1::text, $2::text, $3::text, $4::text, $5::boolean, $6::text
          WHERE NOT EXISTS (SELECT 1 FROM users WHERE LOWER(username) = LOWER($1::text))
          ON CONFLICT DO NOTHING`,
         [
@@ -188,6 +210,7 @@ export class User {
           user.google_id || null,
           user.profile_image_url || null,
           user.is_admin === true || user.is_admin === 'true',
+          getUserRole(user),
         ],
       );
       imported += result.rowCount || 0;
@@ -239,20 +262,54 @@ export class User {
   }
 
   /**
-   * Donne ou retire les droits administrateur d'un compte existant.
+   * Donne ou retire les droits administrateur d'un compte existant. Le retrait
+   * ne touche pas un compte qui n'est pas administrateur.
    * @returns {Promise<object|null>} null si le compte n'existe pas.
    */
   static async setAdminStatus(username, isAdmin = true) {
     if (!username || typeof username !== 'string') return null;
+    const user = await User.findByUsername(username);
+    if (!user) return null;
+    if (isAdmin) return User.setRole(user.username, 'admin');
+    return user.role === 'admin' ? User.setRole(user.username, 'player') : toPublicUser(user);
+  }
+
+  /**
+   * Change le rôle d'un compte existant (is_admin suit).
+   * @param {string} username
+   * @param {'player'|'moderator'|'super_moderator'|'admin'} role
+   * @returns {Promise<object|null>} null si le compte n'existe pas.
+   */
+  static async setRole(username, role) {
+    if (!username || typeof username !== 'string') return null;
+    if (!ROLES.includes(role)) throw new Error(`Invalid role: ${role}`);
+    const isAdmin = role === 'admin';
     if (isDatabaseEnabled()) {
       const result = await pool.query(
-        `UPDATE users SET is_admin = $1 WHERE LOWER(username) = LOWER($2) RETURNING ${PUBLIC_COLUMNS}`,
-        [Boolean(isAdmin), username.trim()],
+        `UPDATE users SET role = $1, is_admin = $2 WHERE LOWER(username) = LOWER($3) RETURNING ${PUBLIC_COLUMNS}`,
+        [role, isAdmin, username.trim()],
       );
-      return result.rows[0] || null;
+      return result.rows[0] ? withAdminFlag(result.rows[0]) : null;
     }
-    return updateFileUser((u) => sameUsername(u.username, username), {
-      is_admin: Boolean(isAdmin),
-    });
+    return updateFileUser((u) => sameUsername(u.username, username), { role, is_admin: isAdmin });
+  }
+
+  /**
+   * Comptes qui ont un rôle autre que joueur.
+   * @returns {Promise<Array<{id: number, username: string, role: string}>>}
+   */
+  static async listStaff() {
+    if (isDatabaseEnabled()) {
+      const result = await pool.query(
+        `SELECT ${PUBLIC_COLUMNS} FROM users WHERE role <> 'player' OR is_admin = TRUE ORDER BY LOWER(username)`,
+      );
+      return result.rows.map(withAdminFlag).map(({ id, username, role }) => ({ id, username, role }));
+    }
+    const users = await readFileUsers();
+    return users
+      .map(toPublicUser)
+      .filter((u) => u.role !== 'player')
+      .sort((a, b) => a.username.toLowerCase().localeCompare(b.username.toLowerCase()))
+      .map(({ id, username, role }) => ({ id, username, role }));
   }
 }

@@ -1,6 +1,6 @@
 import { ApiService } from "../services/ApiService.js";
 import { I18nService } from "../services/I18nService.js";
-import { canOpenEditor, setModeratorCities } from "../utils/roles.js";
+import { canOpenEditor, setModeratorCities, setSessionRole } from "../utils/roles.js";
 
 export class AuthController {
   #router;
@@ -78,6 +78,7 @@ export class AuthController {
     const res = await ApiService.get("/profile");
     if (!res.ok || !res.data) return;
     setModeratorCities(res.data.moderatorCities);
+    setSessionRole(res.data.role);
     this.isAuthenticated();
   }
 
@@ -91,6 +92,7 @@ export class AuthController {
       localStorage.removeItem("is_admin");
     }
     setModeratorCities([]);
+    setSessionRole(data.role);
     this.#refreshEditorAccess();
     const avatar = data.profileImageUrl || data.profile_image_url;
     if (avatar) {
@@ -196,6 +198,7 @@ export class AuthController {
     localStorage.removeItem("username");
     localStorage.removeItem("is_admin");
     setModeratorCities([]);
+    setSessionRole(null);
     localStorage.removeItem("is_guest");
     localStorage.removeItem("citymaster_profile_image");
     // La partie sauvegardée appartient au compte qui se déconnecte.
