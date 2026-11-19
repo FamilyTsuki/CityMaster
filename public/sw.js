@@ -1,4 +1,4 @@
-const CACHE_NAME = 'citymaster-v105';
+const CACHE_NAME = 'citymaster-v106';
 // Caches conservés d'une version à l'autre : le fond de carte et les
 // corrections d'administration doivent rester disponibles hors-ligne.
 const TILE_CACHE = 'citymaster-tiles-v1';
@@ -75,6 +75,7 @@ const STATIC_ASSETS = [
   "/src/utils/security.js",
   "/src/utils/roles.js",
   "/src/controllers/ModerationController.js",
+  "/src/controllers/ModerationPanels.js",
   "/src/controllers/AdminController.js",
   "/src/controllers/AuthController.js",
   "/src/controllers/GameController.js",

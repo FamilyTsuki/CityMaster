@@ -188,3 +188,16 @@ test('Router matches /moderation and /moderation/ routes correctly', async () =>
     'Router must match and normalize trailing slash /moderation/ route',
   );
 });
+
+test('admin screen template contains the moderation panels used by ModerationPanels', () => {
+  const content = fs.readFileSync(path.resolve('public/screens/admin.html'), 'utf8');
+  const ids = [
+    'admin-go-proposals-btn', 'admin-pending-proposals-badge', 'admin-proposals-view', 'admin-proposals-status-filter',
+    'admin-proposals-grid', 'admin-proposals-empty', 'admin-go-history-btn', 'admin-history-view',
+    'admin-history-filters', 'admin-history-city', 'admin-history-author', 'admin-history-grid', 'admin-history-empty',
+    'admin-staff-form', 'admin-staff-username', 'admin-staff-role', 'admin-staff-list',
+  ];
+  for (const id of ids) {
+    assert.ok(content.includes(`id="${id}"`), `admin.html must contain #${id}`);
+  }
+});

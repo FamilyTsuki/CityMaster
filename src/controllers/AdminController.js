@@ -8,7 +8,21 @@ import {
   getModeratorCities,
   canOpenEditor,
   canEditCity,
+  canValidateCity,
 } from "../utils/roles.js";
+import { ModerationPanels } from "./ModerationPanels.js";
+
+/** Vues du tableau de bord : une seule est affichée à la fois. */
+const ADMIN_VIEWS = [
+  "admin-dashboard-view",
+  "admin-districts-view",
+  "admin-routes-view",
+  "admin-reports-view",
+  "admin-proposals-view",
+  "admin-history-view",
+];
+
+const t = (key, fallback, params = {}) => I18nService.getInstance().t(key, params, fallback);
 
 export class AdminController {
   #adminView;
@@ -22,6 +36,8 @@ export class AdminController {
   #routeDifficultyFilter;
   #routeDifficultyOverrides;
   #reportsSearchQuery;
+  #panels;
+  #activeReport = null;
 
   constructor(adminView, router = null) {
     this.#adminView = adminView;
@@ -36,7 +52,79 @@ export class AdminController {
     this.#routeDifficultyOverrides = {};
     this.#reportsSearchQuery = "";
 
+    this.#panels = new ModerationPanels(adminView, (id) => this.#showView(id));
     this.#initEvents();
+  }
+
+  #showView(viewId) {
+    ADMIN_VIEWS.forEach((id) => document.getElementById(id)?.classList.toggle("hidden", id !== viewId));
+  }
+
+  /**
+   * Réponse d'une modification : 202 = proposition créée (modérateur),
+   * la carte ne change pas tant qu'elle n'est pas acceptée.
+   */
+  #isProposal(res) {
+    if (res.status !== 202) return false;
+    this.#adminView.showToast(t("admin.proposal_sent", "Proposition envoyée, en attente de validation"), "success");
+    return true;
+  }
+
+  /** Signalement en cours de correction, joint aux modifications envoyées. */
+  #withReport(body) {
+    return this.#activeReport && this.#activeReport.cityKey === this.#selectedCity?.key
+      ? { ...body, reportId: this.#activeReport.id }
+      : body;
+  }
+
+  #reportQuery() {
+    return this.#activeReport && this.#activeReport.cityKey === this.#selectedCity?.key
+      ? `?reportId=${encodeURIComponent(this.#activeReport.id)}`
+      : "";
+  }
+
+  /** Ouvre l'éditeur de rues sur la commune et la rue d'un signalement. */
+  async #fixReport(report) {
+    const res = await ApiService.get(`/cities?q=${encodeURIComponent(report.city_key)}`);
+    const city = res.ok && Array.isArray(res.data) ? res.data.find((c) => c.key === report.city_key) : null;
+    if (!city || !canEditCity(city.key)) {
+      this.#adminView.showToast(t("admin.application_error", "Action impossible"), "error");
+      return;
+    }
+    const street = [report.target_street, report.clicked_street].find((s) => s && s !== "N/A" && s !== "Inconnue") || "";
+    this.#activeReport = { id: report.id, cityKey: city.key, street };
+    await this.showRoutes();
+    if (this.#selectedCity?.key !== city.key) await this.selectCity(city);
+    const filter = document.getElementById("admin-route-filter");
+    if (filter && street) {
+      filter.value = street;
+      filter.dispatchEvent(new Event("input"));
+    }
+    this.#renderReportBanner();
+  }
+
+  #renderReportBanner() {
+    const sidebar = document.querySelector("#admin-routes-view .admin-sidebar");
+    if (!sidebar) return;
+    sidebar.querySelector(".admin-report-banner")?.remove();
+    if (!this.#activeReport) return;
+    const banner = document.createElement("div");
+    banner.className = "admin-report-banner";
+    const text = document.createElement("span");
+    text.textContent = t("admin.report_fix_banner", `#${this.#activeReport.id}`, {
+      id: this.#activeReport.id,
+      street: this.#activeReport.street || this.#activeReport.cityKey,
+    });
+    const done = document.createElement("button");
+    done.type = "button";
+    done.className = "btn btn-small btn-secondary";
+    done.textContent = t("admin.report_fix_cancel", "Terminer");
+    done.addEventListener("click", () => {
+      this.#activeReport = null;
+      this.#renderReportBanner();
+    });
+    banner.append(text, done);
+    sidebar.prepend(banner);
   }
 
   setRouter(router) {
@@ -122,6 +210,9 @@ export class AdminController {
         this.showDashboard();
       });
     }
+    document.querySelectorAll("#admin-screen .admin-panel-back").forEach((btn) => {
+      btn.addEventListener("click", () => this.showDashboard());
+    });
 
     const statusFilterSelect = document.getElementById(
       "admin-reports-status-filter",
@@ -663,7 +754,7 @@ export class AdminController {
     const verifyBtn = document.getElementById("admin-city-verify-btn");
     if (!verifyBtn) return;
 
-    if (!this.#selectedCity || !isAdminSession()) {
+    if (!this.#selectedCity || !canValidateCity(this.#selectedCity.key)) {
       verifyBtn.classList.add("hidden");
       return;
     }
@@ -786,12 +877,13 @@ export class AdminController {
   async setRouteDifficulty(streetName, difficulty, showToast = true) {
     if (!this.#selectedCity || !streetName) return;
     try {
-      const res = await ApiService.post("/admin/routes/difficulty", {
+      const res = await ApiService.post("/admin/routes/difficulty", this.#withReport({
         cityKey: this.#selectedCity.key,
         streetName,
         difficulty,
-      });
+      }));
 
+      if (this.#isProposal(res)) return;
       if (res.ok) {
         const lower = streetName.toLowerCase().trim();
         if (difficulty === "auto") {
@@ -919,10 +1011,10 @@ export class AdminController {
 
   async #saveDistrict(districtPayload) {
     try {
-      const res = await ApiService.post("/admin/districts", {
+      const res = await ApiService.post("/admin/districts", this.#withReport({
         cityKey: this.#selectedCity.key,
         district: districtPayload,
-      });
+      }));
 
       if (!res.ok) {
         throw new Error(
@@ -931,6 +1023,7 @@ export class AdminController {
       }
 
       this.#adminView.clearActiveDrawing();
+      if (this.#isProposal(res)) return;
       await this.loadDistricts();
     } catch (err) {
       this.#adminView.showToast(err.message);
@@ -940,13 +1033,14 @@ export class AdminController {
   async #deleteDistrict(id) {
     try {
       const res = await ApiService.delete(
-        `/admin/districts/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}`,
+        `/admin/districts/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}${this.#reportQuery()}`,
       );
 
       if (!res.ok) {
         throw new Error(res.data?.error || "Erreur lors de la suppression");
       }
 
+      if (this.#isProposal(res)) return;
       await this.loadDistricts();
     } catch (err) {
       this.#adminView.showToast(err.message);
@@ -967,10 +1061,10 @@ export class AdminController {
     }
 
     try {
-      const res = await ApiService.post("/admin/routes", {
+      const res = await ApiService.post("/admin/routes", this.#withReport({
         cityKey: this.#selectedCity.key,
         route: routePayload,
-      });
+      }));
 
       if (!res.ok) {
         const errorData = res.data || {};
@@ -981,6 +1075,7 @@ export class AdminController {
       }
 
       this.#adminView.clearActiveRouteDrawing();
+      if (this.#isProposal(res)) return;
       await this.loadRoutes();
       this.#adminView.showToast(
         I18nService.getInstance().t(
@@ -999,13 +1094,14 @@ export class AdminController {
   async #deleteRoute(id) {
     try {
       const res = await ApiService.delete(
-        `/admin/routes/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}`,
+        `/admin/routes/${encodeURIComponent(this.#selectedCity.key)}/${encodeURIComponent(id)}${this.#reportQuery()}`,
       );
 
       if (!res.ok) {
         throw new Error(res.data?.error || "Erreur lors de la suppression");
       }
 
+      if (this.#isProposal(res)) return;
       await this.loadRoutes();
     } catch (err) {
       this.#adminView.showToast(err.message);
@@ -1025,18 +1121,12 @@ export class AdminController {
         : I18nService.getInstance().t("admin.moderation_dashboard_title", {}, "Modération");
     }
 
-    const dashboard = document.getElementById("admin-dashboard-view");
-    const districts = document.getElementById("admin-districts-view");
-    const routes = document.getElementById("admin-routes-view");
-    const reports = document.getElementById("admin-reports-view");
-    if (dashboard) dashboard.classList.remove("hidden");
-    if (districts) districts.classList.add("hidden");
-    if (routes) routes.classList.add("hidden");
-    if (reports) reports.classList.add("hidden");
+    this.#showView("admin-dashboard-view");
 
     this.#loadSettings();
     this.#loadPendingReportsCount();
     this.#loadApplications();
+    this.#panels.refreshDashboard();
 
     if (!this.#selectedCity) {
       const city = this.#defaultCity();
@@ -1107,6 +1197,19 @@ export class AdminController {
 
       const actions = document.createElement("div");
       actions.className = "admin-application-actions";
+      let roleSelect = null;
+      if (application.status === "pending") {
+        roleSelect = document.createElement("select");
+        roleSelect.className = "input admin-input-small";
+        roleSelect.setAttribute("aria-label", i18n.t("admin.application_role_label", {}, "Rôle à donner"));
+        ["moderator", "super_moderator"].forEach((role) => {
+          const option = document.createElement("option");
+          option.value = role;
+          option.textContent = i18n.t(`admin.role_${role}`, {}, role);
+          roleSelect.appendChild(option);
+        });
+        actions.appendChild(roleSelect);
+      }
       actionsByStatus[application.status].forEach(([status, label, variant]) => {
         const button = document.createElement("button");
         button.type = "button";
@@ -1114,7 +1217,8 @@ export class AdminController {
         button.textContent = label;
         button.addEventListener("click", async () => {
           button.disabled = true;
-          const result = await ApiService.patch(`/moderation/applications/${application.id}`, { status });
+          const body = status === "approved" && roleSelect ? { status, role: roleSelect.value } : { status };
+          const result = await ApiService.patch(`/moderation/applications/${application.id}`, body);
           if (!result.ok) {
             button.disabled = false;
             this.#adminView.showToast(
@@ -1124,6 +1228,7 @@ export class AdminController {
             return;
           }
           this.#loadApplications();
+          this.#panels.loadStaff();
         });
         actions.appendChild(button);
       });
@@ -1133,7 +1238,7 @@ export class AdminController {
   }
 
   async #loadPendingReportsCount() {
-    if (localStorage.getItem("is_admin") !== "true") return;
+    if (!canOpenEditor()) return;
     try {
       const res = await ApiService.get("/reports?status=pending");
       if (res.ok && Array.isArray(res.data)) {
@@ -1156,14 +1261,8 @@ export class AdminController {
   }
 
   async showDistricts() {
-    const dashboard = document.getElementById("admin-dashboard-view");
     const districts = document.getElementById("admin-districts-view");
-    const routes = document.getElementById("admin-routes-view");
-    const reports = document.getElementById("admin-reports-view");
-    if (dashboard) dashboard.classList.add("hidden");
-    if (routes) routes.classList.add("hidden");
-    if (reports) reports.classList.add("hidden");
-    if (districts) districts.classList.remove("hidden");
+    this.#showView("admin-districts-view");
     this.#adminView.setEditMode("district");
 
     const mapEl = document.getElementById("admin-map");
@@ -1182,14 +1281,7 @@ export class AdminController {
   }
 
   async showRoutes() {
-    const dashboard = document.getElementById("admin-dashboard-view");
-    const districts = document.getElementById("admin-districts-view");
-    const routes = document.getElementById("admin-routes-view");
-    const reports = document.getElementById("admin-reports-view");
-    if (dashboard) dashboard.classList.add("hidden");
-    if (districts) districts.classList.add("hidden");
-    if (reports) reports.classList.add("hidden");
-    if (routes) routes.classList.remove("hidden");
+    this.#showView("admin-routes-view");
     this.#adminView.setEditMode("route");
 
     const mapEl = document.getElementById("admin-map");
@@ -1212,20 +1304,12 @@ export class AdminController {
   }
 
   showReports() {
-    const dashboard = document.getElementById("admin-dashboard-view");
-    const districts = document.getElementById("admin-districts-view");
-    const routes = document.getElementById("admin-routes-view");
-    const reports = document.getElementById("admin-reports-view");
-    if (dashboard) dashboard.classList.add("hidden");
-    if (districts) districts.classList.add("hidden");
-    if (routes) routes.classList.add("hidden");
-    if (reports) reports.classList.remove("hidden");
-
+    this.#showView("admin-reports-view");
     this.loadReports();
   }
 
   async loadReports() {
-    if (localStorage.getItem("is_admin") !== "true") return;
+    if (!canOpenEditor()) return;
 
     this.#loadPendingReportsCount();
 
@@ -1275,11 +1359,11 @@ export class AdminController {
       reports,
       (id) => this.#updateReportStatus(id, "resolved"),
       (id) => this.#updateReportStatus(id, "dismissed"),
-      (id) => {
-        if (id) {
-          this.#deleteReport(id);
+      isAdminSession()
+        ? (id) => {
+          if (id) this.#deleteReport(id);
         }
-      },
+        : null,
       (textToCopy) => {
         if (navigator.clipboard) {
           navigator.clipboard.writeText(textToCopy).then(() => {
@@ -1293,6 +1377,7 @@ export class AdminController {
           });
         }
       },
+      (report) => (report.city_key && canEditCity(report.city_key) ? () => this.#fixReport(report) : null),
     );
   }
 

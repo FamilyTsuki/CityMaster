@@ -177,6 +177,43 @@ const SCHEMA_STATEMENTS = [
     granted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
   )`,
   'CREATE UNIQUE INDEX IF NOT EXISTS user_zones_user_city_idx ON user_zones (LOWER(username), city_key)',
+  `CREATE TABLE IF NOT EXISTS edit_proposals (
+    id SERIAL PRIMARY KEY,
+    city_key VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    item_type VARCHAR(20) NOT NULL,
+    action VARCHAR(20) NOT NULL,
+    element_key VARCHAR(500) NOT NULL,
+    label VARCHAR(255),
+    payload JSONB NOT NULL,
+    before_state JSONB,
+    report_id INTEGER,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    reviewer VARCHAR(255),
+    reject_reason TEXT,
+    reviewed_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  'CREATE INDEX IF NOT EXISTS edit_proposals_city_status_idx ON edit_proposals (city_key, status)',
+  `CREATE TABLE IF NOT EXISTS edit_history (
+    id SERIAL PRIMARY KEY,
+    city_key VARCHAR(255) NOT NULL,
+    author VARCHAR(255) NOT NULL,
+    validator VARCHAR(255),
+    item_type VARCHAR(20) NOT NULL,
+    action VARCHAR(20) NOT NULL,
+    element_key VARCHAR(500) NOT NULL,
+    label VARCHAR(255),
+    payload JSONB NOT NULL,
+    before_state JSONB,
+    after_state JSONB,
+    proposal_id INTEGER,
+    report_id INTEGER,
+    undone_by VARCHAR(255),
+    undone_at TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  )`,
+  'CREATE INDEX IF NOT EXISTS edit_history_city_idx ON edit_history (city_key, created_at DESC)',
 ];
 
 /** Délais entre deux tentatives de connexion ; le dernier est ensuite répété. */

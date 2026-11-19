@@ -249,6 +249,9 @@ test("AdminController.saveRoute conserve une géométrie MultiLineString", async
   const res = createMockRes();
   await AdminController.saveRoute(
     {
+      user: { username: "admin" },
+      access: { role: "admin", cities: [], isAdmin: true },
+      query: {},
       body: {
         cityKey: "la_ferte_saint_aubin",
         route: {

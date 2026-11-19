@@ -3,6 +3,29 @@
 Toutes les modifications notables apportées au projet CityMaster sont documentées dans ce fichier.
 Le format est basé sur [Keep a Changelog](https://keepachangelog.com/fr/1.0.0/) et ce projet adhère à [Semantic Versioning](https://semver.org/lang/fr/).
 
+## [2.25.0] - 2026-11-19
+
+### Ajouté
+- Propositions : une modification de carte faite par un modérateur (rue, quartier, difficulté) devient une proposition. Un super-modérateur de la commune ou un administrateur l'accepte ou la refuse avec un motif visible par l'auteur.
+- Acceptation refusée si l'élément a changé depuis la proposition.
+- Historique des modifications appliquées (tables `edit_proposals` et `edit_history`, fichiers JSON sans PostgreSQL), filtrable par commune et par auteur.
+- Annulation d'une modification par un administrateur, avec avertissement si une modification plus récente touche le même élément.
+- Tableau de bord : cartes « Propositions » (aperçu avant / après sur une carte), « Historique » et « Équipe » (rôle et communes de chaque membre).
+- Bouton « Corriger » sur un signalement : ouvre l'éditeur sur la commune et la rue ; le signalement passe en résolu quand la correction est appliquée.
+- Choix du rôle (modérateur ou super-modérateur) à l'acceptation d'une candidature.
+
+### Modifié
+- Les modérateurs voient la carte « Signalements » ; la suppression d'un signalement reste réservée à l'administrateur.
+- Le bouton de validation d'une commune s'affiche aussi pour les super-modérateurs de cette commune.
+
+### Corrigé
+- Les boutons retour de l'administration ramenaient à l'accueil au lieu du tableau de bord.
+
+### Tests
+- Cycle d'une proposition (création, acceptation, refus, conflit), annulation, lien avec un signalement, rôle choisi à l'accord.
+
+---
+
 ## [2.24.0] - 2026-11-18
 
 ### Ajouté

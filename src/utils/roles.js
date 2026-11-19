@@ -56,3 +56,19 @@ export function canEditCity(cityKey) {
   if (!cityKey) return false;
   return isAdminSession() || getModeratorCities().some((c) => c.key === cityKey);
 }
+
+/** Validation de commune et relecture des propositions : admin, ou super-modérateur dans sa zone. */
+export function canValidateCity(cityKey) {
+  if (!cityKey) return false;
+  if (isAdminSession()) return true;
+  return getSessionRole() === 'super_moderator' && getModeratorCities().some((c) => c.key === cityKey);
+}
+
+export function canReviewProposals() {
+  return isAdminSession() || getSessionRole() === 'super_moderator';
+}
+
+/** Un modérateur propose ; super-modérateur et administrateur appliquent directement. */
+export function editsNeedReview() {
+  return getSessionRole() === 'moderator';
+}

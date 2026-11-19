@@ -187,3 +187,26 @@ test("le retrait des droits d'administrateur ne touche pas un modérateur", asyn
   assert.equal(after.role, 'player');
   assert.equal(after.is_admin, false);
 });
+
+test("le rôle choisi à l'accord fait un super-modérateur, sans rétrograder un administrateur", async () => {
+  const player = await User.create('roles_promoted', 'hash');
+  const { application } = await (
+    await call('POST', '/api/moderation/applications', headersFor(player), { cityKey: 'lyon' })
+  ).json();
+  await call('PATCH', `/api/moderation/applications/${application.id}`, adminHeaders, {
+    status: 'approved',
+    role: 'super_moderator',
+  });
+  assert.equal((await User.findByUsername('roles_promoted')).role, 'super_moderator');
+
+  const otherAdmin = await User.create('roles_other_admin', 'hash');
+  await User.setAdminStatus('roles_other_admin', true);
+  const created = await (
+    await call('POST', '/api/moderation/applications', headersFor(otherAdmin), { cityKey: 'lyon' })
+  ).json();
+  await call('PATCH', `/api/moderation/applications/${created.application.id}`, adminHeaders, {
+    status: 'approved',
+    role: 'super_moderator',
+  });
+  assert.equal((await User.findByUsername('roles_other_admin')).role, 'admin');
+});

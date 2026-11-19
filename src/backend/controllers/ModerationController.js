@@ -109,7 +109,11 @@ export class ModerationController {
       const application = await ModeratorApplication.updateStatus(id, status, req.user.username);
       const city = { key: application.city_key, name: application.city_name };
       if (status === 'approved') {
-        await StaffService.grantCity(application.username, city, req.user.username);
+        const user = await StaffService.grantCity(application.username, city, req.user.username);
+        // Rôle choisi à l'accord : seul un modérateur peut devenir super-modérateur ici.
+        if (req.body.role === 'super_moderator' && user?.role === 'moderator') {
+          await StaffService.setRole(user.username, 'super_moderator', req.user.username);
+        }
       } else if (status === 'revoked') {
         await StaffService.revokeCity(application.username, city.key, req.user.username);
       }

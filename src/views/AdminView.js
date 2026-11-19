@@ -1248,7 +1248,12 @@ export class AdminView {
     }
   }
 
-  renderReportsList(reports, onResolve, onDismiss, onDelete, onCopy) {
+  /**
+   * @param {((id) => void)|null} onDelete null : bouton masqué (non-administrateur).
+   * @param {(report) => (() => void)|null} getFixHandler Action « Corriger »
+   *   du signalement, ou null si la commune n'est pas modifiable.
+   */
+  renderReportsList(reports, onResolve, onDismiss, onDelete, onCopy, getFixHandler = () => null) {
     const grid = document.getElementById("admin-reports-grid");
     const emptyMsg = document.getElementById("admin-reports-empty");
     if (!grid) return;
@@ -1408,12 +1413,24 @@ export class AdminView {
         actionsDiv.appendChild(dismissBtn);
       }
 
-      const deleteBtn = document.createElement("button");
-      deleteBtn.type = "button";
-      deleteBtn.className = "btn btn-small btn-delete-item btn-delete-report";
-      deleteBtn.textContent = i18n.t("admin.delete", {}, "Supprimer");
-      deleteBtn.addEventListener("click", () => onDelete(r.id));
-      actionsDiv.appendChild(deleteBtn);
+      const onFix = getFixHandler(r);
+      if (onFix && r.status === "pending") {
+        const fixBtn = document.createElement("button");
+        fixBtn.type = "button";
+        fixBtn.className = "btn btn-small btn-fix-report";
+        fixBtn.textContent = i18n.t("admin.report_fix", {}, "Corriger");
+        fixBtn.addEventListener("click", onFix);
+        actionsDiv.prepend(fixBtn);
+      }
+
+      if (onDelete) {
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "btn btn-small btn-delete-item btn-delete-report";
+        deleteBtn.textContent = i18n.t("admin.delete", {}, "Supprimer");
+        deleteBtn.addEventListener("click", () => onDelete(r.id));
+        actionsDiv.appendChild(deleteBtn);
+      }
 
       card.append(headerDiv, metaDiv, descDiv, actionsDiv);
       grid.appendChild(card);

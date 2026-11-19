@@ -1,5 +1,7 @@
-import { CityCustomization } from '../models/CityCustomization.js';
+import { CityCustomization, MANUAL_DIFFICULTIES } from '../models/CityCustomization.js';
 import { Settings } from '../models/Settings.js';
+import { Report } from '../models/Report.js';
+import { EditService } from '../services/EditService.js';
 import { isValidCityKey } from '../config/paths.js';
 
 const LINE_GEOMETRIES = ['LineString', 'MultiLineString'];
@@ -10,6 +12,34 @@ function generateId(prefix) {
 
 function badCityKey(res) {
   return res.status(400).json({ error: 'cityKey is required' });
+}
+
+/**
+ * Signalement corrigé par cette modification : gardé seulement s'il existe
+ * et porte sur la même commune.
+ */
+async function linkedReportId(value, cityKey) {
+  const id = Number(value);
+  if (!Number.isInteger(id) || id <= 0) return null;
+  const report = await Report.findById(id);
+  return report && report.city_key === cityKey ? id : null;
+}
+
+/**
+ * Applique la modification ou, pour un modérateur, crée une proposition
+ * (202). `onApplied` construit la réponse habituelle de la route.
+ */
+async function submitEdit(req, res, edit, onApplied) {
+  const reportId = await linkedReportId(req.body?.reportId ?? req.query?.reportId, edit.cityKey);
+  const result = await EditService.submit(edit, {
+    username: req.user.username,
+    access: req.access,
+    reportId,
+  });
+  if (result.proposal) {
+    return res.status(202).json({ message: 'Proposal submitted', proposal: result.proposal });
+  }
+  return res.json({ ...onApplied(), historyId: result.history.id });
 }
 
 export class AdminController {
@@ -56,8 +86,13 @@ export class AdminController {
         },
       };
 
-      await CityCustomization.saveDistrict(cityKey, feature, district.originalName);
-      return res.json({ message: 'District saved successfully', feature });
+      const edit = {
+        cityKey,
+        itemType: 'district',
+        action: 'save',
+        payload: { feature, originalName: district.originalName || null },
+      };
+      return await submitEdit(req, res, edit, () => ({ message: 'District saved successfully', feature }));
     } catch (err) {
       console.error('AdminController saveDistrict error:', err);
       return res.status(500).json({ error: 'Internal server error saving district' });
@@ -70,8 +105,8 @@ export class AdminController {
       if (!isValidCityKey(cityKey) || !id) {
         return res.status(400).json({ error: 'cityKey and id are required' });
       }
-      await CityCustomization.deleteDistrict(cityKey, id);
-      return res.json({ message: 'District deleted successfully' });
+      const edit = { cityKey, itemType: 'district', action: 'delete', payload: { id: String(id) } };
+      return await submitEdit(req, res, edit, () => ({ message: 'District deleted successfully' }));
     } catch (err) {
       console.error('AdminController deleteDistrict error:', err);
       return res.status(500).json({ error: 'Internal server error deleting district' });
@@ -107,8 +142,14 @@ export class AdminController {
         return res.status(400).json({ error: 'cityKey and streetName are required' });
       }
 
-      const saved = await CityCustomization.setDifficultyOverride(cityKey, streetName, difficulty);
-      return res.json({ success: true, cityKey, streetName, difficulty: saved });
+      const saved = MANUAL_DIFFICULTIES.includes(difficulty) ? difficulty : null;
+      const edit = {
+        cityKey,
+        itemType: 'difficulty',
+        action: 'save',
+        payload: { streetName: streetName.trim(), difficulty: saved },
+      };
+      return await submitEdit(req, res, edit, () => ({ success: true, cityKey, streetName, difficulty: saved }));
     } catch (err) {
       console.error('AdminController setRouteDifficulty error:', err);
       return res.status(500).json({ error: 'Internal server error setting difficulty' });
@@ -150,17 +191,14 @@ export class AdminController {
           : { type: 'LineString', coordinates: route.coordinates },
       };
 
+      const payload = { feature, originalName: route.originalName || null };
       if (route.difficulty !== undefined) {
-        const saved = await CityCustomization.setDifficultyOverride(
-          cityKey,
-          feature.properties.name,
-          route.difficulty,
-        );
-        if (saved) feature.properties.difficulty = saved;
+        payload.difficulty = MANUAL_DIFFICULTIES.includes(route.difficulty) ? route.difficulty : null;
+        if (payload.difficulty) feature.properties.difficulty = payload.difficulty;
       }
 
-      await CityCustomization.saveRoute(cityKey, feature, route.originalName);
-      return res.json({ message: 'Route saved successfully', feature });
+      const edit = { cityKey, itemType: 'route', action: 'save', payload };
+      return await submitEdit(req, res, edit, () => ({ message: 'Route saved successfully', feature }));
     } catch (err) {
       console.error('AdminController saveRoute error:', err);
       return res.status(500).json({ error: 'Internal server error saving route' });
@@ -173,8 +211,8 @@ export class AdminController {
       if (!isValidCityKey(cityKey) || !id) {
         return res.status(400).json({ error: 'cityKey and id are required' });
       }
-      await CityCustomization.deleteRoute(cityKey, id);
-      return res.json({ message: 'Route deleted successfully' });
+      const edit = { cityKey, itemType: 'route', action: 'delete', payload: { id: String(id) } };
+      return await submitEdit(req, res, edit, () => ({ message: 'Route deleted successfully' }));
     } catch (err) {
       console.error('AdminController deleteRoute error:', err);
       return res.status(500).json({ error: 'Internal server error deleting route' });

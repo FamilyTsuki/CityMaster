@@ -33,6 +33,8 @@ export const CUSTOM_CITIES_FILE = path.join(STATE_DIR, 'custom_cities.json');
 export const USERS_FILE = path.join(STATE_DIR, 'users.json');
 export const MODERATOR_APPLICATIONS_FILE = path.join(STATE_DIR, 'moderator_applications.json');
 export const USER_ZONES_FILE = path.join(STATE_DIR, 'user_zones.json');
+export const EDIT_PROPOSALS_FILE = path.join(STATE_DIR, 'edit_proposals.json');
+export const EDIT_HISTORY_FILE = path.join(STATE_DIR, 'edit_history.json');
 
 export const CUSTOM_DISTRICTS_FILE = path.join(DATA_DIR, 'custom_districts.json');
 export const CUSTOM_ROUTES_FILE = path.join(DATA_DIR, 'custom_routes.json');

@@ -26,6 +26,28 @@ async function readCityCollection(filePath, cityKey) {
   return Array.isArray(all[cityKey]) ? all[cityKey] : [];
 }
 
+/** Position de l'élément que upsertFeature remplacerait (-1 si aucun). */
+function findUpsertIndex(items, id, originalName) {
+  return items.findIndex(
+    (item) =>
+      item.properties &&
+      (item.properties.id === id ||
+        (originalName &&
+          (item.properties.name === originalName ||
+            item.properties.originalName === originalName))),
+  );
+}
+
+/** Position de l'élément que markFeatureDeleted remplacerait (-1 si aucun). */
+function findDeleteIndex(items, id) {
+  return items.findIndex(
+    (item) =>
+      item.properties &&
+      ((item.properties.id !== undefined && String(item.properties.id) === id) ||
+        item.properties.name === id),
+  );
+}
+
 /**
  * Ajoute ou remplace un élément. Un élément est remplacé s'il a le même id,
  * ou si l'élément enregistré porte le nom d'origine de celui qu'on modifie.
@@ -34,15 +56,7 @@ function upsertFeature(filePath, cityKey, feature, originalName) {
   return updateJsonFile(filePath, {}, (all) => {
     if (!Array.isArray(all[cityKey])) all[cityKey] = [];
     const items = all[cityKey];
-    const id = feature.properties.id;
-    const index = items.findIndex(
-      (item) =>
-        item.properties &&
-        (item.properties.id === id ||
-          (originalName &&
-            (item.properties.name === originalName ||
-              item.properties.originalName === originalName))),
-    );
+    const index = findUpsertIndex(items, feature.properties.id, originalName);
     if (index >= 0) {
       items[index] = feature;
     } else {
@@ -60,12 +74,7 @@ function markFeatureDeleted(filePath, cityKey, id) {
   return updateJsonFile(filePath, {}, (all) => {
     if (!Array.isArray(all[cityKey])) all[cityKey] = [];
     const items = all[cityKey];
-    const index = items.findIndex(
-      (item) =>
-        item.properties &&
-        ((item.properties.id !== undefined && String(item.properties.id) === id) ||
-          item.properties.name === id),
-    );
+    const index = findDeleteIndex(items, id);
     if (index >= 0) {
       const previous = items[index].properties || {};
       items[index] = {
@@ -78,7 +87,46 @@ function markFeatureDeleted(filePath, cityKey, id) {
   });
 }
 
+const COLLECTION_FILES = { district: CUSTOM_DISTRICTS_FILE, route: CUSTOM_ROUTES_FILE };
+
+function collectionFile(itemType) {
+  const file = COLLECTION_FILES[itemType];
+  if (!file) throw new Error(`Unknown item type: ${itemType}`);
+  return file;
+}
+
 export class CityCustomization {
+  /**
+   * Élément enregistré que viserait un ajout/modification (même id ou nom
+   * d'origine) ou une suppression, ou null s'il n'y en a pas.
+   * @param {'district'|'route'} itemType
+   * @param {{ id: string, originalName?: string|null, forDelete?: boolean }} target
+   */
+  static async findStored(itemType, cityKey, { id, originalName = null, forDelete = false }) {
+    const items = await readCityCollection(collectionFile(itemType), cityKey);
+    const index = forDelete ? findDeleteIndex(items, String(id)) : findUpsertIndex(items, id, originalName);
+    return index >= 0 ? items[index] : null;
+  }
+
+  /**
+   * Remet l'élément d'id `id` dans l'état `feature` ; null le retire de la
+   * liste (l'élément d'origine de la ville réapparaît). Sert à l'annulation.
+   */
+  static restoreStored(itemType, cityKey, id, feature) {
+    return updateJsonFile(collectionFile(itemType), {}, (all) => {
+      if (!Array.isArray(all[cityKey])) all[cityKey] = [];
+      const items = all[cityKey];
+      const index = items.findIndex((item) => item.properties && String(item.properties.id) === String(id));
+      if (index >= 0 && feature) {
+        items[index] = feature;
+      } else if (index >= 0) {
+        items.splice(index, 1);
+      } else if (feature) {
+        items.push(feature);
+      }
+    });
+  }
+
   static getDistricts(cityKey) {
     return readCityCollection(CUSTOM_DISTRICTS_FILE, cityKey);
   }

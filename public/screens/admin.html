@@ -80,7 +80,7 @@
         </button>
       </div>
 
-      <div class="glass-card admin-card admin-only">
+      <div class="glass-card admin-card">
         <div class="admin-card-header">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -185,6 +185,47 @@
         </div>
         <p class="admin-card-desc" data-i18n="admin.applications_desc">Candidatures en attente et modérateurs actifs, par commune.</p>
         <ul id="admin-applications-list" class="admin-applications-list"></ul>
+      </div>
+
+      <div class="glass-card admin-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon" aria-hidden="true"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+          <h2 class="admin-card-title" data-i18n="admin.proposals_title">Propositions</h2>
+          <span id="admin-pending-proposals-badge" class="admin-pending-badge badge-zero">0</span>
+        </div>
+        <p class="admin-card-desc" data-i18n="admin.proposals_desc">Modifications proposées par les modérateurs.</p>
+        <button id="admin-go-proposals-btn" class="btn admin-btn-full" data-i18n="admin.view_proposals">
+          Voir les propositions
+        </button>
+      </div>
+
+      <div class="glass-card admin-card admin-only">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <h2 class="admin-card-title" data-i18n="admin.history_title">Historique</h2>
+        </div>
+        <p class="admin-card-desc" data-i18n="admin.history_desc">Modifications appliquées, avec annulation.</p>
+        <button id="admin-go-history-btn" class="btn admin-btn-full" data-i18n="admin.view_history">
+          Voir l'historique
+        </button>
+      </div>
+
+      <div class="glass-card admin-card admin-only admin-applications-card">
+        <div class="admin-card-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="admin-card-icon" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          <h2 class="admin-card-title" data-i18n="admin.staff_title">Équipe</h2>
+        </div>
+        <p class="admin-card-desc" data-i18n="admin.staff_desc">Rôle et communes de chaque membre de l'équipe.</p>
+        <form id="admin-staff-form" class="admin-staff-form">
+          <input id="admin-staff-username" class="input admin-input-small" required maxlength="255" placeholder="Pseudo" data-i18n-placeholder="admin.staff_username_placeholder" aria-label="Pseudo" data-i18n-aria-label="admin.staff_username_placeholder" />
+          <select id="admin-staff-role" class="input admin-input-small" aria-label="Rôle" data-i18n-aria-label="admin.staff_role_label">
+            <option value="moderator" data-i18n="admin.role_moderator">Modérateur</option>
+            <option value="super_moderator" data-i18n="admin.role_super_moderator">Super-modérateur</option>
+            <option value="admin" data-i18n="admin.role_admin">Administrateur</option>
+          </select>
+          <button type="submit" class="btn" data-i18n="admin.staff_add">Ajouter</button>
+        </form>
+        <ul id="admin-staff-list" class="admin-applications-list"></ul>
       </div>
     </div>
   </div>
@@ -730,6 +771,53 @@
           Aucun signalement trouvé.
         </div>
         <div id="admin-reports-grid" class="reports-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-proposals-view" class="hidden">
+    <div class="admin-reports-container glass-card">
+      <div class="admin-sidebar-header">
+        <button id="admin-proposals-back-btn" class="btn-back-round admin-panel-back" title="Retour" data-i18n-title="common.back" aria-label="Retour" data-i18n-aria-label="common.back"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+        <h1 class="admin-sidebar-title"><span data-i18n="admin.proposals_title">Propositions</span></h1>
+      </div>
+      <div class="admin-reports-filter-bar">
+        <div class="reports-filter-group">
+          <label for="admin-proposals-status-filter" data-i18n="admin.status_label">Statut :</label>
+          <select id="admin-proposals-status-filter" class="input admin-input-small">
+            <option value="pending" selected data-i18n="admin.status_pending">En attente</option>
+            <option value="accepted" data-i18n="admin.proposal_status_accepted">Acceptées</option>
+            <option value="rejected" data-i18n="admin.proposal_status_rejected">Refusées</option>
+            <option value="" data-i18n="admin.status_all">Tous</option>
+          </select>
+        </div>
+        <button id="admin-refresh-proposals-btn" class="btn btn-secondary btn-small" data-i18n="admin.refresh">Actualiser</button>
+      </div>
+      <div class="admin-reports-list-container">
+        <div id="admin-proposals-empty" class="reports-empty-message hidden" data-i18n="admin.no_proposals">Aucune proposition.</div>
+        <div id="admin-proposals-grid" class="reports-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-history-view" class="hidden">
+    <div class="admin-reports-container glass-card">
+      <div class="admin-sidebar-header">
+        <button id="admin-history-back-btn" class="btn-back-round admin-panel-back" title="Retour" data-i18n-title="common.back" aria-label="Retour" data-i18n-aria-label="common.back"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="action-icon"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg></button>
+        <h1 class="admin-sidebar-title"><span data-i18n="admin.history_title">Historique</span></h1>
+      </div>
+      <form id="admin-history-filters" class="admin-reports-filter-bar">
+        <div class="reports-search-group">
+          <input id="admin-history-city" class="input admin-input-small" placeholder="Commune (clé, ex. paris)" data-i18n-placeholder="admin.history_city_placeholder" aria-label="Commune" data-i18n-aria-label="admin.history_city_placeholder" />
+        </div>
+        <div class="reports-search-group">
+          <input id="admin-history-author" class="input admin-input-small" placeholder="Auteur" data-i18n-placeholder="admin.history_author_placeholder" aria-label="Auteur" data-i18n-aria-label="admin.history_author_placeholder" />
+        </div>
+        <button type="submit" class="btn btn-secondary btn-small" data-i18n="admin.refresh">Actualiser</button>
+      </form>
+      <div class="admin-reports-list-container">
+        <div id="admin-history-empty" class="reports-empty-message hidden" data-i18n="admin.no_history">Aucune modification.</div>
+        <div id="admin-history-grid" class="reports-grid"></div>
       </div>
     </div>
   </div>

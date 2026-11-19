@@ -16,6 +16,7 @@ import adminRoutes from './routes/admin.routes.js';
 import roomRoutes from './routes/room.routes.js';
 import moderationRoutes from './routes/moderation.routes.js';
 import reportsRoutes from './routes/reports.routes.js';
+import editsRoutes from './routes/edits.routes.js';
 
 /**
  * Construit l'application Express (sans la démarrer).
@@ -106,6 +107,7 @@ export function createApp() {
   app.use('/api/rooms', roomRoutes);
   app.use('/api/reports', reportsRoutes);
   app.use('/api/moderation', moderationRoutes);
+  app.use('/api/edits', editsRoutes);
 
   app.get('/api/version', (req, res) => {
     try {

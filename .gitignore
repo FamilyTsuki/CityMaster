@@ -10,6 +10,8 @@ config/custom_cities.json
 config/users.json
 config/moderator_applications.json
 config/user_zones.json
+config/edit_proposals.json
+config/edit_history.json
 AGENTS.md
 GEMINI.md
 

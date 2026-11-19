@@ -32,7 +32,9 @@ export class Router {
         const routeBtn = e.target.closest(
           '.btn-back-round, .legal-footer-link, .support-footer-link, #room-login-link, #legal-back-btn, #support-back-btn, #support-footer-back-btn, #moderation-back-btn',
         );
-        if (routeBtn) {
+        // Les boutons retour de l'administration ont leur propre destination
+        // (tableau de bord ou /setup), gérée par AdminController.
+        if (routeBtn && !routeBtn.closest('#admin-screen')) {
           e.preventDefault();
           if (routeBtn.id === 'moderation-back-btn') {
             this.navigate('/support');
